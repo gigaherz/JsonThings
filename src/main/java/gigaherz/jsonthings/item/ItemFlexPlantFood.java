@@ -33,7 +33,7 @@ public class ItemFlexPlantFood extends ItemSeedFood implements IFlexItem
         super(healAmount, saturation, crops, soil);
 
         eventHandlers.put("get_container_item", (eventName, player, hand, stack) -> new ActionResult<>(EnumActionResult.SUCCESS, super.getContainerItem(stack)));
-        eventHandlers.put("use_on_block", (ItemEventHandlerBlock)(eventName, player, hand, stack, world, pos, side) ->
+        eventHandlers.put("use_on_block", (ItemEventHandlerBlock) (eventName, player, hand, stack, world, pos, side) ->
                 new ActionResult<>(super.onItemUse((EntityPlayer) player, world, pos, hand, side, 0, 0, 0), stack));
     }
 
@@ -87,8 +87,8 @@ public class ItemFlexPlantFood extends ItemSeedFood implements IFlexItem
     @Override
     public void addCreativeStack(StackContext stack, Iterable<CreativeTabs> tabs)
     {
-        for(CreativeTabs tab : tabs)
-            perTabStacks.put(tab, stack);
+        for (CreativeTabs tab : tabs)
+        { perTabStacks.put(tab, stack); }
         searchTabStacks.add(stack);
     }
 
@@ -153,13 +153,13 @@ public class ItemFlexPlantFood extends ItemSeedFood implements IFlexItem
     {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         for (ITextComponent t : tooltipStrings)
-            tooltip.add(t.getFormattedText());
+        { tooltip.add(t.getFormattedText()); }
     }
 
     @Override
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if(tab == CreativeTabs.SEARCH)
+        if (tab == CreativeTabs.SEARCH)
         {
             items.addAll(searchTabStacks.stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
         }

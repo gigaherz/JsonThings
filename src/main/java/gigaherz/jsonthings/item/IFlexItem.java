@@ -6,7 +6,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -21,19 +20,24 @@ import java.util.function.Supplier;
 public interface IFlexItem
 {
     void setUseAction(EnumAction useAction);
+
     EnumAction getUseAction();
 
     void setUseTime(int useTicks);
+
     int getUseTime();
 
     void setUseFinishMode(DelayedUse.CompletionMode onComplete);
+
     DelayedUse.CompletionMode getUseFinishMode();
 
     void addEventHandler(String eventName, ItemEventHandler eventHandler);
+
     @Nullable
     ItemEventHandler getEventHandler(String eventName);
 
     void addCreativeStack(StackContext stack, Iterable<CreativeTabs> tabs);
+
     void addAttributemodifier(AttributeModifier modifier);
 
 
@@ -51,7 +55,7 @@ public interface IFlexItem
         if (handler != null)
         {
             if (handler instanceof ItemEventHandlerBlock)
-                return ((ItemEventHandlerBlock)handler).apply(eventName, player, hand, stack, world, pos, side);
+                return ((ItemEventHandlerBlock) handler).apply(eventName, player, hand, stack, world, pos, side);
             return handler.apply(eventName, player, hand, stack);
         }
         return defaultValue.get();
@@ -63,7 +67,7 @@ public interface IFlexItem
         if (handler != null)
         {
             if (handler instanceof ItemEventHandlerEntity)
-                return ((ItemEventHandlerEntity)handler).apply(eventName, player, hand, stack, entity);
+                return ((ItemEventHandlerEntity) handler).apply(eventName, player, hand, stack, entity);
             return handler.apply(eventName, player, hand, stack);
         }
         return defaultValue.get();

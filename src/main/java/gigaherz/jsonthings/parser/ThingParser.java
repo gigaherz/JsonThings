@@ -43,7 +43,7 @@ public abstract class ThingParser
                     String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\", "/");
                     ResourceLocation key = new ResourceLocation(mod.getModId(), name);
 
-                    try(BufferedReader reader = Files.newBufferedReader(file))
+                    try (BufferedReader reader = Files.newBufferedReader(file))
                     {
                         JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
                         processThing(key, json);
@@ -63,6 +63,6 @@ public abstract class ThingParser
     }
 
     public abstract String getThingType();
-    public abstract void processThing(ResourceLocation key, JsonObject data);
 
+    public abstract void processThing(ResourceLocation key, JsonObject data);
 }

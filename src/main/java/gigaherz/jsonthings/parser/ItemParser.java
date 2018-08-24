@@ -12,7 +12,6 @@ import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class ItemParser extends ThingParser
@@ -63,86 +62,150 @@ public class ItemParser extends ThingParser
 
         if (data.has("creative_menu_stacks"))
         {
-            JsonArray list = data.get("creative_menu_stacks").getAsJsonArray();
-            for(JsonElement e : list)
-            {
-                JsonObject item = e.getAsJsonObject();
-                builder = builder.withCreativeMenuStack(parseStackContext(key, item), parseTabsList(item));
-            }
+            builder = parseCreativeMenuStacks(key, data, builder);
         }
 
         if (data.has("durability"))
         {
-            JsonObject durability = data.get("durability").getAsJsonObject();
-
-            if (durability.has("max_damage"))
-            {
-                int max_damage = durability.get("max_damage").getAsInt();
-                if (max_damage >= 1)
-                {
-                    builder = builder.makeDamageable(max_damage);
-                }
-                else
-                {
-                    throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 64, both inclusive.");
-                }
-            }
+            builder = parseDurabilityInfo(data, builder);
         }
 
-        // TODO: more properties
-
-        /*
-
-  "tool": {
-    "class": "axe",
-    "material": "iron"
-  },
-
-         */
         if (data.has("tool"))
         {
-            JsonObject toolData = data.get("tool").getAsJsonObject();
+            builder = parseToolInfo(data, builder);
+        }
 
-            String type;
-            if (toolData.has("class"))
-            {
-                String str = toolData.get("class").getAsString();
-                if (!Strings.isNullOrEmpty(str))
-                {
-                    type = str;
-                }
-                else
-                {
-                    throw new RuntimeException("Tool class must be a non-empty string.");
-                }
-            }
-            else
-            {
-                throw new RuntimeException("Tool info must have a non-empty 'class' string.");
-            }
-
-            String material;
-            if (toolData.has("material"))
-            {
-                String str = toolData.get("material").getAsString();
-                if (!Strings.isNullOrEmpty(str))
-                {
-                    material = str;
-                }
-                else
-                {
-                    throw new RuntimeException("Tool material must be a non-empty string.");
-                }
-            }
-            else
-            {
-                throw new RuntimeException("Tool info must have a non-empty 'material' string.");
-            }
-
-            builder = builder.makeTool(type, material);
+        if (data.has("food"))
+        {
+            builder = parseFoodInfo(data, builder);
         }
 
         BUILDERS.add(builder);
+    }
+
+    private ItemBuilder parseCreativeMenuStacks(ResourceLocation key, JsonObject data, ItemBuilder builder)
+    {
+        JsonArray list = data.get("creative_menu_stacks").getAsJsonArray();
+        for (JsonElement e : list)
+        {
+            JsonObject item = e.getAsJsonObject();
+            builder = builder.withCreativeMenuStack(parseStackContext(key, item), parseTabsList(item));
+        }
+        return builder;
+    }
+
+    private ItemBuilder parseDurabilityInfo(JsonObject data, ItemBuilder builder)
+    {
+        JsonObject durability = data.get("durability").getAsJsonObject();
+
+        if (durability.has("max_damage"))
+        {
+            int max_damage = durability.get("max_damage").getAsInt();
+            if (max_damage >= 1)
+            {
+                builder = builder.makeDamageable(max_damage);
+            }
+            else
+            {
+                throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 64, both inclusive.");
+            }
+        }
+        return builder;
+    }
+
+    private ItemBuilder parseToolInfo(JsonObject data, ItemBuilder builder)
+    {
+        JsonObject toolData = data.get("tool").getAsJsonObject();
+
+        String type;
+        if (toolData.has("class"))
+        {
+            String str = toolData.get("class").getAsString();
+            if (!Strings.isNullOrEmpty(str))
+            {
+                type = str;
+            }
+            else
+            {
+                throw new RuntimeException("Tool class must be a non-empty string.");
+            }
+        }
+        else
+        {
+            throw new RuntimeException("Tool info must have a non-empty 'class' string.");
+        }
+
+        String material;
+        if (toolData.has("material"))
+        {
+            String str = toolData.get("material").getAsString();
+            if (!Strings.isNullOrEmpty(str))
+            {
+                material = str;
+            }
+            else
+            {
+                throw new RuntimeException("Tool material must be a non-empty string.");
+            }
+        }
+        else
+        {
+            throw new RuntimeException("Tool info must have a non-empty 'material' string.");
+        }
+
+        builder = builder.makeTool(type, material);
+        return builder;
+    }
+
+    private ItemBuilder parseFoodInfo(JsonObject data, ItemBuilder builder)
+    {
+        JsonObject toolData = data.get("food").getAsJsonObject();
+
+        int healAmount;
+        if (toolData.has("heal_amount"))
+        {
+            int str = toolData.get("heal_amount").getAsInt();
+            if (str > 0)
+            {
+                healAmount = str;
+            }
+            else
+            {
+                throw new RuntimeException("Heal amount must be > 0.");
+            }
+        }
+        else
+        {
+            throw new RuntimeException("Food info must have a non-empty 'heal_amount' number.");
+        }
+
+        float saturation;
+        if (toolData.has("material"))
+        {
+            float str = toolData.get("material").getAsFloat();
+            if (str >= 0)
+            {
+                saturation = str;
+            }
+            else
+            {
+                throw new RuntimeException("Food saturation not be negative.");
+            }
+        }
+        else
+        {
+            throw new RuntimeException("Food info must have a non-empty 'saturation' number.");
+        }
+
+        boolean isWolfFood = false;
+        if (toolData.has("is_wolf_food"))
+        {
+            boolean str = toolData.get("is_wolf_food").getAsBoolean();
+            isWolfFood = str;
+        }
+
+        builder = builder.makeFood(healAmount, saturation, isWolfFood);
+        return builder;
     }
 
     private String[] parseTabsList(JsonObject stackEntry)
@@ -206,13 +269,13 @@ public class ItemParser extends ThingParser
             ctx = ctx.withCount(meta);
         }
 
-        if(item.has("nbt"))
+        if (item.has("nbt"))
         {
             try
             {
                 JsonElement element = item.get("nbt");
                 NBTTagCompound nbt;
-                if(element.isJsonObject())
+                if (element.isJsonObject())
                     nbt = JsonToNBT.getTagFromJson(GSON.toJson(element));
                 else
                     nbt = JsonToNBT.getTagFromJson(element.getAsString());

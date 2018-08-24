@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod.EventBusSubscriber(value= Side.CLIENT, modid= JsonThings.MODID)
+@Mod.EventBusSubscriber(value = Side.CLIENT, modid = JsonThings.MODID)
 public class ClientEvents
 {
     @SubscribeEvent
@@ -24,7 +24,7 @@ public class ClientEvents
             if (modelInfo != null)
             {
                 Item item = b.getBuiltItem();
-                for(ModelInfo.ModelMapping mapping : modelInfo.mappings)
+                for (ModelInfo.ModelMapping mapping : modelInfo.mappings)
                 {
                     ModelLoader.setCustomModelResourceLocation(
                             item, mapping.metadata, new ModelResourceLocation(mapping.fileName, mapping.variantName));

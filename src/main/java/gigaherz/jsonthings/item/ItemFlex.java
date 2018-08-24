@@ -82,8 +82,8 @@ public class ItemFlex extends Item implements IFlexItem
     @Override
     public void addCreativeStack(StackContext stack, Iterable<CreativeTabs> tabs)
     {
-        for(CreativeTabs tab : tabs)
-            perTabStacks.put(tab, stack);
+        for (CreativeTabs tab : tabs)
+        { perTabStacks.put(tab, stack); }
         searchTabStacks.add(stack);
     }
 
@@ -148,13 +148,13 @@ public class ItemFlex extends Item implements IFlexItem
     {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         for (ITextComponent t : tooltipStrings)
-            tooltip.add(t.getFormattedText());
+        { tooltip.add(t.getFormattedText()); }
     }
 
     @Override
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if(tab == CreativeTabs.SEARCH)
+        if (tab == CreativeTabs.SEARCH)
         {
             items.addAll(searchTabStacks.stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
         }

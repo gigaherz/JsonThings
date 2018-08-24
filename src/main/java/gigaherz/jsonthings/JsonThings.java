@@ -2,7 +2,6 @@ package gigaherz.jsonthings;
 
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.parser.ItemParser;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;

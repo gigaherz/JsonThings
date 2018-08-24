@@ -1,14 +1,11 @@
 package gigaherz.jsonthings.item.builder;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import gigaherz.jsonthings.item.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -25,9 +22,9 @@ import java.util.stream.Collectors;
 
 public class ItemBuilder
 {
-    private static Field f_tabLabel = ReflectionHelper.findField(CreativeTabs.class, ObfuscationReflectionHelper.remapFieldNames(CreativeTabs.class.getName(),"field_78034_o"));
+    private static Field f_tabLabel = ReflectionHelper.findField(CreativeTabs.class, ObfuscationReflectionHelper.remapFieldNames(CreativeTabs.class.getName(), "field_78034_o"));
 
-    private final List<Pair<StackContext,String[]>> creativeMenuStacks = Lists.newArrayList();
+    private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
     private final Map<String, String> eventHandlers = Maps.newHashMap();
 
@@ -37,11 +34,14 @@ public class ItemBuilder
     private String translationKey;
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
+
     private ToolInfo toolInfo = null;
-    private DelayedUse delayedUse = null;
-    private ContainerInfo containerInfo = null;
     private FoodInfo foodInfo = null;
     private PlantInfo plantInfo = null;
+    private ArmorInfo armorInfo = null;
+
+    private DelayedUse delayedUse = null;
+    private ContainerInfo containerInfo = null;
     private ModelInfo modelInfo = null;
 
     private ItemBuilder(ResourceLocation registryName)
@@ -84,7 +84,27 @@ public class ItemBuilder
     public ItemBuilder makeTool(String toolType, String material)
     {
         if (this.toolInfo != null) throw new RuntimeException("Tool info already set.");
+        if (this.foodInfo != null) throw new RuntimeException("An item cannot be food and tool at the same time.");
+        if (this.armorInfo != null) throw new RuntimeException("An item cannot be armor and tool at the same time.");
         this.toolInfo = new ToolInfo(toolType, material);
+        return this;
+    }
+
+    public ItemBuilder makeFood(int healAmount, float saturation, boolean isWolfFood)
+    {
+        if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
+        if (this.toolInfo != null) throw new RuntimeException("An item cannot be food and tool at the same time.");
+        if (this.armorInfo != null) throw new RuntimeException("An item cannot be food and armor at the same time.");
+        this.foodInfo = new FoodInfo(healAmount, saturation, isWolfFood);
+        return this;
+    }
+
+    public ItemBuilder makeArmor()
+    {
+        if (this.armorInfo != null) throw new RuntimeException("Armor info already set.");
+        if (this.toolInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
+        if (this.foodInfo != null) throw new RuntimeException("An item cannot be food and armor at the same time.");
+        this.armorInfo = new ArmorInfo();
         return this;
     }
 
@@ -132,7 +152,6 @@ public class ItemBuilder
                     throw new RuntimeException(String.format("Unknown tool class '%s'.", toolInfo.toolClass));
             }
         }
-        // else if food and other types
         else if (foodInfo != null && plantInfo != null)
         {
             baseItem = new ItemFlexPlantFood(foodInfo.healAmount, foodInfo.saturation,
@@ -143,18 +162,19 @@ public class ItemBuilder
         {
             baseItem = new ItemFlexFood(foodInfo.healAmount, foodInfo.saturation, foodInfo.isWolfFood);
         }
-        else if(plantInfo != null)
+        else if (plantInfo != null)
         {
             baseItem = new ItemFlexPlant(
                     ForgeRegistries.BLOCKS.getValue(plantInfo.crops),
                     ForgeRegistries.BLOCKS.getValue(plantInfo.soil));
         }
+        // else other types
         else
         {
             baseItem = new ItemFlex();
         }
 
-        IFlexItem flexItem = (IFlexItem)baseItem;
+        IFlexItem flexItem = (IFlexItem) baseItem;
 
         baseItem.setRegistryName(registryName);
 
@@ -180,7 +200,7 @@ public class ItemBuilder
             baseItem.setContainerItem(ForgeRegistries.ITEMS.getValue(containerInfo.emptyItem));
         }
 
-        for(Pair<StackContext, String[]> tabEntries : creativeMenuStacks)
+        for (Pair<StackContext, String[]> tabEntries : creativeMenuStacks)
         {
             StackContext ctx = tabEntries.getLeft();
             String[] tabs = tabEntries.getRight();
@@ -198,10 +218,10 @@ public class ItemBuilder
     {
         try
         {
-            for(CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY)
+            for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY)
             {
-                    if (f_tabLabel.get(tab).equals(label))
-                        return tab;
+                if (f_tabLabel.get(tab).equals(label))
+                    return tab;
             }
         }
         catch (IllegalAccessException e)

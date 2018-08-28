@@ -2,7 +2,10 @@ package gigaherz.jsonthings;
 
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.parser.ItemParser;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
+import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -20,10 +23,13 @@ public class JsonThings
 
     private static Logger logger;
 
+    ItemArmor.ArmorMaterial CUSTOM_MATERIAL = EnumHelper.addArmorMaterial("TEST1", "test1", 100, new int[]{1,2,3}, 5, SoundEvents.BLOCK_METAL_STEP, 5);
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
+
     }
 
     @EventHandler

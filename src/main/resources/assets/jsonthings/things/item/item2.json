@@ -30,10 +30,6 @@
     "empty_item": "empty_bucket"
   },
 
-  "attribute_modifiers": [
-    { "id": "x", "guid": "xxxx-xxxx-..." }
-  ],
-
   "events": {
     "onItemUse": "regsitered_event_handler_name"
   }

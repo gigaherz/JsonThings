@@ -14,10 +14,9 @@
     "max_damage": 1536
   },
 
-  "food": {
-    "heal_amount": 5,
-    "saturation": 1.5,
-    "is_wolf_food": false
+  "armor": {
+    "equipment_slot": "head",
+    "material": "iron"
   },
 
   "delayed_use": {
@@ -31,7 +30,7 @@
   },
 
   "attribute_modifiers": [
-    { "id": "x", "guid": "xxxx-xxxx-..." }
+    { "name": "test", "amount": 2, "operation": "add" }
   ],
 
   "events": {

@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
@@ -32,7 +33,8 @@ public class ItemFlexPlant extends ItemSeeds implements IFlexItem
     {
         super(crops, soil);
 
-        eventHandlers.put("get_container_item", (eventName, player, hand, stack) -> new ActionResult<>(EnumActionResult.SUCCESS, super.getContainerItem(stack)));
+        initializeDefaultStuff();
+
         eventHandlers.put("use_on_block", (ItemEventHandlerBlock) (eventName, player, hand, stack, world, pos, side) ->
                 new ActionResult<>(super.onItemUse((EntityPlayer) player, world, pos, hand, side, 0, 0, 0), stack));
     }
@@ -41,12 +43,24 @@ public class ItemFlexPlant extends ItemSeeds implements IFlexItem
     private final Multimap<CreativeTabs, StackContext> perTabStacks = ArrayListMultimap.create();
     private final List<StackContext> searchTabStacks = Lists.newArrayList();
     private final List<ITextComponent> tooltipStrings = Lists.newArrayList();
-    private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
+    private final Map<EntityEquipmentSlot, Multimap<String, AttributeModifier>> attributeModifiers = Maps.newHashMap();
     private final Map<String, ItemEventHandler> eventHandlers = Maps.newHashMap();
 
     private EnumAction useAction;
     private int useTime;
     private DelayedUse.CompletionMode useFinishMode;
+
+    private void initializeDefaultStuff()
+    {
+        for(EntityEquipmentSlot slot1 : EntityEquipmentSlot.values())
+        {
+            Multimap<String, AttributeModifier> multimap = ArrayListMultimap.create();
+            multimap.putAll(super.getAttributeModifiers(EntityEquipmentSlot.CHEST, ItemStack.EMPTY));
+            attributeModifiers.put(slot1, multimap);
+        }
+
+        eventHandlers.put("get_container_item", (eventName, player, hand, stack) -> new ActionResult<>(EnumActionResult.SUCCESS, super.getContainerItem(stack)));
+    }
 
     @Override
     public void setUseAction(EnumAction useAction)
@@ -88,7 +102,9 @@ public class ItemFlexPlant extends ItemSeeds implements IFlexItem
     public void addCreativeStack(StackContext stack, Iterable<CreativeTabs> tabs)
     {
         for (CreativeTabs tab : tabs)
-        { perTabStacks.put(tab, stack); }
+        {
+            perTabStacks.put(tab, stack);
+        }
         searchTabStacks.add(stack);
     }
 
@@ -105,9 +121,17 @@ public class ItemFlexPlant extends ItemSeeds implements IFlexItem
     }
 
     @Override
-    public void addAttributemodifier(AttributeModifier modifier)
+    public void addAttributemodifier(@Nullable EntityEquipmentSlot slot, String attributeName, AttributeModifier modifier)
     {
-        attributeModifiers.add(modifier);
+        if (slot != null)
+        {
+            attributeModifiers.get(slot).put(attributeName, modifier);
+        }
+        else
+        {
+            for(EntityEquipmentSlot slot1 : EntityEquipmentSlot.values())
+                attributeModifiers.get(slot1).put(attributeName, modifier);
+        }
     }
     //endregion
 
@@ -183,6 +207,12 @@ public class ItemFlexPlant extends ItemSeeds implements IFlexItem
     public ItemStack getContainerItem(ItemStack itemStack)
     {
         return runEvent("get_container_item", null, null, itemStack, () -> new ActionResult<>(EnumActionResult.PASS, itemStack)).getResult();
+    }
+
+    @Override
+    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack)
+    {
+        return attributeModifiers.get(slot);
     }
 
     //endregion

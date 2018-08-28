@@ -14,10 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ItemBuilder
@@ -74,6 +71,14 @@ public class ItemBuilder
         return this;
     }
 
+    public ItemBuilder withAttributeModifier(@Nullable UUID uuid, String name, double amount, int operation)
+    {
+        attributeModifiers.add(uuid != null ?
+                new AttributeModifier(uuid,name,amount, operation) :
+                new AttributeModifier(name, amount, operation));
+        return this;
+    }
+
     public ItemBuilder makeDamageable(int maxDamage)
     {
         if (this.maxDamage != null) throw new RuntimeException("Damageable already set.");
@@ -99,12 +104,12 @@ public class ItemBuilder
         return this;
     }
 
-    public ItemBuilder makeArmor()
+    public ItemBuilder makeArmor(String equipmentSlot, String material)
     {
         if (this.armorInfo != null) throw new RuntimeException("Armor info already set.");
         if (this.toolInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
         if (this.foodInfo != null) throw new RuntimeException("An item cannot be food and armor at the same time.");
-        this.armorInfo = new ArmorInfo();
+        this.armorInfo = new ArmorInfo(equipmentSlot, material);
         return this;
     }
 
@@ -151,6 +156,10 @@ public class ItemBuilder
                 default:
                     throw new RuntimeException(String.format("Unknown tool class '%s'.", toolInfo.toolClass));
             }
+        }
+        else if (armorInfo != null)
+        {
+            baseItem = new ItemFlexArmor(armorInfo.material, 0, armorInfo.slot);
         }
         else if (foodInfo != null && plantInfo != null)
         {

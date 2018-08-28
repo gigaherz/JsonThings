@@ -6,6 +6,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -38,8 +39,7 @@ public interface IFlexItem
 
     void addCreativeStack(StackContext stack, Iterable<CreativeTabs> tabs);
 
-    void addAttributemodifier(AttributeModifier modifier);
-
+    void addAttributemodifier(@Nullable EntityEquipmentSlot slot, String attributeName, AttributeModifier modifier);
 
     default ActionResult<ItemStack> runEvent(String eventName, EntityLivingBase player, @Nullable EnumHand hand, ItemStack stack, Supplier<ActionResult<ItemStack>> defaultValue)
     {

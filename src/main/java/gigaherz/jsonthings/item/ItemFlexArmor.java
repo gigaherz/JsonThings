@@ -14,7 +14,8 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemPickaxe;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -26,16 +27,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ItemFlexPickaxe extends ItemPickaxe implements IFlexItem
+public class ItemFlexArmor extends ItemArmor implements IFlexItem
 {
-    public ItemFlexPickaxe(ToolMaterial material)
+    public ItemFlexArmor(ItemArmor.ArmorMaterial material, int renderIndex, EntityEquipmentSlot slot)
     {
-        super(material);
+        super(material, renderIndex, slot);
 
         initializeDefaultStuff();
 
-        eventHandlers.put("use_on_block", (ItemEventHandlerBlock) (eventName, player, hand, stack, world, pos, side) ->
-                new ActionResult<>(super.onItemUse((EntityPlayer) player, world, pos, hand, side, 0, 0, 0), stack));
+        eventHandlers.put("use_on_air", (eventName, player, hand, stack) ->
+                super.onItemRightClick(player.world, (EntityPlayer)player, hand));
     }
 
     //region IFlexItem

@@ -1,9 +1,11 @@
 package gigaherz.jsonthings.parser;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import gigaherz.jsonthings.item.builder.AttributeModifierOperation;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.item.builder.StackContext;
 import joptsimple.internal.Strings;
@@ -13,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ItemParser extends ThingParser
 {
@@ -65,6 +68,11 @@ public class ItemParser extends ThingParser
             builder = parseCreativeMenuStacks(key, data, builder);
         }
 
+        if (data.has("attribute_modifiers"))
+        {
+            builder = parseAttributeModifiers(key, data, builder);
+        }
+
         if (data.has("durability"))
         {
             builder = parseDurabilityInfo(data, builder);
@@ -80,7 +88,81 @@ public class ItemParser extends ThingParser
             builder = parseFoodInfo(data, builder);
         }
 
+        if (data.has("armor"))
+        {
+            builder = parseArmorInfo(data, builder);
+        }
+
         BUILDERS.add(builder);
+    }
+
+    private ItemBuilder parseAttributeModifiers(ResourceLocation key, JsonObject data, ItemBuilder builder)
+    {
+        JsonArray list = data.get("attribute_modifiers").getAsJsonArray();
+        for (JsonElement e : list)
+        {
+            JsonObject item = e.getAsJsonObject();
+
+            UUID uuid = null;
+            if (item.has("uuid"))
+            {
+                String uuidString = item.get("uuid").getAsString();
+                if (!Strings.isNullOrEmpty(uuidString))
+                {
+                    uuid = UUID.fromString(uuidString);
+                }
+                else
+                {
+                    throw new RuntimeException("If present, uuid must be an UUID-formatted string.");
+                }
+            }
+
+            String name;
+            if (item.has("name"))
+            {
+                name = item.get("name").getAsString();
+                if (Strings.isNullOrEmpty(name))
+                {
+                    throw new RuntimeException("Attribute modifier name must be a non-empty string.");
+                }
+            }
+            else
+            {
+                throw new RuntimeException("Attribute modifier name must be a non-empty string.");
+            }
+
+            double amount;
+            if (item.has("amount"))
+            {
+                amount = item.get("amount").getAsDouble();
+            }
+            else
+            {
+                throw new RuntimeException("Attribute modifier amount must be a floating point number.");
+            }
+
+            int operation;
+            if (item.has("operation"))
+            {
+                String opName = item.get("operation").getAsString();
+                Integer opInt = Ints.tryParse(opName);
+                if (opInt == null)
+                {
+                    operation = AttributeModifierOperation.valueOf(opName.toUpperCase()).getOperationCode();
+                }
+                else
+                {
+                    operation = opInt;
+                }
+            }
+            else
+            {
+                throw new RuntimeException("Attribute modifier amount must be a floating point number.");
+            }
+
+            builder = builder.withAttributeModifier(uuid, name, amount, operation);
+        }
+        return builder;
     }
 
     private ItemBuilder parseCreativeMenuStacks(ResourceLocation key, JsonObject data, ItemBuilder builder)
@@ -110,6 +192,50 @@ public class ItemParser extends ThingParser
                 throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 64, both inclusive.");
             }
         }
+        return builder;
+    }
+
+    private ItemBuilder parseArmorInfo(JsonObject data, ItemBuilder builder)
+    {
+        JsonObject toolData = data.get("armor").getAsJsonObject();
+
+        String slot;
+        if (toolData.has("equipment_slot"))
+        {
+            String str = toolData.get("equipment_slot").getAsString();
+            if (!Strings.isNullOrEmpty(str))
+            {
+                slot = str;
+            }
+            else
+            {
+                throw new RuntimeException("Armor equipment slot must be a non-empty string.");
+            }
+        }
+        else
+        {
+            throw new RuntimeException("Armor info must have a non-empty 'equipment_slot' string.");
+        }
+
+        String material;
+        if (toolData.has("material"))
+        {
+            String str = toolData.get("material").getAsString();
+            if (!Strings.isNullOrEmpty(str))
+            {
+                material = str;
+            }
+            else
+            {
+                throw new RuntimeException("Armor material must be a non-empty string.");
+            }
+        }
+        else
+        {
+            throw new RuntimeException("Armor info must have a non-empty 'material' string.");
+        }
+
+        builder = builder.makeArmor(slot, material);
         return builder;
     }
 
@@ -180,9 +306,9 @@ public class ItemParser extends ThingParser
         }
 
         float saturation;
-        if (toolData.has("material"))
+        if (toolData.has("saturation"))
         {
-            float str = toolData.get("material").getAsFloat();
+            float str = toolData.get("saturation").getAsFloat();
             if (str >= 0)
             {
                 saturation = str;

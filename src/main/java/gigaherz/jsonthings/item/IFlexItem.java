@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumFacing;
@@ -20,6 +21,11 @@ import java.util.function.Supplier;
 
 public interface IFlexItem
 {
+    default Item self()
+    {
+        return (Item)this;
+    }
+
     void setUseAction(EnumAction useAction);
 
     EnumAction getUseAction();

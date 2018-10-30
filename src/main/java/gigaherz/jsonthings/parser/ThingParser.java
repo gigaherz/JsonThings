@@ -16,7 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public abstract class ThingParser
+public abstract class ThingParser<TBuilder>
 {
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -64,5 +64,5 @@ public abstract class ThingParser
 
     public abstract String getThingType();
 
-    public abstract void processThing(ResourceLocation key, JsonObject data);
+    public abstract TBuilder processThing(ResourceLocation key, JsonObject data);
 }

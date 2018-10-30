@@ -17,13 +17,13 @@ import net.minecraft.util.ResourceLocation;
 import java.util.List;
 import java.util.UUID;
 
-public class ItemParser extends ThingParser
+public class ItemParser extends ThingParser<ItemBuilder>
 {
     public static final List<ItemBuilder> BUILDERS = Lists.newArrayList();
-
+    public static final ItemParser INSTANCE = new ItemParser();
     public static void init()
     {
-        (new ItemParser()).parse();
+        INSTANCE.parse();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ItemParser extends ThingParser
     }
 
     @Override
-    public void processThing(ResourceLocation key, JsonObject data)
+    public ItemBuilder processThing(ResourceLocation key, JsonObject data)
     {
         ItemBuilder builder = ItemBuilder.begin(key);
 
@@ -94,6 +94,8 @@ public class ItemParser extends ThingParser
         }
 
         BUILDERS.add(builder);
+
+        return builder;
     }
 
     private ItemBuilder parseAttributeModifiers(ResourceLocation key, JsonObject data, ItemBuilder builder)

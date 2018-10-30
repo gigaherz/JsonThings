@@ -1,0 +1,11 @@
+{
+  "translation_key": "block.one",
+  "item": {
+    "creative_menu_stacks": [
+      {
+        "nbt": { "tmp": 0 },
+        "tabs": [ "tools" ]
+      }
+    ]
+  }
+}

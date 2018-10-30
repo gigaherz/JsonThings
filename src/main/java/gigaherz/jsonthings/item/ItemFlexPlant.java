@@ -1,9 +1,6 @@
 package gigaherz.jsonthings.item;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import gigaherz.jsonthings.item.builder.DelayedUse;
 import gigaherz.jsonthings.item.builder.StackContext;
 import net.minecraft.block.Block;
@@ -25,6 +22,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ItemFlexPlant extends ItemSeeds implements IFlexItem
@@ -212,7 +210,12 @@ public class ItemFlexPlant extends ItemSeeds implements IFlexItem
     @Override
     public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack)
     {
-        return attributeModifiers.get(slot);
+        return orElse(attributeModifiers.get(slot), () -> HashMultimap.create());
+    }
+
+    private <T> T orElse(T value, Supplier<T> fallback)
+    {
+        return value != null ? value : fallback.get();
     }
 
     //endregion

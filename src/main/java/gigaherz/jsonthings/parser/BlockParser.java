@@ -30,7 +30,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     @Override
     public String getThingType()
     {
-        return "item";
+        return "block";
     }
 
     @Override
@@ -53,19 +53,39 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
         if (data.has("item"))
         {
-            builder = parseItemBlock(data.get("item").getAsJsonObject(), builder);
+            JsonElement item = data.get("item");
+            if(item.isJsonPrimitive())
+            {
+                if (item.getAsBoolean())
+                {
+                    builder = createStockItemBlock(builder);
+                }
+            }
+            else if(item.isJsonObject())
+            {
+                builder = parseItemBlock(data.get("item").getAsJsonObject(), builder);
+            }
+            else
+            {
+                throw new RuntimeException("If present, 'item' must be a boolean or an object.");
+            }
         }
 
         BUILDERS.add(builder);
         return builder;
     }
 
-    private BlockBuilder parseItemBlock(JsonObject data, BlockBuilder builder)
+    private BlockBuilder createStockItemBlock(BlockBuilder builder)
     {
-        ItemParser.INSTANCE.processThing(builder.getRegistryName(), data);
+        ItemParser.INSTANCE.processThing(builder.getRegistryName(), new JsonObject()).makeBlock(builder.getRegistryName());
         return builder;
     }
 
+    private BlockBuilder parseItemBlock(JsonObject data, BlockBuilder builder)
+    {
+        ItemParser.INSTANCE.processThing(builder.getRegistryName(), data).makeBlock(builder.getRegistryName());
+        return builder;
+    }
 
     private StackContext parseStackContext(ResourceLocation key, JsonObject item)
     {

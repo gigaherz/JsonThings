@@ -6,6 +6,7 @@ import gigaherz.jsonthings.item.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -40,6 +41,8 @@ public class ItemBuilder
     private DelayedUse delayedUse = null;
     private ContainerInfo containerInfo = null;
     private ModelInfo modelInfo = null;
+
+    private BlockInfo blockInfo = null;
 
     private ItemBuilder(ResourceLocation registryName)
     {
@@ -86,11 +89,22 @@ public class ItemBuilder
         return this;
     }
 
+    public ItemBuilder makeBlock(ResourceLocation blockName)
+    {
+        if (this.blockInfo != null) throw new RuntimeException("Block info already set.");
+        if (this.foodInfo != null) throw new RuntimeException("An item cannot be block and food at the same time.");
+        if (this.toolInfo != null) throw new RuntimeException("An item cannot be block and tool at the same time.");
+        if (this.armorInfo != null) throw new RuntimeException("An item cannot be block and armor at the same time.");
+        this.blockInfo = new BlockInfo(blockName);
+        return this;
+    }
+
     public ItemBuilder makeTool(String toolType, String material)
     {
         if (this.toolInfo != null) throw new RuntimeException("Tool info already set.");
-        if (this.foodInfo != null) throw new RuntimeException("An item cannot be food and tool at the same time.");
-        if (this.armorInfo != null) throw new RuntimeException("An item cannot be armor and tool at the same time.");
+        if (this.blockInfo != null) throw new RuntimeException("An item can not be tool and block at the same time.");
+        if (this.foodInfo != null) throw new RuntimeException("An item cannot be tool and food at the same time.");
+        if (this.armorInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
         this.toolInfo = new ToolInfo(toolType, material);
         return this;
     }
@@ -98,6 +112,7 @@ public class ItemBuilder
     public ItemBuilder makeFood(int healAmount, float saturation, boolean isWolfFood)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
+        if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
         if (this.toolInfo != null) throw new RuntimeException("An item cannot be food and tool at the same time.");
         if (this.armorInfo != null) throw new RuntimeException("An item cannot be food and armor at the same time.");
         this.foodInfo = new FoodInfo(healAmount, saturation, isWolfFood);
@@ -107,8 +122,9 @@ public class ItemBuilder
     public ItemBuilder makeArmor(String equipmentSlot, String material)
     {
         if (this.armorInfo != null) throw new RuntimeException("Armor info already set.");
-        if (this.toolInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
-        if (this.foodInfo != null) throw new RuntimeException("An item cannot be food and armor at the same time.");
+        if (this.blockInfo != null) throw new RuntimeException("An item can not be armor and block at the same time.");
+        if (this.toolInfo != null) throw new RuntimeException("An item cannot be armor and tool at the same time.");
+        if (this.foodInfo != null) throw new RuntimeException("An item cannot be armor and food at the same time.");
         this.armorInfo = new ArmorInfo(equipmentSlot, material);
         return this;
     }
@@ -177,6 +193,12 @@ public class ItemBuilder
                     ForgeRegistries.BLOCKS.getValue(plantInfo.crops),
                     ForgeRegistries.BLOCKS.getValue(plantInfo.soil));
         }
+        else if(blockInfo != null)
+        {
+            if (!ForgeRegistries.BLOCKS.containsKey(blockInfo.block))
+                throw new RuntimeException(String.format("Attempted to make an itemblock for '%s' without the associated block", blockInfo.block));
+            baseItem = new ItemFlexBlock(ForgeRegistries.BLOCKS.getValue(blockInfo.block));
+        }
         // else other types
         else
         {
@@ -190,6 +212,10 @@ public class ItemBuilder
         if (translationKey != null)
         {
             baseItem.setTranslationKey(translationKey);
+        }
+        else
+        {
+            baseItem.setTranslationKey(registryName.getNamespace() + "." + registryName.getPath());
         }
 
         if (maxDamage != null)

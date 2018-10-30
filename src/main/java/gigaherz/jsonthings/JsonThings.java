@@ -1,10 +1,13 @@
 package gigaherz.jsonthings;
 
 import com.google.common.collect.Lists;
+import gigaherz.jsonthings.block.builder.BlockBuilder;
 import gigaherz.jsonthings.item.IFlexItem;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.item.builder.ModelInfo;
+import gigaherz.jsonthings.parser.BlockParser;
 import gigaherz.jsonthings.parser.ItemParser;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
@@ -20,6 +23,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -51,7 +55,10 @@ public class JsonThings
     public static final String MODID = "jsonthings";
     public static final String VERSION = "1.0";
 
-    private static final Logger logger = LogManager.getLogger(MODID);
+    @SidedProxy(clientSide = "gigaherz.jsonthings.client.ClientProxy")
+    public static IModProxy proxy;
+
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     ItemArmor.ArmorMaterial CUSTOM_MATERIAL = EnumHelper.addArmorMaterial("TEST1", "test1", 100, new int[]{1,2,3}, 5, SoundEvents.BLOCK_METAL_STEP, 5);
 
@@ -63,6 +70,13 @@ public class JsonThings
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    }
+
+    @SubscribeEvent
+    public static void registerBlocks(RegistryEvent.Register<Block> event)
+    {
+        BlockParser.init();
+        BlockParser.BUILDERS.stream().map(BlockBuilder::build).forEach(event.getRegistry()::register);
     }
 
     @SubscribeEvent

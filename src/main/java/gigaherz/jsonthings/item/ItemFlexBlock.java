@@ -3,6 +3,7 @@ package gigaherz.jsonthings.item;
 import com.google.common.collect.*;
 import gigaherz.jsonthings.item.builder.DelayedUse;
 import gigaherz.jsonthings.item.builder.StackContext;
+import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -11,7 +12,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemHoe;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -24,13 +25,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ItemFlexHoe extends ItemHoe implements IFlexItem
+public class ItemFlexBlock extends ItemBlock implements IFlexItem
 {
-    public ItemFlexHoe(ToolMaterial material)
+    public ItemFlexBlock(Block block)
     {
-        super(material);
-
-        initializeDefaultStuff();
+        super(block);
 
         eventHandlers.put("use_on_block", (ItemEventHandlerBlock) (eventName, player, hand, stack, world, pos, side) ->
                 new ActionResult<>(super.onItemUse((EntityPlayer) player, world, pos, hand, side, 0, 0, 0), stack));

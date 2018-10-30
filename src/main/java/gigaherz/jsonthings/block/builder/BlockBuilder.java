@@ -2,8 +2,11 @@ package gigaherz.jsonthings.block.builder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import gigaherz.jsonthings.block.BlockFlex;
+import gigaherz.jsonthings.block.IFlexBlock;
 import gigaherz.jsonthings.item.*;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
@@ -55,30 +58,25 @@ public class BlockBuilder
 
     public Block build()
     {
-        Block baseBlock = null; //new Block();
+        Block baseBlock = new BlockFlex(Material.ROCK, Material.ROCK.getMaterialMapColor());
+
+        IFlexBlock flexBlock = (IFlexBlock) baseBlock;
+
+        baseBlock.setRegistryName(registryName);
+
+        if (translationKey != null)
+        {
+            baseBlock.setTranslationKey(translationKey);
+        }
+        else
+        {
+            baseBlock.setTranslationKey(registryName.getNamespace() + "." + registryName.getPath());
+        }
 
         // TODO
 
         builtBlock = baseBlock;
         return baseBlock;
-    }
-
-    @Nullable
-    private CreativeTabs findCreativeTab(String label)
-    {
-        try
-        {
-            for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY)
-            {
-                if (f_tabLabel.get(tab).equals(label))
-                    return tab;
-            }
-        }
-        catch (IllegalAccessException e)
-        {
-            // left blank intentionally
-        }
-        return null;
     }
 
     @Nullable

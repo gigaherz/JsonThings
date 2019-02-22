@@ -1,7 +1,7 @@
 package gigaherz.jsonthings.item;
 
 import com.google.common.collect.*;
-import gigaherz.jsonthings.item.builder.DelayedUse;
+import gigaherz.jsonthings.item.builder.CompletionMode;
 import gigaherz.jsonthings.item.builder.StackContext;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
@@ -44,7 +44,7 @@ public class ItemFlexBlock extends ItemBlock implements IFlexItem
 
     private EnumAction useAction;
     private int useTime;
-    private DelayedUse.CompletionMode useFinishMode;
+    private CompletionMode useFinishMode;
 
     private void initializeDefaultStuff()
     {
@@ -83,13 +83,13 @@ public class ItemFlexBlock extends ItemBlock implements IFlexItem
     }
 
     @Override
-    public void setUseFinishMode(DelayedUse.CompletionMode onComplete)
+    public void setUseFinishMode(CompletionMode onComplete)
     {
         this.useFinishMode = onComplete;
     }
 
     @Override
-    public DelayedUse.CompletionMode getUseFinishMode()
+    public CompletionMode getUseFinishMode()
     {
         return useFinishMode;
     }

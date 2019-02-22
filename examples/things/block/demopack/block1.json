@@ -1,5 +1,13 @@
 {
   "translation_key": "block.one",
+
+  "_falling": true,
+  "falling": {
+    "entity": "something:somecustomentity"
+  },
+
+
+
   "item": {
     "creative_menu_stacks": [
       {

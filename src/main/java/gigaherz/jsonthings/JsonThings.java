@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import gigaherz.jsonthings.block.builder.BlockBuilder;
 import gigaherz.jsonthings.item.IFlexItem;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
-import gigaherz.jsonthings.item.builder.ModelInfo;
 import gigaherz.jsonthings.parser.BlockParser;
 import gigaherz.jsonthings.parser.ItemParser;
 import net.minecraft.block.Block;
@@ -32,6 +31,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.input.Mouse;
 import scala.reflect.internal.util.WeakHashSet;
 
 import javax.annotation.Nonnull;
@@ -92,13 +92,14 @@ public class JsonThings
         @SubscribeEvent
         public static void registerModels(ModelRegistryEvent event)
         {
+            
             for (ItemBuilder b : ItemParser.BUILDERS)
             {
                 Item item = b.getBuiltItem();
-                ModelInfo modelInfo = b.getModelInfo();
+                ItemBuilder.ModelInfo modelInfo = b.getModelInfo();
                 if (modelInfo != null)
                 {
-                    for (ModelInfo.ModelMapping mapping : modelInfo.mappings)
+                    for (ItemBuilder.ModelInfo.ModelMapping mapping : modelInfo.mappings)
                     {
                         ModelLoader.setCustomModelResourceLocation(
                                 item, mapping.metadata, new ModelResourceLocation(mapping.fileName, mapping.variantName));

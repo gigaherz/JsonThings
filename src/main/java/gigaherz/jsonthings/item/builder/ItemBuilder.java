@@ -1,12 +1,15 @@
 package gigaherz.jsonthings.item.builder;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import gigaherz.jsonthings.item.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -15,16 +18,20 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ItemBuilder
 {
+    @SuppressWarnings("deprecation")
     private static Field f_tabLabel = ReflectionHelper.findField(CreativeTabs.class, ObfuscationReflectionHelper.remapFieldNames(CreativeTabs.class.getName(), "field_78034_o"));
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
-    private final Map<String, String> eventHandlers = Maps.newHashMap();
+    private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
 
     private Item builtItem = null;
 
@@ -277,4 +284,115 @@ public class ItemBuilder
     {
         return modelInfo;
     }
+
+
+    static class ArmorInfo
+    {
+        public EntityEquipmentSlot slot;
+        public ItemArmor.ArmorMaterial material;
+
+        public ArmorInfo(String equipmentSlot, String material)
+        {
+            this.slot = EntityEquipmentSlot.fromString(equipmentSlot);
+            this.material = ItemArmor.ArmorMaterial.valueOf(material.toUpperCase());
+        }
+    }
+
+    static class BlockInfo
+    {
+        public ResourceLocation block;
+
+        public BlockInfo(ResourceLocation blockName)
+        {
+            this.block = blockName;
+        }
+    }
+
+    static class ContainerInfo
+    {
+        public ResourceLocation emptyItem;
+
+        public ContainerInfo(ResourceLocation registryName, String emptyItem)
+        {
+            if (emptyItem.contains(":"))
+                this.emptyItem = new ResourceLocation(emptyItem);
+            else
+                this.emptyItem = new ResourceLocation(registryName.getNamespace(), emptyItem);
+        }
+    }
+
+    static class DelayedUse
+    {
+        public int useTicks;
+        public EnumAction useAction;
+        public CompletionMode onComplete;
+
+        public DelayedUse(int useTicks, String useAction, String completeAction)
+        {
+            this.useTicks = useTicks;
+            this.useAction = EnumAction.valueOf(useAction.toUpperCase());
+            this.onComplete = CompletionMode.valueOf(completeAction.toUpperCase());
+        }
+    }
+
+    static class FoodInfo
+    {
+        public int healAmount;
+        public float saturation;
+        public boolean isWolfFood;
+
+        public FoodInfo(int healAmount, float saturation, boolean isWolfFood)
+        {
+            this.healAmount = healAmount;
+            this.saturation = saturation;
+            this.isWolfFood = isWolfFood;
+        }
+    }
+
+    public static class ModelInfo
+    {
+        public class ModelMapping
+        {
+            public final int metadata; // to be removed in 1.13
+            public final ResourceLocation fileName;
+            public final String variantName;
+
+            public ModelMapping(int metadata, String fileName, String variantName)
+            {
+                this.metadata = metadata;
+                this.fileName = new ResourceLocation(fileName);
+                this.variantName = variantName;
+            }
+        }
+
+        public final List<ModelMapping> mappings = Lists.newArrayList();
+
+        public void addMapping(int metadata, String fileName, String variantName)
+        {
+            mappings.add(new ModelMapping(metadata, fileName, variantName));
+        }
+    }
+
+    static class PlantInfo
+    {
+        public ResourceLocation crops;
+        public ResourceLocation soil;
+    }
+
+    static class ToolInfo
+    {
+        public String toolClass;
+        public String material;
+        public int toolDamage;
+        public int toolSpeed;
+
+        public ToolInfo(String toolType, String material)
+        {
+            this.toolClass = toolType;
+            this.material = material;
+        }
+    }
+
 }
+
+

@@ -1,6 +1,6 @@
 package gigaherz.jsonthings.item;
 
-import gigaherz.jsonthings.item.builder.DelayedUse;
+import gigaherz.jsonthings.item.builder.CompletionMode;
 import gigaherz.jsonthings.item.builder.StackContext;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -34,9 +34,9 @@ public interface IFlexItem
 
     int getUseTime();
 
-    void setUseFinishMode(DelayedUse.CompletionMode onComplete);
+    void setUseFinishMode(CompletionMode onComplete);
 
-    DelayedUse.CompletionMode getUseFinishMode();
+    CompletionMode getUseFinishMode();
 
     void addEventHandler(String eventName, ItemEventHandler eventHandler);
 

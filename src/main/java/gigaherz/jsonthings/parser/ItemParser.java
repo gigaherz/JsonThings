@@ -5,13 +5,15 @@ import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import gigaherz.jsonthings.item.builder.AttributeModifierOperation;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.item.builder.StackContext;
 import joptsimple.internal.Strings;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.item.Food;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.ToolType;
 
 import java.util.List;
 import java.util.UUID;
@@ -138,7 +140,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 Integer opInt = Ints.tryParse(opName);
                 if (opInt == null)
                 {
-                    operation = AttributeModifierOperation.valueOf(opName.toUpperCase()).getOperationCode();
+                    operation = AttributeModifier.Operation.valueOf(opName.toUpperCase()).getId();
                 }
                 else
                 {
@@ -242,13 +244,13 @@ public class ItemParser extends ThingParser<ItemBuilder>
 
     private ItemBuilder parseSingleTool(ItemBuilder builder, JsonObject toolData)
     {
-        String type;
+        ToolType type;
         if (toolData.has("class"))
         {
             String str = toolData.get("class").getAsString();
             if (!Strings.isNullOrEmpty(str))
             {
-                type = str;
+                type = ToolType.get(str);
             }
             else
             {
@@ -284,52 +286,61 @@ public class ItemParser extends ThingParser<ItemBuilder>
 
     private ItemBuilder parseFoodInfo(JsonObject data, ItemBuilder builder)
     {
-        JsonObject toolData = data.get("food").getAsJsonObject();
-
-        int healAmount;
-        if (toolData.has("heal_amount"))
+        JsonElement foodData = data.get("food");
+        if (foodData.isJsonPrimitive() && foodData.getAsJsonPrimitive().isString())
         {
-            int str = toolData.get("heal_amount").getAsInt();
-            if (str > 0)
-            {
-                healAmount = str;
-            }
-            else
-            {
-                throw new RuntimeException("Heal amount must be > 0.");
-            }
+            builder = builder.makeFood(foodData.getAsJsonPrimitive().getAsString());
         }
         else
         {
-            throw new RuntimeException("Food info must have a non-empty 'heal_amount' number.");
-        }
+            JsonObject toolData = data.get("food").getAsJsonObject();
 
-        float saturation;
-        if (toolData.has("saturation"))
-        {
-            float str = toolData.get("saturation").getAsFloat();
-            if (str >= 0)
+            int healAmount;
+            if (toolData.has("heal_amount"))
             {
-                saturation = str;
+                int str = toolData.get("heal_amount").getAsInt();
+                if (str > 0)
+                {
+                    healAmount = str;
+                }
+                else
+                {
+                    throw new RuntimeException("Heal amount must be > 0.");
+                }
             }
             else
             {
-                throw new RuntimeException("Food saturation not be negative.");
+                throw new RuntimeException("Food info must have a non-empty 'heal_amount' number.");
             }
-        }
-        else
-        {
-            throw new RuntimeException("Food info must have a non-empty 'saturation' number.");
-        }
 
-        boolean isWolfFood = false;
-        if (toolData.has("is_wolf_food"))
-        {
-            boolean str = toolData.get("is_wolf_food").getAsBoolean();
-            isWolfFood = str;
-        }
+            float saturation;
+            if (toolData.has("saturation"))
+            {
+                float str = toolData.get("saturation").getAsFloat();
+                if (str >= 0)
+                {
+                    saturation = str;
+                }
+                else
+                {
+                    throw new RuntimeException("Food saturation not be negative.");
+                }
+            }
+            else
+            {
+                throw new RuntimeException("Food info must have a non-empty 'saturation' number.");
+            }
 
-        builder = builder.makeFood(healAmount, saturation, isWolfFood);
+            boolean isMeat = false;
+            if (toolData.has("meat"))
+            {
+                isMeat = toolData.get("meat").getAsBoolean();
+            }
+
+            Food.Builder foodBuilder = new Food.Builder().hunger(healAmount).saturation(saturation);
+            if (isMeat) foodBuilder.meat();
+            builder = builder.makeFood(foodBuilder.build());
+        }
         return builder;
     }
 

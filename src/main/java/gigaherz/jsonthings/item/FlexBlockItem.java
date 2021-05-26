@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -41,7 +42,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
 
     //region IFlexItem
     private final List<ITextComponent> tooltipStrings = Lists.newArrayList();
-    private final Map<EquipmentSlotType, Multimap<String, AttributeModifier>> attributeModifiers = Maps.newHashMap();
+    private final Map<EquipmentSlotType, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
     private final Map<String, ItemEventHandler> eventHandlers = Maps.newHashMap();
 
     private UseAction useAction;
@@ -52,7 +53,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     {
         for (EquipmentSlotType slot1 : EquipmentSlotType.values())
         {
-            Multimap<String, AttributeModifier> multimap = ArrayListMultimap.create();
+            Multimap<Attribute, AttributeModifier> multimap = ArrayListMultimap.create();
             multimap.putAll(super.getAttributeModifiers(EquipmentSlotType.CHEST, ItemStack.EMPTY));
             attributeModifiers.put(slot1, multimap);
         }
@@ -109,16 +110,16 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public void addAttributemodifier(@Nullable EquipmentSlotType slot, String attributeName, AttributeModifier modifier)
+    public void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier)
     {
         if (slot != null)
         {
-            attributeModifiers.get(slot).put(attributeName, modifier);
+            attributeModifiers.get(slot).put(attribute, modifier);
         }
         else
         {
             for (EquipmentSlotType slot1 : EquipmentSlotType.values())
-            { attributeModifiers.get(slot1).put(attributeName, modifier); }
+            { attributeModifiers.get(slot1).put(attribute, modifier); }
         }
     }
     //endregion
@@ -190,14 +191,9 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack)
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack)
     {
-        return orElse(attributeModifiers.get(slot), () -> HashMultimap.create());
-    }
-
-    private <T> T orElse(T value, Supplier<T> fallback)
-    {
-        return value != null ? value : fallback.get();
+        return IFlexItem.orElse(attributeModifiers.get(slot), () -> HashMultimap.create());
     }
 
     //endregion

@@ -2,6 +2,7 @@ package gigaherz.jsonthings.item;
 
 import gigaherz.jsonthings.item.builder.CompletionMode;
 import gigaherz.jsonthings.item.context.FlexEventContext;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
@@ -36,7 +37,7 @@ public interface IFlexItem
     @Nullable
     ItemEventHandler getEventHandler(String eventName);
 
-    void addAttributemodifier(@Nullable EquipmentSlotType slot, String attributeName, AttributeModifier modifier);
+    void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier);
 
     default ActionResult<ItemStack> runEvent(String eventName, FlexEventContext context, Supplier<ActionResult<ItemStack>> defaultValue)
     {
@@ -44,5 +45,10 @@ public interface IFlexItem
         if (handler != null)
             return handler.apply(eventName, context);
         return defaultValue.get();
+    }
+
+    static <T> T orElse(@Nullable T value, Supplier<T> fallback)
+    {
+        return value != null ? value : fallback.get();
     }
 }

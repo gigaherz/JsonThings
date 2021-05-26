@@ -9,7 +9,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import java.util.Map;
@@ -49,7 +49,7 @@ public class FlexEventContext
     public static final ContextValue<RayTraceResult> RAYTRACE_RESULT = ContextValue.create("raytraceResult", RayTraceResult.class);
     public static final ContextValue<BlockPos> HIT_POS = ContextValue.create("hitPos", BlockPos.class);
     public static final ContextValue<Direction> HIT_FACE = ContextValue.create("hitFace", Direction.class);
-    public static final ContextValue<Vec3d> HIT_VEC = ContextValue.create("hitVec", Vec3d.class);
+    public static final ContextValue<Vector3d> HIT_VEC = ContextValue.create("hitVec", Vector3d.class);
     public static final ContextValue<Boolean> HIT_INSIDE = ContextValue.create("hitInside", Boolean.class);
     public static final ContextValue<Integer> SLOT = ContextValue.create("slot", Integer.class);
     public static final ContextValue<Boolean> SELECTED = ContextValue.create("selected", Boolean.class);
@@ -90,7 +90,7 @@ public class FlexEventContext
                 .with(HIT_POS, ctx.getPos())
                 .with(HIT_FACE, ctx.getFace())
                 .with(HIT_VEC, ctx.getHitVec())
-                .with(HIT_INSIDE, ctx.func_221533_k());
+                .with(HIT_INSIDE, ctx.isInside());
     }
 
     public static FlexEventContext of(ItemStack stack)

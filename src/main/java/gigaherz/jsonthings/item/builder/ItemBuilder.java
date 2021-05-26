@@ -12,17 +12,15 @@ import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ItemBuilder
 {
+    public static final ToolType SWORD_TOOL_TYPE = ToolType.get("sword");
+
     //@SuppressWarnings("deprecation")
     //private static Field f_tabLabel = ReflectionHelper.findField(ItemGroup.class, ObfuscationReflectionHelper.remapFieldNames(ItemGroup.class.getName(), "field_78034_o"));
 
@@ -38,7 +36,7 @@ public class ItemBuilder
     private ItemGroup itemGroup = null;
 
     private List<ToolInfo> toolInfos = Lists.newArrayList();
-    private FoodInfo foodInfo = null;
+    private Food foodInfo = null;
     private PlantInfo plantInfo = null;
     private ArmorInfo armorInfo = null;
 
@@ -97,11 +95,12 @@ public class ItemBuilder
         return this;
     }
 
-    public ItemBuilder withTool(String toolType)
+    public ItemBuilder withTool(ToolType toolType, String tierName)
     {
         if (this.blockInfo != null) throw new RuntimeException("An item can not be tool and block at the same time.");
         if (this.armorInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
-        this.toolInfos.add(new ToolInfo(toolType));
+        if (!ThingsByName.ITEM_TIERS.containsKey(tierName)) throw new RuntimeException("No known item tier definition with name '" + tierName + "'");
+        this.toolInfos.add(new ToolInfo(toolType, ThingsByName.ITEM_TIERS.get(tierName)));
         return this;
     }
 
@@ -109,7 +108,16 @@ public class ItemBuilder
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
         if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
-        this.foodInfo = new FoodInfo(foodName);
+        if (!ThingsByName.FOODSTUFFS.containsKey(foodName)) throw new RuntimeException("No known food definition with name '" + foodName + "'");
+        this.foodInfo = ThingsByName.FOODSTUFFS.get(foodName);
+        return this;
+    }
+
+    public ItemBuilder makeFood(Food food)
+    {
+        if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
+        if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
+        this.foodInfo = food;
         return this;
     }
 
@@ -157,7 +165,7 @@ public class ItemBuilder
 
         if (foodInfo != null)
         {
-            properties = properties.food(ThingsByName.FOODSTUFFS.get(foodInfo.foodName));
+            properties = properties.food(foodInfo);
         }
 
         Item baseItem = null;
@@ -171,33 +179,35 @@ public class ItemBuilder
                 if (other.material != null && toolInfo == null)
                     toolInfo = other;
                 else
-                    properties.addToolType(ToolType.get(other.toolClass), other.toolLevel);
+                    properties.addToolType(other.toolClass, other.toolTier.getHarvestLevel());
             }
             if (toolInfo != null)
             {
-                IItemTier tier = ThingsByName.ITEM_TIERS.get(toolInfo.material);
-                switch (toolInfo.toolClass)
+                IItemTier tier = toolInfo.toolTier;
+                if (ToolType.AXE == toolInfo.toolClass)
                 {
-                    case "axe":
-                        baseItem = new FlexAxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                        break;
-                    case "pick":
-                    case "pickaxe":
-                        baseItem = new FlexPickaxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                        break;
-                    case "shovel":
-                    case "spade":
-                        baseItem = new FlexSpadeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                        break;
-                    case "hoe":
-                        baseItem = new FlexHoeItem(tier, toolInfo.toolSpeed, properties);
-                        break;
-                    case "sword":
-                        baseItem = new FlexSwordItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                        break;
-                    //default:
-                        //throw new RuntimeException(String.format("Unknown tool class '%s'.", toolInfo.toolClass));
-                        // allow unknown classes, but treat them as normal items without a special subclass
+                    baseItem = new FlexAxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                }
+                else if (ToolType.PICKAXE == toolInfo.toolClass)
+                {
+                    baseItem = new FlexPickaxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                }
+                else if (ToolType.SHOVEL == toolInfo.toolClass)
+                {
+                    baseItem = new FlexSpadeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                }
+                else if (ToolType.HOE == toolInfo.toolClass)
+                {
+                    baseItem = new FlexHoeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                }
+                else if (SWORD_TOOL_TYPE == toolInfo.toolClass)
+                {
+                    baseItem = new FlexSwordItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                }
+                else
+                {
+                    //throw new RuntimeException(String.format("Unknown tool class '%s'.", toolInfo.toolClass));
+                    // allow unknown classes, but treat them as normal items without a special subclass
                 }
             }
         }
@@ -346,15 +356,16 @@ public class ItemBuilder
 
     static class ToolInfo
     {
-        public String toolClass;
+        public ToolType toolClass;
         public String material;
         public int toolDamage;
-        public int toolSpeed;
-        public int toolLevel;
+        public float toolSpeed;
+        public IItemTier toolTier;
 
-        public ToolInfo(String toolType)
+        public ToolInfo(ToolType toolType, IItemTier tier)
         {
             this.toolClass = toolType;
+            this.toolTier = tier;
         }
     }
 }

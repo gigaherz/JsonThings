@@ -17,7 +17,7 @@
   "food": {
     "heal_amount": 5,
     "saturation": 1.5,
-    "is_wolf_food": false
+    "meat": false
   },
 
   "delayed_use": {

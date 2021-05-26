@@ -1,8 +1,6 @@
 buildscript {
     repositories {
-        mavenLocal()
-        maven { url = 'http://files.minecraftforge.net/maven' }
-        jcenter()
+        maven { url = 'https://maven.minecraftforge.net/' }
         mavenCentral()
     }
     dependencies {
@@ -11,25 +9,21 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'maven-publish'
-
-repositories {
-    mavenLocal()
-}
 
 version = "0.0.1"
 group= "gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "JsonThings-1.14.2"
+archivesBaseName = "JsonThings-UNKNOWN"
 
-sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
+project.afterEvaluate {
+    archivesBaseName = "JsonThings-${project.MC_VERSION}"
 }
 
-minecraft {
-    mappings channel: 'snapshot', version: '20190620-1.14.2'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+minecraft {
+    mappings channel: 'snapshot', version: '20210309-1.16.5'
 
     runs {
         client {
@@ -40,7 +34,11 @@ minecraft {
 
             ideaModule "${project.name}.main"
 
-            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
+            mods {
+                thismod {
+                    source sourceSets.main
+                }
+            }
         }
 
         server {
@@ -51,29 +49,33 @@ minecraft {
 
             ideaModule "${project.name}.main"
 
-            environment 'MOD_CLASSES', "${project.file("out/production/resources").canonicalPath};${project.file("out/production/classes").canonicalPath}"
+            mods {
+                thismod {
+                    source sourceSets.main
+                }
+            }
         }
     }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.14.2-26.0.35'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.1.18'
 }
 
-processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property 'version', project.version
-
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
-
-        // replace version and mcversion
-        expand 'version':project.version
+jar {
+    from('/') {
+        include 'LICENSE.txt'
     }
 
-    // copy everything else except the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
+    manifest {
+        attributes([
+                "Specification-Title": "eyes",
+                "Specification-Vendor": "gigaherz",
+                "Specification-Version": "1", // We are version 1 of ourselves
+                "Implementation-Title": project.name,
+                "Implementation-Version": "${version}",
+                "Implementation-Vendor" :"gigaherz",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 }

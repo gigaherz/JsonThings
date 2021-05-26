@@ -1,29 +1,30 @@
 modLoader="javafml"
-loaderVersion="[25,)"
+loaderVersion="[36,)"
 #updateJSONURL="http://myurl.me/"
 issueTrackerURL="https://github.com/gigaherz/HudCompass/issues"
 displayURL="https://github.com/gigaherz/HudCompass"
 logoFile="logo.png"
 credits="Thanks for this example mod goes to Java"
 authors="gigaherz"
+license="BSD (3 Clause)"
 
 [[mods]]
-modId="hudcompass"
-version="${version}"
-displayName="HUD Compass"
+modId="jsonthings"
+version="${file.jarVersion}"
+displayName="Json Things"
 description='''
-Declutter your inventory of tools
+Things, in JSON sauce.
 '''
 
-[[dependencies.toolbelt]]
+[[dependencies.jsonthings]]
    modId="forge"
    mandatory=true
-   versionRange="[26.0.12,)"
+   versionRange="[36.1,)"
    ordering="NONE"
    side="BOTH"
-[[dependencies.toolbelt]]
+[[dependencies.jsonthings]]
    modId="minecraft"
    mandatory=true
-   versionRange="[1.14.2,1.15)"
+   versionRange="[1.16.5,1.17)"
    ordering="NONE"
    side="BOTH"

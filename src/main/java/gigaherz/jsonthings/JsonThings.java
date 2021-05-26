@@ -8,7 +8,9 @@ import gigaherz.jsonthings.parser.ItemParser;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +20,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber
 @Mod(JsonThings.MODID)
 public class JsonThings
 {
@@ -27,15 +28,23 @@ public class JsonThings
 
     //ArmorItem.ArmorMaterial CUSTOM_MATERIAL = EnumHelper.addArmorMaterial("TEST1", "test1", 100, new int[]{1,2,3}, 5, SoundEvents.BLOCK_METAL_STEP, 5);
 
-    public static void registerBlocks(RegistryEvent.Register<Block> event)
+    public JsonThings()
     {
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.addGenericListener(Block.class, this::registerBlocks);
+        bus.addGenericListener(Item.class, this::registerItems);
+
         BlockParser.init();
+        ItemParser.init();
+    }
+
+    public void registerBlocks(RegistryEvent.Register<Block> event)
+    {
         BlockParser.BUILDERS.stream().map(BlockBuilder::build).forEach(event.getRegistry()::register);
     }
 
-    public static void registerItems(RegistryEvent.Register<Item> event)
+    public void registerItems(RegistryEvent.Register<Item> event)
     {
-        ItemParser.init();
         ItemParser.BUILDERS.stream().map(ItemBuilder::build).forEach(event.getRegistry()::register);
     }
 

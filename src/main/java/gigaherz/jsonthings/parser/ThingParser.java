@@ -5,11 +5,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import gigaherz.jsonthings.JsonThings;
-import net.minecraft.util.JsonUtils;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.ModContainer;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -29,6 +28,8 @@ public abstract class ThingParser<TBuilder>
 
     public void parse()
     {
+        // TODO
+        /*
         ModContainer mc = Loader.instance().activeModContainer();
         Loader.instance().setActiveModContainer(null);
         Loader.instance().getActiveModList().forEach(this::loadThings);
@@ -39,10 +40,13 @@ public abstract class ThingParser<TBuilder>
 
         findFilesInDataPack(dataPack, getThingType(),
                 (root, file) -> loadThing(root, file, "jsonthings"));
+         */
     }
 
     private void loadThings(ModContainer mod)
     {
+        // TODO
+        /*
         CraftingHelper.findFiles(mod, String.format("assets/%s/things/%s", mod.getModId(), getThingType()), null,
                 (root, file) -> {
                     Loader.instance().setActiveModContainer(mod);
@@ -50,6 +54,7 @@ public abstract class ThingParser<TBuilder>
 
                     return loadThing(root, file, domain);
                 }, true, true);
+         */
     }
 
     private boolean loadThing(Path root, Path file, String domain)
@@ -64,7 +69,7 @@ public abstract class ThingParser<TBuilder>
 
         try (BufferedReader reader = Files.newBufferedReader(file))
         {
-            JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
+            JsonObject json = JSONUtils.fromJson(GSON, reader, JsonObject.class);
             processThing(key, json);
         }
         catch (JsonParseException e)

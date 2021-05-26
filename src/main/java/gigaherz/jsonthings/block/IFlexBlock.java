@@ -6,7 +6,6 @@ public interface IFlexBlock
 {
     default Block self()
     {
-        return (Block)this;
+        return (Block) this;
     }
-
 }

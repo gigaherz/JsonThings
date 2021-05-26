@@ -1,16 +1,15 @@
 package gigaherz.jsonthings.block.builder;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import gigaherz.jsonthings.block.BlockFlex;
+import gigaherz.jsonthings.block.FlexBlock;
 import gigaherz.jsonthings.block.IFlexBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class BlockBuilder
 {
@@ -18,8 +17,9 @@ public class BlockBuilder
 
     private Block builtBlock = null;
 
+    private Material blockMaterial = Material.ROCK;
+    private MaterialColor blockMaterialColor = null;
     private ResourceLocation registryName;
-    private String translationKey;
 
     private BlockBuilder(ResourceLocation registryName)
     {
@@ -31,13 +31,6 @@ public class BlockBuilder
         return new BlockBuilder(registryName);
     }
 
-    public BlockBuilder withTranslationKey(String translationKey)
-    {
-        if (this.translationKey != null) throw new RuntimeException("Translation key already set.");
-        this.translationKey = translationKey;
-        return this;
-    }
-
     public ResourceLocation getRegistryName()
     {
         return registryName;
@@ -45,20 +38,15 @@ public class BlockBuilder
 
     public Block build()
     {
-        Block baseBlock = new BlockFlex(Material.ROCK, Material.ROCK.getMaterialMapColor());
+        Block.Properties props = blockMaterialColor != null ?
+                Block.Properties.create(blockMaterial, blockMaterialColor) :
+                Block.Properties.create(blockMaterial);
+
+        Block baseBlock = new FlexBlock(props);
 
         IFlexBlock flexBlock = (IFlexBlock) baseBlock;
 
         baseBlock.setRegistryName(registryName);
-
-        if (translationKey != null)
-        {
-            baseBlock.setTranslationKey(translationKey);
-        }
-        else
-        {
-            baseBlock.setTranslationKey(registryName.getNamespace() + "." + registryName.getPath());
-        }
 
         // TODO
 

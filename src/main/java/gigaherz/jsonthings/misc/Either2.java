@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused,WeakerAccess")
 public abstract class Either2<TMain, TOther>
 {
-    public static final class Main<TMain,TOther> extends Either2<TMain,TOther>
+    public static final class Main<TMain, TOther> extends Either2<TMain, TOther>
     {
         private final TMain valueMain;
 
@@ -65,7 +65,7 @@ public abstract class Either2<TMain, TOther>
         }
 
         @SuppressWarnings("unchecked")
-        public <R> Either2<R,TOther> map(Function<TMain, R> map)
+        public <R> Either2<R, TOther> map(Function<TMain, R> map)
         {
             return ofMain(map.apply(get()));
         }
@@ -76,7 +76,7 @@ public abstract class Either2<TMain, TOther>
             return (Either2<TMain, S>) this;
         }
 
-        public <R,S> Either2<R,S> mapEither(Function<TMain, R> mapMain, Function<TOther, S> mapOther)
+        public <R, S> Either2<R, S> mapEither(Function<TMain, R> mapMain, Function<TOther, S> mapOther)
         {
             return ofMain(mapMain.apply(valueMain));
         }
@@ -125,7 +125,7 @@ public abstract class Either2<TMain, TOther>
         }
     }
 
-    public static final class Other<TMain,TOther> extends Either2<TMain,TOther>
+    public static final class Other<TMain, TOther> extends Either2<TMain, TOther>
     {
         private final TOther valueOther;
 
@@ -180,7 +180,7 @@ public abstract class Either2<TMain, TOther>
         }
 
         @SuppressWarnings("unchecked")
-        public <R> Either2<R,TOther> map(Function<TMain, R> map)
+        public <R> Either2<R, TOther> map(Function<TMain, R> map)
         {
             return (Either2<R, TOther>) this;
         }
@@ -191,7 +191,7 @@ public abstract class Either2<TMain, TOther>
             return ofOther(map.apply(getOther()));
         }
 
-        public <R,S> Either2<R,S> mapEither(Function<TMain, R> mapMain, Function<TOther, S> mapOther)
+        public <R, S> Either2<R, S> mapEither(Function<TMain, R> mapMain, Function<TOther, S> mapOther)
         {
             return ofOther(mapOther.apply(valueOther));
         }
@@ -242,8 +242,9 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Constructs an Either set to the main value
-     * @param value The value to assign this Either
-     * @param <TMain> The main contained type
+     *
+     * @param value    The value to assign this Either
+     * @param <TMain>  The main contained type
      * @param <TOther> The alternative contained type
      * @return A constructed Either
      */
@@ -254,8 +255,9 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Constructs an Either set to the alternative value
-     * @param value The value to assign this Either
-     * @param <TMain> The main contained type
+     *
+     * @param value    The value to assign this Either
+     * @param <TMain>  The main contained type
      * @param <TOther> The alternative contained type
      * @return A constructed Either
      */
@@ -266,9 +268,10 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Constructs an Either from an Optional and an alternative value
-     * @param value The source of the value, if present
-     * @param orElse The alternative value
-     * @param <TMain> The main contained type
+     *
+     * @param value    The source of the value, if present
+     * @param orElse   The alternative value
+     * @param <TMain>  The main contained type
      * @param <TOther> The alternative contained type
      * @return A constructed Either
      */
@@ -280,10 +283,11 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Constructs an Either from an Optional and an alternative value
-     * @param value The source of the value, if present
+     *
+     * @param value     The source of the value, if present
      * @param orElseGet The supplier of the alternative
-     * @param <TMain> The main contained type
-     * @param <TOther> The alternative contained type
+     * @param <TMain>   The main contained type
+     * @param <TOther>  The alternative contained type
      * @return A constructed Either
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -294,9 +298,10 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Constructs an Either from a nullable value and an alternative value
-     * @param value The source of the value, if present
-     * @param orElse The alternative value
-     * @param <TMain> The main contained type
+     *
+     * @param value    The source of the value, if present
+     * @param orElse   The alternative value
+     * @param <TMain>  The main contained type
      * @param <TOther> The alternative contained type
      * @return A constructed Either
      */
@@ -307,10 +312,11 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Constructs an Either from a nullable value and an alternative value
-     * @param value The source of the value, if present
+     *
+     * @param value     The source of the value, if present
      * @param orElseGet The supplier of the alternative
-     * @param <TMain> The main contained type
-     * @param <TOther> The alternative contained type
+     * @param <TMain>   The main contained type
+     * @param <TOther>  The alternative contained type
      * @return A constructed Either
      */
     public static <TMain, TOther> Either2<TMain, TOther> ofNullableGet(@Nullable TMain value, Supplier<TOther> orElseGet)
@@ -320,12 +326,14 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Gets the kind of contained value
+     *
      * @return true if the value is Main
      */
     public abstract boolean isPresent();
 
     /**
      * Gets the main value or throws if the Either isn't main
+     *
      * @return The main value
      */
     public TMain get()
@@ -335,8 +343,9 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Gets the main value or throws a custom exception if the Either isn't main
+     *
      * @param exceptionConverter Converts the Other into an exception
-     * @param <X> The type of the exception
+     * @param <X>                The type of the exception
      * @return The main value, if the Either is main
      * @throws X The converted exception, if the Either is not main
      */
@@ -344,30 +353,35 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Turns the Either into an Optional, discarding the Other
+     *
      * @return An optional with the main value, if main, or Optional.empty()
      */
     public abstract Optional<TMain> toOptional();
 
     /**
      * Gets the alternative value or throws if the Either is main
+     *
      * @return The main value
      */
     public abstract TOther getOther();
 
     /**
      * Turns the Either into an Optional, discarding the Main
+     *
      * @return An optional with the other value, if not main, or Optional.empty()
      */
     public abstract Optional<TOther> toOptionalOther();
 
     /**
      * Calls the consumer if the value is Main, does nothing otherwise
+     *
      * @return Itself, for chaining purposes.
      */
     public abstract Either2<TMain, TOther> ifPresent(Consumer<TMain> consumer);
 
     /**
      * Calls the consumer if the value is Main, does nothing otherwise
+     *
      * @return Itself, for chaining purposes.
      */
     public abstract Either2<TMain, TOther> ifOther(Consumer<TOther> consumer);
@@ -376,15 +390,17 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Transforms the main value, if main, and constructs a new Either with the result
+     *
      * @param map Function to transform the Main
      * @param <R> New type for the Main
      * @return New Either if main, or the same Other
      */
     @SuppressWarnings("unchecked")
-    public abstract <R> Either2<R,TOther> map(Function<TMain, R> map);
+    public abstract <R> Either2<R, TOther> map(Function<TMain, R> map);
 
     /**
      * Transforms the alternative value, if not main, and constructs a new Either with the result
+     *
      * @param map Function to transform the Other
      * @param <S> New type for the Other
      * @return New Either if not main, or the same Main
@@ -394,16 +410,18 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Transforms either the main value, or the alternative value.
-     * @param mapMain Function to transform the Main
+     *
+     * @param mapMain  Function to transform the Main
      * @param mapOther Function to transform the Other
-     * @param <R> New type for the Main
-     * @param <S> New type for the Other
+     * @param <R>      New type for the Main
+     * @param <S>      New type for the Other
      * @return New Either built from either the transformed Main, or transformed Other
      */
-    public abstract <R,S> Either2<R,S> mapEither(Function<TMain, R> mapMain, Function<TOther, S> mapOther);
+    public abstract <R, S> Either2<R, S> mapEither(Function<TMain, R> mapMain, Function<TOther, S> mapOther);
 
     /**
      * Similar to map, but the function already returns the constructed Either
+     *
      * @param map Function to transform the Main
      * @param <R> New type for the Main
      * @return New Either returned by the function if Main, or the same otherwise
@@ -413,6 +431,7 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Similar to map, but the function already returns the constructed Either
+     *
      * @param map Function to transform the Other
      * @param <S> New type for the Other
      * @return New Either returned by the function if Other, or the same otherwise
@@ -422,16 +441,18 @@ public abstract class Either2<TMain, TOther>
 
     /**
      * Similar to map, but the function already returns the constructed Either
-     * @param mapMain Function to transform the Main
+     *
+     * @param mapMain  Function to transform the Main
      * @param mapOther Function to transform the Other
-     * @param <R> New type for the Main
-     * @param <S> New type for the Other
+     * @param <R>      New type for the Main
+     * @param <S>      New type for the Other
      * @return The result of applying the corresponding function
      */
     public abstract <R, S> Either2<R, S> flatMapEither(Function<TMain, Either2<R, S>> mapMain, Function<TOther, Either2<R, S>> mapOther);
 
     /**
      * Turns a Main into an Other, or an Other into a Main
+     *
      * @return A new Either with the context flipped
      */
     public abstract Either2<TOther, TMain> flip();

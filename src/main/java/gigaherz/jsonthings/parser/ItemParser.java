@@ -9,9 +9,8 @@ import gigaherz.jsonthings.item.builder.AttributeModifierOperation;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.item.builder.StackContext;
 import joptsimple.internal.Strings;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
@@ -21,6 +20,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
 {
     public static final List<ItemBuilder> BUILDERS = Lists.newArrayList();
     public static final ItemParser INSTANCE = new ItemParser();
+
     public static void init()
     {
         INSTANCE.parse();
@@ -37,19 +37,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
     {
         ItemBuilder builder = ItemBuilder.begin(key);
 
-        if (data.has("translation_key"))
-        {
-            String str = data.get("translation_key").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                builder = builder.withTranslationKey(str);
-            }
-            else
-            {
-                throw new RuntimeException("If present, translation_key must be a non-empty string.");
-            }
-        }
-
         if (data.has("max_stack_size"))
         {
             int stack_size = data.get("max_stack_size").getAsInt();
@@ -63,9 +50,10 @@ public class ItemParser extends ThingParser<ItemBuilder>
             }
         }
 
-        if (data.has("creative_menu_stacks"))
+        if (data.has("group"))
         {
-            builder = parseCreativeMenuStacks(key, data, builder);
+            String name = data.get("group").getAsString();
+            builder = builder.withItemGroup(name);
         }
 
         if (data.has("attribute_modifiers"))
@@ -167,17 +155,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
         return builder;
     }
 
-    private ItemBuilder parseCreativeMenuStacks(ResourceLocation key, JsonObject data, ItemBuilder builder)
-    {
-        JsonArray list = data.get("creative_menu_stacks").getAsJsonArray();
-        for (JsonElement e : list)
-        {
-            JsonObject item = e.getAsJsonObject();
-            builder = builder.withCreativeMenuStack(parseStackContext(key, item), parseTabsList(item));
-        }
-        return builder;
-    }
-
     private ItemBuilder parseDurabilityInfo(JsonObject data, ItemBuilder builder)
     {
         JsonObject durability = data.get("durability").getAsJsonObject();
@@ -243,8 +220,28 @@ public class ItemParser extends ThingParser<ItemBuilder>
 
     private ItemBuilder parseToolInfo(JsonObject data, ItemBuilder builder)
     {
-        JsonObject toolData = data.get("tool").getAsJsonObject();
+        JsonElement tool = data.get("tool");
+        if (tool.isJsonArray())
+        {
+            JsonArray toolArray = tool.getAsJsonArray();
+            for(JsonElement e : toolArray)
+            {
+                JsonObject toolData = e.getAsJsonObject();
 
+                builder = parseSingleTool(builder, toolData);
+            }
+        }
+        else
+        {
+            JsonObject toolData = tool.getAsJsonObject();
+
+            builder = parseSingleTool(builder, toolData);
+        }
+        return builder;
+    }
+
+    private ItemBuilder parseSingleTool(ItemBuilder builder, JsonObject toolData)
+    {
         String type;
         if (toolData.has("class"))
         {
@@ -281,7 +278,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
             throw new RuntimeException("Tool info must have a non-empty 'material' string.");
         }
 
-        builder = builder.makeTool(type, material);
+        builder = builder.withTool(type, material);
         return builder;
     }
 
@@ -385,12 +382,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
             ctx = new StackContext(null);
         }
 
-        if (item.has("data"))
-        {
-            int meta = item.get("data").getAsInt();
-            ctx = ctx.withMetadata(meta);
-        }
-
         if (item.has("count"))
         {
             int meta = item.get("count").getAsInt();
@@ -402,14 +393,14 @@ public class ItemParser extends ThingParser<ItemBuilder>
             try
             {
                 JsonElement element = item.get("nbt");
-                NBTTagCompound nbt;
+                CompoundNBT nbt;
                 if (element.isJsonObject())
                     nbt = JsonToNBT.getTagFromJson(GSON.toJson(element));
                 else
                     nbt = JsonToNBT.getTagFromJson(element.getAsString());
                 ctx = ctx.withTag(nbt);
             }
-            catch (NBTException e)
+            catch (Exception e)
             {
                 throw new RuntimeException("Failed to parse NBT json.", e);
             }

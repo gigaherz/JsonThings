@@ -1,27 +1,22 @@
 package gigaherz.jsonthings.parser;
 
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.block.builder.BlockBuilder;
-import gigaherz.jsonthings.item.builder.AttributeModifierOperation;
-import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.item.builder.StackContext;
 import joptsimple.internal.Strings;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
-import java.util.UUID;
 
 public class BlockParser extends ThingParser<BlockBuilder>
 {
     public static final List<BlockBuilder> BUILDERS = Lists.newArrayList();
     public static final BlockParser INSTANCE = new BlockParser();
+
     public static void init()
     {
         INSTANCE.parse();
@@ -38,30 +33,17 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         BlockBuilder builder = BlockBuilder.begin(key);
 
-        if (data.has("translation_key"))
-        {
-            String str = data.get("translation_key").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                builder = builder.withTranslationKey(str);
-            }
-            else
-            {
-                throw new RuntimeException("If present, translation_key must be a non-empty string.");
-            }
-        }
-
         if (data.has("item"))
         {
             JsonElement item = data.get("item");
-            if(item.isJsonPrimitive())
+            if (item.isJsonPrimitive())
             {
                 if (item.getAsBoolean())
                 {
                     builder = createStockItemBlock(builder);
                 }
             }
-            else if(item.isJsonObject())
+            else if (item.isJsonObject())
             {
                 builder = parseItemBlock(data.get("item").getAsJsonObject(), builder);
             }
@@ -108,12 +90,6 @@ public class BlockParser extends ThingParser<BlockBuilder>
             ctx = new StackContext(null);
         }
 
-        if (item.has("data"))
-        {
-            int meta = item.get("data").getAsInt();
-            ctx = ctx.withMetadata(meta);
-        }
-
         if (item.has("count"))
         {
             int meta = item.get("count").getAsInt();
@@ -125,14 +101,14 @@ public class BlockParser extends ThingParser<BlockBuilder>
             try
             {
                 JsonElement element = item.get("nbt");
-                NBTTagCompound nbt;
+                CompoundNBT nbt;
                 if (element.isJsonObject())
                     nbt = JsonToNBT.getTagFromJson(GSON.toJson(element));
                 else
                     nbt = JsonToNBT.getTagFromJson(element.getAsString());
                 ctx = ctx.withTag(nbt);
             }
-            catch (NBTException e)
+            catch (Exception e)
             {
                 throw new RuntimeException("Failed to parse NBT json.", e);
             }

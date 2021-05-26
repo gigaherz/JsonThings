@@ -1,31 +1,19 @@
 package gigaherz.jsonthings.client;
 
-import com.google.common.base.Charsets;
-import gigaherz.jsonthings.IModProxy;
-import gigaherz.jsonthings.JsonThings;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.FolderResourcePack;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.loading.FMLPaths;
 
-import java.io.*;
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.io.File;
 
-public class ClientProxy implements IModProxy
+public class CustomResourcePack
 {
     private static boolean initialized;
 
-    public ClientProxy()
+    public CustomResourcePack()
     {
         injectCustomResourcePack();
     }
 
-    private static Field _defaultResourcePacks = ReflectionHelper.findField(Minecraft.class, "field_110449_ao", "defaultResourcePacks");
+    //private static Field _defaultResourcePacks = ReflectionHelper.findField(Minecraft.class, "field_110449_ao", "defaultResourcePacks");
 
     @SuppressWarnings("unchecked")
     public static void injectCustomResourcePack()
@@ -33,7 +21,7 @@ public class ClientProxy implements IModProxy
         if (initialized) return;
         initialized = true;
 
-        File resourcesFolder = new File(Loader.instance().getConfigDir(), "jsonthings");
+        File resourcesFolder = new File(FMLPaths.CONFIGDIR.get().toFile(), "jsonthings");
 
         if (!resourcesFolder.exists())
         {
@@ -48,7 +36,7 @@ public class ClientProxy implements IModProxy
             return;
         }
 
-        try
+        /*try
         {
             List<IResourcePack> rp = (List<IResourcePack>) _defaultResourcePacks.get(Minecraft.getMinecraft());
 
@@ -88,6 +76,6 @@ public class ClientProxy implements IModProxy
         catch (IllegalAccessException e)
         {
             // Ignore
-        }
+        }*/
     }
 }

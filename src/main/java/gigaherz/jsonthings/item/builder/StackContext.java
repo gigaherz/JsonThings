@@ -2,17 +2,16 @@ package gigaherz.jsonthings.item.builder;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 
 public class StackContext
 {
     public final ResourceLocation item;
-    public int meta = 0;
-    public NBTTagCompound tag = null;
+    public CompoundNBT tag = null;
     public int count = 1;
 
     private Item theItem;
@@ -22,13 +21,7 @@ public class StackContext
         this.item = item;
     }
 
-    public StackContext withMetadata(int meta)
-    {
-        this.meta = meta;
-        return this;
-    }
-
-    public StackContext withTag(NBTTagCompound tag)
+    public StackContext withTag(CompoundNBT tag)
     {
         this.tag = tag;
         return this;
@@ -55,9 +48,9 @@ public class StackContext
                 theItem = self;
             }
         }
-        ItemStack stack = new ItemStack(theItem, count, meta);
+        ItemStack stack = new ItemStack(theItem, count);
         if (tag != null)
-            stack.setTagCompound(tag);
+            stack.setTag(tag);
         return stack;
     }
 }

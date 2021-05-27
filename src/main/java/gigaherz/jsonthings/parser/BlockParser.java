@@ -1,6 +1,5 @@
 package gigaherz.jsonthings.parser;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.block.builder.BlockBuilder;
@@ -10,22 +9,11 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.List;
-
 public class BlockParser extends ThingParser<BlockBuilder>
 {
-    public static final List<BlockBuilder> BUILDERS = Lists.newArrayList();
-    public static final BlockParser INSTANCE = new BlockParser();
-
-    public static void init()
+    public BlockParser()
     {
-        INSTANCE.parse();
-    }
-
-    @Override
-    public String getThingType()
-    {
-        return "block";
+        super(GSON, "block");
     }
 
     @Override
@@ -53,19 +41,18 @@ public class BlockParser extends ThingParser<BlockBuilder>
             }
         }
 
-        BUILDERS.add(builder);
         return builder;
     }
 
     private BlockBuilder createStockItemBlock(BlockBuilder builder)
     {
-        ItemParser.INSTANCE.processThing(builder.getRegistryName(), new JsonObject()).makeBlock(builder.getRegistryName());
+        ThingResourceManager.INSTANCE.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject()).makeBlock(builder.getRegistryName());
         return builder;
     }
 
     private BlockBuilder parseItemBlock(JsonObject data, BlockBuilder builder)
     {
-        ItemParser.INSTANCE.processThing(builder.getRegistryName(), data).makeBlock(builder.getRegistryName());
+        ThingResourceManager.INSTANCE.itemParser.parseFromElement(builder.getRegistryName(), data).makeBlock(builder.getRegistryName());
         return builder;
     }
 

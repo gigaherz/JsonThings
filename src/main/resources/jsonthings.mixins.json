@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "gigaherz.jsonthings.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "jsonthings.refmap.json",
+  "mixins": [
+    "ResourcePackTypeExtender",
+    "ServerMainMixin"
+  ],
+  "client": [
+    "MinecraftMixin",
+    "CreateWorldScreenMixin",
+    "WorldOptionsScreenMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

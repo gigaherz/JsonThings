@@ -1,6 +1,5 @@
 package gigaherz.jsonthings.parser;
 
-import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -15,23 +14,13 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ToolType;
 
-import java.util.List;
 import java.util.UUID;
 
 public class ItemParser extends ThingParser<ItemBuilder>
 {
-    public static final List<ItemBuilder> BUILDERS = Lists.newArrayList();
-    public static final ItemParser INSTANCE = new ItemParser();
-
-    public static void init()
+    public ItemParser()
     {
-        INSTANCE.parse();
-    }
-
-    @Override
-    public String getThingType()
-    {
-        return "item";
+        super(GSON, "item");
     }
 
     @Override
@@ -82,8 +71,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
         {
             builder = parseArmorInfo(data, builder);
         }
-
-        BUILDERS.add(builder);
 
         return builder;
     }

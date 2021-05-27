@@ -2,6 +2,7 @@ package gigaherz.jsonthings.item;
 
 import com.google.common.collect.*;
 import gigaherz.jsonthings.item.builder.CompletionMode;
+import gigaherz.jsonthings.item.builder.StackContext;
 import gigaherz.jsonthings.item.context.FlexEventContext;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
@@ -15,6 +16,7 @@ import net.minecraft.item.*;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -23,6 +25,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class FlexBlockItem extends BlockItem implements IFlexItem
 {
@@ -41,6 +44,8 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     //region IFlexItem
+    private final Multimap<ItemGroup, StackContext> perTabStacks = ArrayListMultimap.create();
+    private final List<StackContext> searchTabStacks = Lists.newArrayList();
     private final List<ITextComponent> tooltipStrings = Lists.newArrayList();
     private final Map<EquipmentSlotType, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
     private final Map<String, ItemEventHandler> eventHandlers = Maps.newHashMap();
@@ -110,6 +115,16 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
+    public void addCreativeStack(StackContext stack, Iterable<ItemGroup> tabs)
+    {
+        for (ItemGroup tab : tabs)
+        {
+            perTabStacks.put(tab, stack);
+        }
+        searchTabStacks.add(stack);
+    }
+
+    @Override
     public void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier)
     {
         if (slot != null)
@@ -170,6 +185,19 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         tooltip.addAll(tooltipStrings);
+    }
+
+    @Override
+    public void fillItemGroup(ItemGroup tab, NonNullList<ItemStack> items)
+    {
+        if (tab == ItemGroup.SEARCH)
+        {
+            items.addAll(searchTabStacks.stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
+        }
+        else if (perTabStacks.containsKey(tab))
+        {
+            items.addAll(perTabStacks.get(tab).stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
+        }
     }
 
     @Override

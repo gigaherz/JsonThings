@@ -1,11 +1,13 @@
 package gigaherz.jsonthings.item;
 
 import gigaherz.jsonthings.item.builder.CompletionMode;
+import gigaherz.jsonthings.item.builder.StackContext;
 import gigaherz.jsonthings.item.context.FlexEventContext;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.ActionResult;
@@ -36,6 +38,8 @@ public interface IFlexItem
 
     @Nullable
     ItemEventHandler getEventHandler(String eventName);
+
+    void addCreativeStack(StackContext stack, Iterable<ItemGroup> tabs);
 
     void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier);
 

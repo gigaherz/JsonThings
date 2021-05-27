@@ -43,8 +43,18 @@ public class ItemParser extends ThingParser<ItemBuilder>
 
         if (data.has("group"))
         {
+            if (data.has("creative_menu_stacks"))
+            {
+                throw new RuntimeException("Cannot have group and creative_menu_stacks at the same time.");
+            }
+
             String name = data.get("group").getAsString();
-            builder = builder.withItemGroup(name);
+            builder = builder.withCreativeMenuStack(new StackContext(key), new String[]{name});
+        }
+
+        if (data.has("creative_menu_stacks"))
+        {
+            builder = parseCreativeMenuStacks(key, data, builder);
         }
 
         if (data.has("attribute_modifiers"))
@@ -140,6 +150,17 @@ public class ItemParser extends ThingParser<ItemBuilder>
             }
 
             builder = builder.withAttributeModifier(uuid, name, amount, operation);
+        }
+        return builder;
+    }
+
+    private ItemBuilder parseCreativeMenuStacks(ResourceLocation key, JsonObject data, ItemBuilder builder)
+    {
+        JsonArray list = data.get("creative_menu_stacks").getAsJsonArray();
+        for (JsonElement e : list)
+        {
+            JsonObject item = e.getAsJsonObject();
+            builder = builder.withCreativeMenuStack(parseStackContext(key, item), parseTabsList(item));
         }
         return builder;
     }

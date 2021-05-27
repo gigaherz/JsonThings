@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.resources.*;
 import net.minecraft.util.Unit;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -58,7 +59,7 @@ public class ThingResourceManager
         return (infoConsumer, infoFactory) -> folderPackFinder.findPacks(info -> {
             if (!disabledPacks.contains(info.getName()))
                 infoConsumer.accept(info);
-        }, (a,b,c,d,e,f,g) -> infoFactory.create(a,true,c,d,e,f,g));
+        }, (a,b,c,d,e,f,g) -> infoFactory.create(a,true,c,d,e,f,name -> new StringTextComponent("thingpack:").appendSibling(name)));
     }
 
     public File getResourcepacksLocation()

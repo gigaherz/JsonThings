@@ -2,6 +2,7 @@ package gigaherz.jsonthings.microregistries;
 
 import com.google.common.collect.Maps;
 import net.minecraft.item.*;
+import net.minecraft.state.IntegerProperty;
 
 import java.util.Map;
 
@@ -9,8 +10,8 @@ public class ThingsByName
 {
     public static Map<String, IItemTier> ITEM_TIERS = Maps.newHashMap();
     public static Map<String, IArmorMaterial> ARMOR_TIERS = Maps.newHashMap();
-    public static Map<String, ItemGroup> ITEM_GROUPS = Maps.newHashMap();
     public static Map<String, Food> FOODSTUFFS = Maps.newHashMap();
+    public static Map<String, PropertyType> PROPERTY_TYPES = Maps.newHashMap();
 
     public static void initVanillaThings()
     {
@@ -24,11 +25,6 @@ public class ThingsByName
         for(ArmorMaterial mat : ArmorMaterial.values())
         {
             ARMOR_TIERS.put(mat.getName(), mat);
-        }
-
-        for (ItemGroup group : ItemGroup.GROUPS)
-        {
-            ITEM_GROUPS.put(group.getPath(), group);
         }
 
         FOODSTUFFS.put("apple", Foods.APPLE);
@@ -69,5 +65,10 @@ public class ThingsByName
         FOODSTUFFS.put("suspicious_stew", Foods.SUSPICIOUS_STEW);
         FOODSTUFFS.put("sweet_berries", Foods.SWEET_BERRIES);
         FOODSTUFFS.put("tropical_fish", Foods.TROPICAL_FISH);
+
+        PROPERTY_TYPES.put("boolean", new PropertyType.BoolType());
+        PROPERTY_TYPES.put("int", new PropertyType.RangeType<>(IntegerProperty.class, IntegerProperty::create, js -> js.getAsJsonPrimitive().getAsInt()));
+        PROPERTY_TYPES.put("direction", new PropertyType.DirectionType());
+        PROPERTY_TYPES.put("enum", new PropertyType.EnumType());
     }
 }

@@ -3,6 +3,7 @@ package gigaherz.jsonthings.item.builder;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.item.*;
 import gigaherz.jsonthings.microregistries.ThingsByName;
 import net.minecraft.block.Block;
@@ -14,8 +15,11 @@ import net.minecraftforge.common.ToolType;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ItemBuilder
 {
@@ -33,8 +37,7 @@ public class ItemBuilder
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
 
-    private ItemGroup itemGroup = null;
-
+    private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
     private List<ToolInfo> toolInfos = Lists.newArrayList();
     private Food foodInfo = null;
     private PlantInfo plantInfo = null;
@@ -63,9 +66,9 @@ public class ItemBuilder
         return this;
     }
 
-    public ItemBuilder withItemGroup(String groupName)
+    public ItemBuilder withCreativeMenuStack(StackContext stackContext, String[] tabs)
     {
-        itemGroup = ThingsByName.ITEM_GROUPS.get(groupName);
+        creativeMenuStacks.add(Pair.of(stackContext, tabs));
         return this;
     }
 
@@ -148,11 +151,6 @@ public class ItemBuilder
     {
         Item.Properties properties = new Item.Properties();
 
-        if (itemGroup != null)
-        {
-            properties = properties.group(itemGroup);
-        }
-
         if (maxDamage != null)
         {
             properties = properties.maxDamage(maxDamage);
@@ -160,7 +158,7 @@ public class ItemBuilder
 
         if (containerInfo != null)
         {
-            properties = properties.containerItem(ForgeRegistries.ITEMS.getValue(containerInfo.emptyItem));
+            properties = properties.containerItem(getItemOrCrash(containerInfo.emptyItem));
         }
 
         if (foodInfo != null)
@@ -242,8 +240,23 @@ public class ItemBuilder
             flexItem.setUseFinishMode(delayedUse.onComplete);
         }
 
+        for (Pair<StackContext, String[]> tabEntries : creativeMenuStacks)
+        {
+            StackContext ctx = tabEntries.getFirst();
+            String[] tabs = tabEntries.getSecond();
+
+            Set<ItemGroup> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).collect(Collectors.toSet());
+            flexItem.addCreativeStack(ctx, tabsIterable);
+        }
         builtItem = baseItem;
         return baseItem;
+    }
+
+    private Item getItemOrCrash(ResourceLocation which)
+    {
+        if (!ForgeRegistries.ITEMS.containsKey(which))
+            throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", blockInfo.block));
+        return ForgeRegistries.ITEMS.getValue(which);
     }
 
     private Block getBlockOrCrash(ResourceLocation which)
@@ -251,6 +264,17 @@ public class ItemBuilder
         if (!ForgeRegistries.BLOCKS.containsKey(which))
             throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", blockInfo.block));
         return ForgeRegistries.BLOCKS.getValue(which);
+    }
+
+    @Nullable
+    private ItemGroup findCreativeTab(String label)
+    {
+        for (ItemGroup tab : ItemGroup.GROUPS)
+        {
+            if (tab.getPath().equals(label))
+                return tab;
+        }
+        return null;
     }
 
     @Nullable

@@ -1,7 +1,6 @@
 package gigaherz.jsonthings.mixin;
 
 import gigaherz.jsonthings.parser.ThingResourceManager;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.resources.IPackFinder;
 import net.minecraft.resources.ResourcePackList;

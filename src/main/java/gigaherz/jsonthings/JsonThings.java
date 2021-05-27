@@ -5,32 +5,20 @@ import gigaherz.jsonthings.block.builder.BlockBuilder;
 import gigaherz.jsonthings.client.ClientThingResources;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.microregistries.ThingsByName;
-import gigaherz.jsonthings.parser.BlockParser;
-import gigaherz.jsonthings.parser.ItemParser;
 import gigaherz.jsonthings.parser.ThingResourceManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraft.resources.IPackNameDecorator;
-import net.minecraft.resources.ResourcePackInfo;
 import net.minecraft.util.Util;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.ModLoadingStage;
-import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.loading.moddiscovery.ModFile;
-import net.minecraftforge.fml.packs.ModFileResourcePack;
 import net.minecraftforge.fml.packs.ResourcePackLoader;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraftforge.forgespi.language.IModInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,14 +26,9 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static net.minecraftforge.fml.Logging.CORE;
 
 @Mod.EventBusSubscriber(modid=JsonThings.MODID, bus= Mod.EventBusSubscriber.Bus.MOD)
 @Mod(JsonThings.MODID)
@@ -82,31 +65,6 @@ public class JsonThings
                 ClientThingResources.addClientPackFinder();
             }
         });
-    }
-
-    private static class ModPackFinder
-    {
-        static ResourcePackLoader.IPackInfoFinder buildPackFinder(Map<ModFile, ? extends ModFileResourcePack> modResourcePacks, BiConsumer<? super ModFileResourcePack, ResourcePackInfo> packSetter) {
-            return (packList, factory) -> serverPackFinder(modResourcePacks, packSetter, packList, factory);
-        }
-
-        private static void serverPackFinder(Map<ModFile, ? extends ModFileResourcePack> modResourcePacks, BiConsumer<? super ModFileResourcePack, ResourcePackInfo> packSetter, Consumer<ResourcePackInfo> consumer, ResourcePackInfo.IFactory factory) {
-            for (Map.Entry<ModFile, ? extends ModFileResourcePack> e : modResourcePacks.entrySet())
-            {
-                IModInfo mod = e.getKey().getModInfos().get(0);
-                if (Objects.equals(mod.getModId(), "minecraft")) continue; // skip the minecraft "mod"
-                final String name = "mod:" + mod.getModId();
-                final ResourcePackInfo packInfo = ResourcePackInfo.createResourcePack(name, false, e::getValue, factory, ResourcePackInfo.Priority.BOTTOM, IPackNameDecorator.PLAIN);
-                if (packInfo == null) {
-                    // Vanilla only logs an error, instead of propagating, so handle null and warn that something went wrong
-                    ModLoader.get().addWarning(new ModLoadingWarning(mod, ModLoadingStage.ERROR, "fml.modloading.brokenresources", e.getKey()));
-                    continue;
-                }
-                packSetter.accept(e.getValue(), packInfo);
-                LOGGER.debug(CORE, "Generating PackInfo named {} for mod file {}", name, e.getKey().getFilePath());
-                consumer.accept(packInfo);
-            }
-        }
     }
 
     public void finishLoading(RegistryEvent.NewRegistry event)

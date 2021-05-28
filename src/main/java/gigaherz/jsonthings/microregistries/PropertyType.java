@@ -16,18 +16,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class PropertyType<T extends Comparable<T>, P extends Property<T>>
+public abstract class PropertyType
 {
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T extends Comparable<T>, P extends Property<T>> P deserialize(String name, JsonObject data)
+    public static Property<?> deserialize(String name, JsonObject data)
     {
         String key = JSONUtils.getString(data, "type");
         PropertyType prop = ThingsByName.PROPERTY_TYPES.get(key);
-        return (P)prop.read(name, data);
+        if (prop == null)
+            throw new IllegalStateException("Property type not found " + key);
+        return prop.read(name, data);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T extends Comparable<T>, P extends Property<T>> JsonObject serialize(P property)
+    public static JsonObject serialize(Property<?> property)
     {
         for(Map.Entry<String, PropertyType> entry : ThingsByName.PROPERTY_TYPES.entrySet())
         {
@@ -45,10 +45,10 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
     }
 
     public abstract boolean handles(Property<?> property);
-    public abstract P read(String name, JsonObject data);
-    public abstract void write(JsonObject data, P property);
+    public abstract Property<?> read(String name, JsonObject data);
+    public abstract void write(JsonObject data, Property<?> property);
 
-    public static class BoolType extends PropertyType<Boolean, BooleanProperty>
+    public static class BoolType extends PropertyType
     {
         @Override
         public boolean handles(Property<?> property)
@@ -57,19 +57,19 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
 
         @Override
-        public BooleanProperty read(String name, JsonObject data)
+        public Property<?> read(String name, JsonObject data)
         {
             return BooleanProperty.create(name);
         }
 
         @Override
-        public void write(JsonObject data, BooleanProperty property)
+        public void write(JsonObject data, Property<?> property)
         {
             // Nothing to do
         }
     }
 
-    public static class RangeType<T extends Comparable<T>, P extends Property<T>> extends PropertyType<T,P>
+    public static class RangeType<T extends Comparable<T>, P extends Property<T>> extends PropertyType
     {
         private final Class<P> cls;
         private final Function3<String, T, T, P> factory;
@@ -89,7 +89,7 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
 
         @Override
-        public P read(String name, JsonObject data)
+        public Property<?> read(String name, JsonObject data)
         {
             if (!data.has("min"))
                 throw new IllegalStateException("Requires a value 'min' of the right type.");
@@ -101,7 +101,7 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
 
         @Override
-        public void write(JsonObject data, P property)
+        public void write(JsonObject data, Property<?> property)
         {
             property.getAllowedValues().stream().min(Comparable::compareTo)
                     .ifPresent(v -> data.addProperty("min", v.toString()));
@@ -110,7 +110,42 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
     }
 
-    public static class DirectionType extends PropertyType<Direction, DirectionProperty>
+    public static class StringType extends PropertyType
+    {
+        @Override
+        public boolean handles(Property<?> property)
+        {
+            return property instanceof CustomProperty;
+        }
+
+        @Override
+        public Property<?> read(String name, JsonObject data)
+        {
+            List<String> valid_values = Lists.newArrayList();
+            if (data.has("values"))
+            {
+                JsonArray values = data.get("values").getAsJsonArray();
+                for(JsonElement e : values)
+                {
+                    String val = e.getAsJsonPrimitive().getAsString();
+                    valid_values.add(val);
+                }
+                return CustomProperty.create(name, valid_values);
+            }
+            return CustomProperty.create(name);
+        }
+
+        @Override
+        public void write(JsonObject data, Property<?> property)
+        {
+            Collection<String> valid_values = ((CustomProperty)property).getAllowedValues();
+            JsonArray list = new JsonArray();
+            valid_values.forEach(list::add);
+            data.add("values", list);
+        }
+    }
+
+    public static class DirectionType extends PropertyType
     {
         @Override
         public boolean handles(Property<?> property)
@@ -119,7 +154,7 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
 
         @Override
-        public DirectionProperty read(String name, JsonObject data)
+        public Property<?> read(String name, JsonObject data)
         {
             List<Direction> valid_values = Lists.newArrayList();
             if (data.has("values"))
@@ -136,9 +171,9 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
 
         @Override
-        public void write(JsonObject data, DirectionProperty property)
+        public void write(JsonObject data, Property<?> property)
         {
-            Collection<Direction> valid_values = property.getAllowedValues();
+            Collection<Direction> valid_values = ((DirectionProperty)property).getAllowedValues();
             Direction[] values = Direction.values();
             if (values.length > valid_values.size())
             {
@@ -149,7 +184,8 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
     }
 
-    public static class EnumType<T extends Enum<T> & IStringSerializable> extends PropertyType<T, EnumProperty<T>>
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static class EnumType extends PropertyType
     {
         @Override
         public boolean handles(Property<?> property)
@@ -158,7 +194,7 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
 
         @Override
-        public EnumProperty read(String name, JsonObject data)
+        public Property<?> read(String name, JsonObject data)
         {
             String className = JSONUtils.getString(data, "class");
 
@@ -206,9 +242,9 @@ public abstract class PropertyType<T extends Comparable<T>, P extends Property<T
         }
 
         @Override
-        public void write(JsonObject data, EnumProperty<T> property)
+        public void write(JsonObject data, Property<?> property)
         {
-            Collection<T> valid_values = property.getAllowedValues();
+            Collection<?> valid_values = property.getAllowedValues();
             Class<?> cls = valid_values.stream().findFirst().get().getClass();
             Object[] enum_values = cls.getEnumConstants();
             if (enum_values.length > valid_values.size())

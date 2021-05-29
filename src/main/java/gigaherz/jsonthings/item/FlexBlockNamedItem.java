@@ -33,7 +33,7 @@ public class FlexBlockNamedItem extends BlockNamedItem implements IFlexItem
     {
         super(block, properties);
 
-        initializeDefaultStuff();
+        initializeFlex();
 
         eventHandlers.put("use_on_block", (eventName, context) -> {
             BlockRayTraceResult trace = new BlockRayTraceResult(
@@ -56,7 +56,7 @@ public class FlexBlockNamedItem extends BlockNamedItem implements IFlexItem
     private int useTime;
     private CompletionMode useFinishMode;
 
-    private void initializeDefaultStuff()
+    private void initializeFlex()
     {
         for (EquipmentSlotType slot1 : EquipmentSlotType.values())
         {

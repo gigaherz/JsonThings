@@ -1,15 +1,20 @@
 package gigaherz.jsonthings.microregistries;
 
 import com.google.common.collect.Maps;
+import gigaherz.jsonthings.block.builder.DynamicShape;
 import net.minecraft.item.*;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.Property;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public class ThingsByName
 {
@@ -18,6 +23,8 @@ public class ThingsByName
     public static Map<String, Food> FOODSTUFFS = Maps.newHashMap();
     public static Map<String, PropertyType> PROPERTY_TYPES = Maps.newHashMap();
     public static Map<String, Property<?>> PROPERTIES = Maps.newHashMap();
+    public static Map<String, IBooleanFunction> BOOLEAN_FUNCTIONS = Maps.newHashMap();
+    public static Map<String, DynamicShape> DYNAMIC_SHAPES = Maps.newHashMap();
 
     public static void initVanillaThings()
     {
@@ -170,5 +177,24 @@ public class ThingsByName
         PROPERTY_TYPES.put("string", new PropertyType.StringType());
         PROPERTY_TYPES.put("direction", new PropertyType.DirectionType());
         PROPERTY_TYPES.put("enum", new PropertyType.EnumType());
+
+        BOOLEAN_FUNCTIONS.put("FALSE", IBooleanFunction.FALSE);
+        BOOLEAN_FUNCTIONS.put("NOT_OR", IBooleanFunction.NOT_OR);
+        BOOLEAN_FUNCTIONS.put("ONLY_SECOND", IBooleanFunction.ONLY_SECOND);
+        BOOLEAN_FUNCTIONS.put("NOT_FIRST", IBooleanFunction.NOT_FIRST);
+        BOOLEAN_FUNCTIONS.put("ONLY_FIRST", IBooleanFunction.ONLY_FIRST);
+        BOOLEAN_FUNCTIONS.put("NOT_SECOND", IBooleanFunction.NOT_SECOND);
+        BOOLEAN_FUNCTIONS.put("NOT_SAME", IBooleanFunction.NOT_SAME);
+        BOOLEAN_FUNCTIONS.put("NOT_AND", IBooleanFunction.NOT_AND);
+        BOOLEAN_FUNCTIONS.put("AND", IBooleanFunction.AND);
+        BOOLEAN_FUNCTIONS.put("SAME", IBooleanFunction.SAME);
+        BOOLEAN_FUNCTIONS.put("SECOND", IBooleanFunction.SECOND);
+        BOOLEAN_FUNCTIONS.put("CAUSES", IBooleanFunction.CAUSES);
+        BOOLEAN_FUNCTIONS.put("FIRST", IBooleanFunction.FIRST);
+        BOOLEAN_FUNCTIONS.put("CAUSED_BY", IBooleanFunction.CAUSED_BY);
+        BOOLEAN_FUNCTIONS.put("OR", IBooleanFunction.OR);
+        BOOLEAN_FUNCTIONS.put("TRUE", IBooleanFunction.TRUE);
+
+        DYNAMIC_SHAPES.put("empty", DynamicShape.empty());
     }
 }

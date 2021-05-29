@@ -30,7 +30,7 @@ public class FlexItem extends Item implements IFlexItem
     public FlexItem(Item.Properties properties)
     {
         super(properties);
-        initializeDefaultStuff();
+        initializeFlex();
     }
 
     //region IFlexItem
@@ -44,7 +44,7 @@ public class FlexItem extends Item implements IFlexItem
     private int useTime;
     private CompletionMode useFinishMode;
 
-    private void initializeDefaultStuff()
+    private void initializeFlex()
     {
         for (EquipmentSlotType slot1 : EquipmentSlotType.values())
         {

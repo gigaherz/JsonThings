@@ -31,7 +31,7 @@ public class FlexArmorItem extends ArmorItem implements IFlexItem
     {
         super(material, slot, properties);
 
-        initializeDefaultStuff();
+        initializeFlex();
 
         eventHandlers.put("use_on_air", (eventName, context) ->
                 super.onItemRightClick(context.get(FlexEventContext.WORLD), (PlayerEntity) context.get(FlexEventContext.USER), context.get(FlexEventContext.HAND)));
@@ -48,7 +48,7 @@ public class FlexArmorItem extends ArmorItem implements IFlexItem
     private int useTime;
     private CompletionMode useFinishMode;
 
-    private void initializeDefaultStuff()
+    private void initializeFlex()
     {
         for (EquipmentSlotType slot1 : EquipmentSlotType.values())
         {

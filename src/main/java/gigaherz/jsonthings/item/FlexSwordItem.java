@@ -32,7 +32,7 @@ public class FlexSwordItem extends SwordItem implements IFlexItem
     {
         super(tier, damage, speed, properties);
 
-        initializeDefaultStuff();
+        initializeFlex();
 
         eventHandlers.put("use_on_block", (eventName, context) -> {
             BlockRayTraceResult trace = new BlockRayTraceResult(
@@ -55,7 +55,7 @@ public class FlexSwordItem extends SwordItem implements IFlexItem
     private int useTime;
     private CompletionMode useFinishMode;
 
-    private void initializeDefaultStuff()
+    private void initializeFlex()
     {
         for (EquipmentSlotType slot1 : EquipmentSlotType.values())
         {

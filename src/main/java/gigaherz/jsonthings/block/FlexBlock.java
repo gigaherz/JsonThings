@@ -1,6 +1,6 @@
 package gigaherz.jsonthings.block;
 
-import gigaherz.jsonthings.block.builder.DynamicShape;
+import gigaherz.jsonthings.util.DynamicShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.Property;

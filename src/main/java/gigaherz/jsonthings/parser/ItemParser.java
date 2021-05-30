@@ -9,8 +9,6 @@ import gigaherz.jsonthings.item.builder.StackContext;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Food;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ToolType;
 
@@ -288,7 +286,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
             throw new RuntimeException("Tool info must have a non-empty 'material' string.");
         }
 
-        builder = builder.withTool(type, material);
+        builder = builder.withTool(type, new ResourceLocation(material));
         return builder;
     }
 
@@ -297,7 +295,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         JsonElement foodData = data.get("food");
         if (foodData.isJsonPrimitive() && foodData.getAsJsonPrimitive().isString())
         {
-            builder = builder.makeFood(foodData.getAsJsonPrimitive().getAsString());
+            builder = builder.makeFood(new ResourceLocation(foodData.getAsString()));
         }
         else
         {

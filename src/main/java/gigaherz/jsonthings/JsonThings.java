@@ -39,7 +39,7 @@ public class JsonThings
 
     static {
         ThingResourceManager.staticInit();
-        ThingsByName.initVanillaThings();
+        ThingsByName.initRegistries();
     }
 
     public JsonThings()

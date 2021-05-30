@@ -98,21 +98,21 @@ public class ItemBuilder
         return this;
     }
 
-    public ItemBuilder withTool(ToolType toolType, String tierName)
+    public ItemBuilder withTool(ToolType toolType, ResourceLocation tierName)
     {
         if (this.blockInfo != null) throw new RuntimeException("An item can not be tool and block at the same time.");
         if (this.armorInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
         if (!ThingsByName.ITEM_TIERS.containsKey(tierName)) throw new RuntimeException("No known item tier definition with name '" + tierName + "'");
-        this.toolInfos.add(new ToolInfo(toolType, ThingsByName.ITEM_TIERS.get(tierName)));
+        this.toolInfos.add(new ToolInfo(toolType, ThingsByName.ITEM_TIERS.getOrDefault(tierName)));
         return this;
     }
 
-    public ItemBuilder makeFood(String foodName)
+    public ItemBuilder makeFood(ResourceLocation foodName)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
         if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
-        if (!ThingsByName.FOODSTUFFS.containsKey(foodName)) throw new RuntimeException("No known food definition with name '" + foodName + "'");
-        this.foodInfo = ThingsByName.FOODSTUFFS.get(foodName);
+        if (!ThingsByName.FOODS.containsKey(foodName)) throw new RuntimeException("No known food definition with name '" + foodName + "'");
+        this.foodInfo = ThingsByName.FOODS.getOrDefault(foodName);
         return this;
     }
 

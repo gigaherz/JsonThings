@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import gigaherz.jsonthings.block.FlexBlock;
 import gigaherz.jsonthings.block.IFlexBlock;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
+import gigaherz.jsonthings.util.DynamicShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;

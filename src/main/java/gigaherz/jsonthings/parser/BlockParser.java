@@ -3,7 +3,7 @@ package gigaherz.jsonthings.parser;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.block.builder.BlockBuilder;
-import gigaherz.jsonthings.block.builder.DynamicShape;
+import gigaherz.jsonthings.util.DynamicShape;
 import gigaherz.jsonthings.item.builder.ItemBuilder;
 import gigaherz.jsonthings.microregistries.PropertyType;
 import gigaherz.jsonthings.microregistries.ThingsByName;
@@ -91,7 +91,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
         if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString())
         {
             String name = element.getAsString();
-            DynamicShape shape = ThingsByName.DYNAMIC_SHAPES.get(name);
+            DynamicShape shape = ThingsByName.DYNAMIC_SHAPES.getOrDefault(new ResourceLocation(name));
             if (shape == null)
                 throw new IllegalStateException("No shape known with name " + name);
             return shape;
@@ -122,7 +122,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
             Property<?> property;
             if (value.isJsonPrimitive())
             {
-                property = ThingsByName.PROPERTIES.get(value.getAsString());
+                property = ThingsByName.PROPERTIES.getOrDefault(new ResourceLocation(value.getAsString()));
                 if (!property.getName().equals(name))
                 {
                     throw new IllegalStateException("The stock property '" + value.getAsString() + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");

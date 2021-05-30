@@ -6,9 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Function3;
 import net.minecraft.state.*;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.util.*;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,7 +19,7 @@ public abstract class PropertyType
     public static Property<?> deserialize(String name, JsonObject data)
     {
         String key = JSONUtils.getString(data, "type");
-        PropertyType prop = ThingsByName.PROPERTY_TYPES.get(key);
+        PropertyType prop = ThingsByName.PROPERTY_TYPES.getOrDefault(new ResourceLocation(key));
         if (prop == null)
             throw new IllegalStateException("Property type not found " + key);
         return prop.read(name, data);
@@ -29,9 +27,9 @@ public abstract class PropertyType
 
     public static JsonObject serialize(Property<?> property)
     {
-        for(Map.Entry<String, PropertyType> entry : ThingsByName.PROPERTY_TYPES.entrySet())
+        for(Map.Entry<RegistryKey<PropertyType>, PropertyType> entry : ThingsByName.PROPERTY_TYPES.getEntries())
         {
-            String key = entry.getKey();
+            String key = entry.getKey().getLocation().toString();
             PropertyType prop = entry.getValue();
             if (prop.handles(property))
             {

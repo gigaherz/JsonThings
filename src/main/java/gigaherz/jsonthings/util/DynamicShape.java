@@ -1,30 +1,66 @@
-package gigaherz.jsonthings.block.builder;
+package gigaherz.jsonthings.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import gigaherz.jsonthings.microregistries.ThingsByName;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.Property;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 public class DynamicShape
 {
-    private static final DynamicShape EMPTY = new DynamicShape((state, facing) -> Optional.empty(), null);
+    private static final DynamicShape EMPTY = new DynamicShape(new CombinedShape(IBooleanFunction.OR, Collections.emptyList()), null);
 
     public static DynamicShape empty()
     {
         return EMPTY;
     }
+
+    public static final Codec<IShapeProvider> SHAPE_CODEC = Codec.either(
+            Codec.either(
+                    CombinedShape.CODEC,
+                    ConditionalShape.CODEC
+            ).xmap(
+                    either -> either.map(l -> l, r -> r),
+                    shape -> shape instanceof ConditionalShape
+                            ? Either.right((ConditionalShape) shape)
+                            : Either.left((CombinedShape) shape)
+            ),
+            BasicShape.CODEC
+    ).xmap(
+           either -> either.map(l -> l, r -> r),
+           shape -> shape instanceof BasicShape
+                   ? Either.right((BasicShape) shape)
+                   : Either.left(shape)
+    );
+
+    public static final Codec<IShapeProvider> SHAPE_CODEC1 = CodecExtras.makeChoiceCodec(
+            CodecExtras.toSubclass(ConditionalShape.CODEC, ConditionalShape.class),
+            CodecExtras.toSubclass(CombinedShape.CODEC, CombinedShape.class),
+            CodecExtras.toSubclass(BasicShape.CODEC, BasicShape.class)
+    );
+
+    public static final Codec<DynamicShape> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        SHAPE_CODEC.fieldOf("shape").forGetter(shape -> shape.shape),
+        CodecExtras.PROPERTY_CODEC.optionalFieldOf("shape_rotation").forGetter(shape -> Optional.ofNullable(shape.facing))
+        ).apply(instance, (shape,facing) -> new DynamicShape(shape, (Property<Direction>)facing.orElse(null))));
 
     @FunctionalInterface
     public interface IShapeProvider {
@@ -32,6 +68,23 @@ public class DynamicShape
     }
 
     public static class BasicShape implements IShapeProvider {
+        public static final Codec<BasicShape> ARRAY_CODEC = CodecExtras.DOUBLE_STREAM.comapFlatMap((stream) ->
+                CodecExtras.validateDoubleStreamSize(stream, 6)
+                        .map((nums) -> new BasicShape(nums[0], nums[1], nums[2], nums[3], nums[4], nums[5])),
+                (pos) -> DoubleStream.of(pos.x1, pos.y1, pos.z1, pos.x2, pos.y2, pos.z2));
+        public static final Codec<BasicShape> OBJECT_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+                Codec.DOUBLE.fieldOf("x1").forGetter(shape -> shape.x1),
+                Codec.DOUBLE.fieldOf("y1").forGetter(shape -> shape.y1),
+                Codec.DOUBLE.fieldOf("z1").forGetter(shape -> shape.z1),
+                Codec.DOUBLE.fieldOf("x2").forGetter(shape -> shape.x2),
+                Codec.DOUBLE.fieldOf("y2").forGetter(shape -> shape.y2),
+                Codec.DOUBLE.fieldOf("z2").forGetter(shape -> shape.z2)
+        ).apply(instance, BasicShape::new));
+        public static final Codec<BasicShape> CODEC = Codec.either(ARRAY_CODEC, OBJECT_CODEC).xmap(
+                either -> either.map(l->l,r->r),
+                Either::left
+        );
+
         public final double x1;
         public final double y1;
         public final double z1;
@@ -57,6 +110,23 @@ public class DynamicShape
     }
 
     public static class CombinedShape implements IShapeProvider {
+        public static final Codec<CombinedShape> LIST_CODEC = SHAPE_CODEC.listOf().xmap(
+                list -> new CombinedShape(IBooleanFunction.OR, list),
+                shape -> {
+                    if (shape.operator == IBooleanFunction.OR)
+                        throw new IllegalStateException("Cannot use CombinedShape.LIST_CODEC to encode a CombinedShape whose boolean function is not OR");
+                    return shape.boxes;
+                }
+        );
+        public static final Codec<CombinedShape> OBJECT_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+                CodecExtras.registryNameCodec(ThingsByName.BOOLEAN_FUNCTIONS).fieldOf("op").forGetter(shape -> shape.operator),
+                SHAPE_CODEC.listOf().fieldOf("shapes").forGetter(shape -> shape.boxes)
+        ).apply(instance, CombinedShape::new));
+        public static final Codec<CombinedShape> CODEC = Codec.either(LIST_CODEC, OBJECT_CODEC).xmap(
+                either -> either.map(l->l,r->r),
+                Either::left
+        );
+
         public final IBooleanFunction operator;
         public final List<IShapeProvider> boxes = Lists.newArrayList();
 
@@ -77,10 +147,37 @@ public class DynamicShape
     }
 
     public static class ConditionalShape implements IShapeProvider {
+
+        public static final Codec<ConditionalShape> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+                Codec.pair(
+                        CodecExtras.PROPERTY_CODEC,
+                        Codec.STRING.listOf()
+                ).<Pair<Property<?>, Set<Comparable<?>>>>comapFlatMap(
+                        pair -> {
+                            Property<?> property = pair.getFirst();
+                            List<String> second = pair.getSecond();
+                            List<Optional<?>> set = second.stream().map(property::parseValue).collect(Collectors.toList());
+                            if (set.stream().allMatch(Optional::isPresent))
+                                return DataResult.success(
+                                        Pair.of(property, set.stream().map(opt -> (Comparable<?>)opt.get()).collect(Collectors.toSet()))
+                                );
+                            return DataResult.error("One or more values are not valid for the property " + property.getName());
+                        },
+                        pair -> {
+                            Property<?> first = pair.getFirst();
+                            Set<Comparable<?>> second = pair.getSecond();
+                            return Pair.of(
+                                    first, second.stream().map(value -> ((Property)first).getName(value)).collect(Collectors.toList())
+                            );
+                        }
+                ).listOf().listOf().fieldOf("conditions").forGetter(shape -> shape.conditions),
+                SHAPE_CODEC.fieldOf("shape").forGetter(shape -> shape.shape)
+        ).apply(instance, ConditionalShape::new));
+
         public final List<List<Pair<Property<?>, Set<Comparable<?>>>>> conditions = Lists.newArrayList();
         public final IShapeProvider shape;
 
-        public ConditionalShape(Collection<List<Pair<Property<?>, Set<Comparable<?>>>>> conditions, IShapeProvider shape)
+        public ConditionalShape(List<List<Pair<Property<?>, Set<Comparable<?>>>>> conditions, IShapeProvider shape)
         {
             this.conditions.addAll(conditions);
             this.shape = shape;
@@ -267,7 +364,7 @@ public class DynamicShape
         }
 
         String op = obj.get("op").getAsString();
-        IBooleanFunction operator = ThingsByName.BOOLEAN_FUNCTIONS.get(op);
+        IBooleanFunction operator = ThingsByName.BOOLEAN_FUNCTIONS.getOrDefault(new ResourceLocation(op));
 
         if (!obj.has("shapes"))
             throw new IllegalStateException("Expected value with name 'shapes'.");

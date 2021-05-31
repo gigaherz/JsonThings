@@ -54,22 +54,22 @@ public class ThingsByName
 
     private static void registerBooleanFunctions()
     {
-        Registry.register(BOOLEAN_FUNCTIONS,"FALSE", IBooleanFunction.FALSE);
-        Registry.register(BOOLEAN_FUNCTIONS,"NOT_OR", IBooleanFunction.NOT_OR);
-        Registry.register(BOOLEAN_FUNCTIONS,"ONLY_SECOND", IBooleanFunction.ONLY_SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS,"NOT_FIRST", IBooleanFunction.NOT_FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS,"ONLY_FIRST", IBooleanFunction.ONLY_FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS,"NOT_SECOND", IBooleanFunction.NOT_SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS,"NOT_SAME", IBooleanFunction.NOT_SAME);
-        Registry.register(BOOLEAN_FUNCTIONS,"NOT_AND", IBooleanFunction.NOT_AND);
-        Registry.register(BOOLEAN_FUNCTIONS,"AND", IBooleanFunction.AND);
-        Registry.register(BOOLEAN_FUNCTIONS,"SAME", IBooleanFunction.SAME);
-        Registry.register(BOOLEAN_FUNCTIONS,"SECOND", IBooleanFunction.SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS,"CAUSES", IBooleanFunction.CAUSES);
-        Registry.register(BOOLEAN_FUNCTIONS,"FIRST", IBooleanFunction.FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS,"CAUSED_BY", IBooleanFunction.CAUSED_BY);
-        Registry.register(BOOLEAN_FUNCTIONS,"OR", IBooleanFunction.OR);
-        Registry.register(BOOLEAN_FUNCTIONS,"TRUE", IBooleanFunction.TRUE);
+        Registry.register(BOOLEAN_FUNCTIONS,"false", IBooleanFunction.FALSE);
+        Registry.register(BOOLEAN_FUNCTIONS,"not_or", IBooleanFunction.NOT_OR);
+        Registry.register(BOOLEAN_FUNCTIONS,"only_second", IBooleanFunction.ONLY_SECOND);
+        Registry.register(BOOLEAN_FUNCTIONS,"not_first", IBooleanFunction.NOT_FIRST);
+        Registry.register(BOOLEAN_FUNCTIONS,"only_first", IBooleanFunction.ONLY_FIRST);
+        Registry.register(BOOLEAN_FUNCTIONS,"not_second", IBooleanFunction.NOT_SECOND);
+        Registry.register(BOOLEAN_FUNCTIONS,"not_same", IBooleanFunction.NOT_SAME);
+        Registry.register(BOOLEAN_FUNCTIONS,"not_and", IBooleanFunction.NOT_AND);
+        Registry.register(BOOLEAN_FUNCTIONS,"and", IBooleanFunction.AND);
+        Registry.register(BOOLEAN_FUNCTIONS,"same", IBooleanFunction.SAME);
+        Registry.register(BOOLEAN_FUNCTIONS,"second", IBooleanFunction.SECOND);
+        Registry.register(BOOLEAN_FUNCTIONS,"causes", IBooleanFunction.CAUSES);
+        Registry.register(BOOLEAN_FUNCTIONS,"first", IBooleanFunction.FIRST);
+        Registry.register(BOOLEAN_FUNCTIONS,"caused_by", IBooleanFunction.CAUSED_BY);
+        Registry.register(BOOLEAN_FUNCTIONS,"or", IBooleanFunction.OR);
+        Registry.register(BOOLEAN_FUNCTIONS,"true", IBooleanFunction.TRUE);
     }
 
     private static void registerProperties()

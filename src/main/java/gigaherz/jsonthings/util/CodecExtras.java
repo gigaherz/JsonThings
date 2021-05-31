@@ -1,21 +1,24 @@
 package gigaherz.jsonthings.util;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import gigaherz.jsonthings.microregistries.ThingsByName;
 import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraftforge.common.util.Lazy;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -37,6 +40,16 @@ public class CodecExtras
         } else {
             return DataResult.success(aint);
         }
+    }
+
+    public static <T> Codec<List<T>> maybeList(Codec<T> codec) {
+        return Codec.either(codec.listOf(), codec).xmap(
+                either -> either.map(
+                        left -> left,
+                        right -> Collections.singletonList(right)
+                ),
+                list -> list.size() == 1 ? Either.right(list.get(0)) : Either.left(list)
+        );
     }
 
     public static <K,V> Codec<V> mappingCodec(Codec<K> keyCodec, Function<K,V> lookup, Function<V,K> inverseLookup)
@@ -77,43 +90,69 @@ public class CodecExtras
             @Override
             public <T1> DataResult<Pair<T, T1>> decode(DynamicOps<T1> ops, T1 input)
             {
-                StringBuilder builder = null;
-                for(Codec<T> choice : choices)
-                {
-                    DataResult<Pair<T, T1>> result = choice.decode(ops, input);
-                    Optional<Pair<T, T1>> result1 = result.result();
-                    if (result1.isPresent())
-                        return DataResult.success(result1.map(p -> Pair.of(p.getFirst(), p.getSecond())).get());
-                    final StringBuilder b = builder == null ? (builder = new StringBuilder()) : builder;
-                    Optional<DataResult.PartialResult<Pair<T, T1>>> error = result.error();
-                    error.ifPresent(err -> { b.append(err.message()); b.append(System.lineSeparator()); });
-                }
-                if (builder != null)
-                {
-                    return DataResult.error("Could not decode with any of the options. Errors: " + builder.toString());
-                }
-                return DataResult.error("No codecs?!");
+                return processChoices(choice -> choice.decode(ops, input), "Could not decode with any of the options.");
             }
 
             @Override
             public <T1> DataResult<T1> encode(T input, DynamicOps<T1> ops, T1 prefix)
             {
+                return processChoices(choice -> choice.encode(input, ops, prefix), "Could not encode with any of the options.");
+            }
+
+            private <T1> DataResult<T1> processChoices(Function<Codec<T>,DataResult<T1>> action, String errMessage)
+            {
                 StringBuilder builder = null;
                 for(Codec<T> choice : choices)
                 {
-                    DataResult<T1> result = choice.encode(input, ops, prefix);
-                    Optional<T1> result1 = result.result();
-                    if (result1.isPresent())
-                        return DataResult.success(result1.get());
+                    DataResult<T1> result = action.apply(choice);
+                    Optional<T1> success = result.result();
+                    if (success.isPresent())
+                        return DataResult.success(success.get());
                     final StringBuilder b = builder == null ? (builder = new StringBuilder()) : builder;
                     Optional<DataResult.PartialResult<T1>> error = result.error();
-                    error.ifPresent(err -> { b.append(err.message()); b.append(System.lineSeparator()); });
+                    error.ifPresent(err -> { b.append("\n"); b.append(err.message()); });
                 }
                 if (builder != null)
                 {
-                    return DataResult.error("Could not encode with any of the options. Errors: " + builder.toString());
+                    builder.append("\nEnd choices.");
+                    return DataResult.error(errMessage + " Errors: " + builder);
                 }
                 return DataResult.error("No codecs?!");
+            }
+
+            @Override
+            public String toString()
+            {
+                return String.format("ChoiceCodec[%s]", choices.stream().map(Codec::toString).collect(Collectors.joining(",")));
+            }
+        };
+    }
+
+    public static <T> Codec<T> lazy(Supplier<Codec<T>> codecSupplier)
+    {
+        return new Codec<T>()
+        {
+            final Supplier<Codec<T>> supplier = codecSupplier;
+            Codec<T> resolved = null;
+
+            @Override
+            public <T1> DataResult<Pair<T, T1>> decode(DynamicOps<T1> ops, T1 input)
+            {
+                return (resolved == null ? (resolved = supplier.get()) : resolved).decode(ops, input);
+            }
+
+            @Override
+            public <T1> DataResult<T1> encode(T input, DynamicOps<T1> ops, T1 prefix)
+            {
+                return (resolved == null ? (resolved = supplier.get()) : resolved).encode(input, ops, prefix);
+            }
+
+            @Override
+            public String toString()
+            {
+                if (resolved != null)
+                    return String.format("LazyCodec[%s]", resolved);
+                return "LazyCodec[not resolved]";
             }
         };
     }

@@ -5,13 +5,12 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
-import gigaherz.jsonthings.microregistries.ThingsByName;
+import gigaherz.jsonthings.things.ThingRegistries;
 import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.SimpleRegistry;
-import net.minecraftforge.common.util.Lazy;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,24 +24,29 @@ import java.util.stream.Stream;
 
 public class CodecExtras
 {
-    public static final Codec<Property<?>> PROPERTY_CODEC = registryNameCodec(ThingsByName.PROPERTIES);
+    public static final Codec<Property<?>> PROPERTY_CODEC = registryNameCodec(ThingRegistries.PROPERTIES);
 
     public static final Codec<DoubleStream> DOUBLE_STREAM = Codec.DOUBLE.listOf().xmap(
             list -> list.stream().mapToDouble(d -> d),
             stream -> stream.boxed().collect(Collectors.toList())
     );
 
-    public static DataResult<double[]> validateDoubleStreamSize(DoubleStream stream, int size) {
+    public static DataResult<double[]> validateDoubleStreamSize(DoubleStream stream, int size)
+    {
         double[] aint = stream.limit(size + 1).toArray();
-        if (aint.length != size) {
+        if (aint.length != size)
+        {
             String s = "Input is not a list of " + size + " ints";
             return aint.length >= size ? DataResult.error(s, Arrays.copyOf(aint, size)) : DataResult.error(s);
-        } else {
+        }
+        else
+        {
             return DataResult.success(aint);
         }
     }
 
-    public static <T> Codec<List<T>> maybeList(Codec<T> codec) {
+    public static <T> Codec<List<T>> maybeList(Codec<T> codec)
+    {
         return Codec.either(codec.listOf(), codec).xmap(
                 either -> either.map(
                         left -> left,
@@ -52,7 +56,7 @@ public class CodecExtras
         );
     }
 
-    public static <K,V> Codec<V> mappingCodec(Codec<K> keyCodec, Function<K,V> lookup, Function<V,K> inverseLookup)
+    public static <K, V> Codec<V> mappingCodec(Codec<K> keyCodec, Function<K, V> lookup, Function<V, K> inverseLookup)
     {
         return keyCodec.flatXmap(
                 key -> {
@@ -66,7 +70,7 @@ public class CodecExtras
         );
     }
 
-    public static <T> Codec<T> registryNameCodec(SimpleRegistry<T> registry)
+    public static <T> Codec<T> registryNameCodec(Registry<T> registry)
     {
         return mappingCodec(ResourceLocation.CODEC, registry::getOrDefault, registry::getKey);
     }
@@ -99,10 +103,10 @@ public class CodecExtras
                 return processChoices(choice -> choice.encode(input, ops, prefix), "Could not encode with any of the options.");
             }
 
-            private <T1> DataResult<T1> processChoices(Function<Codec<T>,DataResult<T1>> action, String errMessage)
+            private <T1> DataResult<T1> processChoices(Function<Codec<T>, DataResult<T1>> action, String errMessage)
             {
                 StringBuilder builder = null;
-                for(Codec<T> choice : choices)
+                for (Codec<T> choice : choices)
                 {
                     DataResult<T1> result = action.apply(choice);
                     Optional<T1> success = result.result();
@@ -110,7 +114,10 @@ public class CodecExtras
                         return DataResult.success(success.get());
                     final StringBuilder b = builder == null ? (builder = new StringBuilder()) : builder;
                     Optional<DataResult.PartialResult<T1>> error = result.error();
-                    error.ifPresent(err -> { b.append("\n"); b.append(err.message()); });
+                    error.ifPresent(err -> {
+                        b.append("\n");
+                        b.append(err.message());
+                    });
                 }
                 if (builder != null)
                 {

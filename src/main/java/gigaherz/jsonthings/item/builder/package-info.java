@@ -1,7 +1,0 @@
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-package gigaherz.jsonthings.item.builder;
-
-import mcp.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;

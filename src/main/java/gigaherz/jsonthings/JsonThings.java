@@ -1,11 +1,11 @@
 package gigaherz.jsonthings;
 
 import com.google.common.collect.Lists;
-import gigaherz.jsonthings.block.builder.BlockBuilder;
 import gigaherz.jsonthings.client.ClientThingResources;
-import gigaherz.jsonthings.item.builder.ItemBuilder;
-import gigaherz.jsonthings.microregistries.ThingsByName;
-import gigaherz.jsonthings.parser.ThingResourceManager;
+import gigaherz.jsonthings.things.builders.BlockBuilder;
+import gigaherz.jsonthings.things.builders.ItemBuilder;
+import gigaherz.jsonthings.things.parsers.ThingResourceManager;
+import gigaherz.jsonthings.things.ThingRegistries;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.util.Util;
@@ -30,16 +30,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(modid=JsonThings.MODID, bus= Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(JsonThings.MODID)
 public class JsonThings
 {
     public static final String MODID = "jsonthings";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
-    static {
+    static
+    {
         ThingResourceManager.staticInit();
-        ThingsByName.initRegistries();
+        ThingRegistries.staticInit();
     }
 
     public JsonThings()
@@ -52,11 +53,11 @@ public class JsonThings
 
     private static CompletableFuture<ThingResourceManager> loader;
 
-    @SubscribeEvent(priority= EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void construct(FMLConstructModEvent event)
     {
         event.enqueueWork(() -> {
-            ResourcePackLoader.loadResourcePacks(ThingResourceManager.INSTANCE.getResourcePackList(), ModPackFinder::buildPackFinder);
+            ResourcePackLoader.loadResourcePacks(ThingResourceManager.INSTANCE.getResourcePackList(), ModResourcesFinder::buildPackFinder);
 
             loader = ThingResourceManager.init(Util.getServerExecutor(), Runnable::run);
 

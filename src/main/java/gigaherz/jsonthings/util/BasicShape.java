@@ -45,6 +45,6 @@ public class BasicShape implements IShapeProvider
     @Override
     public Optional<VoxelShape> getShape(BlockState state, Direction facing)
     {
-        return Optional.of(DynamicShape.cuboidWithRotation(facing, x1, y1, z1, x2, y2, z2));
+        return Optional.of(DynamicShape.cuboidWithRotation(facing, x1/16.0, y1/16.0, z1/16.0, x2/16.0, y2/16.0, z2/16.0));
     }
 }

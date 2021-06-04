@@ -1,16 +1,25 @@
 package gigaherz.jsonthings.things.blocks;
 
+import com.google.common.collect.Maps;
 import gigaherz.jsonthings.things.IFlexBlock;
+import gigaherz.jsonthings.things.events.BlockEventHandler;
+import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.WallBlock;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.Property;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class FlexLeavesBlock extends LeavesBlock implements IFlexBlock
@@ -26,6 +35,7 @@ public class FlexLeavesBlock extends LeavesBlock implements IFlexBlock
     private DynamicShape collisionShape;
     private DynamicShape raytraceShape;
     private DynamicShape renderShape;
+    private final Map<String, BlockEventHandler> eventHandlers = Maps.newHashMap();
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
@@ -45,25 +55,37 @@ public class FlexLeavesBlock extends LeavesBlock implements IFlexBlock
     }
 
     @Override
-    public void setGeneralShape(DynamicShape shape)
+    public void addEventHandler(String eventName, BlockEventHandler eventHandler)
+    {
+        eventHandlers.put(eventName, eventHandler);
+    }
+
+    @Override
+    public BlockEventHandler getEventHandler(String eventName)
+    {
+        return eventHandlers.get(eventName);
+    }
+
+    @Override
+    public void setGeneralShape(@Nullable DynamicShape shape)
     {
         this.generalShape = shape;
     }
 
     @Override
-    public void setCollisionShape(DynamicShape shape)
+    public void setCollisionShape(@Nullable DynamicShape shape)
     {
         this.collisionShape = shape;
     }
 
     @Override
-    public void setRaytraceShape(DynamicShape shape)
+    public void setRaytraceShape(@Nullable DynamicShape shape)
     {
         this.raytraceShape = shape;
     }
 
     @Override
-    public void setRenderShape(DynamicShape shape)
+    public void setRenderShape(@Nullable DynamicShape shape)
     {
         this.renderShape = shape;
     }
@@ -105,5 +127,15 @@ public class FlexLeavesBlock extends LeavesBlock implements IFlexBlock
             return renderShape.getShape(state);
         return super.getRenderShape(state, worldIn, pos);
     }
+
+    @Override
+    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
+    {
+        return runEvent("use", FlexEventContext.of(worldIn, pos, state)
+                .with(FlexEventContext.USER, player)
+                .with(FlexEventContext.HAND, handIn)
+                .withRayTrace(hit), () -> super.onBlockActivated(state, worldIn, pos, player, handIn, hit));
+    }
+
     //endregion
 }

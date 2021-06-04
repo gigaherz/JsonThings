@@ -143,8 +143,6 @@ public class FlexAxeItem extends AxeItem implements IFlexItem
     //endregion
 
     //region Item
-
-
     @Override
     public ActionResultType onItemUse(ItemUseContext context)
     {

@@ -2,21 +2,20 @@ package gigaherz.jsonthings.things.blocks;
 
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.FenceBlock;
+import net.minecraft.block.FenceGateBlock;
 import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 
-import java.util.List;
 import java.util.Map;
 
-public class FlexBlock extends Block implements IFlexBlock
+public class FlexFenceGateBlock extends FenceGateBlock implements IFlexBlock
 {
-    public FlexBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexFenceGateBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         super(properties);
         initializeFlex(propertyDefaultValues);

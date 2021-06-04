@@ -1,6 +1,7 @@
 package gigaherz.jsonthings.things.parsers;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -22,6 +23,7 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
 {
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
+    private final Map<ResourceLocation, TBuilder> buildersByName = Maps.newHashMap();
     private final List<TBuilder> builders = Lists.newArrayList();
 
     public ThingParser(Gson gson, String thingType)
@@ -40,6 +42,7 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json)
     {
         TBuilder builder = processThing(key, json.getAsJsonObject());
+        buildersByName.put(key, builder);
         builders.add(builder);
         return builder;
     }
@@ -47,6 +50,10 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
     public List<TBuilder> getBuilders()
     {
         return Collections.unmodifiableList(builders);
+    }
+    public Map<ResourceLocation, TBuilder> getBuildersMap()
+    {
+        return Collections.unmodifiableMap(buildersByName);
     }
 
     protected StackContext parseStackContext(ResourceLocation key, JsonObject item)

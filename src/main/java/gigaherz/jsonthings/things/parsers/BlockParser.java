@@ -9,6 +9,7 @@ import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.state.Property;
 import net.minecraft.util.Direction;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -46,6 +47,12 @@ public class BlockParser extends ThingParser<BlockBuilder>
             }
         }
 
+        if (data.has("type"))
+            builder = builder.withType(data.get("type").getAsString());
+
+        if (data.has("parent"))
+            builder = parseParent(data.get("parent"), builder);
+
         if (data.has("properties"))
         {
             JsonObject props = data.get("properties").getAsJsonObject();
@@ -68,6 +75,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 throw new IllegalStateException("No property with name '" + name + "' declared in block.");
             if (prop.getValueClass() != Direction.class)
                 throw new IllegalStateException("The specified shape_rotation property is not a Direction property.");
+            //noinspection unchecked
             facingProperty = (Property<Direction>) prop;
         }
 
@@ -84,6 +92,21 @@ public class BlockParser extends ThingParser<BlockBuilder>
             builder = builder.withRenderShape(parseShape(data.get("render_shape"), facingProperty, propertiesByName));
 
         return builder;
+    }
+
+    private BlockBuilder parseParent(JsonElement data, BlockBuilder builder)
+    {
+        if (data.isJsonObject())
+        {
+            JsonObject obj = data.getAsJsonObject();
+            String id = JSONUtils.getString(obj, "id");
+            boolean isBuilder = JSONUtils.getBoolean(obj, "is_builder", true);
+            if (isBuilder)
+                return builder.withParentBuilder(new ResourceLocation(id));
+            else
+                return builder.withParentBlock(new ResourceLocation(id));
+        }
+        return builder.withParentBuilder(new ResourceLocation(data.getAsString()));
     }
 
     private DynamicShape parseShape(JsonElement element, @Nullable Property<Direction> facingProperty, Map<String, Property<?>> propertiesByName)
@@ -123,10 +146,10 @@ public class BlockParser extends ThingParser<BlockBuilder>
             if (value.isJsonPrimitive())
             {
                 property = ThingRegistries.PROPERTIES.getOrDefault(new ResourceLocation(value.getAsString()));
+                if (property == null)
+                    throw new IllegalStateException("Property with name " + value + " not found in ThingRegistries.PROPERTIES");
                 if (!property.getName().equals(name))
-                {
                     throw new IllegalStateException("The stock property '" + value.getAsString() + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
-                }
             }
             else
             {

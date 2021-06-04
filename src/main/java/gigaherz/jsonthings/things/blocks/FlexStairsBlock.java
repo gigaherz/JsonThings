@@ -2,23 +2,22 @@ package gigaherz.jsonthings.things.blocks;
 
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.StairsBlock;
 import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 
-import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
-public class FlexBlock extends Block implements IFlexBlock
+public class FlexStairsBlock extends StairsBlock implements IFlexBlock
 {
-    public FlexBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexStairsBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues, Supplier<BlockState> parentBlockStateSupplier)
     {
-        super(properties);
+        super(parentBlockStateSupplier, properties);
         initializeFlex(propertyDefaultValues);
     }
 

@@ -144,8 +144,6 @@ public class FlexBlockNamedItem extends BlockNamedItem implements IFlexItem
     //endregion
 
     //region Item
-
-
     @Override
     public ActionResultType onItemUse(ItemUseContext context)
     {

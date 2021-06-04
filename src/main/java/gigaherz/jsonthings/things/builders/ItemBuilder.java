@@ -34,19 +34,18 @@ public class ItemBuilder
 
     private Item builtItem = null;
 
-    private ResourceLocation registryName;
+    private final ResourceLocation registryName;
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
-    private List<ToolInfo> toolInfos = Lists.newArrayList();
+    private final List<ToolInfo> toolInfos = Lists.newArrayList();
     private Food foodInfo = null;
     private PlantInfo plantInfo = null;
     private ArmorInfo armorInfo = null;
 
     private DelayedUse delayedUse = null;
     private ContainerInfo containerInfo = null;
-    private ModelInfo modelInfo = null;
 
     private BlockInfo blockInfo = null;
 
@@ -105,7 +104,10 @@ public class ItemBuilder
         if (this.armorInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
         if (!ThingRegistries.ITEM_TIERS.containsKey(tierName))
             throw new RuntimeException("No known item tier definition with name '" + tierName + "'");
-        this.toolInfos.add(new ToolInfo(toolType, ThingRegistries.ITEM_TIERS.getOrDefault(tierName)));
+        IItemTier tier = ThingRegistries.ITEM_TIERS.getOrDefault(tierName);
+        if (tier == null)
+            throw new IllegalStateException("Property with name " + tierName + " not found in ThingRegistries.ITEM_TIERS");
+        this.toolInfos.add(new ToolInfo(toolType, tier));
         return this;
     }
 
@@ -115,7 +117,10 @@ public class ItemBuilder
         if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
         if (!ThingRegistries.FOODS.containsKey(foodName))
             throw new RuntimeException("No known food definition with name '" + foodName + "'");
-        this.foodInfo = ThingRegistries.FOODS.getOrDefault(foodName);
+        Food foodInfo = ThingRegistries.FOODS.getOrDefault(foodName);
+        if (foodInfo == null)
+            throw new IllegalStateException("Property with name " + foodName + " not found in ThingRegistries.FOODS");
+        this.foodInfo = foodInfo;
         return this;
     }
 
@@ -286,12 +291,6 @@ public class ItemBuilder
         return builtItem;
     }
 
-    @Nullable
-    public ModelInfo getModelInfo()
-    {
-        return modelInfo;
-    }
-
     static class ArmorInfo
     {
         public EquipmentSlotType slot;
@@ -338,40 +337,6 @@ public class ItemBuilder
             this.useTicks = useTicks;
             this.useAction = UseAction.valueOf(useAction.toUpperCase());
             this.onComplete = CompletionMode.valueOf(completeAction.toUpperCase());
-        }
-    }
-
-    static class FoodInfo
-    {
-        public String foodName;
-
-        public FoodInfo(String foodName)
-        {
-            this.foodName = foodName;
-        }
-    }
-
-    public static class ModelInfo
-    {
-        public class ModelMapping
-        {
-            public final int metadata; // to be removed in 1.13
-            public final ResourceLocation fileName;
-            public final String variantName;
-
-            public ModelMapping(int metadata, String fileName, String variantName)
-            {
-                this.metadata = metadata;
-                this.fileName = new ResourceLocation(fileName);
-                this.variantName = variantName;
-            }
-        }
-
-        public final List<ModelMapping> mappings = Lists.newArrayList();
-
-        public void addMapping(int metadata, String fileName, String variantName)
-        {
-            mappings.add(new ModelMapping(metadata, fileName, variantName));
         }
     }
 

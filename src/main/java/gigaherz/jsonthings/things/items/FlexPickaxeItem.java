@@ -143,8 +143,6 @@ public class FlexPickaxeItem extends PickaxeItem implements IFlexItem
     //endregion
 
     //region Item
-
-
     @Override
     public ActionResultType onItemUse(ItemUseContext context)
     {

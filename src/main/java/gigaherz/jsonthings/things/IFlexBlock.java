@@ -3,6 +3,8 @@ package gigaherz.jsonthings.things;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.block.Block;
 
+import javax.annotation.Nullable;
+
 public interface IFlexBlock
 {
     default Block self()
@@ -10,11 +12,11 @@ public interface IFlexBlock
         return (Block) this;
     }
 
-    void setGeneralShape(DynamicShape shape);
+    void setGeneralShape(@Nullable DynamicShape shape);
 
-    void setCollisionShape(DynamicShape shape);
+    void setCollisionShape(@Nullable DynamicShape shape);
 
-    void setRaytraceShape(DynamicShape shape);
+    void setRaytraceShape(@Nullable DynamicShape shape);
 
-    void setRenderShape(DynamicShape shape);
+    void setRenderShape(@Nullable DynamicShape shape);
 }

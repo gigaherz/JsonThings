@@ -1,12 +1,12 @@
 package gigaherz.jsonthings;
 
 import com.google.common.collect.Lists;
-import gigaherz.jsonthings.client.ClientThingResources;
+import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.BlockBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.parsers.ThingResourceManager;
-import gigaherz.jsonthings.things.ThingRegistries;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.util.Util;
 import net.minecraftforge.api.distmarker.Dist;
@@ -93,6 +93,14 @@ public class JsonThings
         LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
         ThingResourceManager.INSTANCE.itemParser.getBuilders().stream().map(ItemBuilder::build).forEach(event.getRegistry()::register);
         LOGGER.info("Done processing thingpack Items.");
+    }
+
+    public static class ClientThingResources
+    {
+        public static void addClientPackFinder()
+        {
+            Minecraft.getInstance().getResourcePackList().addPackFinder(ThingResourceManager.INSTANCE.getFolderPackFinder());
+        }
     }
 
     private static class ListenerHandler<T>

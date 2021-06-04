@@ -136,8 +136,6 @@ public class FlexArmorItem extends ArmorItem implements IFlexItem
     //endregion
 
     //region Item
-
-
     @Override
     public ActionResultType onItemUse(ItemUseContext context)
     {

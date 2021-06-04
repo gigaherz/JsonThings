@@ -143,8 +143,6 @@ public class FlexSwordItem extends SwordItem implements IFlexItem
     //endregion
 
     //region Item
-
-
     @Override
     public ActionResultType onItemUse(ItemUseContext context)
     {

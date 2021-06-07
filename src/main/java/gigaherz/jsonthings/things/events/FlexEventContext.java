@@ -82,6 +82,12 @@ public class FlexEventContext
                 .with(HIT_VEC, rayTraceResult.getHitVec());
     }
 
+    public FlexEventContext withHand(PlayerEntity player, Hand hand)
+    {
+        ItemStack held = player.getHeldItem(hand);
+        return this.with(USER, player).with(HAND, hand).with(STACK, held);
+    }
+
     public <T> boolean has(ContextValue<T> key)
     {
         return parameters.containsKey(key);

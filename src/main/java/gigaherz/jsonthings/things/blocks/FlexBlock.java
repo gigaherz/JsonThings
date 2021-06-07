@@ -131,8 +131,7 @@ public class FlexBlock extends Block implements IFlexBlock
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
     {
         return runEvent("use", FlexEventContext.of(worldIn, pos, state)
-                .with(FlexEventContext.USER, player)
-                .with(FlexEventContext.HAND, handIn)
+                .withHand(player, handIn)
                 .withRayTrace(hit), () -> super.onBlockActivated(state, worldIn, pos, player, handIn, hit));
     }
 

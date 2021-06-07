@@ -61,16 +61,16 @@ public class FlexEventContext
         else if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK)
             return withRayTrace((BlockRayTraceResult) rayTraceResult);
 
-        return this.with(RAYTRACE_RESULT, rayTraceResult).with(HIT_VEC, rayTraceResult.getHitVec());
+        return this.with(RAYTRACE_RESULT, rayTraceResult).with(HIT_VEC, rayTraceResult.getLocation());
     }
 
     public FlexEventContext withRayTrace(BlockRayTraceResult rayTraceResult)
     {
         return this
             .with(RAYTRACE_RESULT, rayTraceResult)
-            .with(HIT_POS, rayTraceResult.getPos())
-            .with(HIT_FACE, rayTraceResult.getFace())
-            .with(HIT_VEC, rayTraceResult.getHitVec())
+            .with(HIT_POS, rayTraceResult.getBlockPos())
+            .with(HIT_FACE, rayTraceResult.getDirection())
+            .with(HIT_VEC, rayTraceResult.getLocation())
             .with(HIT_INSIDE, rayTraceResult.isInside());
     }
 
@@ -79,12 +79,12 @@ public class FlexEventContext
         return this
                 .with(RAYTRACE_RESULT, rayTraceResult)
                 .with(HIT_ENTITY, rayTraceResult.getEntity())
-                .with(HIT_VEC, rayTraceResult.getHitVec());
+                .with(HIT_VEC, rayTraceResult.getLocation());
     }
 
     public FlexEventContext withHand(PlayerEntity player, Hand hand)
     {
-        ItemStack held = player.getHeldItem(hand);
+        ItemStack held = player.getItemInHand(hand);
         return this.with(USER, player).with(HAND, hand).with(STACK, held);
     }
 
@@ -102,12 +102,12 @@ public class FlexEventContext
     public static FlexEventContext of(ItemUseContext ctx)
     {
         FlexEventContext eventContext = new FlexEventContext()
-                .with(STACK, ctx.getItem())
-                .with(WORLD, ctx.getWorld())
+                .with(STACK, ctx.getItemInHand())
+                .with(WORLD, ctx.getLevel())
                 .with(HAND, ctx.getHand())
-                .with(HIT_POS, ctx.getPos())
-                .with(HIT_FACE, ctx.getFace())
-                .with(HIT_VEC, ctx.getHitVec())
+                .with(HIT_POS, ctx.getClickedPos())
+                .with(HIT_FACE, ctx.getClickedFace())
+                .with(HIT_VEC, ctx.getClickLocation())
                 .with(HIT_INSIDE, ctx.isInside());
         PlayerEntity player = ctx.getPlayer();
         if (player != null) eventContext.with(USER, player);

@@ -30,7 +30,7 @@ public class BlockBuilder
     private final Map<String, Property<?>> propertiesByName = Maps.newHashMap();
     private final Map<Property<?>, Comparable<?>> propertyDefaultValues = Maps.newHashMap();
     private BlockType blockType = BlockType.PLAIN;
-    private Material blockMaterial = Material.ROCK;
+    private Material blockMaterial = Material.STONE;
     private MaterialColor blockMaterialColor = null;
     private ResourceLocation registryName;
     private ItemBuilder itemBuilder;
@@ -138,13 +138,13 @@ public class BlockBuilder
         if (parentBuilder != null)
         {
             Block parent = getParentBuilder().builtBlock;
-            props = AbstractBlock.Properties.from(parent);
+            props = AbstractBlock.Properties.copy(parent);
         }
         else
         {
             props = blockMaterialColor != null ?
-                    Block.Properties.create(blockMaterial, blockMaterialColor) :
-                    Block.Properties.create(blockMaterial);
+                    Block.Properties.of(blockMaterial, blockMaterialColor) :
+                    Block.Properties.of(blockMaterial);
         }
 
         final Block baseBlock;
@@ -157,9 +157,9 @@ public class BlockBuilder
                 baseBlock = new FlexBlock(props, propertyDefaultValues)
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
@@ -169,9 +169,9 @@ public class BlockBuilder
                 baseBlock = new FlexSlabBlock(props, propertyDefaultValues)
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
@@ -180,36 +180,36 @@ public class BlockBuilder
             case STAIRS:
                 if (parentBlock == null)
                     throw new IllegalStateException("StairsBlock needs a parent block, but none has been declared.");
-                baseBlock = new FlexStairsBlock(props, propertyDefaultValues, () -> parentBlock.get().getDefaultState())
+                baseBlock = new FlexStairsBlock(props, propertyDefaultValues, () -> parentBlock.get().defaultBlockState())
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
-                stockProperties = Arrays.asList(WallBlock.UP, WallBlock.WALL_HEIGHT_EAST, WallBlock.WALL_HEIGHT_NORTH, WallBlock.WALL_HEIGHT_SOUTH, WallBlock.WALL_HEIGHT_WEST, WallBlock.WATERLOGGED);
+                stockProperties = Arrays.asList(WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
                 break;
             case WALL:
                 baseBlock = new FlexWallBlock(props, propertyDefaultValues)
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
-                stockProperties = Arrays.asList(WallBlock.UP, WallBlock.WALL_HEIGHT_EAST, WallBlock.WALL_HEIGHT_NORTH, WallBlock.WALL_HEIGHT_SOUTH, WallBlock.WALL_HEIGHT_WEST, WallBlock.WATERLOGGED);
+                stockProperties = Arrays.asList(WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
                 break;
             case FENCE:
                 baseBlock = new FlexFenceBlock(props, propertyDefaultValues)
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
@@ -219,9 +219,9 @@ public class BlockBuilder
                 baseBlock = new FlexFenceGateBlock(props, propertyDefaultValues)
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
@@ -231,9 +231,9 @@ public class BlockBuilder
                 baseBlock = new FlexRotatedPillarBlock(props, propertyDefaultValues)
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
@@ -243,9 +243,9 @@ public class BlockBuilder
                 baseBlock = new FlexLeavesBlock(props, propertyDefaultValues)
                 {
                     @Override
-                    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+                    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder)
                     {
-                        super.fillStateContainer(builder);
+                        super.createBlockStateDefinition(builder);
                         BlockBuilder.this.properties.forEach(builder::add);
                     }
                 };
@@ -265,7 +265,7 @@ public class BlockBuilder
         }).collect(Collectors.toList());
         if (badProperties.size() > 0)
         {
-            throw new IllegalStateException("The block of type " + blockType.getString() + " cannot define non-duplicate properties with clashing names: " + badProperties.stream().map(Property::getName).collect(Collectors.joining(" ")));
+            throw new IllegalStateException("The block of type " + blockType.getSerializedName() + " cannot define non-duplicate properties with clashing names: " + badProperties.stream().map(Property::getName).collect(Collectors.joining(" ")));
         }
 
         IFlexBlock flexBlock = (IFlexBlock) baseBlock;
@@ -380,7 +380,7 @@ public class BlockBuilder
         }
 
         @Override
-        public String getString()
+        public String getSerializedName()
         {
             return name;
         }
@@ -392,7 +392,7 @@ public class BlockBuilder
         {
             for(BlockType value : values)
             {
-                if (value.getString().equals(name))
+                if (value.getSerializedName().equals(name))
                     return value;
             }
             return null;

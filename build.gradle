@@ -1,11 +1,13 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
-        maven {url='https://repo.spongepowered.org/repository/maven-public/'}
+        maven { url = 'https://sizableshrimp.me/maven' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        //classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
+        classpath group: 'me.sizableshrimp.gradle', name: 'ForgeGradle', version: '4.+', changing: true
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
@@ -29,7 +31,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'snapshot', version: '20210309-1.16.5'
+    mappings channel: 'official_snapshot', version: '20210309-1.16.5'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 

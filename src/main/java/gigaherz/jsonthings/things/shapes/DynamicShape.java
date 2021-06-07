@@ -58,8 +58,8 @@ public class DynamicShape
     public VoxelShape getShape(BlockState blockstate)
     {
         return shapeCache.computeIfAbsent(blockstate, state -> {
-            Direction d = facing != null ? state.get(facing) : Direction.NORTH;
-            return shape.getShape(state, d).orElseGet(VoxelShapes::fullCube);
+            Direction d = facing != null ? state.getValue(facing) : Direction.NORTH;
+            return shape.getShape(state, d).orElseGet(VoxelShapes::block);
         });
     }
 
@@ -77,18 +77,18 @@ public class DynamicShape
         switch (facing)
         {
             case NORTH:
-                return VoxelShapes.create(x1, y1, z1, x2, y2, z2);
+                return VoxelShapes.box(x1, y1, z1, x2, y2, z2);
             case SOUTH:
-                return VoxelShapes.create(1 - x2, y1, 1 - z2, 1 - x1, y2, 1 - z1);
+                return VoxelShapes.box(1 - x2, y1, 1 - z2, 1 - x1, y2, 1 - z1);
             case WEST:
-                return VoxelShapes.create(z1, y1, 1 - x2, z2, y2, 1 - x1);
+                return VoxelShapes.box(z1, y1, 1 - x2, z2, y2, 1 - x1);
             case EAST:
-                return VoxelShapes.create(1 - z2, y1, x1, 1 - z1, y2, x2);
+                return VoxelShapes.box(1 - z2, y1, x1, 1 - z1, y2, x2);
             case UP:
-                return VoxelShapes.create(1 - y1, x1, z1, 1 - y2, x2, z2);
+                return VoxelShapes.box(1 - y1, x1, z1, 1 - y2, x2, z2);
             case DOWN:
-                return VoxelShapes.create(y1, 1 - x1, z1, y2, 1 - x2, z2);
+                return VoxelShapes.box(y1, 1 - x1, z1, y2, 1 - x2, z2);
         }
-        return VoxelShapes.create(x1, y1, z1, x2, y2, z2);
+        return VoxelShapes.box(x1, y1, z1, x2, y2, z2);
     }
 }

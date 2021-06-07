@@ -17,7 +17,7 @@ public class CustomProperty extends Property<String>
     }
 
     @Override
-    public Collection<String> getAllowedValues()
+    public Collection<String> getPossibleValues()
     {
         return allowedValues;
     }
@@ -29,7 +29,7 @@ public class CustomProperty extends Property<String>
     }
 
     @Override
-    public Optional<String> parseValue(String value)
+    public Optional<String> getValue(String value)
     {
         return allowedValues.stream().filter(s -> s.equals(value)).findFirst();
     }

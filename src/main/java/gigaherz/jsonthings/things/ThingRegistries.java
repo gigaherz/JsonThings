@@ -54,12 +54,12 @@ public class ThingRegistries
     }
 
     private static <T> RegistryKey<Registry<T>> createKey(String name) {
-        return RegistryKey.getOrCreateRootKey(new ResourceLocation(name));
+        return RegistryKey.createRegistryKey(new ResourceLocation(name));
     }
 
     private static <T> Registry<T> makeRegistry(RegistryKey<Registry<T>> key) {
         SimpleRegistry<T> registry = new SimpleRegistry<T>(key, Lifecycle.experimental());
-        return Registry.register(THING_REGISTRIES, key.getLocation().toString(), registry);
+        return Registry.register(THING_REGISTRIES, key.location().toString(), registry);
     }
 
     public static void staticInit()
@@ -133,58 +133,58 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "south", BlockStateProperties.SOUTH);
         Registry.register(PROPERTIES, "west", BlockStateProperties.WEST);
         Registry.register(PROPERTIES, "facing", BlockStateProperties.FACING);
-        Registry.register(PROPERTIES, "facing_except_up", BlockStateProperties.FACING_EXCEPT_UP);
+        Registry.register(PROPERTIES, "facing_except_up", BlockStateProperties.FACING_HOPPER);
         Registry.register(PROPERTIES, "horizontal_facing", BlockStateProperties.HORIZONTAL_FACING);
         Registry.register(PROPERTIES, "orientation", BlockStateProperties.ORIENTATION);
-        Registry.register(PROPERTIES, "face", BlockStateProperties.FACE);
+        Registry.register(PROPERTIES, "face", BlockStateProperties.ATTACH_FACE);
         Registry.register(PROPERTIES, "bell_attachment", BlockStateProperties.BELL_ATTACHMENT);
-        Registry.register(PROPERTIES, "wall_height_east", BlockStateProperties.WALL_HEIGHT_EAST);
-        Registry.register(PROPERTIES, "wall_height_north", BlockStateProperties.WALL_HEIGHT_NORTH);
-        Registry.register(PROPERTIES, "wall_height_south", BlockStateProperties.WALL_HEIGHT_SOUTH);
-        Registry.register(PROPERTIES, "wall_height_west", BlockStateProperties.WALL_HEIGHT_WEST);
-        Registry.register(PROPERTIES, "redstone_east", BlockStateProperties.REDSTONE_EAST);
-        Registry.register(PROPERTIES, "redstone_north", BlockStateProperties.REDSTONE_NORTH);
-        Registry.register(PROPERTIES, "redstone_south", BlockStateProperties.REDSTONE_SOUTH);
-        Registry.register(PROPERTIES, "redstone_west", BlockStateProperties.REDSTONE_WEST);
+        Registry.register(PROPERTIES, "wall_height_east", BlockStateProperties.EAST_WALL);
+        Registry.register(PROPERTIES, "wall_height_north", BlockStateProperties.NORTH_WALL);
+        Registry.register(PROPERTIES, "wall_height_south", BlockStateProperties.SOUTH_WALL);
+        Registry.register(PROPERTIES, "wall_height_west", BlockStateProperties.WEST_WALL);
+        Registry.register(PROPERTIES, "redstone_east", BlockStateProperties.EAST_REDSTONE);
+        Registry.register(PROPERTIES, "redstone_north", BlockStateProperties.NORTH_REDSTONE);
+        Registry.register(PROPERTIES, "redstone_south", BlockStateProperties.SOUTH_REDSTONE);
+        Registry.register(PROPERTIES, "redstone_west", BlockStateProperties.WEST_REDSTONE);
         Registry.register(PROPERTIES, "double_block_half", BlockStateProperties.DOUBLE_BLOCK_HALF);
         Registry.register(PROPERTIES, "half", BlockStateProperties.HALF);
         Registry.register(PROPERTIES, "rail_shape", BlockStateProperties.RAIL_SHAPE);
         Registry.register(PROPERTIES, "rail_shape_straight", BlockStateProperties.RAIL_SHAPE_STRAIGHT);
-        Registry.register(PROPERTIES, "age_0_1", BlockStateProperties.AGE_0_1);
-        Registry.register(PROPERTIES, "age_0_2", BlockStateProperties.AGE_0_2);
-        Registry.register(PROPERTIES, "age_0_3", BlockStateProperties.AGE_0_3);
-        Registry.register(PROPERTIES, "age_0_5", BlockStateProperties.AGE_0_5);
-        Registry.register(PROPERTIES, "age_0_7", BlockStateProperties.AGE_0_7);
-        Registry.register(PROPERTIES, "age_0_15", BlockStateProperties.AGE_0_15);
-        Registry.register(PROPERTIES, "age_0_25", BlockStateProperties.AGE_0_25);
-        Registry.register(PROPERTIES, "bites_0_6", BlockStateProperties.BITES_0_6);
-        Registry.register(PROPERTIES, "delay_1_4", BlockStateProperties.DELAY_1_4);
-        Registry.register(PROPERTIES, "distance_1_7", BlockStateProperties.DISTANCE_1_7);
-        Registry.register(PROPERTIES, "eggs_1_4", BlockStateProperties.EGGS_1_4);
-        Registry.register(PROPERTIES, "hatch_0_2", BlockStateProperties.HATCH_0_2);
-        Registry.register(PROPERTIES, "layers_1_8", BlockStateProperties.LAYERS_1_8);
-        Registry.register(PROPERTIES, "level_0_3", BlockStateProperties.LEVEL_0_3);
-        Registry.register(PROPERTIES, "level_0_8", BlockStateProperties.LEVEL_0_8);
-        Registry.register(PROPERTIES, "level_1_8", BlockStateProperties.LEVEL_1_8);
-        Registry.register(PROPERTIES, "honey_level", BlockStateProperties.HONEY_LEVEL);
-        Registry.register(PROPERTIES, "level_0_15", BlockStateProperties.LEVEL_0_15);
-        Registry.register(PROPERTIES, "moisture_0_7", BlockStateProperties.MOISTURE_0_7);
-        Registry.register(PROPERTIES, "note_0_24", BlockStateProperties.NOTE_0_24);
-        Registry.register(PROPERTIES, "pickles_1_4", BlockStateProperties.PICKLES_1_4);
-        Registry.register(PROPERTIES, "power_0_15", BlockStateProperties.POWER_0_15);
-        Registry.register(PROPERTIES, "stage_0_1", BlockStateProperties.STAGE_0_1);
-        Registry.register(PROPERTIES, "distance_0_7", BlockStateProperties.DISTANCE_0_7);
-        Registry.register(PROPERTIES, "charges", BlockStateProperties.CHARGES);
-        Registry.register(PROPERTIES, "rotation_0_15", BlockStateProperties.ROTATION_0_15);
+        Registry.register(PROPERTIES, "age_0_1", BlockStateProperties.AGE_1);
+        Registry.register(PROPERTIES, "age_0_2", BlockStateProperties.AGE_2);
+        Registry.register(PROPERTIES, "age_0_3", BlockStateProperties.AGE_3);
+        Registry.register(PROPERTIES, "age_0_5", BlockStateProperties.AGE_5);
+        Registry.register(PROPERTIES, "age_0_7", BlockStateProperties.AGE_7);
+        Registry.register(PROPERTIES, "age_0_15", BlockStateProperties.AGE_15);
+        Registry.register(PROPERTIES, "age_0_25", BlockStateProperties.AGE_25);
+        Registry.register(PROPERTIES, "bites_0_6", BlockStateProperties.BITES);
+        Registry.register(PROPERTIES, "delay_1_4", BlockStateProperties.DELAY);
+        Registry.register(PROPERTIES, "distance_1_7", BlockStateProperties.DISTANCE);
+        Registry.register(PROPERTIES, "eggs_1_4", BlockStateProperties.EGGS);
+        Registry.register(PROPERTIES, "hatch_0_2", BlockStateProperties.HATCH);
+        Registry.register(PROPERTIES, "layers_1_8", BlockStateProperties.LAYERS);
+        Registry.register(PROPERTIES, "level_0_3", BlockStateProperties.LEVEL_CAULDRON);
+        Registry.register(PROPERTIES, "level_0_8", BlockStateProperties.LEVEL_COMPOSTER);
+        Registry.register(PROPERTIES, "level_1_8", BlockStateProperties.LEVEL_FLOWING);
+        Registry.register(PROPERTIES, "honey_level", BlockStateProperties.LEVEL_HONEY);
+        Registry.register(PROPERTIES, "level_0_15", BlockStateProperties.LEVEL);
+        Registry.register(PROPERTIES, "moisture_0_7", BlockStateProperties.MOISTURE);
+        Registry.register(PROPERTIES, "note_0_24", BlockStateProperties.NOTE);
+        Registry.register(PROPERTIES, "pickles_1_4", BlockStateProperties.PICKLES);
+        Registry.register(PROPERTIES, "power_0_15", BlockStateProperties.POWER);
+        Registry.register(PROPERTIES, "stage_0_1", BlockStateProperties.STAGE);
+        Registry.register(PROPERTIES, "distance_0_7", BlockStateProperties.STABILITY_DISTANCE);
+        Registry.register(PROPERTIES, "charges", BlockStateProperties.RESPAWN_ANCHOR_CHARGES);
+        Registry.register(PROPERTIES, "rotation_0_15", BlockStateProperties.ROTATION_16);
         Registry.register(PROPERTIES, "bed_part", BlockStateProperties.BED_PART);
         Registry.register(PROPERTIES, "chest_type", BlockStateProperties.CHEST_TYPE);
-        Registry.register(PROPERTIES, "comparator_mode", BlockStateProperties.COMPARATOR_MODE);
+        Registry.register(PROPERTIES, "comparator_mode", BlockStateProperties.MODE_COMPARATOR);
         Registry.register(PROPERTIES, "door_hinge", BlockStateProperties.DOOR_HINGE);
-        Registry.register(PROPERTIES, "note_block_instrument", BlockStateProperties.NOTE_BLOCK_INSTRUMENT);
+        Registry.register(PROPERTIES, "note_block_instrument", BlockStateProperties.NOTEBLOCK_INSTRUMENT);
         Registry.register(PROPERTIES, "piston_type", BlockStateProperties.PISTON_TYPE);
         Registry.register(PROPERTIES, "slab_type", BlockStateProperties.SLAB_TYPE);
         Registry.register(PROPERTIES, "stairs_shape", BlockStateProperties.STAIRS_SHAPE);
-        Registry.register(PROPERTIES, "structure_block_mode", BlockStateProperties.STRUCTURE_BLOCK_MODE);
+        Registry.register(PROPERTIES, "structure_block_mode", BlockStateProperties.STRUCTUREBLOCK_MODE);
         Registry.register(PROPERTIES, "bamboo_leaves", BlockStateProperties.BAMBOO_LEAVES);
     }
 

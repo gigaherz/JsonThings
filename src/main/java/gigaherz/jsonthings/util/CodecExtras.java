@@ -72,7 +72,7 @@ public class CodecExtras
 
     public static <T> Codec<T> registryNameCodec(Registry<T> registry)
     {
-        return mappingCodec(ResourceLocation.CODEC, registry::getOrDefault, registry::getKey);
+        return mappingCodec(ResourceLocation.CODEC, registry::get, registry::getKey);
     }
 
     public static <R, T extends R> Codec<R> toSubclass(Codec<T> codec, Class<T> subclass)

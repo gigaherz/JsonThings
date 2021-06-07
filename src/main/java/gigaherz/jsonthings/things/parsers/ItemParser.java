@@ -135,7 +135,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 Integer opInt = Ints.tryParse(opName);
                 if (opInt == null)
                 {
-                    operation = AttributeModifier.Operation.valueOf(opName.toUpperCase()).getId();
+                    operation = AttributeModifier.Operation.valueOf(opName.toUpperCase()).toValue();
                 }
                 else
                 {
@@ -343,7 +343,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 isMeat = toolData.get("meat").getAsBoolean();
             }
 
-            Food.Builder foodBuilder = new Food.Builder().hunger(healAmount).saturation(saturation);
+            Food.Builder foodBuilder = new Food.Builder().nutrition(healAmount).saturationMod(saturation);
             if (isMeat) foodBuilder.meat();
             builder = builder.makeFood(foodBuilder.build());
         }

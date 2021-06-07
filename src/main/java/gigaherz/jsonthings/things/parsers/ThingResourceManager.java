@@ -49,18 +49,18 @@ public class ThingResourceManager
     public ThingResourceManager()
     {
         resourceManager = new SimpleReloadableResourceManager(PACK_TYPE_THINGS);
-        folderPackFinder = new FolderPackFinder(getResourcepacksLocation(), IPackNameDecorator.PLAIN);
+        folderPackFinder = new FolderPackFinder(getResourcepacksLocation(), IPackNameDecorator.DEFAULT);
         packList = new ResourcePackList(folderPackFinder);
-        resourceManager.addReloadListener(blockParser);
-        resourceManager.addReloadListener(itemParser);
+        resourceManager.registerReloadListener(blockParser);
+        resourceManager.registerReloadListener(itemParser);
     }
 
     public IPackFinder getFolderPackFinder()
     {
-        return (infoConsumer, infoFactory) -> folderPackFinder.findPacks(info -> {
-            if (!disabledPacks.contains(info.getName()))
+        return (infoConsumer, infoFactory) -> folderPackFinder.loadPacks(info -> {
+            if (!disabledPacks.contains(info.getId()))
                 infoConsumer.accept(info);
-        }, (a, b, c, d, e, f, g) -> infoFactory.create(a, true, c, d, e, f, name -> new StringTextComponent("thingpack:").appendSibling(name)));
+        }, (a, b, c, d, e, f, g) -> infoFactory.create(a, true, c, d, e, f, name -> new StringTextComponent("thingpack:").append(name)));
     }
 
     public File getResourcepacksLocation()
@@ -81,7 +81,7 @@ public class ThingResourceManager
      */
     public synchronized void addResourceReloadListener(IFutureReloadListener listener)
     {
-        resourceManager.addReloadListener(listener);
+        resourceManager.registerReloadListener(listener);
     }
 
     private static final Set<String> disabledPacks = Sets.newHashSet();
@@ -90,17 +90,17 @@ public class ThingResourceManager
 
     public static CompletableFuture<ThingResourceManager> init(Executor backgroundExecutor, Executor gameExecutor)
     {
-        INSTANCE.packList.reloadPacksFromFinders();
+        INSTANCE.packList.reload();
 
         List<String> enabledPacks = Lists.newArrayList();
-        for (ResourcePackInfo s : INSTANCE.packList.getAllPacks())
+        for (ResourcePackInfo s : INSTANCE.packList.getAvailablePacks())
         {
-            if (!disabledPacks.contains(s.getName()))
-                enabledPacks.add(s.getName());
+            if (!disabledPacks.contains(s.getId()))
+                enabledPacks.add(s.getId());
         }
-        INSTANCE.packList.setEnabledPacks(enabledPacks);
+        INSTANCE.packList.setSelected(enabledPacks);
 
-        CompletableFuture<Unit> completablefuture = INSTANCE.resourceManager.reloadResourcesAndThen(backgroundExecutor, gameExecutor, INSTANCE.packList.func_232623_f_(), COMPLETED_FUTURE);
+        CompletableFuture<Unit> completablefuture = INSTANCE.resourceManager.reload(backgroundExecutor, gameExecutor, INSTANCE.packList.openAllSelected(), COMPLETED_FUTURE);
         return completablefuture.whenComplete((unit, throwable) -> {
             if (throwable != null)
             {

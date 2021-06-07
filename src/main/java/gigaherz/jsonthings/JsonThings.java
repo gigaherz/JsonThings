@@ -59,7 +59,7 @@ public class JsonThings
         event.enqueueWork(() -> {
             ResourcePackLoader.loadResourcePacks(ThingResourceManager.INSTANCE.getResourcePackList(), ModResourcesFinder::buildPackFinder);
 
-            loader = ThingResourceManager.init(Util.getServerExecutor(), Runnable::run);
+            loader = ThingResourceManager.init(Util.backgroundExecutor(), Runnable::run);
 
             if (FMLEnvironment.dist == Dist.CLIENT)
             {
@@ -99,7 +99,7 @@ public class JsonThings
     {
         public static void addClientPackFinder()
         {
-            Minecraft.getInstance().getResourcePackList().addPackFinder(ThingResourceManager.INSTANCE.getFolderPackFinder());
+            Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.INSTANCE.getFolderPackFinder());
         }
     }
 

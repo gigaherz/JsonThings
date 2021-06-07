@@ -47,8 +47,8 @@ public class CombinedShape implements IShapeProvider
     {
         return boxes.stream()
                 .map(shape -> shape.getShape(state, facing))
-                .reduce(Optional.empty(), (a, b) -> a.map(aa -> b.map(bb -> VoxelShapes.combine(aa, bb, operator))).orElse(b))
-                .map(VoxelShape::simplify);
+                .reduce(Optional.empty(), (a, b) -> a.map(aa -> b.map(bb -> VoxelShapes.joinUnoptimized(aa, bb, operator))).orElse(b))
+                .map(VoxelShape::optimize);
     }
 
     @Override

@@ -68,7 +68,7 @@ public class ConditionalShape implements IShapeProvider
 
     private <T extends Comparable<T>> String getPropertyValueByName(BlockState state, Property<T> property)
     {
-        return property.getName(state.get(property));
+        return property.getName(state.getValue(property));
     }
 
     public IShapeProvider bake(Function<String, Property<?>> propertyLookup)
@@ -93,7 +93,7 @@ public class ConditionalShape implements IShapeProvider
 
     private <T extends Comparable<T>> T parseValueFromProperty(Property<T> prop, String s)
     {
-        return prop.parseValue(s).orElseThrow(() -> new IllegalStateException("Property value " + s + " not valid in property " + prop.getName()));
+        return prop.getValue(s).orElseThrow(() -> new IllegalStateException("Property value " + s + " not valid in property " + prop.getName()));
     }
 
     public class Baked implements IShapeProvider
@@ -118,7 +118,7 @@ public class ConditionalShape implements IShapeProvider
                 {
                     Property<?> property = p.getFirst();
                     Set<Comparable<?>> set = p.getSecond();
-                    if (!set.contains(state.get(property)))
+                    if (!set.contains(state.getValue(property)))
                     {
                         allMatch = false;
                         break;

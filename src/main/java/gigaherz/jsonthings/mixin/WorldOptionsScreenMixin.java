@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(WorldOptionsScreen.class)
 public class WorldOptionsScreenMixin
 {
-    @Redirect(method = "lambda$func_239048_a_$7(Lnet/minecraft/client/gui/screen/CreateWorldScreen;Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/widget/button/Button;)V",
+    @Redirect(method = "lambda$init$7(Lnet/minecraft/client/gui/screen/CreateWorldScreen;Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/widget/button/Button;)V",
             at = @At(value = "NEW", target = "([Lnet/minecraft/resources/IPackFinder;)Lnet/minecraft/resources/ResourcePackList;")
     )
     public ResourcePackList redirectPackListCreation(IPackFinder... finders)

@@ -42,7 +42,7 @@ public class FlexSwordItem extends SwordItem implements IFlexItem
                     context.get(FlexEventContext.HIT_FACE),
                     context.get(FlexEventContext.HIT_POS),
                     context.get(FlexEventContext.HIT_INSIDE));
-            return new ActionResult<>(super.onItemUse(new ItemUseContext((PlayerEntity) context.get(FlexEventContext.USER), context.get(FlexEventContext.HAND), trace)), context.getStack());
+            return new ActionResult<>(super.useOn(new ItemUseContext((PlayerEntity) context.get(FlexEventContext.USER), context.get(FlexEventContext.HAND), trace)), context.getStack());
         });
     }
 
@@ -144,37 +144,37 @@ public class FlexSwordItem extends SwordItem implements IFlexItem
 
     //region Item
     @Override
-    public ActionResultType onItemUse(ItemUseContext context)
+    public ActionResultType useOn(ItemUseContext context)
     {
-        ItemStack heldItem = context.getItem();
+        ItemStack heldItem = context.getItemInHand();
         if (useTime > 0)
             return ActionResultType.PASS;
 
-        return runEvent("use_on_block", FlexEventContext.of(context), () -> new ActionResult<>(ActionResultType.PASS, heldItem)).getType();
+        return runEvent("use_on_block", FlexEventContext.of(context), () -> new ActionResult<>(ActionResultType.PASS, heldItem)).getResult();
     }
 
     @Override
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft)
+    public void releaseUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft)
     {
         runEvent("stopped_using", FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft), () -> new ActionResult<>(ActionResultType.PASS, stack));
     }
 
     @Override
-    public ItemStack onItemUseFinish(ItemStack heldItem, World worldIn, LivingEntity entityLiving)
+    public ItemStack finishUsingItem(ItemStack heldItem, World worldIn, LivingEntity entityLiving)
     {
         Supplier<ActionResult<ItemStack>> resultSupplier = () -> new ActionResult<>(ActionResultType.SUCCESS, heldItem);
 
         ActionResult<ItemStack> result = runEvent("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
-        if (result.getType() != ActionResultType.SUCCESS)
-            return result.getResult();
+        if (result.getResult() != ActionResultType.SUCCESS)
+            return result.getObject();
 
-        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).getResult();
+        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).getObject();
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn)
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn)
     {
-        ItemStack heldItem = playerIn.getHeldItem(handIn);
+        ItemStack heldItem = playerIn.getItemInHand(handIn);
         if (useTime > 0)
             return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> new ActionResult<>(ActionResultType.SUCCESS, heldItem));
         else
@@ -182,16 +182,16 @@ public class FlexSwordItem extends SwordItem implements IFlexItem
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
         tooltip.addAll(tooltipStrings);
     }
 
     @Override
-    public void fillItemGroup(ItemGroup tab, NonNullList<ItemStack> items)
+    public void fillItemCategory(ItemGroup tab, NonNullList<ItemStack> items)
     {
-        if (tab == ItemGroup.SEARCH)
+        if (tab == ItemGroup.TAB_SEARCH)
         {
             items.addAll(searchTabStacks.stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
         }
@@ -207,16 +207,16 @@ public class FlexSwordItem extends SwordItem implements IFlexItem
         ActionResult<ItemStack> result = runEvent("update",
                 FlexEventContext.of(worldIn, entityIn, stack).with(FlexEventContext.SLOT, itemSlot).with(FlexEventContext.SELECTED, isSelected),
                 () -> new ActionResult<>(ActionResultType.PASS, stack));
-        if (!ItemStack.areItemStacksEqual(result.getResult(), stack))
+        if (!ItemStack.matches(result.getObject(), stack))
         {
-            entityIn.replaceItemInInventory(itemSlot, result.getResult());
+            entityIn.setSlot(itemSlot, result.getObject());
         }
     }
 
     @Override
     public ItemStack getContainerItem(ItemStack itemStack)
     {
-        return runEvent("get_container_item", FlexEventContext.of(itemStack), () -> new ActionResult<>(ActionResultType.PASS, itemStack)).getResult();
+        return runEvent("get_container_item", FlexEventContext.of(itemStack), () -> new ActionResult<>(ActionResultType.PASS, itemStack)).getObject();
     }
 
     @Override

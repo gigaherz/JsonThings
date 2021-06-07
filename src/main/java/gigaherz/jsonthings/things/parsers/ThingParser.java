@@ -90,9 +90,9 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
                 JsonElement element = item.get("nbt");
                 CompoundNBT nbt;
                 if (element.isJsonObject())
-                    nbt = JsonToNBT.getTagFromJson(GSON.toJson(element));
+                    nbt = JsonToNBT.parseTag(GSON.toJson(element));
                 else
-                    nbt = JsonToNBT.getTagFromJson(element.getAsString());
+                    nbt = JsonToNBT.parseTag(element.getAsString());
                 ctx = ctx.withTag(nbt);
             }
             catch (Exception e)

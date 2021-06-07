@@ -22,6 +22,8 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 public class FlexFenceBlock extends FenceBlock implements IFlexBlock
 {
     public FlexFenceBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
@@ -42,15 +44,15 @@ public class FlexFenceBlock extends FenceBlock implements IFlexBlock
     {
         if (propertyDefaultValues.size() > 0)
         {
-            BlockState def = getStateContainer().getBaseState();
+            BlockState def = getStateDefinition().any();
             for (Map.Entry<Property<?>, Comparable<?>> entry : propertyDefaultValues.entrySet())
             {
                 Property prop = entry.getKey();
                 Comparable value = entry.getValue();
-                def = def.with(prop, value);
+                def = def.setValue(prop, value);
             }
 
-            setDefaultState(def);
+            registerDefaultState(def);
         }
     }
 
@@ -103,38 +105,38 @@ public class FlexFenceBlock extends FenceBlock implements IFlexBlock
 
     @Deprecated
     @Override
-    public VoxelShape getRaytraceShape(BlockState state, IBlockReader worldIn, BlockPos pos)
+    public VoxelShape getInteractionShape(BlockState state, IBlockReader worldIn, BlockPos pos)
     {
         if (this.raytraceShape != null)
             return raytraceShape.getShape(state);
-        return super.getRaytraceShape(state, worldIn, pos);
+        return super.getInteractionShape(state, worldIn, pos);
     }
 
     @Deprecated
     @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader reader, BlockPos pos)
+    public VoxelShape getBlockSupportShape(BlockState state, IBlockReader reader, BlockPos pos)
     {
         if (this.collisionShape != null)
             return collisionShape.getShape(state);
-        return super.getCollisionShape(state, reader, pos);
+        return super.getBlockSupportShape(state, reader, pos);
     }
 
     @Deprecated
     @Override
-    public VoxelShape getRenderShape(BlockState state, IBlockReader worldIn, BlockPos pos)
+    public VoxelShape getOcclusionShape(BlockState state, IBlockReader worldIn, BlockPos pos)
     {
         if (this.renderShape != null)
             return renderShape.getShape(state);
-        return super.getRenderShape(state, worldIn, pos);
+        return super.getOcclusionShape(state, worldIn, pos);
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
     {
         return runEvent("use", FlexEventContext.of(worldIn, pos, state)
                 .with(FlexEventContext.USER, player)
                 .with(FlexEventContext.HAND, handIn)
-                .withRayTrace(hit), () -> super.onBlockActivated(state, worldIn, pos, player, handIn, hit));
+                .withRayTrace(hit), () -> super.use(state, worldIn, pos, player, handIn, hit));
     }
 
     //endregion

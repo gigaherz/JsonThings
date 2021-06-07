@@ -99,8 +99,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
         if (data.isJsonObject())
         {
             JsonObject obj = data.getAsJsonObject();
-            String id = JSONUtils.getString(obj, "id");
-            boolean isBuilder = JSONUtils.getBoolean(obj, "is_builder", true);
+            String id = JSONUtils.getAsString(obj, "id");
+            boolean isBuilder = JSONUtils.getAsBoolean(obj, "is_builder", true);
             if (isBuilder)
                 return builder.withParentBuilder(new ResourceLocation(id));
             else
@@ -114,7 +114,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
         if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString())
         {
             String name = element.getAsString();
-            DynamicShape shape = ThingRegistries.DYNAMIC_SHAPES.getOrDefault(new ResourceLocation(name));
+            DynamicShape shape = ThingRegistries.DYNAMIC_SHAPES.get(new ResourceLocation(name));
             if (shape == null)
                 throw new IllegalStateException("No shape known with name " + name);
             return shape;
@@ -145,7 +145,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
             Property<?> property;
             if (value.isJsonPrimitive())
             {
-                property = ThingRegistries.PROPERTIES.getOrDefault(new ResourceLocation(value.getAsString()));
+                property = ThingRegistries.PROPERTIES.get(new ResourceLocation(value.getAsString()));
                 if (property == null)
                     throw new IllegalStateException("Property with name " + value + " not found in ThingRegistries.PROPERTIES");
                 if (!property.getName().equals(name))

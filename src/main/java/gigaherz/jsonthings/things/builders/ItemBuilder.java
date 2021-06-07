@@ -26,9 +26,6 @@ public class ItemBuilder
 {
     public static final ToolType SWORD_TOOL_TYPE = ToolType.get("sword");
 
-    //@SuppressWarnings("deprecation")
-    //private static Field f_tabLabel = ReflectionHelper.findField(ItemGroup.class, ObfuscationReflectionHelper.remapFieldNames(ItemGroup.class.getName(), "field_78034_o"));
-
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
     private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
 
@@ -74,7 +71,7 @@ public class ItemBuilder
 
     public ItemBuilder withAttributeModifier(@Nullable UUID uuid, String name, double amount, int op)
     {
-        AttributeModifier.Operation operation = AttributeModifier.Operation.byId(op);
+        AttributeModifier.Operation operation = AttributeModifier.Operation.fromValue(op);
         attributeModifiers.add(uuid != null ?
                 new AttributeModifier(uuid, name, amount, operation) :
                 new AttributeModifier(name, amount, operation));
@@ -104,7 +101,7 @@ public class ItemBuilder
         if (this.armorInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
         if (!ThingRegistries.ITEM_TIERS.containsKey(tierName))
             throw new RuntimeException("No known item tier definition with name '" + tierName + "'");
-        IItemTier tier = ThingRegistries.ITEM_TIERS.getOrDefault(tierName);
+        IItemTier tier = ThingRegistries.ITEM_TIERS.get(tierName);
         if (tier == null)
             throw new IllegalStateException("Property with name " + tierName + " not found in ThingRegistries.ITEM_TIERS");
         this.toolInfos.add(new ToolInfo(toolType, tier));
@@ -117,7 +114,7 @@ public class ItemBuilder
         if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
         if (!ThingRegistries.FOODS.containsKey(foodName))
             throw new RuntimeException("No known food definition with name '" + foodName + "'");
-        Food foodInfo = ThingRegistries.FOODS.getOrDefault(foodName);
+        Food foodInfo = ThingRegistries.FOODS.get(foodName);
         if (foodInfo == null)
             throw new IllegalStateException("Property with name " + foodName + " not found in ThingRegistries.FOODS");
         this.foodInfo = foodInfo;
@@ -161,12 +158,12 @@ public class ItemBuilder
 
         if (maxDamage != null)
         {
-            properties = properties.maxDamage(maxDamage);
+            properties = properties.durability(maxDamage);
         }
 
         if (containerInfo != null)
         {
-            properties = properties.containerItem(getItemOrCrash(containerInfo.emptyItem));
+            properties = properties.craftRemainder(getItemOrCrash(containerInfo.emptyItem));
         }
 
         if (foodInfo != null)
@@ -185,7 +182,7 @@ public class ItemBuilder
                 if (other.material != null && toolInfo == null)
                     toolInfo = other;
                 else
-                    properties.addToolType(other.toolClass, other.toolTier.getHarvestLevel());
+                    properties.addToolType(other.toolClass, other.toolTier.getLevel());
             }
             if (toolInfo != null)
             {
@@ -277,9 +274,9 @@ public class ItemBuilder
     @Nullable
     private ItemGroup findCreativeTab(String label)
     {
-        for (ItemGroup tab : ItemGroup.GROUPS)
+        for (ItemGroup tab : ItemGroup.TABS)
         {
-            if (tab.getPath().equals(label))
+            if (tab.getRecipeFolderName().equals(label))
                 return tab;
         }
         return null;
@@ -298,7 +295,7 @@ public class ItemBuilder
 
         public ArmorInfo(String equipmentSlot, String material)
         {
-            this.slot = EquipmentSlotType.fromString(equipmentSlot);
+            this.slot = EquipmentSlotType.byName(equipmentSlot);
             this.material = ArmorMaterial.valueOf(material.toUpperCase());
         }
     }

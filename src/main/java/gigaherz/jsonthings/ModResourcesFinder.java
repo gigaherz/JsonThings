@@ -31,7 +31,7 @@ class ModResourcesFinder
             IModInfo mod = e.getKey().getModInfos().get(0);
             if (Objects.equals(mod.getModId(), "minecraft")) continue; // skip the minecraft "mod"
             final String name = "mod:" + mod.getModId();
-            final ResourcePackInfo packInfo = ResourcePackInfo.createResourcePack(name, false, e::getValue, factory, ResourcePackInfo.Priority.BOTTOM, IPackNameDecorator.PLAIN);
+            final ResourcePackInfo packInfo = ResourcePackInfo.create(name, false, e::getValue, factory, ResourcePackInfo.Priority.BOTTOM, IPackNameDecorator.DEFAULT);
             if (packInfo == null)
             {
                 // Vanilla only logs an error, instead of propagating, so handle null and warn that something went wrong

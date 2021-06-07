@@ -22,8 +22,8 @@ public abstract class PropertyType
 {
     public static Property<?> deserialize(String name, JsonObject data)
     {
-        String key = JSONUtils.getString(data, "type");
-        PropertyType prop = ThingRegistries.PROPERTY_TYPES.getOrDefault(new ResourceLocation(key));
+        String key = JSONUtils.getAsString(data, "type");
+        PropertyType prop = ThingRegistries.PROPERTY_TYPES.get(new ResourceLocation(key));
         if (prop == null)
             throw new IllegalStateException("Property type not found " + key);
         return prop.read(name, data);
@@ -31,9 +31,9 @@ public abstract class PropertyType
 
     public static JsonObject serialize(Property<?> property)
     {
-        for (Map.Entry<RegistryKey<PropertyType>, PropertyType> entry : ThingRegistries.PROPERTY_TYPES.getEntries())
+        for (Map.Entry<RegistryKey<PropertyType>, PropertyType> entry : ThingRegistries.PROPERTY_TYPES.entrySet())
         {
-            String key = entry.getKey().getLocation().toString();
+            String key = entry.getKey().location().toString();
             PropertyType prop = entry.getValue();
             if (prop.handles(property))
             {
@@ -107,9 +107,9 @@ public abstract class PropertyType
         @Override
         public void write(JsonObject data, Property<?> property)
         {
-            property.getAllowedValues().stream().min(Comparable::compareTo)
+            property.getPossibleValues().stream().min(Comparable::compareTo)
                     .ifPresent(v -> data.addProperty("min", v.toString()));
-            property.getAllowedValues().stream().max(Comparable::compareTo)
+            property.getPossibleValues().stream().max(Comparable::compareTo)
                     .ifPresent(v -> data.addProperty("max", v.toString()));
         }
     }
@@ -142,7 +142,7 @@ public abstract class PropertyType
         @Override
         public void write(JsonObject data, Property<?> property)
         {
-            Collection<String> valid_values = ((CustomProperty) property).getAllowedValues();
+            Collection<String> valid_values = ((CustomProperty) property).getPossibleValues();
             JsonArray list = new JsonArray();
             valid_values.forEach(list::add);
             data.add("values", list);
@@ -177,12 +177,12 @@ public abstract class PropertyType
         @Override
         public void write(JsonObject data, Property<?> property)
         {
-            Collection<Direction> valid_values = ((DirectionProperty) property).getAllowedValues();
+            Collection<Direction> valid_values = ((DirectionProperty) property).getPossibleValues();
             Direction[] values = Direction.values();
             if (values.length > valid_values.size())
             {
                 JsonArray list = new JsonArray();
-                valid_values.stream().map(Direction::getString).forEach(list::add);
+                valid_values.stream().map(Direction::getSerializedName).forEach(list::add);
                 data.add("values", list);
             }
         }
@@ -200,7 +200,7 @@ public abstract class PropertyType
         @Override
         public Property<?> read(String name, JsonObject data)
         {
-            String className = JSONUtils.getString(data, "class");
+            String className = JSONUtils.getAsString(data, "class");
 
             Class cls;
             try
@@ -234,7 +234,7 @@ public abstract class PropertyType
                     String val = e.getAsJsonPrimitive().getAsString();
                     for (IStringSerializable s : serializables)
                     {
-                        if (s.getString().equals(val))
+                        if (s.getSerializedName().equals(val))
                         {
                             valid_values.add(s);
                         }
@@ -248,13 +248,13 @@ public abstract class PropertyType
         @Override
         public void write(JsonObject data, Property<?> property)
         {
-            Collection<?> valid_values = property.getAllowedValues();
+            Collection<?> valid_values = property.getPossibleValues();
             Class<?> cls = valid_values.stream().findFirst().get().getClass();
             Object[] enum_values = cls.getEnumConstants();
             if (enum_values.length > valid_values.size())
             {
                 JsonArray list = new JsonArray();
-                valid_values.stream().map(s -> ((IStringSerializable) s).getString()).forEach(list::add);
+                valid_values.stream().map(s -> ((IStringSerializable) s).getSerializedName()).forEach(list::add);
                 data.add("values", list);
             }
             data.addProperty("class", cls.getName());

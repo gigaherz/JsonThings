@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(Minecraft.class)
 public class MinecraftMixin
 {
-    @Redirect(method = "reloadDatapacks(Lnet/minecraft/util/registry/DynamicRegistries$Impl;Ljava/util/function/Function;Lcom/mojang/datafixers/util/Function4;ZLnet/minecraft/world/storage/SaveFormat$LevelSave;)Lnet/minecraft/client/Minecraft$PackManager;",
+    @Redirect(method = "makeServerStem(Lnet/minecraft/util/registry/DynamicRegistries$Impl;Ljava/util/function/Function;Lcom/mojang/datafixers/util/Function4;ZLnet/minecraft/world/storage/SaveFormat$LevelSave;)Lnet/minecraft/client/Minecraft$PackManager;",
             at = @At(value = "NEW", target = "([Lnet/minecraft/resources/IPackFinder;)Lnet/minecraft/resources/ResourcePackList;")
     )
     public ResourcePackList redirectPackListCreation(IPackFinder... finders)
     {
         ResourcePackList list = new ResourcePackList(finders);
-        list.addPackFinder(ThingResourceManager.INSTANCE.getFolderPackFinder());
+        list.addPackFinder(ThingResourceManager.INSTANCE.getWrappedPackFinder());
         return list;
     }
 }

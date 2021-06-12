@@ -16,7 +16,7 @@ public class ServerMainMixin
     public ResourcePackList redirectPackListCreation(IPackFinder... finders)
     {
         ResourcePackList list = new ResourcePackList(finders);
-        list.addPackFinder(ThingResourceManager.INSTANCE.getFolderPackFinder());
+        list.addPackFinder(ThingResourceManager.INSTANCE.getWrappedPackFinder());
         return list;
     }
 }

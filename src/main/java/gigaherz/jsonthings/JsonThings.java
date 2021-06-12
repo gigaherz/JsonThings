@@ -7,13 +7,17 @@ import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.parsers.ThingResourceManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.PackScreen;
 import net.minecraft.item.Item;
 import net.minecraft.util.Util;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -49,6 +53,13 @@ public class JsonThings
         bus.addListener(this::finishLoading);
         bus.addGenericListener(Block.class, this::registerBlocks);
         bus.addGenericListener(Item.class, this::registerItems);
+
+        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, screen) -> {
+            ThingResourceManager thingPackManager = ThingResourceManager.INSTANCE;
+            return new PackScreen(screen, thingPackManager.getResourcePackList(),
+                    rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
+                    new StringTextComponent("Thing Packs"));
+        });
     }
 
     private static CompletableFuture<ThingResourceManager> loader;
@@ -99,7 +110,7 @@ public class JsonThings
     {
         public static void addClientPackFinder()
         {
-            Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.INSTANCE.getFolderPackFinder());
+            Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.INSTANCE.getWrappedPackFinder());
         }
     }
 

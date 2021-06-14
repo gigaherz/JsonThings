@@ -6,6 +6,7 @@ import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.parsers.ThingResourceManager;
 import gigaherz.jsonthings.things.serializers.BlockType;
+import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.block.*;
@@ -313,5 +314,17 @@ public class BlockBuilder
     public Set<String> getRenderLayersOrDefault()
     {
         return Utils.orElse(getRenderLayers(), () -> Collections.singleton(blockType.getDefaultLayer()));
+    }
+
+    public BlockBuilder withMaterial(String material)
+    {
+        blockMaterial = Utils.getOrCrash(ThingRegistries.BLOCK_MATERIALS, material);
+        return this;
+    }
+
+    public BlockBuilder withMaterialColor(String map_color)
+    {
+        blockMaterialColor = MaterialColors.get(map_color);
+        return this;
     }
 }

@@ -37,6 +37,12 @@ public class BlockParser extends ThingParser<BlockBuilder>
         if (data.has("parent"))
             builder = parseParent(data.get("parent"), builder);
 
+        if (data.has("material"))
+            builder = builder.withMaterial(data.get("material").getAsString());
+
+        if (data.has("map_color"))
+            builder = builder.withMaterialColor(data.get("map_color").getAsString());
+
         if (data.has("properties"))
         {
             JsonObject props = data.get("properties").getAsJsonObject();

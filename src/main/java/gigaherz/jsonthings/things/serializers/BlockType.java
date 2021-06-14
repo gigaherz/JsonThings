@@ -129,6 +129,34 @@ public class BlockType
         };
     }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
 
+    public static final BlockType DOOR = register("trapdoor", (props, builder) -> {
+        List<Property<?>> _properties = builder.getProperties();
+        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+        return new FlexTrapdoorBlock(props, propertyDefaultValues)
+        {
+            @Override
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
+            {
+                super.createBlockStateDefinition(builder1);
+                _properties.forEach(builder1::add);
+            }
+        };
+    }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
+
+    public static final BlockType TRAPDOOR = register("trapdoor", (props, builder) -> {
+        List<Property<?>> _properties = builder.getProperties();
+        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+        return new FlexTrapdoorBlock(props, propertyDefaultValues)
+        {
+            @Override
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
+            {
+                super.createBlockStateDefinition(builder1);
+                _properties.forEach(builder1::add);
+            }
+        };
+    }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
+
     public static void init()
     {
         /* do nothing */

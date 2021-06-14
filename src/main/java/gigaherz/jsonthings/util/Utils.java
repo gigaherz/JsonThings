@@ -5,6 +5,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -43,5 +44,13 @@ public class Utils
     public static <T> T orElse(@Nullable T val, Supplier<T> def)
     {
         return val != null ? val : def.get();
+    }
+
+    public static <T> T getOrCrash(Registry<T> registry, String name)
+    {
+        T t = registry.get(new ResourceLocation(name));
+        if (t == null)
+            throw new IllegalStateException("No object with name " + name + " found in the registry " + registry);
+        return t;
     }
 }

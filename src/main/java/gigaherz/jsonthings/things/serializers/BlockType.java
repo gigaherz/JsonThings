@@ -3,8 +3,11 @@ package gigaherz.jsonthings.things.serializers;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.blocks.*;
 import net.minecraft.block.*;
-import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer;
+import net.minecraft.state.*;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.state.properties.DoorHingeSide;
+import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.state.properties.Half;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.fml.RegistryObject;
 
@@ -129,10 +132,10 @@ public class BlockType
         };
     }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
 
-    public static final BlockType DOOR = register("trapdoor", (props, builder) -> {
+    public static final BlockType DOOR = register("door", (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexTrapdoorBlock(props, propertyDefaultValues)
+        return new FlexDoorBlock(props, propertyDefaultValues)
         {
             @Override
             protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
@@ -141,7 +144,7 @@ public class BlockType
                 _properties.forEach(builder1::add);
             }
         };
-    }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
+    }, "cutout", true, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF);
 
     public static final BlockType TRAPDOOR = register("trapdoor", (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -155,7 +158,7 @@ public class BlockType
                 _properties.forEach(builder1::add);
             }
         };
-    }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
+    }, "cutout", true, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
 
     public static void init()
     {

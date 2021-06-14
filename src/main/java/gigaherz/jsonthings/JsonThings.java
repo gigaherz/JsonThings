@@ -139,7 +139,7 @@ public class JsonThings
         {
             ThingResourceManager.INSTANCE.blockParser.getBuilders().stream().forEach(thing -> {
                 Set<String> layers = thing.getRenderLayersOrDefault();
-                if (layers != null && (layers.size() != 1 || layers.contains("solid")))
+                if (layers.size() != 1 || !layers.contains("solid"))
                 {
                     Set<RenderType> renderTypes = layers.stream().map(MultiLayerModel.Loader.BLOCK_LAYERS::get).collect(Collectors.toSet());;
                     RenderTypeLookup.setRenderLayer(thing.getBuiltBlock().self(), renderTypes::contains);

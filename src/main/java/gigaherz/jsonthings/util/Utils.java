@@ -1,8 +1,15 @@
 package gigaherz.jsonthings.util;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 import net.minecraft.state.Property;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class Utils
 {
@@ -12,4 +19,29 @@ public class Utils
         return propValue.orElseThrow(() -> new IllegalStateException("Value " + value + " for property " + prop.getName() + " not found in the allowed values."));
     }
 
+    public static Item getItemOrCrash(ResourceLocation which)
+    {
+        if (!ForgeRegistries.ITEMS.containsKey(which))
+            throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", which));
+        //noinspection ConstantConditions
+        return ForgeRegistries.ITEMS.getValue(which);
+    }
+
+    public static Block getBlockOrCrash(ResourceLocation which)
+    {
+        if (!ForgeRegistries.BLOCKS.containsKey(which))
+            throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", which));
+        //noinspection ConstantConditions
+        return ForgeRegistries.BLOCKS.getValue(which);
+    }
+
+    public static <T> T orElse(@Nullable T val, T def)
+    {
+        return val != null ? val : def;
+    }
+
+    public static <T> T orElse(@Nullable T val, Supplier<T> def)
+    {
+        return val != null ? val : def.get();
+    }
 }

@@ -1,5 +1,6 @@
 package gigaherz.jsonthings.things.parsers;
 
+import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.builders.BlockBuilder;
@@ -7,6 +8,7 @@ import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.properties.PropertyType;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.state.Property;
 import net.minecraft.util.Direction;
 import net.minecraft.util.JSONUtils;
@@ -14,6 +16,8 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public class BlockParser extends ThingParser<BlockBuilder>
 {
@@ -26,26 +30,6 @@ public class BlockParser extends ThingParser<BlockBuilder>
     public BlockBuilder processThing(ResourceLocation key, JsonObject data)
     {
         BlockBuilder builder = BlockBuilder.begin(key);
-
-        if (data.has("item"))
-        {
-            JsonElement item = data.get("item");
-            if (item.isJsonPrimitive())
-            {
-                if (item.getAsBoolean())
-                {
-                    builder = createStockItemBlock(builder);
-                }
-            }
-            else if (item.isJsonObject())
-            {
-                builder = parseItemBlock(data.get("item").getAsJsonObject(), builder);
-            }
-            else
-            {
-                throw new RuntimeException("If present, 'item' must be a boolean or an object declaring the item values.");
-            }
-        }
 
         if (data.has("type"))
             builder = builder.withType(data.get("type").getAsString());
@@ -91,7 +75,61 @@ public class BlockParser extends ThingParser<BlockBuilder>
         if (data.has("render_shape"))
             builder = builder.withRenderShape(parseShape(data.get("render_shape"), facingProperty, propertiesByName));
 
+        if (data.has("render_layer"))
+            builder = builder.withRenderLayers(parseRenderLayers(data.get("render_layer")));
+
+        if (data.has("not_solid"))
+            builder = builder.withSeeThrough(data.get("not_solid").getAsBoolean());
+
+        if (data.has("color_handler"))
+            builder = builder.withColorHandler(data.get("color_handler").getAsString());
+
+        if (data.has("item"))
+        {
+            JsonElement item = data.get("item");
+            if (item.isJsonPrimitive())
+            {
+                if (item.getAsBoolean())
+                {
+                    builder = createStockItemBlock(builder);
+                }
+            }
+            else if (item.isJsonObject())
+            {
+                builder = parseItemBlock(data.get("item").getAsJsonObject(), builder);
+            }
+            else
+            {
+                throw new RuntimeException("If present, 'item' must be a boolean or an object declaring the item values.");
+            }
+        }
+
         return builder;
+    }
+
+    private static final Set<String> validBlockLayers = Sets.newHashSet("solid", "cutout_mipped", "cutout", "translucent", "tripwire");
+    private Set<String> parseRenderLayers(JsonElement data)
+    {
+        Set<String> types = Sets.newHashSet();
+        if (data.isJsonPrimitive() && data.getAsJsonPrimitive().isString())
+        {
+            types.add(verifyRenderLayer(data.getAsString()));
+        }
+        else
+        {
+            for(JsonElement e : data.getAsJsonArray())
+            {
+                types.add(verifyRenderLayer(e.getAsString()));
+            }
+        }
+        return types;
+    }
+
+    private String verifyRenderLayer(String layerName)
+    {
+        if (!validBlockLayers.contains(layerName))
+            throw new IllegalStateException("Render layer " + layerName + " is not a valid block chunk layer.");
+        return layerName;
     }
 
     private BlockBuilder parseParent(JsonElement data, BlockBuilder builder)

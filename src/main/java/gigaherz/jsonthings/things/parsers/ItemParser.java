@@ -80,6 +80,9 @@ public class ItemParser extends ThingParser<ItemBuilder>
             builder = parseArmorInfo(data, builder);
         }
 
+        if (data.has("color_handler"))
+            builder = builder.withColorHandler(data.get("color_handler").getAsString());
+
         return builder;
     }
 

@@ -1,15 +1,11 @@
 package gigaherz.jsonthings.things.parsers;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.*;
 import net.minecraft.util.Unit;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -17,8 +13,9 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -66,7 +63,8 @@ public class ThingResourceManager
         return (infoConsumer, infoFactory) -> folderPackFinder.loadPacks(info -> {
             if (!disabledPacks.contains(info.getId()))
                 infoConsumer.accept(info);
-        }, (a, b, c, d, e, f, g) -> infoFactory.create(a, true, c, d, e, f, name -> new StringTextComponent("thingpack:").append(name)));
+        }, (a, b, c, d, e, f, g) ->
+                infoFactory.create("thingpack:" + a, true, c, d, e, f, g));
     }
 
     public File getThingPacksLocation()

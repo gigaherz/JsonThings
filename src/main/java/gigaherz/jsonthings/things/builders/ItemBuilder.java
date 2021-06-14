@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.items.*;
 import gigaherz.jsonthings.things.ThingRegistries;
+import gigaherz.jsonthings.util.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -29,7 +30,7 @@ public class ItemBuilder
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
     private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
 
-    private Item builtItem = null;
+    private IFlexItem builtItem = null;
 
     private final ResourceLocation registryName;
     private Integer maxStackSize = null;
@@ -45,6 +46,7 @@ public class ItemBuilder
     private ContainerInfo containerInfo = null;
 
     private BlockInfo blockInfo = null;
+    private String colorHandler = null;
 
     private ItemBuilder(ResourceLocation registryName)
     {
@@ -152,7 +154,13 @@ public class ItemBuilder
         return this;
     }
 
-    public Item build()
+    public ItemBuilder withColorHandler(String colorHandler)
+    {
+        this.colorHandler = colorHandler;
+        return this;
+    }
+
+    public IFlexItem build()
     {
         Item.Properties properties = new Item.Properties();
 
@@ -163,7 +171,7 @@ public class ItemBuilder
 
         if (containerInfo != null)
         {
-            properties = properties.craftRemainder(getItemOrCrash(containerInfo.emptyItem));
+            properties = properties.craftRemainder(Utils.getItemOrCrash(containerInfo.emptyItem));
         }
 
         if (foodInfo != null)
@@ -171,8 +179,8 @@ public class ItemBuilder
             properties = properties.food(foodInfo);
         }
 
-        Item baseItem = null;
 
+        IFlexItem flexItem = null;
         if (toolInfos.size() > 0)
         {
             ToolInfo toolInfo = null; // first tool with a material name
@@ -189,23 +197,23 @@ public class ItemBuilder
                 IItemTier tier = toolInfo.toolTier;
                 if (ToolType.AXE == toolInfo.toolClass)
                 {
-                    baseItem = new FlexAxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                    flexItem = new FlexAxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
                 else if (ToolType.PICKAXE == toolInfo.toolClass)
                 {
-                    baseItem = new FlexPickaxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                    flexItem = new FlexPickaxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
                 else if (ToolType.SHOVEL == toolInfo.toolClass)
                 {
-                    baseItem = new FlexSpadeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                    flexItem = new FlexSpadeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
                 else if (ToolType.HOE == toolInfo.toolClass)
                 {
-                    baseItem = new FlexHoeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                    flexItem = new FlexHoeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
                 else if (SWORD_TOOL_TYPE == toolInfo.toolClass)
                 {
-                    baseItem = new FlexSwordItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                    flexItem = new FlexSwordItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
                 else
                 {
@@ -216,27 +224,25 @@ public class ItemBuilder
         }
         else if (armorInfo != null)
         {
-            baseItem = new FlexArmorItem(armorInfo.material, armorInfo.slot, properties);
+            flexItem = new FlexArmorItem(armorInfo.material, armorInfo.slot, properties);
         }
         else if (plantInfo != null)
         {
             //TODO: ForgeRegistries.BLOCKS.getValue(plantInfo.soil)
-            baseItem = new FlexBlockNamedItem(getBlockOrCrash(plantInfo.crops), properties);
+            flexItem = new FlexBlockNamedItem(Utils.getBlockOrCrash(plantInfo.crops), properties);
         }
         else if (blockInfo != null)
         {
-            baseItem = new FlexBlockItem(getBlockOrCrash(blockInfo.block), properties);
+            flexItem = new FlexBlockItem(Utils.getBlockOrCrash(blockInfo.block), properties);
         }
         // else other types
 
-        if (baseItem == null)
+        if (flexItem == null)
         {
-            baseItem = new FlexItem(properties);
+            flexItem = new FlexItem(properties);
         }
 
-        IFlexItem flexItem = (IFlexItem) baseItem;
-
-        baseItem.setRegistryName(registryName);
+        Item baseItem = flexItem.self().setRegistryName(registryName);
 
         if (delayedUse != null)
         {
@@ -253,22 +259,9 @@ public class ItemBuilder
             Set<ItemGroup> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).collect(Collectors.toSet());
             flexItem.addCreativeStack(ctx, tabsIterable);
         }
-        builtItem = baseItem;
-        return baseItem;
-    }
 
-    private Item getItemOrCrash(ResourceLocation which)
-    {
-        if (!ForgeRegistries.ITEMS.containsKey(which))
-            throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", blockInfo.block));
-        return ForgeRegistries.ITEMS.getValue(which);
-    }
-
-    private Block getBlockOrCrash(ResourceLocation which)
-    {
-        if (!ForgeRegistries.BLOCKS.containsKey(which))
-            throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", blockInfo.block));
-        return ForgeRegistries.BLOCKS.getValue(which);
+        builtItem = flexItem;
+        return flexItem;
     }
 
     @Nullable
@@ -282,10 +275,17 @@ public class ItemBuilder
         return null;
     }
 
-    @Nullable
-    public Item getBuiltItem()
+    public IFlexItem getBuiltItem()
     {
+        if (builtItem == null)
+            return build();
         return builtItem;
+    }
+
+    @Nullable
+    public String getColorHandler()
+    {
+        return colorHandler;
     }
 
     static class ArmorInfo

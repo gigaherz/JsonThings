@@ -2,6 +2,8 @@ package gigaherz.jsonthings.things;
 
 import com.mojang.serialization.Lifecycle;
 import gigaherz.jsonthings.things.properties.PropertyType;
+import gigaherz.jsonthings.things.properties.PropertyTypes;
+import gigaherz.jsonthings.things.serializers.BlockType;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.item.*;
 import net.minecraft.state.IntegerProperty;
@@ -23,6 +25,7 @@ public class ThingRegistries
     public static final RegistryKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
     public static final RegistryKey<Registry<IBooleanFunction>> BOOLEAN_FUNCTION_REGISTRY = createKey("jsonthings:boolean_function");
     public static final RegistryKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
+    public static final RegistryKey<Registry<BlockType>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new SimpleRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
     public static final Registry<IItemTier> ITEM_TIERS = makeRegistry(ITEM_TIER_REGISTRY);
@@ -32,12 +35,7 @@ public class ThingRegistries
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
     public static final Registry<DynamicShape> DYNAMIC_SHAPES = makeRegistry(DYNAMIC_SHAPE_REGISTRY);
     public static final Registry<IBooleanFunction> BOOLEAN_FUNCTIONS = makeRegistry(BOOLEAN_FUNCTION_REGISTRY);
-
-    public static final PropertyType BOOLEAN_PROPERTY = Registry.register(PROPERTY_TYPES, "boolean", new PropertyType.BoolType());
-    public static final PropertyType INTEGER_PROPERTY = Registry.register(PROPERTY_TYPES, "int", new PropertyType.RangeType<>(IntegerProperty.class, IntegerProperty::create, js -> js.getAsJsonPrimitive().getAsInt()));
-    public static final PropertyType STRING_PROPERTY = Registry.register(PROPERTY_TYPES, "string", new PropertyType.StringType());
-    public static final PropertyType DIRECTION_PROPERTY = Registry.register(PROPERTY_TYPES, "direction", new PropertyType.DirectionType());
-    public static final PropertyType ENUM_PROPERTY = Registry.register(PROPERTY_TYPES, "enum", new PropertyType.EnumType());
+    public static final Registry<BlockType> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
 
     static {
         registerItemTiers();
@@ -51,6 +49,10 @@ public class ThingRegistries
         registerBooleanFunctions();
 
         registerDynamicShapes();
+
+        PropertyTypes.init();
+
+        BlockType.init();
     }
 
     private static <T> RegistryKey<Registry<T>> createKey(String name) {

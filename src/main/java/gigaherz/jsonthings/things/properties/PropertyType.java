@@ -6,11 +6,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Function3;
 import gigaherz.jsonthings.things.ThingRegistries;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.Property;
+import net.minecraft.state.*;
 import net.minecraft.util.*;
+import net.minecraft.util.registry.Registry;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +49,10 @@ public abstract class PropertyType
     public abstract Property<?> read(String name, JsonObject data);
 
     public abstract void write(JsonObject data, Property<?> property);
+
+    public String toString() {
+        return "PropertyType{" + ThingRegistries.PROPERTY_TYPES.getKey(this) + "}";
+    }
 
     public static class BoolType extends PropertyType
     {

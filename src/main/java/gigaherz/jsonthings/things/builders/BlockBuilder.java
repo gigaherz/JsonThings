@@ -155,6 +155,18 @@ public class BlockBuilder
         return this;
     }
 
+    public BlockBuilder withMaterial(String material)
+    {
+        blockMaterial = Utils.getOrCrash(ThingRegistries.BLOCK_MATERIALS, material);
+        return this;
+    }
+
+    public BlockBuilder withMaterialColor(String map_color)
+    {
+        blockMaterialColor = MaterialColors.get(map_color);
+        return this;
+    }
+
     public IFlexBlock build()
     {
         Material material = Utils.orElse(getBlockMaterial(), Material.STONE);
@@ -182,7 +194,6 @@ public class BlockBuilder
         }
 
         IFlexBlock flexBlock = blockType.getFactory().construct(props, this);
-        Block baseBlock = flexBlock.self().setRegistryName(registryName);
 
         flexBlock.setGeneralShape(getGeneralShape());
         flexBlock.setCollisionShape(getCollisionShape());
@@ -314,17 +325,5 @@ public class BlockBuilder
     public Set<String> getRenderLayersOrDefault()
     {
         return Utils.orElse(getRenderLayers(), () -> Collections.singleton(blockType.getDefaultLayer()));
-    }
-
-    public BlockBuilder withMaterial(String material)
-    {
-        blockMaterial = Utils.getOrCrash(ThingRegistries.BLOCK_MATERIALS, material);
-        return this;
-    }
-
-    public BlockBuilder withMaterialColor(String map_color)
-    {
-        blockMaterialColor = MaterialColors.get(map_color);
-        return this;
     }
 }

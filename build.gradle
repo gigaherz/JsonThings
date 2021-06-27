@@ -39,7 +39,7 @@ minecraft {
         client {
             workingDirectory project.file('run')
 
-            property 'forge.logging.markers', 'CONFIG'
+            property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
 
             arg "--mixin=jsonthings.mixins.json"
@@ -56,7 +56,7 @@ minecraft {
         server {
             workingDirectory project.file('run')
 
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
 
             arg "--mixin=jsonthings.mixins.json"
@@ -69,11 +69,29 @@ minecraft {
                 }
             }
         }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', ''
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'jsonthings', '--all', '--output', file('src/main/generated_resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                thismod {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.1.18'
+
+    implementation 'net.bytebuddy:byte-buddy:1.11.2'
+
     annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 }
 

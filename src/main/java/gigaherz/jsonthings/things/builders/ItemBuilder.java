@@ -7,6 +7,8 @@ import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.items.*;
 import gigaherz.jsonthings.things.ThingRegistries;
+import gigaherz.jsonthings.things.parsers.ThingResourceManager;
+import gigaherz.jsonthings.things.shapes.DynamicShape;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -14,6 +16,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ToolType;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -21,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ItemBuilder
@@ -33,6 +37,11 @@ public class ItemBuilder
     private IFlexItem builtItem = null;
 
     private final ResourceLocation registryName;
+
+    private ResourceLocation parentBuilder;
+    private ItemBuilder parentBuilderObj;
+    private RegistryObject<Item> parentItem;
+
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
 
@@ -56,6 +65,27 @@ public class ItemBuilder
     public static ItemBuilder begin(ResourceLocation registryName)
     {
         return new ItemBuilder(registryName);
+    }
+
+    public ItemBuilder withParentItem(ResourceLocation parentName)
+    {
+        if (this.parentBuilder != null)
+            throw new IllegalStateException("Cannot set parent block and parent builder at the same time");
+        if (this.parentItem != null)
+            throw new IllegalStateException("Parent item already set");
+        this.parentItem = RegistryObject.of(parentName, ForgeRegistries.ITEMS);
+        return this;
+    }
+
+    public ItemBuilder withParentBuilder(ResourceLocation parentName)
+    {
+        if (this.parentBuilder != null)
+            throw new IllegalStateException("Parent builder already set");
+        if (this.parentItem != null)
+            throw new IllegalStateException("Cannot set parent item and parent builder at the same time");
+        this.parentItem = RegistryObject.of(parentName, ForgeRegistries.ITEMS);
+        this.parentBuilder = parentName;
+        return this;
     }
 
     public ItemBuilder withMaxStackSize(int maxStackSize)
@@ -242,8 +272,6 @@ public class ItemBuilder
             flexItem = new FlexItem(properties);
         }
 
-        Item baseItem = flexItem.self().setRegistryName(registryName);
-
         if (delayedUse != null)
         {
             flexItem.setUseAction(delayedUse.useAction);
@@ -282,10 +310,40 @@ public class ItemBuilder
         return builtItem;
     }
 
+    public ItemBuilder getParentBuilder()
+    {
+        if (parentBuilder == null)
+            throw new IllegalStateException("Parent builder not set");
+        if (parentBuilderObj == null)
+        {
+            parentBuilderObj = ThingResourceManager.INSTANCE.itemParser.getBuildersMap().get(parentBuilder);
+        }
+        if (parentBuilderObj == null)
+            throw new IllegalStateException("Parent builder not found");
+        return parentBuilderObj;
+    }
+
+    @Nullable
+    private <T> T getValueWithParent(@Nullable T thisValue, Function<ItemBuilder, T> parentGetter)
+    {
+        if (thisValue != null) return thisValue;
+        if (parentBuilder != null)
+        {
+            ItemBuilder parent = getParentBuilder();
+            return parentGetter.apply(parent);
+        }
+        return null;
+    }
+
     @Nullable
     public String getColorHandler()
     {
-        return colorHandler;
+        return getValueWithParent(colorHandler, ItemBuilder::getColorHandler);
+    }
+
+    public ResourceLocation getRegistryName()
+    {
+        return registryName;
     }
 
     static class ArmorInfo

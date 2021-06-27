@@ -9,6 +9,7 @@ import gigaherz.jsonthings.things.builders.StackContext;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Food;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ToolType;
 
@@ -25,6 +26,9 @@ public class ItemParser extends ThingParser<ItemBuilder>
     public ItemBuilder processThing(ResourceLocation key, JsonObject data)
     {
         ItemBuilder builder = ItemBuilder.begin(key);
+
+        if (data.has("parent"))
+            builder = parseParent(data.get("parent"), builder);
 
         if (data.has("max_stack_size"))
         {
@@ -84,6 +88,21 @@ public class ItemParser extends ThingParser<ItemBuilder>
             builder = builder.withColorHandler(data.get("color_handler").getAsString());
 
         return builder;
+    }
+
+    private ItemBuilder parseParent(JsonElement data, ItemBuilder builder)
+    {
+        if (data.isJsonObject())
+        {
+            JsonObject obj = data.getAsJsonObject();
+            String id = JSONUtils.getAsString(obj, "id");
+            boolean isBuilder = JSONUtils.getAsBoolean(obj, "is_builder", true);
+            if (isBuilder)
+                return builder.withParentBuilder(new ResourceLocation(id));
+            else
+                return builder.withParentItem(new ResourceLocation(id));
+        }
+        return builder.withParentBuilder(new ResourceLocation(data.getAsString()));
     }
 
     private ItemBuilder parseAttributeModifiers(ResourceLocation key, JsonObject data, ItemBuilder builder)

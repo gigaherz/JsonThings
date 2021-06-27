@@ -14,15 +14,11 @@ import net.minecraft.item.UseAction;
 import net.minecraft.util.ActionResult;
 
 import javax.annotation.Nullable;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 public interface IFlexItem
 {
-    default Item self()
-    {
-        return (Item) this;
-    }
-
     void setUseAction(UseAction useAction);
 
     UseAction getUseAction();
@@ -50,6 +46,14 @@ public interface IFlexItem
         if (handler != null)
             return handler.apply(eventName, context);
         return defaultValue.get();
+    }
+
+    default ActionResult<ItemStack> runEventThrowing(String eventName, FlexEventContext context, Callable<ActionResult<ItemStack>> defaultValue) throws Exception
+    {
+        ItemEventHandler handler = getEventHandler(eventName);
+        if (handler != null)
+            return handler.apply(eventName, context);
+        return defaultValue.call();
     }
 
     static <T> T orElse(@Nullable T value, Supplier<T> fallback)

@@ -33,17 +33,7 @@ public class FlexSpadeItem extends ShovelItem implements IFlexItem
     public FlexSpadeItem(IItemTier tier, float damage, float speed, Item.Properties properties)
     {
         super(tier, damage, speed, properties);
-
         initializeFlex();
-
-        eventHandlers.put("use_on_block", (eventName, context) -> {
-            BlockRayTraceResult trace = new BlockRayTraceResult(
-                    context.get(FlexEventContext.HIT_VEC),
-                    context.get(FlexEventContext.HIT_FACE),
-                    context.get(FlexEventContext.HIT_POS),
-                    context.get(FlexEventContext.HIT_INSIDE));
-            return new ActionResult<>(super.useOn(new ItemUseContext((PlayerEntity) context.get(FlexEventContext.USER), context.get(FlexEventContext.HAND), trace)), context.getStack());
-        });
     }
 
     //region IFlexItem
@@ -56,6 +46,7 @@ public class FlexSpadeItem extends ShovelItem implements IFlexItem
     private UseAction useAction;
     private int useTime;
     private CompletionMode useFinishMode;
+    private ActionResult<ItemStack> containerResult;
 
     private void initializeFlex()
     {
@@ -65,8 +56,6 @@ public class FlexSpadeItem extends ShovelItem implements IFlexItem
             multimap.putAll(super.getAttributeModifiers(EquipmentSlotType.CHEST, ItemStack.EMPTY));
             attributeModifiers.put(slot1, multimap);
         }
-
-        eventHandlers.put("get_container_item", (eventName, context) -> new ActionResult<>(ActionResultType.SUCCESS, super.getContainerItem(context.getStack())));
     }
 
     @Override
@@ -147,22 +136,32 @@ public class FlexSpadeItem extends ShovelItem implements IFlexItem
     public ActionResultType useOn(ItemUseContext context)
     {
         ItemStack heldItem = context.getItemInHand();
-        if (useTime > 0)
-            return ActionResultType.PASS;
 
-        return runEvent("use_on_block", FlexEventContext.of(context), () -> new ActionResult<>(ActionResultType.PASS, heldItem)).getResult();
+        ActionResult<ItemStack> result = runEvent("use_on_block", FlexEventContext.of(context), () -> new ActionResult<>(super.useOn(context), heldItem));
+
+        if (result.getObject() != heldItem)
+        {
+            context.getPlayer().setItemInHand(context.getHand(), result.getObject());
+        }
+
+        return result.getResult();
     }
 
     @Override
     public void releaseUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft)
     {
-        runEvent("stopped_using", FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft), () -> new ActionResult<>(ActionResultType.PASS, stack));
+        runEvent("stopped_using",
+                FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft),
+                () -> {
+                    super.releaseUsing(stack, worldIn, entityLiving, timeLeft);
+                    return new ActionResult<>(ActionResultType.PASS, stack);
+                });
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack heldItem, World worldIn, LivingEntity entityLiving)
     {
-        Supplier<ActionResult<ItemStack>> resultSupplier = () -> new ActionResult<>(ActionResultType.SUCCESS, heldItem);
+        Supplier<ActionResult<ItemStack>> resultSupplier = () -> new ActionResult<>(ActionResultType.SUCCESS, super.finishUsingItem(heldItem, worldIn, entityLiving));
 
         ActionResult<ItemStack> result = runEvent("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
         if (result.getResult() != ActionResultType.SUCCESS)
@@ -176,9 +175,9 @@ public class FlexSpadeItem extends ShovelItem implements IFlexItem
     {
         ItemStack heldItem = playerIn.getItemInHand(handIn);
         if (useTime > 0)
-            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> new ActionResult<>(ActionResultType.SUCCESS, heldItem));
+            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> super.use(worldIn, playerIn, handIn));
         else
-            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> new ActionResult<>(ActionResultType.PASS, heldItem));
+            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> super.use(worldIn, playerIn, handIn));
     }
 
     @Override
@@ -206,17 +205,45 @@ public class FlexSpadeItem extends ShovelItem implements IFlexItem
     {
         ActionResult<ItemStack> result = runEvent("update",
                 FlexEventContext.of(worldIn, entityIn, stack).with(FlexEventContext.SLOT, itemSlot).with(FlexEventContext.SELECTED, isSelected),
-                () -> new ActionResult<>(ActionResultType.PASS, stack));
-        if (!ItemStack.matches(result.getObject(), stack))
+                () -> {
+                    super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
+                    return new ActionResult<>(ActionResultType.PASS, stack);
+                });
+        if (result.getObject() != stack)
         {
             entityIn.setSlot(itemSlot, result.getObject());
         }
     }
 
+    private ActionResult<ItemStack> doContainerItem(ItemStack stack)
+    {
+        return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
+            ActionResultType typeIn = super.hasContainerItem(stack) ? ActionResultType.SUCCESS : ActionResultType.PASS;
+            if (typeIn == ActionResultType.SUCCESS)
+                return new ActionResult<>(typeIn, super.getContainerItem(stack));
+            return new ActionResult<>(typeIn, stack);
+        });
+    }
+
+    @Override
+    public boolean hasContainerItem(ItemStack stack)
+    {
+        containerResult = doContainerItem(stack);
+        return containerResult.getResult() == ActionResultType.SUCCESS;
+    }
+
     @Override
     public ItemStack getContainerItem(ItemStack itemStack)
     {
-        return runEvent("get_container_item", FlexEventContext.of(itemStack), () -> new ActionResult<>(ActionResultType.PASS, itemStack)).getObject();
+        try
+        {
+            if (containerResult != null)
+                return containerResult.getObject();
+            return doContainerItem(itemStack).getObject();
+        }
+        finally {
+            containerResult = null;
+        }
     }
 
     @Override

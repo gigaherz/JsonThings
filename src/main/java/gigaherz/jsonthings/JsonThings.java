@@ -8,6 +8,7 @@ import gigaherz.jsonthings.things.builders.BlockBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.client.BlockColorHandler;
 import gigaherz.jsonthings.things.client.ItemColorHandler;
+import gigaherz.jsonthings.things.items.MakeFlexItem;
 import gigaherz.jsonthings.things.parsers.ThingResourceManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -114,7 +115,7 @@ public class JsonThings
     {
         LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
         IForgeRegistry<Block> registry = event.getRegistry();
-        ThingResourceManager.INSTANCE.blockParser.getBuilders().stream().map(BlockBuilder::build).forEach(thing -> registry.register(thing.self()));
+        ThingResourceManager.INSTANCE.blockParser.getBuilders().forEach(thing -> registry.register(thing.build().self().setRegistryName(thing.getRegistryName())));
         LOGGER.info("Done processing thingpack Blocks.");
     }
 
@@ -122,7 +123,7 @@ public class JsonThings
     {
         LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
         IForgeRegistry<Item> registry = event.getRegistry();
-        ThingResourceManager.INSTANCE.itemParser.getBuilders().stream().map(ItemBuilder::build).forEach(thing -> registry.register(thing.self()));
+        ThingResourceManager.INSTANCE.itemParser.getBuilders().forEach(thing -> registry.register(((Item)thing.build()).setRegistryName(thing.getRegistryName())));
         LOGGER.info("Done processing thingpack Items.");
     }
 
@@ -169,7 +170,7 @@ public class JsonThings
                 {
                     Function<BlockColors, IItemColor> handler = ItemColorHandler.get(handlerName);
                     IItemColor ic = handler.apply(event.getBlockColors());
-                    event.getItemColors().register(ic, thing.getBuiltItem().self());
+                    event.getItemColors().register(ic, ((Item)thing.getBuiltItem()));
                 }
             });
         }

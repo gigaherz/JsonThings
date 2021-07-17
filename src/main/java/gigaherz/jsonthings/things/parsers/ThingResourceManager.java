@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.brigadier.StringReader;
+import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.resources.*;
 import net.minecraft.util.Unit;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -48,6 +50,8 @@ public class ThingResourceManager
     private final ResourcePackList packList;
     public final BlockParser blockParser = new BlockParser();
     public final ItemParser itemParser = new ItemParser();
+    public final EnchantmentParser enchantmentParser = new EnchantmentParser();
+    public final FoodParser foodParser = new FoodParser();
 
     public ThingResourceManager()
     {
@@ -56,6 +60,8 @@ public class ThingResourceManager
         packList = new ResourcePackList(folderPackFinder);
         resourceManager.registerReloadListener(blockParser);
         resourceManager.registerReloadListener(itemParser);
+        resourceManager.registerReloadListener(enchantmentParser);
+        resourceManager.registerReloadListener(foodParser);
     }
 
     public IPackFinder getWrappedPackFinder()

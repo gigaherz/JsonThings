@@ -1,12 +1,14 @@
 package gigaherz.jsonthings.util;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -20,22 +22,6 @@ public class Utils
         return propValue.orElseThrow(() -> new IllegalStateException("Value " + value + " for property " + prop.getName() + " not found in the allowed values."));
     }
 
-    public static Item getItemOrCrash(ResourceLocation which)
-    {
-        if (!ForgeRegistries.ITEMS.containsKey(which))
-            throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", which));
-        //noinspection ConstantConditions
-        return ForgeRegistries.ITEMS.getValue(which);
-    }
-
-    public static Block getBlockOrCrash(ResourceLocation which)
-    {
-        if (!ForgeRegistries.BLOCKS.containsKey(which))
-            throw new RuntimeException(String.format("Attempted to make a block-placing item for '%s' without the associated block", which));
-        //noinspection ConstantConditions
-        return ForgeRegistries.BLOCKS.getValue(which);
-    }
-
     public static <T> T orElse(@Nullable T val, T def)
     {
         return val != null ? val : def;
@@ -46,11 +32,34 @@ public class Utils
         return val != null ? val : def.get();
     }
 
+    public static Item getItemOrCrash(ResourceLocation which)
+    {
+        return getOrCrash(ForgeRegistries.ITEMS, which);
+    }
+
+    public static Block getBlockOrCrash(ResourceLocation which)
+    {
+        return getOrCrash(ForgeRegistries.BLOCKS, which);
+    }
+
+    public static <T extends IForgeRegistryEntry<T>> T getOrCrash(IForgeRegistry<T> reg, ResourceLocation which)
+    {
+        if (!reg.containsKey(which))
+            throw new RuntimeException(String.format("Could not find a %s with name %s in the regsitry.", reg.getRegistrySuperType().getSimpleName(), which));
+        //noinspection ConstantConditions
+        return reg.getValue(which);
+    }
+
     public static <T> T getOrCrash(Registry<T> registry, String name)
     {
         T t = registry.get(new ResourceLocation(name));
         if (t == null)
             throw new IllegalStateException("No object with name " + name + " found in the registry " + registry);
         return t;
+    }
+
+    public IFormattableTextComponent withFont(IFormattableTextComponent component, ResourceLocation font)
+    {
+        return component.withStyle(style -> style.withFont(font));
     }
 }

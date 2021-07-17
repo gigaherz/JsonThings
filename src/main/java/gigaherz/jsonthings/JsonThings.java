@@ -18,8 +18,10 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
 import net.minecraft.util.Util;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
@@ -43,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -70,6 +73,7 @@ public class JsonThings
         bus.addListener(this::finishLoading);
         bus.addGenericListener(Block.class, this::registerBlocks);
         bus.addGenericListener(Item.class, this::registerItems);
+        bus.addGenericListener(Enchantment.class, this::registerEnchantments);
 
         ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, screen) -> {
             ThingResourceManager thingPackManager = ThingResourceManager.INSTANCE;
@@ -96,6 +100,8 @@ public class JsonThings
                 ItemColorHandler.init();
             }
         });
+        URL url = null;
+
     }
 
     public void finishLoading(RegistryEvent.NewRegistry event)
@@ -104,6 +110,9 @@ public class JsonThings
         {
             loader.get();
             loader = null;
+
+            // Foods
+            ThingResourceManager.INSTANCE.foodParser.getBuilders().forEach(thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.build()));
         }
         catch (InterruptedException | ExecutionException e)
         {
@@ -125,6 +134,14 @@ public class JsonThings
         IForgeRegistry<Item> registry = event.getRegistry();
         ThingResourceManager.INSTANCE.itemParser.getBuilders().forEach(thing -> registry.register(((Item)thing.build()).setRegistryName(thing.getRegistryName())));
         LOGGER.info("Done processing thingpack Items.");
+    }
+
+    public void registerEnchantments(RegistryEvent.Register<Enchantment> event)
+    {
+        LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
+        IForgeRegistry<Enchantment> registry = event.getRegistry();
+        ThingResourceManager.INSTANCE.enchantmentParser.getBuilders().forEach(thing -> registry.register((thing.build()).setRegistryName(thing.getRegistryName())));
+        LOGGER.info("Done processing thingpack Enchantments.");
     }
 
     @Mod.EventBusSubscriber(modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)

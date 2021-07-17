@@ -4,6 +4,7 @@ import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.builders.StackContext;
 import joptsimple.internal.Strings;
@@ -321,52 +322,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         }
         else
         {
-            JsonObject toolData = data.get("food").getAsJsonObject();
-
-            int healAmount;
-            if (toolData.has("heal_amount"))
-            {
-                int str = toolData.get("heal_amount").getAsInt();
-                if (str > 0)
-                {
-                    healAmount = str;
-                }
-                else
-                {
-                    throw new RuntimeException("Heal amount must be > 0.");
-                }
-            }
-            else
-            {
-                throw new RuntimeException("Food info must have a non-empty 'heal_amount' number.");
-            }
-
-            float saturation;
-            if (toolData.has("saturation"))
-            {
-                float str = toolData.get("saturation").getAsFloat();
-                if (str >= 0)
-                {
-                    saturation = str;
-                }
-                else
-                {
-                    throw new RuntimeException("Food saturation not be negative.");
-                }
-            }
-            else
-            {
-                throw new RuntimeException("Food info must have a non-empty 'saturation' number.");
-            }
-
-            boolean isMeat = false;
-            if (toolData.has("meat"))
-            {
-                isMeat = toolData.get("meat").getAsBoolean();
-            }
-
-            Food.Builder foodBuilder = new Food.Builder().nutrition(healAmount).saturationMod(saturation);
-            if (isMeat) foodBuilder.meat();
+            FoodBuilder foodBuilder = ThingResourceManager.INSTANCE.foodParser.parseFromElement(builder.getRegistryName(), foodData);
             builder = builder.makeFood(foodBuilder.build());
         }
         return builder;

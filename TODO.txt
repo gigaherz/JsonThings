@@ -1,7 +1,17 @@
-Missing thing parsers
+WIP
+--------
+Items
+Blocks
+Enchantments
+Food definitions
+
+TODO
 --------------
 Item materials
 Armor materials
 Block materials
-Food definitions
 Voxel shape "models"
+Screen layouts
+Container types
+
+1.17 Entity Models

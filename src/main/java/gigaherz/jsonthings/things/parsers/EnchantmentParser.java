@@ -4,13 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.builders.EnchantmentBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.enchantment.IArmorVanishable;
-import net.minecraft.enchantment.IVanishable;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Locale;

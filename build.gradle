@@ -88,7 +88,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.1.18'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.0'
 
     implementation 'net.bytebuddy:byte-buddy:1.11.2'
 

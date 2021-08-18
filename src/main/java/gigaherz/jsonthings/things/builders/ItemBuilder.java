@@ -5,18 +5,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.things.IFlexItem;
-import gigaherz.jsonthings.things.items.*;
 import gigaherz.jsonthings.things.ThingRegistries;
+import gigaherz.jsonthings.things.items.*;
 import gigaherz.jsonthings.things.parsers.ThingResourceManager;
-import gigaherz.jsonthings.things.shapes.DynamicShape;
 import gigaherz.jsonthings.util.Utils;
-import net.minecraft.block.Block;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.ToolType;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.*;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -29,8 +27,6 @@ import java.util.stream.Collectors;
 
 public class ItemBuilder
 {
-    public static final ToolType SWORD_TOOL_TYPE = ToolType.get("sword");
-
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
     private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
 
@@ -47,7 +43,7 @@ public class ItemBuilder
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
     private final List<ToolInfo> toolInfos = Lists.newArrayList();
-    private Food foodInfo = null;
+    private FoodProperties foodInfo = null;
     private PlantInfo plantInfo = null;
     private ArmorInfo armorInfo = null;
 
@@ -127,13 +123,13 @@ public class ItemBuilder
         return this;
     }
 
-    public ItemBuilder withTool(ToolType toolType, ResourceLocation tierName)
+    public ItemBuilder withTool(String toolType, ResourceLocation tierName)
     {
         if (this.blockInfo != null) throw new RuntimeException("An item can not be tool and block at the same time.");
         if (this.armorInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
         if (!ThingRegistries.ITEM_TIERS.containsKey(tierName))
             throw new RuntimeException("No known item tier definition with name '" + tierName + "'");
-        IItemTier tier = ThingRegistries.ITEM_TIERS.get(tierName);
+        Tier tier = ThingRegistries.ITEM_TIERS.get(tierName);
         if (tier == null)
             throw new IllegalStateException("Property with name " + tierName + " not found in ThingRegistries.ITEM_TIERS");
         this.toolInfos.add(new ToolInfo(toolType, tier));
@@ -146,14 +142,14 @@ public class ItemBuilder
         if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
         if (!ThingRegistries.FOODS.containsKey(foodName))
             throw new RuntimeException("No known food definition with name '" + foodName + "'");
-        Food foodInfo = ThingRegistries.FOODS.get(foodName);
+        FoodProperties foodInfo = ThingRegistries.FOODS.get(foodName);
         if (foodInfo == null)
             throw new IllegalStateException("Property with name " + foodName + " not found in ThingRegistries.FOODS");
         this.foodInfo = foodInfo;
         return this;
     }
 
-    public ItemBuilder makeFood(Food food)
+    public ItemBuilder makeFood(FoodProperties food)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
         if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
@@ -219,33 +215,31 @@ public class ItemBuilder
                 ToolInfo other = toolInfos.get(i);
                 if (other.material != null && toolInfo == null)
                     toolInfo = other;
-                else
-                    properties.addToolType(other.toolClass, other.toolTier.getLevel());
             }
             if (toolInfo != null)
             {
-                IItemTier tier = toolInfo.toolTier;
-                if (ToolType.AXE == toolInfo.toolClass)
+                Tier tier = toolInfo.toolTier;
+                if ("axe".equals(toolInfo.toolClass))
                 {
                     flexItem = new FlexAxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
-                else if (ToolType.PICKAXE == toolInfo.toolClass)
+                else if ("pickaxe".equals(toolInfo.toolClass))
                 {
                     flexItem = new FlexPickaxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
-                else if (ToolType.SHOVEL == toolInfo.toolClass)
+                else if ("shovel".equals(toolInfo.toolClass))
                 {
                     flexItem = new FlexSpadeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
-                else if (ToolType.HOE == toolInfo.toolClass)
+                else if ("hoe".equals(toolInfo.toolClass))
                 {
                     flexItem = new FlexHoeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
-                else if (SWORD_TOOL_TYPE == toolInfo.toolClass)
+                else if ("sword".equals(toolInfo.toolClass))
                 {
                     flexItem = new FlexSwordItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
-                else
+                else // TODO
                 {
                     //throw new RuntimeException(String.format("Unknown tool class '%s'.", toolInfo.toolClass));
                     // allow unknown classes, but treat them as normal items without a special subclass
@@ -284,7 +278,7 @@ public class ItemBuilder
             StackContext ctx = tabEntries.getFirst();
             String[] tabs = tabEntries.getSecond();
 
-            Set<ItemGroup> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).collect(Collectors.toSet());
+            Set<CreativeModeTab> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).collect(Collectors.toSet());
             flexItem.addCreativeStack(ctx, tabsIterable);
         }
 
@@ -293,9 +287,9 @@ public class ItemBuilder
     }
 
     @Nullable
-    private ItemGroup findCreativeTab(String label)
+    private CreativeModeTab findCreativeTab(String label)
     {
-        for (ItemGroup tab : ItemGroup.TABS)
+        for (CreativeModeTab tab : CreativeModeTab.TABS)
         {
             if (tab.getRecipeFolderName().equals(label))
                 return tab;
@@ -348,13 +342,13 @@ public class ItemBuilder
 
     static class ArmorInfo
     {
-        public EquipmentSlotType slot;
-        public IArmorMaterial material;
+        public EquipmentSlot slot;
+        public ArmorMaterial material;
 
         public ArmorInfo(String equipmentSlot, String material)
         {
-            this.slot = EquipmentSlotType.byName(equipmentSlot);
-            this.material = ArmorMaterial.valueOf(material.toUpperCase());
+            this.slot = EquipmentSlot.byName(equipmentSlot);
+            this.material = ArmorMaterials.valueOf(material.toUpperCase());
         }
     }
 
@@ -384,13 +378,13 @@ public class ItemBuilder
     static class DelayedUse
     {
         public int useTicks;
-        public UseAction useAction;
+        public UseAnim useAction;
         public CompletionMode onComplete;
 
         public DelayedUse(int useTicks, String useAction, String completeAction)
         {
             this.useTicks = useTicks;
-            this.useAction = UseAction.valueOf(useAction.toUpperCase());
+            this.useAction = UseAnim.valueOf(useAction.toUpperCase());
             this.onComplete = CompletionMode.valueOf(completeAction.toUpperCase());
         }
     }
@@ -403,13 +397,13 @@ public class ItemBuilder
 
     static class ToolInfo
     {
-        public ToolType toolClass;
+        public String toolClass;
         public String material;
         public int toolDamage;
         public float toolSpeed;
-        public IItemTier toolTier;
+        public Tier toolTier;
 
-        public ToolInfo(ToolType toolType, IItemTier tier)
+        public ToolInfo(String toolType, Tier tier)
         {
             this.toolClass = toolType;
             this.toolTier = tier;

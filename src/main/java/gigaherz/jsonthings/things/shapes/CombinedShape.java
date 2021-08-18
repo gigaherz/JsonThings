@@ -6,12 +6,12 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.util.CodecExtras;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.Property;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 public class CombinedShape implements IShapeProvider
 {
     public static final Codec<CombinedShape> LIST_CODEC = CodecExtras.lazy(DynamicShape::shapeCodec).listOf().flatComapMap(
-            list -> new CombinedShape(IBooleanFunction.OR, list),
-            shape -> shape.operator == IBooleanFunction.OR
+            list -> new CombinedShape(BooleanOp.OR, list),
+            shape -> shape.operator == BooleanOp.OR
                     ? DataResult.success(shape.boxes)
                     : DataResult.error("Cannot use CombinedShape.LIST_CODEC to encode a CombinedShape whose boolean function is not OR")
     );
@@ -33,10 +33,10 @@ public class CombinedShape implements IShapeProvider
     ).apply(instance, CombinedShape::new));
     public static final Codec<CombinedShape> CODEC = CodecExtras.makeChoiceCodec(LIST_CODEC, OBJECT_CODEC);
 
-    public final IBooleanFunction operator;
+    public final BooleanOp operator;
     public final List<IShapeProvider> boxes = Lists.newArrayList();
 
-    public CombinedShape(IBooleanFunction operator, Collection<IShapeProvider> boxes)
+    public CombinedShape(BooleanOp operator, Collection<IShapeProvider> boxes)
     {
         this.operator = operator;
         this.boxes.addAll(boxes);
@@ -47,7 +47,7 @@ public class CombinedShape implements IShapeProvider
     {
         return boxes.stream()
                 .map(shape -> shape.getShape(state, facing))
-                .reduce(Optional.empty(), (a, b) -> a.map(aa -> b.map(bb -> VoxelShapes.joinUnoptimized(aa, bb, operator))).orElse(b))
+                .reduce(Optional.empty(), (a, b) -> a.map(aa -> b.map(bb -> Shapes.joinUnoptimized(aa, bb, operator))).orElse(b))
                 .map(VoxelShape::optimize);
     }
 

@@ -4,14 +4,13 @@ import gigaherz.jsonthings.things.builders.CompletionMode;
 import gigaherz.jsonthings.things.builders.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.events.ItemEventHandler;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.UseAction;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.Callable;
@@ -19,9 +18,9 @@ import java.util.function.Supplier;
 
 public interface IFlexItem
 {
-    void setUseAction(UseAction useAction);
+    void setUseAction(UseAnim useAction);
 
-    UseAction getUseAction();
+    UseAnim getUseAction();
 
     void setUseTime(int useTicks);
 
@@ -36,11 +35,11 @@ public interface IFlexItem
     @Nullable
     ItemEventHandler getEventHandler(String eventName);
 
-    void addCreativeStack(StackContext stack, Iterable<ItemGroup> tabs);
+    void addCreativeStack(StackContext stack, Iterable<CreativeModeTab> tabs);
 
-    void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier);
+    void addAttributeModifier(@Nullable EquipmentSlot slot, Attribute attribute, AttributeModifier modifier);
 
-    default ActionResult<ItemStack> runEvent(String eventName, FlexEventContext context, Supplier<ActionResult<ItemStack>> defaultValue)
+    default InteractionResultHolder<ItemStack> runEvent(String eventName, FlexEventContext context, Supplier<InteractionResultHolder<ItemStack>> defaultValue)
     {
         ItemEventHandler handler = getEventHandler(eventName);
         if (handler != null)
@@ -48,7 +47,7 @@ public interface IFlexItem
         return defaultValue.get();
     }
 
-    default ActionResult<ItemStack> runEventThrowing(String eventName, FlexEventContext context, Callable<ActionResult<ItemStack>> defaultValue) throws Exception
+    default InteractionResultHolder<ItemStack> runEventThrowing(String eventName, FlexEventContext context, Callable<InteractionResultHolder<ItemStack>> defaultValue) throws Exception
     {
         ItemEventHandler handler = getEventHandler(eventName);
         if (handler != null)

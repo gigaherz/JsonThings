@@ -8,18 +8,18 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.builders.StackContext;
 import joptsimple.internal.Strings;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ThingParser<TBuilder> extends JsonReloadListener
+public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadListener
 {
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -32,7 +32,7 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, IResourceManager resourceManagerIn, IProfiler profilerIn)
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn)
     {
         objectIn.forEach(this::parseFromElement);
     }
@@ -51,6 +51,7 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
     {
         return Collections.unmodifiableList(builders);
     }
+
     public Map<ResourceLocation, TBuilder> getBuildersMap()
     {
         return Collections.unmodifiableMap(buildersByName);
@@ -88,11 +89,11 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
             try
             {
                 JsonElement element = item.get("nbt");
-                CompoundNBT nbt;
+                CompoundTag nbt;
                 if (element.isJsonObject())
-                    nbt = JsonToNBT.parseTag(GSON.toJson(element));
+                    nbt = TagParser.parseTag(GSON.toJson(element));
                 else
-                    nbt = JsonToNBT.parseTag(element.getAsString());
+                    nbt = TagParser.parseTag(element.getAsString());
                 ctx = ctx.withTag(nbt);
             }
             catch (Exception e)

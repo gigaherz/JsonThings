@@ -6,43 +6,47 @@ import gigaherz.jsonthings.things.properties.PropertyTypes;
 import gigaherz.jsonthings.things.serializers.BlockType;
 import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.item.*;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.Property;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.SimpleRegistry;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.food.Foods;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.Tiers;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.shapes.BooleanOp;
 
 public class ThingRegistries
 {
-    public static final RegistryKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
-    public static final RegistryKey<Registry<IItemTier>> ITEM_TIER_REGISTRY = createKey("jsonthings:item_tier");
-    public static final RegistryKey<Registry<IArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
-    public static final RegistryKey<Registry<Food>> FOOD_REGISTRY = createKey("jsonthings:food");
-    public static final RegistryKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
-    public static final RegistryKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
-    public static final RegistryKey<Registry<IBooleanFunction>> BOOLEAN_FUNCTION_REGISTRY = createKey("jsonthings:boolean_function");
-    public static final RegistryKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
-    public static final RegistryKey<Registry<BlockType>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
-    public static final RegistryKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
+    public static final ResourceKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
+    public static final ResourceKey<Registry<Tier>> ITEM_TIER_REGISTRY = createKey("jsonthings:item_tier");
+    public static final ResourceKey<Registry<ArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
+    public static final ResourceKey<Registry<FoodProperties>> FOOD_REGISTRY = createKey("jsonthings:food");
+    public static final ResourceKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
+    public static final ResourceKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
+    public static final ResourceKey<Registry<BooleanOp>> BOOLEAN_FUNCTION_REGISTRY = createKey("jsonthings:boolean_function");
+    public static final ResourceKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
+    public static final ResourceKey<Registry<BlockType>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
+    public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
 
-    public static final Registry<Registry<?>> THING_REGISTRIES = new SimpleRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
-    public static final Registry<IItemTier> ITEM_TIERS = makeRegistry(ITEM_TIER_REGISTRY);
-    public static final Registry<IArmorMaterial> ARMOR_TIERS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
-    public static final Registry<Food> FOODS = makeRegistry(FOOD_REGISTRY);
+    public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
+    public static final Registry<Tier> ITEM_TIERS = makeRegistry(ITEM_TIER_REGISTRY);
+    public static final Registry<ArmorMaterial> ARMOR_TIERS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
+    public static final Registry<FoodProperties> FOODS = makeRegistry(FOOD_REGISTRY);
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
     public static final Registry<DynamicShape> DYNAMIC_SHAPES = makeRegistry(DYNAMIC_SHAPE_REGISTRY);
-    public static final Registry<IBooleanFunction> BOOLEAN_FUNCTIONS = makeRegistry(BOOLEAN_FUNCTION_REGISTRY);
+    public static final Registry<BooleanOp> BOOLEAN_FUNCTIONS = makeRegistry(BOOLEAN_FUNCTION_REGISTRY);
     public static final Registry<BlockType> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
     public static final Registry<Material> BLOCK_MATERIALS = makeRegistry(BLOCK_MATERIAL_REGISTRY);
 
-    static {
+    static
+    {
         registerItemTiers();
 
         registerArmorMaterials();
@@ -64,12 +68,14 @@ public class ThingRegistries
         MaterialColors.init();
     }
 
-    private static <T> RegistryKey<Registry<T>> createKey(String name) {
-        return RegistryKey.createRegistryKey(new ResourceLocation(name));
+    private static <T> ResourceKey<Registry<T>> createKey(String name)
+    {
+        return ResourceKey.createRegistryKey(new ResourceLocation(name));
     }
 
-    private static <T> Registry<T> makeRegistry(RegistryKey<Registry<T>> key) {
-        SimpleRegistry<T> registry = new SimpleRegistry<T>(key, Lifecycle.experimental());
+    private static <T> Registry<T> makeRegistry(ResourceKey<Registry<T>> key)
+    {
+        MappedRegistry<T> registry = new MappedRegistry<T>(key, Lifecycle.experimental());
         return Registry.register(THING_REGISTRIES, key.location().toString(), registry);
     }
 
@@ -85,22 +91,22 @@ public class ThingRegistries
 
     private static void registerBooleanFunctions()
     {
-        Registry.register(BOOLEAN_FUNCTIONS, "false", IBooleanFunction.FALSE);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_or", IBooleanFunction.NOT_OR);
-        Registry.register(BOOLEAN_FUNCTIONS, "only_second", IBooleanFunction.ONLY_SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_first", IBooleanFunction.NOT_FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS, "only_first", IBooleanFunction.ONLY_FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_second", IBooleanFunction.NOT_SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_same", IBooleanFunction.NOT_SAME);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_and", IBooleanFunction.NOT_AND);
-        Registry.register(BOOLEAN_FUNCTIONS, "and", IBooleanFunction.AND);
-        Registry.register(BOOLEAN_FUNCTIONS, "same", IBooleanFunction.SAME);
-        Registry.register(BOOLEAN_FUNCTIONS, "second", IBooleanFunction.SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS, "causes", IBooleanFunction.CAUSES);
-        Registry.register(BOOLEAN_FUNCTIONS, "first", IBooleanFunction.FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS, "caused_by", IBooleanFunction.CAUSED_BY);
-        Registry.register(BOOLEAN_FUNCTIONS, "or", IBooleanFunction.OR);
-        Registry.register(BOOLEAN_FUNCTIONS, "true", IBooleanFunction.TRUE);
+        Registry.register(BOOLEAN_FUNCTIONS, "false", BooleanOp.FALSE);
+        Registry.register(BOOLEAN_FUNCTIONS, "not_or", BooleanOp.NOT_OR);
+        Registry.register(BOOLEAN_FUNCTIONS, "only_second", BooleanOp.ONLY_SECOND);
+        Registry.register(BOOLEAN_FUNCTIONS, "not_first", BooleanOp.NOT_FIRST);
+        Registry.register(BOOLEAN_FUNCTIONS, "only_first", BooleanOp.ONLY_FIRST);
+        Registry.register(BOOLEAN_FUNCTIONS, "not_second", BooleanOp.NOT_SECOND);
+        Registry.register(BOOLEAN_FUNCTIONS, "not_same", BooleanOp.NOT_SAME);
+        Registry.register(BOOLEAN_FUNCTIONS, "not_and", BooleanOp.NOT_AND);
+        Registry.register(BOOLEAN_FUNCTIONS, "and", BooleanOp.AND);
+        Registry.register(BOOLEAN_FUNCTIONS, "same", BooleanOp.SAME);
+        Registry.register(BOOLEAN_FUNCTIONS, "second", BooleanOp.SECOND);
+        Registry.register(BOOLEAN_FUNCTIONS, "causes", BooleanOp.CAUSES);
+        Registry.register(BOOLEAN_FUNCTIONS, "first", BooleanOp.FIRST);
+        Registry.register(BOOLEAN_FUNCTIONS, "caused_by", BooleanOp.CAUSED_BY);
+        Registry.register(BOOLEAN_FUNCTIONS, "or", BooleanOp.OR);
+        Registry.register(BOOLEAN_FUNCTIONS, "true", BooleanOp.TRUE);
     }
 
     private static void registerProperties()
@@ -243,7 +249,7 @@ public class ThingRegistries
 
     private static void registerArmorMaterials()
     {
-        for (ArmorMaterial mat : ArmorMaterial.values())
+        for (ArmorMaterials mat : ArmorMaterials.values())
         {
             Registry.register(ARMOR_TIERS, mat.getName(), mat);
         }
@@ -252,58 +258,61 @@ public class ThingRegistries
     private static void registerItemTiers()
     {
         // no "name" field in item tiers
-        Registry.register(ITEM_TIERS, "wood", ItemTier.WOOD);
-        Registry.register(ITEM_TIERS, "stone", ItemTier.STONE);
-        Registry.register(ITEM_TIERS, "gold", ItemTier.GOLD);
-        Registry.register(ITEM_TIERS, "iron", ItemTier.IRON);
-        Registry.register(ITEM_TIERS, "diamond", ItemTier.DIAMOND);
+        Registry.register(ITEM_TIERS, "wood", Tiers.WOOD);
+        Registry.register(ITEM_TIERS, "stone", Tiers.STONE);
+        Registry.register(ITEM_TIERS, "gold", Tiers.GOLD);
+        Registry.register(ITEM_TIERS, "iron", Tiers.IRON);
+        Registry.register(ITEM_TIERS, "diamond", Tiers.DIAMOND);
     }
 
     private static void registerBlockMaterials()
     {
-        Registry.register(BLOCK_MATERIALS, "air", Material.AIR );
-        Registry.register(BLOCK_MATERIALS, "structural_air", Material.STRUCTURAL_AIR );
-        Registry.register(BLOCK_MATERIALS, "portal", Material.PORTAL );
-        Registry.register(BLOCK_MATERIALS, "cloth_decoration", Material.CLOTH_DECORATION );
-        Registry.register(BLOCK_MATERIALS, "plant", Material.PLANT );
-        Registry.register(BLOCK_MATERIALS, "water_plant", Material.WATER_PLANT );
-        Registry.register(BLOCK_MATERIALS, "replaceable_plant", Material.REPLACEABLE_PLANT );
-        Registry.register(BLOCK_MATERIALS, "replaceable_fireproof_plant", Material.REPLACEABLE_FIREPROOF_PLANT );
-        Registry.register(BLOCK_MATERIALS, "replaceable_water_plant", Material.REPLACEABLE_WATER_PLANT );
-        Registry.register(BLOCK_MATERIALS, "water", Material.WATER );
-        Registry.register(BLOCK_MATERIALS, "bubble_column", Material.BUBBLE_COLUMN );
-        Registry.register(BLOCK_MATERIALS, "lava", Material.LAVA );
-        Registry.register(BLOCK_MATERIALS, "top_snow", Material.TOP_SNOW );
-        Registry.register(BLOCK_MATERIALS, "fire", Material.FIRE );
-        Registry.register(BLOCK_MATERIALS, "decoration", Material.DECORATION );
-        Registry.register(BLOCK_MATERIALS, "web", Material.WEB );
-        Registry.register(BLOCK_MATERIALS, "buildable_glass", Material.BUILDABLE_GLASS );
-        Registry.register(BLOCK_MATERIALS, "clay", Material.CLAY );
-        Registry.register(BLOCK_MATERIALS, "dirt", Material.DIRT );
-        Registry.register(BLOCK_MATERIALS, "grass", Material.GRASS );
-        Registry.register(BLOCK_MATERIALS, "ice_solid", Material.ICE_SOLID );
-        Registry.register(BLOCK_MATERIALS, "sand", Material.SAND );
-        Registry.register(BLOCK_MATERIALS, "sponge", Material.SPONGE );
-        Registry.register(BLOCK_MATERIALS, "shulker_shell", Material.SHULKER_SHELL );
-        Registry.register(BLOCK_MATERIALS, "wood", Material.WOOD );
-        Registry.register(BLOCK_MATERIALS, "nether_wood", Material.NETHER_WOOD );
-        Registry.register(BLOCK_MATERIALS, "bamboo_sapling", Material.BAMBOO_SAPLING );
-        Registry.register(BLOCK_MATERIALS, "bamboo", Material.BAMBOO );
-        Registry.register(BLOCK_MATERIALS, "wool", Material.WOOL );
-        Registry.register(BLOCK_MATERIALS, "explosive", Material.EXPLOSIVE );
-        Registry.register(BLOCK_MATERIALS, "leaves", Material.LEAVES );
-        Registry.register(BLOCK_MATERIALS, "glass", Material.GLASS );
-        Registry.register(BLOCK_MATERIALS, "ice", Material.ICE );
-        Registry.register(BLOCK_MATERIALS, "cactus", Material.CACTUS );
-        Registry.register(BLOCK_MATERIALS, "stone", Material.STONE );
-        Registry.register(BLOCK_MATERIALS, "metal", Material.METAL );
-        Registry.register(BLOCK_MATERIALS, "snow", Material.SNOW );
-        Registry.register(BLOCK_MATERIALS, "heavy_metal", Material.HEAVY_METAL );
-        Registry.register(BLOCK_MATERIALS, "barrier", Material.BARRIER );
-        Registry.register(BLOCK_MATERIALS, "piston", Material.PISTON );
-        Registry.register(BLOCK_MATERIALS, "coral", Material.CORAL );
-        Registry.register(BLOCK_MATERIALS, "vegetable", Material.VEGETABLE );
-        Registry.register(BLOCK_MATERIALS, "egg", Material.EGG );
-        Registry.register(BLOCK_MATERIALS, "cake", Material.CAKE );
+        Registry.register(BLOCK_MATERIALS, "air", Material.AIR);
+        Registry.register(BLOCK_MATERIALS, "structural_air", Material.STRUCTURAL_AIR);
+        Registry.register(BLOCK_MATERIALS, "portal", Material.PORTAL);
+        Registry.register(BLOCK_MATERIALS, "cloth_decoration", Material.CLOTH_DECORATION);
+        Registry.register(BLOCK_MATERIALS, "plant", Material.PLANT);
+        Registry.register(BLOCK_MATERIALS, "water_plant", Material.WATER_PLANT);
+        Registry.register(BLOCK_MATERIALS, "replaceable_plant", Material.REPLACEABLE_PLANT);
+        Registry.register(BLOCK_MATERIALS, "replaceable_fireproof_plant", Material.REPLACEABLE_FIREPROOF_PLANT);
+        Registry.register(BLOCK_MATERIALS, "replaceable_water_plant", Material.REPLACEABLE_WATER_PLANT);
+        Registry.register(BLOCK_MATERIALS, "water", Material.WATER);
+        Registry.register(BLOCK_MATERIALS, "bubble_column", Material.BUBBLE_COLUMN);
+        Registry.register(BLOCK_MATERIALS, "lava", Material.LAVA);
+        Registry.register(BLOCK_MATERIALS, "top_snow", Material.TOP_SNOW);
+        Registry.register(BLOCK_MATERIALS, "fire", Material.FIRE);
+        Registry.register(BLOCK_MATERIALS, "decoration", Material.DECORATION);
+        Registry.register(BLOCK_MATERIALS, "web", Material.WEB);
+        Registry.register(BLOCK_MATERIALS, "buildable_glass", Material.BUILDABLE_GLASS);
+        Registry.register(BLOCK_MATERIALS, "clay", Material.CLAY);
+        Registry.register(BLOCK_MATERIALS, "dirt", Material.DIRT);
+        Registry.register(BLOCK_MATERIALS, "grass", Material.GRASS);
+        Registry.register(BLOCK_MATERIALS, "ice_solid", Material.ICE_SOLID);
+        Registry.register(BLOCK_MATERIALS, "sand", Material.SAND);
+        Registry.register(BLOCK_MATERIALS, "sponge", Material.SPONGE);
+        Registry.register(BLOCK_MATERIALS, "shulker_shell", Material.SHULKER_SHELL);
+        Registry.register(BLOCK_MATERIALS, "wood", Material.WOOD);
+        Registry.register(BLOCK_MATERIALS, "nether_wood", Material.NETHER_WOOD);
+        Registry.register(BLOCK_MATERIALS, "bamboo_sapling", Material.BAMBOO_SAPLING);
+        Registry.register(BLOCK_MATERIALS, "bamboo", Material.BAMBOO);
+        Registry.register(BLOCK_MATERIALS, "wool", Material.WOOL);
+        Registry.register(BLOCK_MATERIALS, "explosive", Material.EXPLOSIVE);
+        Registry.register(BLOCK_MATERIALS, "leaves", Material.LEAVES);
+        Registry.register(BLOCK_MATERIALS, "glass", Material.GLASS);
+        Registry.register(BLOCK_MATERIALS, "ice", Material.ICE);
+        Registry.register(BLOCK_MATERIALS, "cactus", Material.CACTUS);
+        Registry.register(BLOCK_MATERIALS, "stone", Material.STONE);
+        Registry.register(BLOCK_MATERIALS, "metal", Material.METAL);
+        Registry.register(BLOCK_MATERIALS, "snow", Material.SNOW);
+        Registry.register(BLOCK_MATERIALS, "heavy_metal", Material.HEAVY_METAL);
+        Registry.register(BLOCK_MATERIALS, "barrier", Material.BARRIER);
+        Registry.register(BLOCK_MATERIALS, "piston", Material.PISTON);
+        Registry.register(BLOCK_MATERIALS, "moss", Material.MOSS);
+        Registry.register(BLOCK_MATERIALS, "vegetable", Material.VEGETABLE);
+        Registry.register(BLOCK_MATERIALS, "egg", Material.EGG);
+        Registry.register(BLOCK_MATERIALS, "cake", Material.CAKE);
+        Registry.register(BLOCK_MATERIALS, "sculk", Material.SCULK);
+        Registry.register(BLOCK_MATERIALS, "amethyst", Material.AMETHYST);
+        Registry.register(BLOCK_MATERIALS, "powder_snow", Material.POWDER_SNOW);
     }
 }

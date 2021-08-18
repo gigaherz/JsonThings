@@ -3,21 +3,19 @@ package gigaherz.jsonthings.things.parsers;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.BlockBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.properties.PropertyType;
-import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.state.Property;
-import net.minecraft.util.Direction;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class BlockParser extends ThingParser<BlockBuilder>
 {
@@ -114,6 +112,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     }
 
     private static final Set<String> validBlockLayers = Sets.newHashSet("solid", "cutout_mipped", "cutout", "translucent", "tripwire");
+
     private Set<String> parseRenderLayers(JsonElement data)
     {
         Set<String> types = Sets.newHashSet();
@@ -123,7 +122,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
         }
         else
         {
-            for(JsonElement e : data.getAsJsonArray())
+            for (JsonElement e : data.getAsJsonArray())
             {
                 types.add(verifyRenderLayer(e.getAsString()));
             }
@@ -143,8 +142,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
         if (data.isJsonObject())
         {
             JsonObject obj = data.getAsJsonObject();
-            String id = JSONUtils.getAsString(obj, "id");
-            boolean isBuilder = JSONUtils.getAsBoolean(obj, "is_builder", true);
+            String id = GsonHelper.getAsString(obj, "id");
+            boolean isBuilder = GsonHelper.getAsBoolean(obj, "is_builder", true);
             if (isBuilder)
                 return builder.withParentBuilder(new ResourceLocation(id));
             else

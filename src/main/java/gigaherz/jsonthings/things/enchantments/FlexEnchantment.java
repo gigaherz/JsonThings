@@ -1,12 +1,12 @@
 package gigaherz.jsonthings.things.enchantments;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 import java.util.function.Predicate;
 
@@ -19,7 +19,7 @@ public class FlexEnchantment extends Enchantment
     private Predicate<Enchantment> whiteList = e -> false;
     private Predicate<Enchantment> blackList = e -> false;
 
-    public FlexEnchantment(Rarity rarityIn, EnchantmentType typeIn, EquipmentSlotType[] slots)
+    public FlexEnchantment(Rarity rarityIn, EnchantmentCategory typeIn, EquipmentSlot[] slots)
     {
         super(rarityIn, typeIn, slots);
     }
@@ -101,7 +101,7 @@ public class FlexEnchantment extends Enchantment
     }
 
     @Override
-    public ITextComponent getFullname(int level)
+    public Component getFullname(int level)
     {
         return super.getFullname(level);
     }

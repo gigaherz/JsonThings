@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.builders.EnchantmentBuilder;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 import java.util.Locale;
 import java.util.Map;
@@ -23,27 +23,28 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
             .put("uncommon", Enchantment.Rarity.UNCOMMON)
             .put("rare", Enchantment.Rarity.RARE)
             .put("very_rare", Enchantment.Rarity.VERY_RARE)
-            .build();    
-    private static final Map<String, EnchantmentType> types = buildTypesMap();
+            .build();
+    private static final Map<String, EnchantmentCategory> types = buildTypesMap();
 
-    private static Map<String, EnchantmentType> buildTypesMap()
+    private static Map<String, EnchantmentCategory> buildTypesMap()
     {
-        Map<String, EnchantmentType> entries = Maps.newHashMap();
-        entries.put("armor", EnchantmentType.ARMOR);
-        entries.put("armor_feet", EnchantmentType.ARMOR_FEET);
-        entries.put("armor_legs", EnchantmentType.ARMOR_LEGS);
-        entries.put("armor_chest", EnchantmentType.ARMOR_CHEST);
-        entries.put("armor_head", EnchantmentType.ARMOR_HEAD);
-        entries.put("weapon", EnchantmentType.WEAPON);
-        entries.put("digger", EnchantmentType.DIGGER);
-        entries.put("fishing_rod", EnchantmentType.FISHING_ROD);
-        entries.put("trident", EnchantmentType.TRIDENT);
-        entries.put("breakable", EnchantmentType.BREAKABLE);
-        entries.put("bow", EnchantmentType.BOW);
-        entries.put("wearable", EnchantmentType.WEARABLE);
-        entries.put("crossbow", EnchantmentType.CROSSBOW);
-        entries.put("vanishable", EnchantmentType.VANISHABLE);;
-        for(EnchantmentType type : EnchantmentType.values())
+        Map<String, EnchantmentCategory> entries = Maps.newHashMap();
+        entries.put("armor", EnchantmentCategory.ARMOR);
+        entries.put("armor_feet", EnchantmentCategory.ARMOR_FEET);
+        entries.put("armor_legs", EnchantmentCategory.ARMOR_LEGS);
+        entries.put("armor_chest", EnchantmentCategory.ARMOR_CHEST);
+        entries.put("armor_head", EnchantmentCategory.ARMOR_HEAD);
+        entries.put("weapon", EnchantmentCategory.WEAPON);
+        entries.put("digger", EnchantmentCategory.DIGGER);
+        entries.put("fishing_rod", EnchantmentCategory.FISHING_ROD);
+        entries.put("trident", EnchantmentCategory.TRIDENT);
+        entries.put("breakable", EnchantmentCategory.BREAKABLE);
+        entries.put("bow", EnchantmentCategory.BOW);
+        entries.put("wearable", EnchantmentCategory.WEARABLE);
+        entries.put("crossbow", EnchantmentCategory.CROSSBOW);
+        entries.put("vanishable", EnchantmentCategory.VANISHABLE);
+        ;
+        for (EnchantmentCategory type : EnchantmentCategory.values())
         {
             if (!entries.containsValue(type))
             {
@@ -78,9 +79,9 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         return builder;
     }
 
-    private EnchantmentType parseEnchantmentType(String str)
+    private EnchantmentCategory parseEnchantmentType(String str)
     {
-        EnchantmentType type = types.get(str);
+        EnchantmentCategory type = types.get(str);
         if (type == null) throw new IllegalStateException("No enchantment type known with name " + str);
         return type;
     }
@@ -91,6 +92,4 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         if (rarity == null) throw new IllegalStateException("No enchantment rarity known with name " + str);
         return rarity;
     }
-    
-    
 }

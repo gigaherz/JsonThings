@@ -18,6 +18,7 @@ import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
+import net.bytebuddy.implementation.Implementation.Composable;
 import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bind.annotation.FieldValue;
@@ -31,23 +32,23 @@ import net.bytebuddy.implementation.bytecode.assign.primitive.PrimitiveUnboxingD
 import net.bytebuddy.implementation.bytecode.assign.primitive.PrimitiveWideningDelegate;
 import net.bytebuddy.implementation.bytecode.assign.primitive.VoidAwareAssigner;
 import net.bytebuddy.matcher.ElementMatcher;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.extensions.IForgeItem;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -61,7 +62,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static net.bytebuddy.implementation.MethodCall.Composable;
 import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -103,7 +103,7 @@ public class MakeFlexItem
                 .filter(cns -> Modifier.isPublic(cns.getModifiers()))
                 .collect(Collectors.toList());
         //noinspection unchecked
-        return (Class<? extends T>)flexSubclasses.computeIfAbsent(clsIn, cls -> {
+        return (Class<? extends T>) flexSubclasses.computeIfAbsent(clsIn, cls -> {
             DynamicType.Builder<T> built = byteBuddy
                     .subclass(clsIn, ConstructorStrategy.Default.IMITATE_SUPER_CLASS_PUBLIC)
                     .implement(IFlexItem.class)
@@ -113,10 +113,10 @@ public class MakeFlexItem
                     .defineField("tooltipStrings", List.class, Visibility.PRIVATE, FieldManifestation.FINAL)
                     .defineField("attributeModifiers", Map.class, Visibility.PRIVATE, FieldManifestation.FINAL)
                     .defineField("eventHandlers", Map.class, Visibility.PRIVATE, FieldManifestation.FINAL)
-                    .defineField("useAction", UseAction.class, Visibility.PRIVATE)
+                    .defineField("useAction", UseAnim.class, Visibility.PRIVATE)
                     .defineField("useTime", int.class, Visibility.PRIVATE)
                     .defineField("useFinishMode", CompletionMode.class, Visibility.PRIVATE)
-                    .defineField("containerResult", ActionResult.class, Visibility.PRIVATE)
+                    .defineField("containerResult", InteractionResultHolder.class, Visibility.PRIVATE)
                     .defineMethod("initializeFlex", void.class, Visibility.PRIVATE).intercept(toExactly(FlexInitialize.class))
                     .method(named("setUseAction")).intercept(FieldAccessor.ofBeanProperty())
                     .method(named("getUseAction")).intercept(FieldAccessor.ofBeanProperty())
@@ -127,15 +127,15 @@ public class MakeFlexItem
                     .method(named("addEventHandler")).intercept(toExactly(FlexItemImplementation.class))
                     .method(named("getEventHandler")).intercept(toExactly(FlexItemImplementation.class))
                     .method(named("addCreativeStack")).intercept(toExactly(FlexItemImplementation.class))
-                    .method(mapped("func_195939_a", "useOn")).intercept(toExactly(ItemOverrides.class))
-                    .method(mapped("func_77615_a", "releaseUsing")).intercept(toExactly(ItemOverrides.class))
-                    .method(mapped("func_77654_b", "finishUsingItem")).intercept(toExactly(ItemOverrides.class))
-                    .method(mapped("func_77659_a", "use")).intercept(toExactly(ItemOverrides.class))
-                    .method(mapped("func_195967_a", "appendHoverText")).intercept(toExactly(ItemOverrides.class))
-                    .method(mapped("func_150895_a", "fillItemCategory")).intercept(toExactly(ItemOverrides.class))
-                    .method(mapped("func_77663_a", "inventoryTick")).intercept(toExactly(ItemOverrides.class))
+                    .method(mapped("useOn", "useOn")).intercept(toExactly(ItemOverrides.class))
+                    .method(mapped("releaseUsing", "releaseUsing")).intercept(toExactly(ItemOverrides.class))
+                    .method(mapped("finishUsingItem", "finishUsingItem")).intercept(toExactly(ItemOverrides.class))
+                    .method(mapped("use", "use")).intercept(toExactly(ItemOverrides.class))
+                    .method(mapped("appendHoverText", "appendHoverText")).intercept(toExactly(ItemOverrides.class))
+                    .method(mapped("fillItemCategory", "fillItemCategory")).intercept(toExactly(ItemOverrides.class))
+                    .method(mapped("inventoryTick", "inventoryTick")).intercept(toExactly(ItemOverrides.class))
                     .method(named("getAttributeModifiers")).intercept(toExactly(ItemOverrides.class));
-            for(Constructor<?> c : constructors)
+            for (Constructor<?> c : constructors)
             {
                 try
                 {
@@ -143,11 +143,11 @@ public class MakeFlexItem
                             .constructor(takesArguments(c.getParameterTypes()))
                             .intercept(
                                     SuperMethodCall.INSTANCE
-                                            .andThen(assignField(named("perTabStacks"),invoke(ArrayListMultimap.class.getMethod("create"))))
-                                            .andThen(assignField(named("searchTabStacks"),invoke(Lists.class.getMethod("newArrayList"))))
-                                            .andThen(assignField(named("tooltipStrings"),invoke(Lists.class.getMethod("newArrayList"))))
-                                            .andThen(assignField(named("attributeModifiers"),invoke(Maps.class.getMethod("newHashMap"))))
-                                            .andThen(assignField(named("eventHandlers"),invoke(Maps.class.getMethod("newHashMap"))))
+                                            .andThen(assignField(named("perTabStacks"), invoke(ArrayListMultimap.class.getMethod("create"))))
+                                            .andThen(assignField(named("searchTabStacks"), invoke(Lists.class.getMethod("newArrayList"))))
+                                            .andThen(assignField(named("tooltipStrings"), invoke(Lists.class.getMethod("newArrayList"))))
+                                            .andThen(assignField(named("attributeModifiers"), invoke(Maps.class.getMethod("newHashMap"))))
+                                            .andThen(assignField(named("eventHandlers"), invoke(Maps.class.getMethod("newHashMap"))))
                                             .andThen(invoke(named("initializeFlex")))
                             );
                 }
@@ -158,7 +158,7 @@ public class MakeFlexItem
             }
             DynamicType.Unloaded<T> make = built.make();
 
-            if(debugDumpSubclasses)
+            if (debugDumpSubclasses)
             {
                 byte[] bytes = make.getBytes();
                 Path debugDump = FMLPaths.GAMEDIR.get().resolve("debug");
@@ -190,27 +190,33 @@ public class MakeFlexItem
             if (source.isEnum() != target.isEnum())
                 return StackManipulation.Illegal.INSTANCE;
 
-            if (source.equals(target)) {
+            if (source.equals(target))
+            {
                 return StackManipulation.Trivial.INSTANCE;
             }
 
-            if (source.isPrimitive() && target.isPrimitive()) {
+            if (source.isPrimitive() && target.isPrimitive())
+            {
                 return PrimitiveWideningDelegate.forPrimitive(source).widenTo(target);
             }
 
-            if (source.isPrimitive()) {
+            if (source.isPrimitive())
+            {
                 return PrimitiveBoxingDelegate.forPrimitive(source).assignBoxedTo(target, this, typing);
             }
 
-            if (target.isPrimitive()) {
+            if (target.isPrimitive())
+            {
                 return PrimitiveUnboxingDelegate.forReferenceType(source).assignUnboxedTo(target, this, typing);
             }
 
-            if (source.asErasure().isAssignableTo(target.asErasure())) {
+            if (source.asErasure().isAssignableTo(target.asErasure()))
+            {
                 return StackManipulation.Trivial.INSTANCE;
             }
 
-            if (typing.isDynamic()) {
+            if (typing.isDynamic())
+            {
                 return TypeCasting.to(target);
             }
 
@@ -231,12 +237,12 @@ public class MakeFlexItem
     public static class FlexInitialize
     {
         public static void initializeFlex(@This IForgeItem self,
-                                          @FieldValue("attributeModifiers") Map<EquipmentSlotType, Multimap<Attribute, AttributeModifier>> attributeModifiers)
+                                          @FieldValue("attributeModifiers") Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers)
         {
-            for (EquipmentSlotType slot1 : EquipmentSlotType.values())
+            for (EquipmentSlot slot1 : EquipmentSlot.values())
             {
                 Multimap<Attribute, AttributeModifier> multimap = ArrayListMultimap.create();
-                multimap.putAll(self.getAttributeModifiers(EquipmentSlotType.CHEST, ItemStack.EMPTY));
+                multimap.putAll(self.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
                 attributeModifiers.put(slot1, multimap);
             }
         }
@@ -256,19 +262,19 @@ public class MakeFlexItem
             return eventHandlers.get(eventName);
         }
 
-        public static void addCreativeStack(StackContext stack, Iterable<ItemGroup> tabs,
-                                     @FieldValue("perTabStacks") Multimap<ItemGroup, StackContext> perTabStacks,
-                                     @FieldValue("searchTabStacks") List<StackContext> searchTabStacks)
+        public static void addCreativeStack(StackContext stack, Iterable<CreativeModeTab> tabs,
+                                            @FieldValue("perTabStacks") Multimap<CreativeModeTab, StackContext> perTabStacks,
+                                            @FieldValue("searchTabStacks") List<StackContext> searchTabStacks)
         {
-            for (ItemGroup tab : tabs)
+            for (CreativeModeTab tab : tabs)
             {
                 perTabStacks.put(tab, stack);
             }
             searchTabStacks.add(stack);
         }
 
-        public static void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier,
-                                                @FieldValue("attributeModifiers") Map<EquipmentSlotType, Multimap<Attribute, AttributeModifier>> attributeModifiers)
+        public static void addAttributeModifier(@Nullable EquipmentSlot slot, Attribute attribute, AttributeModifier modifier,
+                                                @FieldValue("attributeModifiers") Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers)
         {
             if (slot != null)
             {
@@ -276,19 +282,19 @@ public class MakeFlexItem
             }
             else
             {
-                for (EquipmentSlotType slot1 : EquipmentSlotType.values())
-                { attributeModifiers.get(slot1).put(attribute, modifier); }
+                for (EquipmentSlot slot1 : EquipmentSlot.values())
+                {attributeModifiers.get(slot1).put(attribute, modifier);}
             }
         }
     }
 
     public static class ItemOverrides
     {
-        public static ActionResultType useOn(ItemUseContext context, @This IFlexItem self, @SuperCall Callable<ActionResultType> doSuper) throws Exception
+        public static InteractionResult useOn(UseOnContext context, @This IFlexItem self, @SuperCall Callable<InteractionResult> doSuper) throws Exception
         {
             ItemStack heldItem = context.getItemInHand();
 
-            ActionResult<ItemStack> result = self.runEventThrowing("use_on_block", FlexEventContext.of(context), () -> new ActionResult<>(doSuper.call(), heldItem));
+            InteractionResultHolder<ItemStack> result = self.runEventThrowing("use_on_block", FlexEventContext.of(context), () -> new InteractionResultHolder<>(doSuper.call(), heldItem));
 
             if (result.getObject() != heldItem)
             {
@@ -298,29 +304,29 @@ public class MakeFlexItem
             return result.getResult();
         }
 
-        public static void releaseUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft, @This IFlexItem self, @SuperCall Runnable doSuper)
+        public static void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft, @This IFlexItem self, @SuperCall Runnable doSuper)
         {
             self.runEvent("stopped_using",
                     FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft),
                     () -> {
                         doSuper.run();
-                        return new ActionResult<>(ActionResultType.PASS, stack);
+                        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
                     });
         }
 
-        public static ItemStack finishUsingItem(ItemStack heldItem, World worldIn, LivingEntity entityLiving, @This IFlexItem self, @SuperCall Callable<ItemStack> doSuper) throws Exception
+        public static ItemStack finishUsingItem(ItemStack heldItem, Level worldIn, LivingEntity entityLiving, @This IFlexItem self, @SuperCall Callable<ItemStack> doSuper) throws Exception
         {
-            Callable<ActionResult<ItemStack>> resultSupplier = () -> new ActionResult<>(ActionResultType.SUCCESS, doSuper.call());
+            Callable<InteractionResultHolder<ItemStack>> resultSupplier = () -> new InteractionResultHolder<>(InteractionResult.SUCCESS, doSuper.call());
 
-            ActionResult<ItemStack> result = self.runEventThrowing("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
-            if (result.getResult() != ActionResultType.SUCCESS)
+            InteractionResultHolder<ItemStack> result = self.runEventThrowing("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
+            if (result.getResult() != InteractionResult.SUCCESS)
                 return result.getObject();
 
             return self.runEventThrowing("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).getObject();
         }
 
-        public static ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn,
-                                                  @FieldValue("useTime") int useTime, @This IFlexItem self, @SuperCall Callable<ActionResult<ItemStack>> doSuper) throws Exception
+        public static InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn,
+                                                             @FieldValue("useTime") int useTime, @This IFlexItem self, @SuperCall Callable<InteractionResultHolder<ItemStack>> doSuper) throws Exception
         {
             ItemStack heldItem = playerIn.getItemInHand(handIn);
             if (useTime > 0)
@@ -329,20 +335,20 @@ public class MakeFlexItem
                 return self.runEventThrowing("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), doSuper);
         }
 
-        public static void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn,
-                                           @FieldValue("tooltipStrings") List<ITextComponent> tooltipStrings,
+        public static void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn,
+                                           @FieldValue("tooltipStrings") List<Component> tooltipStrings,
                                            @SuperCall Runnable doSuper)
         {
             doSuper.run();
             tooltip.addAll(tooltipStrings);
         }
 
-        public static void fillItemCategory(ItemGroup tab, NonNullList<ItemStack> items,
+        public static void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items,
                                             @This Item self,
-                                            @FieldValue("perTabStacks") Multimap<ItemGroup, StackContext> perTabStacks,
+                                            @FieldValue("perTabStacks") Multimap<CreativeModeTab, StackContext> perTabStacks,
                                             @FieldValue("searchTabStacks") List<StackContext> searchTabStacks)
         {
-            if (tab == ItemGroup.TAB_SEARCH)
+            if (tab == CreativeModeTab.TAB_SEARCH)
             {
                 items.addAll(searchTabStacks.stream().map(s -> s.toStack(self)).collect(Collectors.toList()));
             }
@@ -352,18 +358,18 @@ public class MakeFlexItem
             }
         }
 
-        public static void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected,
+        public static void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected,
                                          @This IFlexItem self, @SuperCall Runnable doSuper)
         {
-            ActionResult<ItemStack> result = self.runEvent("update",
+            InteractionResultHolder<ItemStack> result = self.runEvent("update",
                     FlexEventContext.of(worldIn, entityIn, stack).with(FlexEventContext.SLOT, itemSlot).with(FlexEventContext.SELECTED, isSelected),
                     () -> {
                         doSuper.run();
-                        return new ActionResult<>(ActionResultType.PASS, stack);
+                        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
                     });
             if (result.getObject() != stack)
             {
-                entityIn.setSlot(itemSlot, result.getObject());
+                entityIn.getSlot(itemSlot).set(result.getObject());
             }
         }
 
@@ -397,10 +403,10 @@ public class MakeFlexItem
             }
         }*/
 
-        public static Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot,
+        public static Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot,
                                                                                    ItemStack stack,
                                                                                    @FieldValue("attributeModifiers")
-                                                                                           Map<EquipmentSlotType, Multimap<Attribute, AttributeModifier>> attributeModifiers)
+                                                                                           Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers)
         {
             return IFlexItem.orElse(attributeModifiers.get(slot), HashMultimap::create);
         }
@@ -410,18 +416,21 @@ public class MakeFlexItem
     {
         @Nullable
         T get();
+
         void set(@Nullable T value);
     }
 
     public interface IIntFieldAccessor
     {
         int get();
+
         void set(int value);
     }
 
     public interface IFieldAccessor<T>
     {
         T get();
+
         void set(T value);
     }
 }

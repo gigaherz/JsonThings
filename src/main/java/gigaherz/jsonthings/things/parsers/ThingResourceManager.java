@@ -4,12 +4,17 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.brigadier.StringReader;
-import net.minecraft.command.arguments.BlockStateParser;
-import net.minecraft.resources.*;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.FolderRepositorySource;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.RepositorySource;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.Unit;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,14 +28,14 @@ import java.util.concurrent.Executor;
 
 public class ThingResourceManager
 {
-    private static final Method M_CREATE = ObfuscationReflectionHelper.findMethod(ResourcePackType.class, "create", String.class, String.class);
-    private static final ResourcePackType PACK_TYPE_THINGS;
+    private static final Method M_CREATE = ObfuscationReflectionHelper.findMethod(PackType.class, "create", String.class, String.class, com.mojang.bridge.game.PackType.class);
+    private static final PackType PACK_TYPE_THINGS;
 
     static
     {
         try
         {
-            PACK_TYPE_THINGS = (ResourcePackType) M_CREATE.invoke(null, "JSONTHINGS_THINGS", "things");
+            PACK_TYPE_THINGS = (PackType) M_CREATE.invoke(null, "JSONTHINGS_THINGS", "things", com.mojang.bridge.game.PackType.DATA);
         }
         catch (IllegalAccessException | InvocationTargetException e)
         {
@@ -45,9 +50,9 @@ public class ThingResourceManager
 
     public static final ThingResourceManager INSTANCE = new ThingResourceManager();
 
-    private final IReloadableResourceManager resourceManager;
-    private final IPackFinder folderPackFinder;
-    private final ResourcePackList packList;
+    private final ReloadableResourceManager resourceManager;
+    private final RepositorySource folderPackFinder;
+    private final PackRepository packList;
     public final BlockParser blockParser = new BlockParser();
     public final ItemParser itemParser = new ItemParser();
     public final EnchantmentParser enchantmentParser = new EnchantmentParser();
@@ -56,21 +61,21 @@ public class ThingResourceManager
     public ThingResourceManager()
     {
         resourceManager = new SimpleReloadableResourceManager(PACK_TYPE_THINGS);
-        folderPackFinder = new FolderPackFinder(getThingPacksLocation(), IPackNameDecorator.DEFAULT);
-        packList = new ResourcePackList(folderPackFinder);
+        folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), PackSource.DEFAULT);
+        packList = new PackRepository(PACK_TYPE_THINGS, folderPackFinder);
         resourceManager.registerReloadListener(blockParser);
         resourceManager.registerReloadListener(itemParser);
         resourceManager.registerReloadListener(enchantmentParser);
         resourceManager.registerReloadListener(foodParser);
     }
 
-    public IPackFinder getWrappedPackFinder()
+    public RepositorySource getWrappedPackFinder()
     {
         return (infoConsumer, infoFactory) -> folderPackFinder.loadPacks(info -> {
             if (!disabledPacks.contains(info.getId()))
                 infoConsumer.accept(info);
-        }, (a, b, c, d, e, f, g) ->
-                infoFactory.create("thingpack:" + a, true, c, d, e, f, g));
+        }, (a, n, b, c, d, e, f, g) ->
+                infoFactory.create("thingpack:" + a, n, true, c, d, e, f, g));
     }
 
     public File getThingPacksLocation()
@@ -81,7 +86,7 @@ public class ThingResourceManager
     /**
      * Call during mod construction **without enqueueWork**!
      */
-    public synchronized void addPackFinder(IPackFinder finder)
+    public synchronized void addPackFinder(RepositorySource finder)
     {
         packList.addPackFinder(finder);
     }
@@ -89,7 +94,7 @@ public class ThingResourceManager
     /**
      * Call during mod construction **without enqueueWork**!
      */
-    public synchronized void addResourceReloadListener(IFutureReloadListener listener)
+    public synchronized void addResourceReloadListener(PreparableReloadListener listener)
     {
         resourceManager.registerReloadListener(listener);
     }
@@ -113,7 +118,7 @@ public class ThingResourceManager
         }).thenApply((unit) -> INSTANCE);
     }
 
-    public ResourcePackList getResourcePackList()
+    public PackRepository getRepository()
     {
         return packList;
     }
@@ -136,8 +141,8 @@ public class ThingResourceManager
         obj.add("disabled", disabled);
         obj.add("order", order);
         String json = (new Gson()).toJson(obj);
-        try(FileOutputStream stream = new FileOutputStream(getConfigFile());
-                Writer w = new OutputStreamWriter(stream, StandardCharsets.UTF_8))
+        try (FileOutputStream stream = new FileOutputStream(getConfigFile());
+             Writer w = new OutputStreamWriter(stream, StandardCharsets.UTF_8))
         {
             w.write(json);
         }
@@ -170,7 +175,7 @@ public class ThingResourceManager
             }
         }
 
-        for(String s : packList.getAvailableIds())
+        for (String s : packList.getAvailableIds())
         {
             if (!orderList.contains(s) && !disabledPacks.contains(s))
                 orderList.add(s);

@@ -1,7 +1,7 @@
 package gigaherz.jsonthings.things.serializers;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.material.MaterialColor;
+import net.minecraft.world.level.material.MaterialColor;
 
 import java.util.Map;
 
@@ -68,7 +68,7 @@ public class MaterialColors
             .put("WARPED_HYPHAE", MaterialColor.WARPED_HYPHAE)
             .put("WARPED_WART_BLOCK", MaterialColor.WARPED_WART_BLOCK)
             .build();
-    
+
     public static void init()
     {
         /* nothing to do */

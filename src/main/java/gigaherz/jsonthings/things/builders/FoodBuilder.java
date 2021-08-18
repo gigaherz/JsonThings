@@ -2,19 +2,19 @@ package gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.item.Food;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.food.FoodProperties;
 
 public class FoodBuilder
 {
     private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
 
-    private Food builtFood = null;
+    private FoodProperties builtFood = null;
 
     private ResourceLocation registryName;
 
-    private Food.Builder foodBuilder = new Food.Builder();
+    private FoodProperties.Builder foodBuilder = new FoodProperties.Builder();
 
     private FoodBuilder(ResourceLocation registryName)
     {
@@ -56,18 +56,18 @@ public class FoodBuilder
         return this;
     }
 
-    public FoodBuilder effect(EffectInstance effect, float probability)
+    public FoodBuilder effect(MobEffectInstance effect, float probability)
     {
         foodBuilder = foodBuilder.effect(effect, probability);
         return this;
     }
 
-    public Food build()
+    public FoodProperties build()
     {
         return builtFood = foodBuilder.build();
     }
 
-    public Food getBuiltFood()
+    public FoodProperties getBuiltFood()
     {
         if (builtFood == null)
             return build();
@@ -78,5 +78,4 @@ public class FoodBuilder
     {
         return registryName;
     }
-
 }

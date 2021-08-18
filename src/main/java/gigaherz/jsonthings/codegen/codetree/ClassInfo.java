@@ -4,8 +4,10 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,12 +98,12 @@ public class ClassInfo<T>
         Class<? super C> superClass = cls.getSuperclass();
         TypeToken<? super C> superToken = clsToken.getSupertype(superClass);
         ClassInfo<C> ci = new ClassInfo<>(superToken, clsToken);
-        for(Constructor<?> cnt : superClass.getDeclaredConstructors())
+        for (Constructor<?> cnt : superClass.getDeclaredConstructors())
         {
             MethodInfo mi = new MethodInfo();
             mi.name = cnt.getName();
             mi.modifiers = cnt.getModifiers();
-            for(Parameter p : cnt.getParameters())
+            for (Parameter p : cnt.getParameters())
             {
                 ParamInfo pi = new ParamInfo();
                 pi.name = p.getName();
@@ -110,12 +112,12 @@ public class ClassInfo<T>
             }
             ci.constructors.add(mi);
         }
-        for(Method m : superClass.getDeclaredMethods())
+        for (Method m : superClass.getDeclaredMethods())
         {
             MethodInfo mi = new MethodInfo();
             mi.name = m.getName();
             mi.modifiers = m.getModifiers();
-            for(Parameter p : m.getParameters())
+            for (Parameter p : m.getParameters())
             {
                 ParamInfo pi = new ParamInfo();
                 pi.name = p.getName();
@@ -124,7 +126,7 @@ public class ClassInfo<T>
             }
             ci.methods.add(mi);
         }
-        for(Field f : superClass.getDeclaredFields())
+        for (Field f : superClass.getDeclaredFields())
         {
             FieldInfo fi = new FieldInfo();
             fi.name = f.getName();

@@ -32,7 +32,7 @@ public class CodeBlock
             cLocal += makeLocal(0, methodInfo.owner.thisType, methodInfo.owner.superClass, "this");
         }
 
-        for(ParamInfo f : methodInfo.params)
+        for (ParamInfo f : methodInfo.params)
         {
             cLocal += makeLocal(cLocal, f.paramType, f.name);
         }
@@ -42,6 +42,7 @@ public class CodeBlock
     {
         return makeLocal(cLocal, type, type, name);
     }
+
     private int makeLocal(int cLocal, TypeToken<?> type, TypeToken<?> effectiveType, @Nullable String name)
     {
         int slotCount = 1;
@@ -69,7 +70,7 @@ public class CodeBlock
     public Stream<AbstractInsnNode> compile()
     {
         Stream<AbstractInsnNode> instructionStream = Stream.empty();
-        for(InstructionSource source : instructions)
+        for (InstructionSource source : instructions)
         {
             instructionStream = Stream.concat(instructionStream, source.compile());
         }
@@ -257,7 +258,6 @@ public class CodeBlock
 
         @Nullable
         public String name;
-
 
 
         private LocalVariable(int index, TypeToken<?> variableType, int slotCount)

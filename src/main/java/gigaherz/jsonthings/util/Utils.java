@@ -1,11 +1,11 @@
 package gigaherz.jsonthings.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.state.Property;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
@@ -58,7 +58,7 @@ public class Utils
         return t;
     }
 
-    public IFormattableTextComponent withFont(IFormattableTextComponent component, ResourceLocation font)
+    public MutableComponent withFont(MutableComponent component, ResourceLocation font)
     {
         return component.withStyle(style -> style.withFont(font));
     }

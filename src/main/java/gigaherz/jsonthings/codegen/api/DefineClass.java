@@ -14,12 +14,14 @@ public interface DefineClass<C>
     }
 
     <F> DefineField<C, F> field(String name, TypeToken<F> fieldType);
+
     default <F> DefineField<C, F> field(String name, Class<F> fieldType)
     {
         return field(name, TypeToken.of(fieldType));
     }
 
     <R> DefineMethod<C, R> method(String name, TypeToken<R> returnType);
+
     default <F> DefineMethod<C, F> method(String name, Class<F> fieldType)
     {
         return method(name, TypeToken.of(fieldType));

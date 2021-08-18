@@ -1,8 +1,8 @@
 package gigaherz.jsonthings.things.properties;
 
 import gigaherz.jsonthings.things.ThingRegistries;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 public class PropertyTypes
 {
@@ -20,5 +20,4 @@ public class PropertyTypes
     public static void init()
     {
     }
-
 }

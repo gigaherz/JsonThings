@@ -5,12 +5,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import gigaherz.jsonthings.util.CodecExtras;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.Property;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -32,7 +32,7 @@ public class DynamicShape
             CodecExtras.PROPERTY_CODEC.optionalFieldOf("shape_rotation").forGetter(shape -> Optional.ofNullable(shape.facing))
     ).apply(instance, (shape, facing) -> new DynamicShape(shape, (Property<Direction>) facing.orElse(null))));
 
-    private static final DynamicShape EMPTY = new DynamicShape(new CombinedShape(IBooleanFunction.OR, Collections.emptyList()), null);
+    private static final DynamicShape EMPTY = new DynamicShape(new CombinedShape(BooleanOp.OR, Collections.emptyList()), null);
 
     public static DynamicShape empty()
     {
@@ -59,7 +59,7 @@ public class DynamicShape
     {
         return shapeCache.computeIfAbsent(blockstate, state -> {
             Direction d = facing != null ? state.getValue(facing) : Direction.NORTH;
-            return shape.getShape(state, d).orElseGet(VoxelShapes::block);
+            return shape.getShape(state, d).orElseGet(Shapes::block);
         });
     }
 
@@ -77,18 +77,18 @@ public class DynamicShape
         switch (facing)
         {
             case NORTH:
-                return VoxelShapes.box(x1, y1, z1, x2, y2, z2);
+                return Shapes.box(x1, y1, z1, x2, y2, z2);
             case SOUTH:
-                return VoxelShapes.box(1 - x2, y1, 1 - z2, 1 - x1, y2, 1 - z1);
+                return Shapes.box(1 - x2, y1, 1 - z2, 1 - x1, y2, 1 - z1);
             case WEST:
-                return VoxelShapes.box(z1, y1, 1 - x2, z2, y2, 1 - x1);
+                return Shapes.box(z1, y1, 1 - x2, z2, y2, 1 - x1);
             case EAST:
-                return VoxelShapes.box(1 - z2, y1, x1, 1 - z1, y2, x2);
+                return Shapes.box(1 - z2, y1, x1, 1 - z1, y2, x2);
             case UP:
-                return VoxelShapes.box(1 - y1, x1, z1, 1 - y2, x2, z2);
+                return Shapes.box(1 - y1, x1, z1, 1 - y2, x2, z2);
             case DOWN:
-                return VoxelShapes.box(y1, 1 - x1, z1, y2, 1 - x2, z2);
+                return Shapes.box(y1, 1 - x1, z1, y2, 1 - x2, z2);
         }
-        return VoxelShapes.box(x1, y1, z1, x2, y2, z2);
+        return Shapes.box(x1, y1, z1, x2, y2, z2);
     }
 }

@@ -6,9 +6,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Function3;
 import gigaherz.jsonthings.things.ThingRegistries;
-import net.minecraft.state.*;
-import net.minecraft.util.*;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,7 +26,7 @@ public abstract class PropertyType
 {
     public static Property<?> deserialize(String name, JsonObject data)
     {
-        String key = JSONUtils.getAsString(data, "type");
+        String key = GsonHelper.getAsString(data, "type");
         PropertyType prop = ThingRegistries.PROPERTY_TYPES.get(new ResourceLocation(key));
         if (prop == null)
             throw new IllegalStateException("Property type not found " + key);
@@ -29,7 +35,7 @@ public abstract class PropertyType
 
     public static JsonObject serialize(Property<?> property)
     {
-        for (Map.Entry<RegistryKey<PropertyType>, PropertyType> entry : ThingRegistries.PROPERTY_TYPES.entrySet())
+        for (Map.Entry<ResourceKey<PropertyType>, PropertyType> entry : ThingRegistries.PROPERTY_TYPES.entrySet())
         {
             String key = entry.getKey().location().toString();
             PropertyType prop = entry.getValue();
@@ -50,7 +56,8 @@ public abstract class PropertyType
 
     public abstract void write(JsonObject data, Property<?> property);
 
-    public String toString() {
+    public String toString()
+    {
         return "PropertyType{" + ThingRegistries.PROPERTY_TYPES.getKey(this) + "}";
     }
 
@@ -202,7 +209,7 @@ public abstract class PropertyType
         @Override
         public Property<?> read(String name, JsonObject data)
         {
-            String className = JSONUtils.getAsString(data, "class");
+            String className = GsonHelper.getAsString(data, "class");
 
             Class cls;
             try
@@ -219,7 +226,7 @@ public abstract class PropertyType
                 throw new IllegalStateException("Not an enum type " + className);
             }
 
-            if (!IStringSerializable.class.isAssignableFrom(cls))
+            if (!StringRepresentable.class.isAssignableFrom(cls))
             {
                 throw new IllegalStateException("Enum type " + className + " not IStringSerializable");
             }
@@ -228,13 +235,13 @@ public abstract class PropertyType
             if (data.has("values"))
             {
                 Object[] enum_values = cls.getEnumConstants();
-                IStringSerializable[] serializables = Arrays.stream(enum_values).map(s -> (IStringSerializable) s).toArray(IStringSerializable[]::new);
+                StringRepresentable[] serializables = Arrays.stream(enum_values).map(s -> (StringRepresentable) s).toArray(StringRepresentable[]::new);
 
                 JsonArray values = data.get("values").getAsJsonArray();
                 for (JsonElement e : values)
                 {
                     String val = e.getAsJsonPrimitive().getAsString();
-                    for (IStringSerializable s : serializables)
+                    for (StringRepresentable s : serializables)
                     {
                         if (s.getSerializedName().equals(val))
                         {
@@ -256,7 +263,7 @@ public abstract class PropertyType
             if (enum_values.length > valid_values.size())
             {
                 JsonArray list = new JsonArray();
-                valid_values.stream().map(s -> ((IStringSerializable) s).getSerializedName()).forEach(list::add);
+                valid_values.stream().map(s -> ((StringRepresentable) s).getSerializedName()).forEach(list::add);
                 data.add("values", list);
             }
             data.addProperty("class", cls.getName());

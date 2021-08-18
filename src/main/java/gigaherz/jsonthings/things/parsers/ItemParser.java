@@ -8,11 +8,9 @@ import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.builders.StackContext;
 import joptsimple.internal.Strings;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.item.Food;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.UUID;
 
@@ -96,8 +94,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
         if (data.isJsonObject())
         {
             JsonObject obj = data.getAsJsonObject();
-            String id = JSONUtils.getAsString(obj, "id");
-            boolean isBuilder = JSONUtils.getAsBoolean(obj, "is_builder", true);
+            String id = GsonHelper.getAsString(obj, "id");
+            boolean isBuilder = GsonHelper.getAsBoolean(obj, "is_builder", true);
             if (isBuilder)
                 return builder.withParentBuilder(new ResourceLocation(id));
             else
@@ -273,13 +271,13 @@ public class ItemParser extends ThingParser<ItemBuilder>
 
     private ItemBuilder parseSingleTool(ItemBuilder builder, JsonObject toolData)
     {
-        ToolType type;
+        String type;
         if (toolData.has("class"))
         {
             String str = toolData.get("class").getAsString();
             if (!Strings.isNullOrEmpty(str))
             {
-                type = ToolType.get(str);
+                type = str;
             }
             else
             {

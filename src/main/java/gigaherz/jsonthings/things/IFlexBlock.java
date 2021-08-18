@@ -2,12 +2,9 @@ package gigaherz.jsonthings.things;
 
 import gigaherz.jsonthings.things.events.BlockEventHandler;
 import gigaherz.jsonthings.things.events.FlexEventContext;
-import gigaherz.jsonthings.things.events.ItemEventHandler;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -32,12 +29,11 @@ public interface IFlexBlock
     @Nullable
     BlockEventHandler getEventHandler(String eventName);
 
-    default ActionResultType runEvent(String eventName, FlexEventContext context, Supplier<ActionResultType> defaultValue)
+    default InteractionResult runEvent(String eventName, FlexEventContext context, Supplier<InteractionResult> defaultValue)
     {
         BlockEventHandler handler = getEventHandler(eventName);
         if (handler != null)
             return handler.apply(eventName, context);
         return defaultValue.get();
     }
-
 }

@@ -1,7 +1,9 @@
 package gigaherz.jsonthings.things.builders;
 
-import com.google.common.collect.*;
-import com.mojang.datafixers.util.Pair;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.parsers.ThingResourceManager;
@@ -9,18 +11,20 @@ import gigaherz.jsonthings.things.serializers.BlockType;
 import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import gigaherz.jsonthings.util.Utils;
-import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.state.Property;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class BlockBuilder
@@ -181,7 +185,7 @@ public class BlockBuilder
         final List<Property<?>> stockProperties = blockType.getStockProperties();
 
         List<Property<?>> badProperties = properties.stream().filter(prop -> {
-            for(Property<?> p : stockProperties)
+            for (Property<?> p : stockProperties)
             {
                 if (p == prop) continue;
                 if (p.getName().equals(prop.getName())) return true;

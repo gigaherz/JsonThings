@@ -26,7 +26,8 @@ public class ClassMaker
         return new BasicClassImpl();
     }
 
-    public class BasicClassImpl extends ClassImpl<Object, Object> implements BasicClass {
+    public class BasicClassImpl extends ClassImpl<Object, Object> implements BasicClass
+    {
 
         public BasicClassImpl()
         {
@@ -366,14 +367,14 @@ public class ClassMaker
                 public <A extends Annotation> Z annotate(A a)
                 {
                     param.annotations.add(a);
-                    return (Z)this;
+                    return (Z) this;
                 }
 
                 @Override
                 public Z withName(String name)
                 {
                     param.name = name;
-                    return (Z)this;
+                    return (Z) this;
                 }
             }
 
@@ -386,7 +387,8 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl1<P0> extends ImplWithParam<P0, DefineArgs1<T, R, P0>> implements DefineArgs1<T, R, P0>
+            private class DefineArgsImpl1<P0> extends ImplWithParam<P0, DefineArgs1<T, R, P0>>
+                    implements DefineArgs1<T, R, P0>
             {
                 private DefineArgsImpl1(ParamDefinition<P0> param)
                 {
@@ -400,7 +402,8 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl2<P0, P1> extends ImplWithParam<P1, DefineArgs2<T, R, P0, P1>> implements DefineArgs2<T, R, P0, P1>
+            private class DefineArgsImpl2<P0, P1> extends ImplWithParam<P1, DefineArgs2<T, R, P0, P1>>
+                    implements DefineArgs2<T, R, P0, P1>
             {
 
                 private DefineArgsImpl2(ParamDefinition<P1> param)
@@ -415,7 +418,8 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl3<P0, P1, P2> extends ImplWithParam<P2, DefineArgs3<T, R, P0, P1, P2>> implements DefineArgs3<T, R, P0, P1, P2>
+            private class DefineArgsImpl3<P0, P1, P2> extends ImplWithParam<P2, DefineArgs3<T, R, P0, P1, P2>>
+                    implements DefineArgs3<T, R, P0, P1, P2>
             {
 
                 private DefineArgsImpl3(ParamDefinition<P2> param)
@@ -430,7 +434,8 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl4<P0, P1, P2, P3> extends ImplWithParam<P3, DefineArgs4<T, R, P0, P1, P2, P3>> implements DefineArgs4<T, R, P0, P1, P2, P3>
+            private class DefineArgsImpl4<P0, P1, P2, P3> extends ImplWithParam<P3, DefineArgs4<T, R, P0, P1, P2, P3>>
+                    implements DefineArgs4<T, R, P0, P1, P2, P3>
             {
 
                 private DefineArgsImpl4(ParamDefinition<P3> param)
@@ -445,7 +450,9 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl5<P0, P1, P2, P3, P4> extends ImplWithParam<P4, DefineArgs5<T, R, P0, P1, P2, P3, P4>> implements DefineArgs5<T, R, P0, P1, P2, P3, P4>
+            private class DefineArgsImpl5<P0, P1, P2, P3, P4>
+                    extends ImplWithParam<P4, DefineArgs5<T, R, P0, P1, P2, P3, P4>>
+                    implements DefineArgs5<T, R, P0, P1, P2, P3, P4>
             {
 
                 private DefineArgsImpl5(ParamDefinition<P4> param)
@@ -460,7 +467,9 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl6<P0, P1, P2, P3, P4, P5> extends ImplWithParam<P5, DefineArgs6<T, R, P0, P1, P2, P3, P4, P5>> implements DefineArgs6<T, R, P0, P1, P2, P3, P4, P5>
+            private class DefineArgsImpl6<P0, P1, P2, P3, P4, P5>
+                    extends ImplWithParam<P5, DefineArgs6<T, R, P0, P1, P2, P3, P4, P5>>
+                    implements DefineArgs6<T, R, P0, P1, P2, P3, P4, P5>
             {
 
                 private DefineArgsImpl6(ParamDefinition<P5> param)
@@ -475,7 +484,9 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl7<P0, P1, P2, P3, P4, P5, P6> extends ImplWithParam<P6, DefineArgs7<T, R, P0, P1, P2, P3, P4, P5, P6>> implements DefineArgs7<T, R, P0, P1, P2, P3, P4, P5, P6>
+            private class DefineArgsImpl7<P0, P1, P2, P3, P4, P5, P6>
+                    extends ImplWithParam<P6, DefineArgs7<T, R, P0, P1, P2, P3, P4, P5, P6>>
+                    implements DefineArgs7<T, R, P0, P1, P2, P3, P4, P5, P6>
             {
 
                 private DefineArgsImpl7(ParamDefinition<P6> param)
@@ -490,7 +501,9 @@ public class ClassMaker
                 }
             }
 
-            private class DefineArgsImpl8<P0, P1, P2, P3, P4, P5, P6, P7> extends ImplWithParam<P7, DefineArgs8<T, R, P0, P1, P2, P3, P4, P5, P6, P7>> implements DefineArgs8<T, R, P0, P1, P2, P3, P4, P5, P6, P7>
+            private class DefineArgsImpl8<P0, P1, P2, P3, P4, P5, P6, P7>
+                    extends ImplWithParam<P7, DefineArgs8<T, R, P0, P1, P2, P3, P4, P5, P6, P7>>
+                    implements DefineArgs8<T, R, P0, P1, P2, P3, P4, P5, P6, P7>
             {
                 private DefineArgsImpl8(ParamDefinition<P7> param)
                 {
@@ -510,6 +523,5 @@ public class ClassMaker
                 }
             }
         }
-
     }
 }

@@ -11,7 +11,9 @@ public class MethodInfo
     public ClassInfo<?> owner;
     public String name;
     public int modifiers;
-    public boolean isStatic() {
+
+    public boolean isStatic()
+    {
         return Modifier.isStatic(modifiers);
     }
 }

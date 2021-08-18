@@ -1,13 +1,13 @@
 package gigaherz.jsonthings.mixin;
 
-import net.minecraft.resources.ResourcePackType;
+import net.minecraft.server.packs.PackType;
 import net.minecraftforge.common.IExtensibleEnum;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(ResourcePackType.class)
+@Mixin(PackType.class)
 public class ResourcePackTypeExtender implements IExtensibleEnum
 {
-    private static ResourcePackType create(String name, String directoryName)
+    private static PackType create(String name, String directoryName, com.mojang.bridge.game.PackType packType)
     {
         throw new IllegalStateException("Enum not extended");
     }

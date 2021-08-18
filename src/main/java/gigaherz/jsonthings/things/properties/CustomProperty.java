@@ -1,7 +1,7 @@
 package gigaherz.jsonthings.things.properties;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.state.Property;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.Collection;
 import java.util.Optional;

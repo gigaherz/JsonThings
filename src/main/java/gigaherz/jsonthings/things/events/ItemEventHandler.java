@@ -1,11 +1,11 @@
 package gigaherz.jsonthings.things.events;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.item.ItemStack;
 
 public interface ItemEventHandler
 {
-    ActionResult<ItemStack> apply(String eventName, FlexEventContext context);
+    InteractionResultHolder<ItemStack> apply(String eventName, FlexEventContext context);
 }
 
 

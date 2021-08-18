@@ -5,24 +5,21 @@ import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.events.BlockEventHandler;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FenceBlock;
-import net.minecraft.block.WallBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.Property;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-
-import net.minecraft.block.AbstractBlock.Properties;
 
 public class FlexFenceBlock extends FenceBlock implements IFlexBlock
 {
@@ -96,7 +93,7 @@ public class FlexFenceBlock extends FenceBlock implements IFlexBlock
     //region Block
     @Deprecated
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context)
+    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context)
     {
         if (this.generalShape != null)
             return generalShape.getShape(state);
@@ -105,7 +102,7 @@ public class FlexFenceBlock extends FenceBlock implements IFlexBlock
 
     @Deprecated
     @Override
-    public VoxelShape getInteractionShape(BlockState state, IBlockReader worldIn, BlockPos pos)
+    public VoxelShape getInteractionShape(BlockState state, BlockGetter worldIn, BlockPos pos)
     {
         if (this.raytraceShape != null)
             return raytraceShape.getShape(state);
@@ -114,7 +111,7 @@ public class FlexFenceBlock extends FenceBlock implements IFlexBlock
 
     @Deprecated
     @Override
-    public VoxelShape getBlockSupportShape(BlockState state, IBlockReader reader, BlockPos pos)
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter reader, BlockPos pos)
     {
         if (this.collisionShape != null)
             return collisionShape.getShape(state);
@@ -123,7 +120,7 @@ public class FlexFenceBlock extends FenceBlock implements IFlexBlock
 
     @Deprecated
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, IBlockReader worldIn, BlockPos pos)
+    public VoxelShape getOcclusionShape(BlockState state, BlockGetter worldIn, BlockPos pos)
     {
         if (this.renderShape != null)
             return renderShape.getShape(state);
@@ -131,7 +128,7 @@ public class FlexFenceBlock extends FenceBlock implements IFlexBlock
     }
 
     @Override
-    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
+    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit)
     {
         return runEvent("use", FlexEventContext.of(worldIn, pos, state)
                 .with(FlexEventContext.USER, player)

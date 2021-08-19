@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import gigaherz.jsonthings.things.builders.StackContext;
+import gigaherz.jsonthings.things.StackContext;
 import joptsimple.internal.Strings;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -25,10 +25,12 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
 
     private final Map<ResourceLocation, TBuilder> buildersByName = Maps.newHashMap();
     private final List<TBuilder> builders = Lists.newArrayList();
+    private final String thingType;
 
     public ThingParser(Gson gson, String thingType)
     {
         super(gson, thingType);
+        this.thingType = thingType;
     }
 
     @Override
@@ -110,5 +112,14 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
         if (name.contains(":"))
             return new ResourceLocation(name);
         return new ResourceLocation(key.getNamespace(), name);
+    }
+
+    public void finishLoading()
+    {
+    }
+
+    public String getThingType()
+    {
+        return thingType;
     }
 }

@@ -1,12 +1,10 @@
 package gigaherz.jsonthings.things.builders;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
-import gigaherz.jsonthings.things.parsers.ThingResourceManager;
 import gigaherz.jsonthings.things.serializers.BlockType;
 import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
@@ -29,8 +27,6 @@ import java.util.stream.Collectors;
 
 public class BlockBuilder
 {
-    private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
-
     private IFlexBlock builtBlock = null;
 
     private final List<Property<?>> properties = Lists.newArrayList();
@@ -214,7 +210,7 @@ public class BlockBuilder
             throw new IllegalStateException("Parent builder not set");
         if (parentBuilderObj == null)
         {
-            parentBuilderObj = ThingResourceManager.INSTANCE.blockParser.getBuildersMap().get(parentBuilder);
+            parentBuilderObj = JsonThings.blockParser.getBuildersMap().get(parentBuilder);
         }
         if (parentBuilderObj == null)
             throw new IllegalStateException("Parent builder not found");

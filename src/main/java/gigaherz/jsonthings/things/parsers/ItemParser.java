@@ -4,21 +4,39 @@ import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
-import gigaherz.jsonthings.things.builders.StackContext;
+import gigaherz.jsonthings.things.StackContext;
 import joptsimple.internal.Strings;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.IForgeRegistry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.UUID;
 
 public class ItemParser extends ThingParser<ItemBuilder>
 {
-    public ItemParser()
+    public static final Logger LOGGER = LogManager.getLogger();
+
+    public ItemParser(IEventBus bus)
     {
         super(GSON, "item");
+        bus.addGenericListener(Item.class, this::registerItems);
+    }
+
+    public void registerItems(RegistryEvent.Register<Item> event)
+    {
+        LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
+        IForgeRegistry<Item> registry = event.getRegistry();
+        getBuilders().forEach(thing -> registry.register(((Item) thing.build()).setRegistryName(thing.getRegistryName())));
+        LOGGER.info("Done processing thingpack Items.");
     }
 
     @Override
@@ -320,7 +338,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         }
         else
         {
-            FoodBuilder foodBuilder = ThingResourceManager.INSTANCE.foodParser.parseFromElement(builder.getRegistryName(), foodData);
+            FoodBuilder foodBuilder = JsonThings.foodParser.parseFromElement(builder.getRegistryName(), foodData);
             builder = builder.makeFood(foodBuilder.build());
         }
         return builder;

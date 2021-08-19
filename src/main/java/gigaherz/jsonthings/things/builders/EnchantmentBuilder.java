@@ -1,8 +1,6 @@
 package gigaherz.jsonthings.things.builders;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import gigaherz.jsonthings.things.enchantments.FlexEnchantment;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -14,8 +12,6 @@ import java.util.function.Predicate;
 
 public class EnchantmentBuilder
 {
-    private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
-
     private FlexEnchantment builtEnchantment = null;
 
     private ResourceLocation registryName;

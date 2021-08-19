@@ -2,8 +2,8 @@ package gigaherz.jsonthings.things.items;
 
 import com.google.common.collect.*;
 import gigaherz.jsonthings.things.IFlexItem;
-import gigaherz.jsonthings.things.builders.CompletionMode;
-import gigaherz.jsonthings.things.builders.StackContext;
+import gigaherz.jsonthings.things.CompletionMode;
+import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.events.ItemEventHandler;
 import net.minecraft.core.NonNullList;

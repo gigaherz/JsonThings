@@ -18,7 +18,7 @@ public class WorldOptionsScreenMixin
     public PackRepository redirectPackListCreation(PackType type, RepositorySource... finders)
     {
         PackRepository list = new PackRepository(type, finders);
-        list.addPackFinder(ThingResourceManager.INSTANCE.getWrappedPackFinder());
+        list.addPackFinder(ThingResourceManager.instance().getWrappedPackFinder());
         return list;
     }
 }

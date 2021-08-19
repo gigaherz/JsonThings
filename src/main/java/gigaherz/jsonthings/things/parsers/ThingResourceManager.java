@@ -1,5 +1,7 @@
 package gigaherz.jsonthings.things.parsers;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -13,6 +15,7 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.Unit;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
@@ -22,6 +25,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -48,25 +52,42 @@ public class ThingResourceManager
         /* do nothing */
     }
 
-    public static final ThingResourceManager INSTANCE = new ThingResourceManager();
+    private static ThingResourceManager instance;
+
+    public static ThingResourceManager instance()
+    {
+        return instance;
+    }
+
+    public static ThingResourceManager initialize(IEventBus modBusEvent)
+    {
+        return instance = new ThingResourceManager();
+    }
+
+    private static final Set<String> disabledPacks = Sets.newHashSet();
 
     private final ReloadableResourceManager resourceManager;
     private final RepositorySource folderPackFinder;
     private final PackRepository packList;
-    public final BlockParser blockParser = new BlockParser();
-    public final ItemParser itemParser = new ItemParser();
-    public final EnchantmentParser enchantmentParser = new EnchantmentParser();
-    public final FoodParser foodParser = new FoodParser();
 
-    public ThingResourceManager()
+    private final List<ThingParser<?>> thingParsers = Lists.newArrayList();
+    private final Map<String, ThingParser<?>> parsersMap = Maps.newHashMap();
+
+    private ThingResourceManager()
     {
         resourceManager = new SimpleReloadableResourceManager(PACK_TYPE_THINGS);
         folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), PackSource.DEFAULT);
         packList = new PackRepository(PACK_TYPE_THINGS, folderPackFinder);
-        resourceManager.registerReloadListener(blockParser);
-        resourceManager.registerReloadListener(itemParser);
-        resourceManager.registerReloadListener(enchantmentParser);
-        resourceManager.registerReloadListener(foodParser);
+    }
+
+    public <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
+    {
+        if (parsersMap.containsKey(parser.getThingType()))
+            throw new IllegalStateException("There is already a parser registered for type " + parser.getThingType());
+        thingParsers.add(parser);
+        resourceManager.registerReloadListener(parser);
+        parsersMap.put(parser.getThingType(), parser);
+        return parser;
     }
 
     public RepositorySource getWrappedPackFinder()
@@ -99,23 +120,27 @@ public class ThingResourceManager
         resourceManager.registerReloadListener(listener);
     }
 
-    private static final Set<String> disabledPacks = Sets.newHashSet();
 
-    private static final CompletableFuture<Unit> COMPLETED_FUTURE = CompletableFuture.completedFuture(Unit.INSTANCE);
-
-    public static CompletableFuture<ThingResourceManager> init(Executor backgroundExecutor, Executor gameExecutor)
+    public CompletableFuture<ThingResourceManager> beginLoading(Executor backgroundExecutor, Executor gameExecutor)
     {
-        INSTANCE.packList.reload();
+        packList.reload();
 
-        INSTANCE.load();
+        loadConfig();
 
-        CompletableFuture<Unit> completablefuture = INSTANCE.resourceManager.reload(backgroundExecutor, gameExecutor, INSTANCE.packList.openAllSelected(), COMPLETED_FUTURE);
-        return completablefuture.whenComplete((unit, throwable) -> {
-            if (throwable != null)
-            {
-                INSTANCE.resourceManager.close();
-            }
-        }).thenApply((unit) -> INSTANCE);
+        return resourceManager
+                .reload(backgroundExecutor, gameExecutor, packList.openAllSelected(), CompletableFuture.completedFuture(Unit.INSTANCE))
+                .whenComplete((unit, throwable) -> {
+                        if (throwable != null)
+                        {
+                            resourceManager.close();
+                        }
+                    })
+                .thenApply((unit) -> this);
+    }
+
+    public void finishLoading()
+    {
+        thingParsers.forEach(ThingParser::finishLoading);
     }
 
     public PackRepository getRepository()
@@ -128,10 +153,10 @@ public class ThingResourceManager
         disabledPacks.clear();
         disabledPacks.addAll(packList.getAvailableIds());
         disabledPacks.removeAll(packList.getSelectedIds());
-        save();
+        saveConfig();
     }
 
-    public void save()
+    public void saveConfig()
     {
         JsonArray disabled = new JsonArray();
         disabledPacks.forEach(disabled::add);
@@ -152,7 +177,7 @@ public class ThingResourceManager
         }
     }
 
-    public void load()
+    public void loadConfig()
     {
         File configFile = getConfigFile();
         List<String> orderList = new ArrayList<>();
@@ -188,4 +213,5 @@ public class ThingResourceManager
     {
         return FMLPaths.CONFIGDIR.get().resolve("jsonthings-thingpacks.json").toFile();
     }
+
 }

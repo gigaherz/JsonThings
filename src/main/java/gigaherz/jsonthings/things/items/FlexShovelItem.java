@@ -2,8 +2,8 @@ package gigaherz.jsonthings.things.items;
 
 import com.google.common.collect.*;
 import gigaherz.jsonthings.things.IFlexItem;
-import gigaherz.jsonthings.things.builders.CompletionMode;
-import gigaherz.jsonthings.things.builders.StackContext;
+import gigaherz.jsonthings.things.CompletionMode;
+import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.events.ItemEventHandler;
 import net.minecraft.core.NonNullList;
@@ -20,7 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -28,11 +27,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class FlexBlockNamedItem extends ItemNameBlockItem implements IFlexItem
+public class FlexShovelItem extends ShovelItem implements IFlexItem
 {
-    public FlexBlockNamedItem(Block block, Item.Properties properties)
+    public FlexShovelItem(Tier tier, float damage, float speed, Item.Properties properties)
     {
-        super(block, properties);
+        super(tier, damage, speed, properties);
         initializeFlex();
     }
 

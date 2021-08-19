@@ -1,4 +1,4 @@
-package gigaherz.jsonthings.things.builders;
+package gigaherz.jsonthings.things;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;

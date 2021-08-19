@@ -1,15 +1,11 @@
 package gigaherz.jsonthings.things.builders;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.FoodProperties;
 
 public class FoodBuilder
 {
-    private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
-
     private FoodProperties builtFood = null;
 
     private ResourceLocation registryName;

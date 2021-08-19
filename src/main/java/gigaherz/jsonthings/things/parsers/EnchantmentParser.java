@@ -7,15 +7,31 @@ import gigaherz.jsonthings.things.builders.EnchantmentBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.IForgeRegistry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Locale;
 import java.util.Map;
 
 public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
 {
-    public EnchantmentParser()
+    public static final Logger LOGGER = LogManager.getLogger();
+
+    public EnchantmentParser(IEventBus bus)
     {
         super(GSON, "enchantment");
+        bus.addGenericListener(Enchantment.class, this::registerEnchantments);
+    }
+
+    public void registerEnchantments(RegistryEvent.Register<Enchantment> event)
+    {
+        LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
+        IForgeRegistry<Enchantment> registry = event.getRegistry();
+        getBuilders().forEach(thing -> registry.register((thing.build()).setRegistryName(thing.getRegistryName())));
+        LOGGER.info("Done processing thingpack Enchantments.");
     }
 
     private static final Map<String, Enchantment.Rarity> rarities = ImmutableMap.<String, Enchantment.Rarity>builder()

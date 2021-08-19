@@ -3,8 +3,10 @@ package gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.util.Utils;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.effect.MobEffect;
@@ -16,6 +18,12 @@ public class FoodParser extends ThingParser<FoodBuilder>
     public FoodParser()
     {
         super(GSON, "food");
+    }
+
+    @Override
+    public void finishLoading()
+    {
+        getBuilders().forEach(thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.build()));
     }
 
     @Override

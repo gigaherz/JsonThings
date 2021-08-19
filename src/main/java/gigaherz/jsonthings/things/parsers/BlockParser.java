@@ -3,6 +3,7 @@ package gigaherz.jsonthings.things.parsers;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.BlockBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
@@ -11,7 +12,13 @@ import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.IForgeRegistry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -19,9 +26,21 @@ import java.util.Set;
 
 public class BlockParser extends ThingParser<BlockBuilder>
 {
-    public BlockParser()
+    public static final Logger LOGGER = LogManager.getLogger();
+
+    public BlockParser(IEventBus bus)
     {
         super(GSON, "block");
+
+        bus.addGenericListener(Block.class, this::registerBlocks);
+    }
+
+    public void registerBlocks(RegistryEvent.Register<Block> event)
+    {
+        LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
+        IForgeRegistry<Block> registry = event.getRegistry();
+        getBuilders().forEach(thing -> registry.register(thing.build().self().setRegistryName(thing.getRegistryName())));
+        LOGGER.info("Done processing thingpack Blocks.");
     }
 
     @Override
@@ -205,13 +224,13 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
     private BlockBuilder createStockItemBlock(BlockBuilder builder)
     {
-        ItemBuilder itemBuilder = ThingResourceManager.INSTANCE.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject()).makeBlock(builder.getRegistryName());
+        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject()).makeBlock(builder.getRegistryName());
         return builder.withItem(itemBuilder);
     }
 
     private BlockBuilder parseItemBlock(JsonObject data, BlockBuilder builder)
     {
-        ItemBuilder itemBuilder = ThingResourceManager.INSTANCE.itemParser.parseFromElement(builder.getRegistryName(), data).makeBlock(builder.getRegistryName());
+        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), data).makeBlock(builder.getRegistryName());
         return builder.withItem(itemBuilder);
     }
 }

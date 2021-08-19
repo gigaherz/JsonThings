@@ -1,4 +1,4 @@
-package gigaherz.jsonthings.things.builders;
+package gigaherz.jsonthings.things;
 
 public enum CompletionMode
 {

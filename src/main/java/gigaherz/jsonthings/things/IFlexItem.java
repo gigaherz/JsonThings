@@ -1,7 +1,5 @@
 package gigaherz.jsonthings.things;
 
-import gigaherz.jsonthings.things.builders.CompletionMode;
-import gigaherz.jsonthings.things.builders.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.events.ItemEventHandler;
 import net.minecraft.world.InteractionResultHolder;

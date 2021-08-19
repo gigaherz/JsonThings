@@ -1,13 +1,13 @@
 package gigaherz.jsonthings.things.builders;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
+import gigaherz.jsonthings.JsonThings;
+import gigaherz.jsonthings.things.CompletionMode;
 import gigaherz.jsonthings.things.IFlexItem;
+import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.items.*;
-import gigaherz.jsonthings.things.parsers.ThingResourceManager;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class ItemBuilder
 {
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
-    private final Multimap<String, String> eventHandlers = ArrayListMultimap.create();
 
     private IFlexItem builtItem = null;
 
@@ -229,7 +228,7 @@ public class ItemBuilder
                 }
                 else if ("shovel".equals(toolInfo.toolClass))
                 {
-                    flexItem = new FlexSpadeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
+                    flexItem = new FlexShovelItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
                 }
                 else if ("hoe".equals(toolInfo.toolClass))
                 {
@@ -253,7 +252,7 @@ public class ItemBuilder
         else if (plantInfo != null)
         {
             //TODO: ForgeRegistries.BLOCKS.getValue(plantInfo.soil)
-            flexItem = new FlexBlockNamedItem(Utils.getBlockOrCrash(plantInfo.crops), properties);
+            flexItem = new FlexItemNameBlockItem(Utils.getBlockOrCrash(plantInfo.crops), properties);
         }
         else if (blockInfo != null)
         {
@@ -310,7 +309,7 @@ public class ItemBuilder
             throw new IllegalStateException("Parent builder not set");
         if (parentBuilderObj == null)
         {
-            parentBuilderObj = ThingResourceManager.INSTANCE.itemParser.getBuildersMap().get(parentBuilder);
+            parentBuilderObj = JsonThings.itemParser.getBuildersMap().get(parentBuilder);
         }
         if (parentBuilderObj == null)
             throw new IllegalStateException("Parent builder not found");

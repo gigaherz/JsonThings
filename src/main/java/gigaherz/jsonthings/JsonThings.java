@@ -54,6 +54,7 @@ public class JsonThings
     public static ItemParser itemParser;
     public static EnchantmentParser enchantmentParser;
     public static FoodParser foodParser;
+    public final ShapeParser shapeParser;
 
     public JsonThings()
     {
@@ -65,6 +66,7 @@ public class JsonThings
         itemParser = manager.registerParser(new ItemParser(bus));
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));
         foodParser = manager.registerParser(new FoodParser());
+        shapeParser = manager.registerParser(new ShapeParser());
 
         ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> {
             var thingPackManager = ThingResourceManager.instance();

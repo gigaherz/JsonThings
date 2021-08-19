@@ -32,10 +32,10 @@ public class BlockBuilder
     private final List<Property<?>> properties = Lists.newArrayList();
     private final Map<String, Property<?>> propertiesByName = Maps.newHashMap();
     private final Map<Property<?>, Comparable<?>> propertyDefaultValues = Maps.newHashMap();
+    private final ResourceLocation registryName;
     private BlockType blockType = BlockType.PLAIN;
     private Material blockMaterial = Material.STONE;
     private MaterialColor blockMaterialColor = null;
-    private ResourceLocation registryName;
     private ItemBuilder itemBuilder;
     private ResourceLocation parentBuilder;
     private BlockBuilder parentBuilderObj;

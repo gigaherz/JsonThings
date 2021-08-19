@@ -1,19 +1,30 @@
-WIP
------
-Items
-Blocks
-Enchantments
-Food definitions
+DONE (working, every feature implemented)
+-------------------------------------------
 
-TODO
-------
-Item materials
-Armor materials
-Block materials
-Voxel shape "models"
-Screen layouts
-Container types
+* Voxel shape "models"
+* Food definitions
 
-MAYBE
--------
-1.17 Entity Models
+WIP (work but incomplete)
+---------------------------
+
+* Items
+    * Tool system needs to be reevaluated
+* Blocks
+    * Implement more types of block
+* Enchantments
+    * Implement item compatibility predicate
+    * Implement enchant compatibility predicate
+
+TODO (need to be done before release)
+--------------------------------------
+
+* Item materials
+* Armor materials
+* Block materials
+* Screen layouts
+* Container types
+
+MAYBE (to be considered)
+--------------------------
+
+* 1.17 Entity Models

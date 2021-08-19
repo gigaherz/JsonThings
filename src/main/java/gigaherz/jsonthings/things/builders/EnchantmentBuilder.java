@@ -14,7 +14,7 @@ public class EnchantmentBuilder
 {
     private FlexEnchantment builtEnchantment = null;
 
-    private ResourceLocation registryName;
+    private final ResourceLocation registryName;
 
     private Enchantment.Rarity rarity = Enchantment.Rarity.COMMON;
     private EnchantmentCategory type = EnchantmentCategory.BREAKABLE;

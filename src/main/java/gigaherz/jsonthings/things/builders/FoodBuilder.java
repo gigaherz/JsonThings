@@ -8,7 +8,7 @@ public class FoodBuilder
 {
     private FoodProperties builtFood = null;
 
-    private ResourceLocation registryName;
+    private final ResourceLocation registryName;
 
     private FoodProperties.Builder foodBuilder = new FoodProperties.Builder();
 

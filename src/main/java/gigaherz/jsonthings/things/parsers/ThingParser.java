@@ -2,10 +2,7 @@ package gigaherz.jsonthings.things.parsers;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import gigaherz.jsonthings.things.StackContext;
 import joptsimple.internal.Strings;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +12,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +24,12 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
     private final Map<ResourceLocation, TBuilder> buildersByName = Maps.newHashMap();
     private final List<TBuilder> builders = Lists.newArrayList();
     private final String thingType;
+    private final Gson gson;
 
     public ThingParser(Gson gson, String thingType)
     {
         super(gson, thingType);
+        this.gson = gson;
         this.thingType = thingType;
     }
 

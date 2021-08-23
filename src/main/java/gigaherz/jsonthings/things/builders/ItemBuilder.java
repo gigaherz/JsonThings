@@ -1,6 +1,8 @@
 package gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.CompletionMode;
@@ -8,6 +10,9 @@ import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.items.*;
+import gigaherz.jsonthings.things.serializers.BlockType;
+import gigaherz.jsonthings.things.serializers.IItemFactory;
+import gigaherz.jsonthings.things.serializers.ItemType;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -35,51 +40,41 @@ public class ItemBuilder
 
     private ResourceLocation parentBuilder;
     private ItemBuilder parentBuilderObj;
-    private RegistryObject<Item> parentItem;
+
+    private ItemType<?> itemType;
+    private IItemFactory<?> factory;
 
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
-    private final List<ToolInfo> toolInfos = Lists.newArrayList();
+
     private FoodProperties foodInfo = null;
-    private PlantInfo plantInfo = null;
-    private ArmorInfo armorInfo = null;
 
     private DelayedUse delayedUse = null;
     private ContainerInfo containerInfo = null;
 
-    private BlockInfo blockInfo = null;
     private String colorHandler = null;
 
-    private ItemBuilder(ResourceLocation registryName)
+    private ItemBuilder(ResourceLocation registryName, @Nullable ResourceLocation parentBuilder)
     {
         this.registryName = registryName;
+        this.parentBuilder = parentBuilder;
     }
 
-    public static ItemBuilder begin(ResourceLocation registryName)
+    public static ItemBuilder begin(ResourceLocation registryName, @Nullable ResourceLocation parentBuilder)
     {
-        return new ItemBuilder(registryName);
+        return new ItemBuilder(registryName, parentBuilder);
     }
 
-    public ItemBuilder withParentItem(ResourceLocation parentName)
+    public ItemBuilder withType(String typeName, JsonObject data)
     {
-        if (this.parentBuilder != null)
-            throw new IllegalStateException("Cannot set parent block and parent builder at the same time");
-        if (this.parentItem != null)
-            throw new IllegalStateException("Parent item already set");
-        this.parentItem = RegistryObject.of(parentName, ForgeRegistries.ITEMS);
-        return this;
-    }
-
-    public ItemBuilder withParentBuilder(ResourceLocation parentName)
-    {
-        if (this.parentBuilder != null)
-            throw new IllegalStateException("Parent builder already set");
-        if (this.parentItem != null)
-            throw new IllegalStateException("Cannot set parent item and parent builder at the same time");
-        this.parentItem = RegistryObject.of(parentName, ForgeRegistries.ITEMS);
-        this.parentBuilder = parentName;
+        if (this.itemType != null) throw new RuntimeException("Item type already set.");
+        ItemType<?> itemType = ThingRegistries.ITEM_TYPES.get(new ResourceLocation(typeName));
+        if (itemType == null)
+            throw new IllegalStateException("No known block type with name " + typeName);
+        this.itemType = itemType;
+        this.factory = itemType.getFactory(data);
         return this;
     }
 
@@ -111,7 +106,7 @@ public class ItemBuilder
         this.maxDamage = maxDamage;
         return this;
     }
-
+/*
     public ItemBuilder makeBlock(ResourceLocation blockName)
     {
         if (this.blockInfo != null) throw new RuntimeException("Block info already set.");
@@ -135,10 +130,19 @@ public class ItemBuilder
         return this;
     }
 
+    public ItemBuilder makeArmor(String equipmentSlot, String material)
+    {
+        if (this.armorInfo != null) throw new RuntimeException("Armor info already set.");
+        if (this.blockInfo != null) throw new RuntimeException("An item can not be armor and block at the same time.");
+        if (this.toolInfos.size() > 0) throw new RuntimeException("An item cannot be armor and tool at the same time.");
+        this.armorInfo = new ArmorInfo(equipmentSlot, material);
+        return this;
+    }
+*/
+
     public ItemBuilder makeFood(ResourceLocation foodName)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
-        if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
         if (!ThingRegistries.FOODS.containsKey(foodName))
             throw new RuntimeException("No known food definition with name '" + foodName + "'");
         FoodProperties foodInfo = ThingRegistries.FOODS.get(foodName);
@@ -151,17 +155,7 @@ public class ItemBuilder
     public ItemBuilder makeFood(FoodProperties food)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
-        if (this.blockInfo != null) throw new RuntimeException("An item can not be food and block at the same time.");
         this.foodInfo = food;
-        return this;
-    }
-
-    public ItemBuilder makeArmor(String equipmentSlot, String material)
-    {
-        if (this.armorInfo != null) throw new RuntimeException("Armor info already set.");
-        if (this.blockInfo != null) throw new RuntimeException("An item can not be armor and block at the same time.");
-        if (this.toolInfos.size() > 0) throw new RuntimeException("An item cannot be armor and tool at the same time.");
-        this.armorInfo = new ArmorInfo(equipmentSlot, material);
         return this;
     }
 
@@ -204,66 +198,7 @@ public class ItemBuilder
             properties = properties.food(foodInfo);
         }
 
-
-        IFlexItem flexItem = null;
-        if (toolInfos.size() > 0)
-        {
-            ToolInfo toolInfo = null; // first tool with a material name
-            for (int i = 1; i < toolInfos.size(); i++)
-            {
-                ToolInfo other = toolInfos.get(i);
-                if (other.material != null && toolInfo == null)
-                    toolInfo = other;
-            }
-            if (toolInfo != null)
-            {
-                Tier tier = toolInfo.toolTier;
-                if ("axe".equals(toolInfo.toolClass))
-                {
-                    flexItem = new FlexAxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                }
-                else if ("pickaxe".equals(toolInfo.toolClass))
-                {
-                    flexItem = new FlexPickaxeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                }
-                else if ("shovel".equals(toolInfo.toolClass))
-                {
-                    flexItem = new FlexShovelItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                }
-                else if ("hoe".equals(toolInfo.toolClass))
-                {
-                    flexItem = new FlexHoeItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                }
-                else if ("sword".equals(toolInfo.toolClass))
-                {
-                    flexItem = new FlexSwordItem(tier, toolInfo.toolDamage, toolInfo.toolSpeed, properties);
-                }
-                else // TODO
-                {
-                    //throw new RuntimeException(String.format("Unknown tool class '%s'.", toolInfo.toolClass));
-                    // allow unknown classes, but treat them as normal items without a special subclass
-                }
-            }
-        }
-        else if (armorInfo != null)
-        {
-            flexItem = new FlexArmorItem(armorInfo.material, armorInfo.slot, properties);
-        }
-        else if (plantInfo != null)
-        {
-            //TODO: ForgeRegistries.BLOCKS.getValue(plantInfo.soil)
-            flexItem = new FlexItemNameBlockItem(Utils.getBlockOrCrash(plantInfo.crops), properties);
-        }
-        else if (blockInfo != null)
-        {
-            flexItem = new FlexBlockItem(Utils.getBlockOrCrash(blockInfo.block), properties);
-        }
-        // else other types
-
-        if (flexItem == null)
-        {
-            flexItem = new FlexItem(properties);
-        }
+        IFlexItem flexItem = factory.construct(properties, this);
 
         if (delayedUse != null)
         {
@@ -339,28 +274,6 @@ public class ItemBuilder
         return registryName;
     }
 
-    static class ArmorInfo
-    {
-        public EquipmentSlot slot;
-        public ArmorMaterial material;
-
-        public ArmorInfo(String equipmentSlot, String material)
-        {
-            this.slot = EquipmentSlot.byName(equipmentSlot);
-            this.material = ArmorMaterials.valueOf(material.toUpperCase());
-        }
-    }
-
-    static class BlockInfo
-    {
-        public ResourceLocation block;
-
-        public BlockInfo(ResourceLocation blockName)
-        {
-            this.block = blockName;
-        }
-    }
-
     static class ContainerInfo
     {
         public ResourceLocation emptyItem;
@@ -392,21 +305,6 @@ public class ItemBuilder
     {
         public ResourceLocation crops;
         public ResourceLocation soil;
-    }
-
-    static class ToolInfo
-    {
-        public String toolClass;
-        public String material;
-        public int toolDamage;
-        public float toolSpeed;
-        public Tier toolTier;
-
-        public ToolInfo(String toolType, Tier tier)
-        {
-            this.toolClass = toolType;
-            this.toolTier = tier;
-        }
     }
 }
 

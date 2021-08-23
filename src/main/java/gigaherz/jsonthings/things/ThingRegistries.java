@@ -4,6 +4,7 @@ import com.mojang.serialization.Lifecycle;
 import gigaherz.jsonthings.things.properties.PropertyType;
 import gigaherz.jsonthings.things.properties.PropertyTypes;
 import gigaherz.jsonthings.things.serializers.BlockType;
+import gigaherz.jsonthings.things.serializers.ItemType;
 import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.MappedRegistry;
@@ -31,8 +32,9 @@ public class ThingRegistries
     public static final ResourceKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
     public static final ResourceKey<Registry<BooleanOp>> BOOLEAN_FUNCTION_REGISTRY = createKey("jsonthings:boolean_function");
     public static final ResourceKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
-    public static final ResourceKey<Registry<BlockType>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
+    public static final ResourceKey<Registry<BlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
     public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
+    public static final ResourceKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
     public static final Registry<Tier> ITEM_TIERS = makeRegistry(ITEM_TIER_REGISTRY);
@@ -42,7 +44,8 @@ public class ThingRegistries
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
     public static final Registry<DynamicShape> DYNAMIC_SHAPES = makeRegistry(DYNAMIC_SHAPE_REGISTRY);
     public static final Registry<BooleanOp> BOOLEAN_FUNCTIONS = makeRegistry(BOOLEAN_FUNCTION_REGISTRY);
-    public static final Registry<BlockType> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
+    public static final Registry<ItemType<?>> ITEM_TYPES = makeRegistry(ITEM_TYPE_REGISTRY);
+    public static final Registry<BlockType<?>> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
     public static final Registry<Material> BLOCK_MATERIALS = makeRegistry(BLOCK_MATERIAL_REGISTRY);
 
     static
@@ -64,6 +67,8 @@ public class ThingRegistries
         PropertyTypes.init();
 
         BlockType.init();
+
+        ItemType.init();
 
         MaterialColors.init();
     }

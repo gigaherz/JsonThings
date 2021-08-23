@@ -2,9 +2,10 @@ package gigaherz.jsonthings.things.serializers;
 
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.builders.BlockBuilder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-public interface IBlockFactory
+public interface IBlockFactory<T extends Block & IFlexBlock>
 {
-    IFlexBlock construct(BlockBehaviour.Properties properties, BlockBuilder builder);
+    T construct(BlockBehaviour.Properties properties, BlockBuilder builder);
 }

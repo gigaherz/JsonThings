@@ -1,13 +1,14 @@
 package gigaherz.jsonthings.things.items;
 
 import com.google.common.collect.*;
-import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.CompletionMode;
+import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.events.ItemEventHandler;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -28,11 +29,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class FlexItemNameBlockItem extends ItemNameBlockItem implements IFlexItem
+public class FlexDiggerItem extends DiggerItem implements IFlexItem
 {
-    public FlexItemNameBlockItem(Block block, Item.Properties properties)
+    public FlexDiggerItem(Tier material, float damage, float speed, Tag<Block> breakable, Properties properties)
     {
-        super(block, properties);
+        super(damage, speed, material, breakable, properties);
         initializeFlex();
     }
 

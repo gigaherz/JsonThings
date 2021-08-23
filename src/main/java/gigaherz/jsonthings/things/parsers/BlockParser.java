@@ -46,10 +46,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     @Override
     public BlockBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        BlockBuilder builder = BlockBuilder.begin(key);
-
-        if (data.has("type"))
-            builder = builder.withType(data.get("type").getAsString());
+        BlockBuilder builder = BlockBuilder.begin(key, GsonHelper.getAsString(data, "type", "plain"), data);
 
         if (data.has("parent"))
             builder = parseParent(data.get("parent"), builder);
@@ -224,13 +221,13 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
     private BlockBuilder createStockItemBlock(BlockBuilder builder)
     {
-        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject()).makeBlock(builder.getRegistryName());
+        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject()).withType("block", new JsonObject());
         return builder.withItem(itemBuilder);
     }
 
     private BlockBuilder parseItemBlock(JsonObject data, BlockBuilder builder)
     {
-        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), data).makeBlock(builder.getRegistryName());
+        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), data).withType("block", data);
         return builder.withItem(itemBuilder);
     }
 }

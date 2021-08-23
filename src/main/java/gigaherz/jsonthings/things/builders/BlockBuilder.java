@@ -2,10 +2,13 @@ package gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
 import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.serializers.BlockType;
+import gigaherz.jsonthings.things.serializers.IBlockFactory;
 import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import gigaherz.jsonthings.util.Utils;
@@ -33,7 +36,8 @@ public class BlockBuilder
     private final Map<String, Property<?>> propertiesByName = Maps.newHashMap();
     private final Map<Property<?>, Comparable<?>> propertyDefaultValues = Maps.newHashMap();
     private final ResourceLocation registryName;
-    private BlockType blockType = BlockType.PLAIN;
+    private final BlockType<?> blockType;
+    private final IBlockFactory<?> factory;
     private Material blockMaterial = Material.STONE;
     private MaterialColor blockMaterialColor = null;
     private ItemBuilder itemBuilder;
@@ -48,28 +52,24 @@ public class BlockBuilder
     private Set<String> renderLayers;
     private String colorHandler;
 
-    private BlockBuilder(ResourceLocation registryName)
+    private BlockBuilder(ResourceLocation registryName, BlockType<?> blockType, IBlockFactory<?> factory)
     {
         this.registryName = registryName;
+        this.blockType = blockType;
+        this.factory = factory;
     }
 
-    public static BlockBuilder begin(ResourceLocation registryName)
+    public static BlockBuilder begin(ResourceLocation registryName, String typeName, JsonObject data)
     {
-        return new BlockBuilder(registryName);
+        BlockType<?> blockType = ThingRegistries.BLOCK_TYPES.get(new ResourceLocation(typeName));
+        if (blockType == null)
+            throw new IllegalStateException("No known block type with name " + typeName);
+        return new BlockBuilder(registryName, blockType, blockType.getFactory(data));
     }
 
     public BlockBuilder withItem(ItemBuilder itemBuilder)
     {
         this.itemBuilder = itemBuilder;
-        return this;
-    }
-
-    public BlockBuilder withType(String typeName)
-    {
-        BlockType blockType = ThingRegistries.BLOCK_TYPES.get(new ResourceLocation(typeName));
-        if (blockType == null)
-            throw new IllegalStateException("No known block type with name " + typeName);
-        this.blockType = blockType;
         return this;
     }
 
@@ -193,7 +193,7 @@ public class BlockBuilder
             throw new IllegalStateException("The block of type " + blockType + " cannot define non-duplicate properties with clashing names: " + badProperties.stream().map(Property::getName).collect(Collectors.joining(" ")));
         }
 
-        IFlexBlock flexBlock = blockType.getFactory().construct(props, this);
+        IFlexBlock flexBlock = factory.construct(props, this);
 
         flexBlock.setGeneralShape(getGeneralShape());
         flexBlock.setCollisionShape(getCollisionShape());

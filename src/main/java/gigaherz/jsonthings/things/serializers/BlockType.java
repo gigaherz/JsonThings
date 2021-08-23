@@ -1,5 +1,8 @@
 package gigaherz.jsonthings.things.serializers;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.blocks.*;
 import net.minecraft.core.Registry;
@@ -13,9 +16,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class BlockType
+@SuppressWarnings("ClassCanBeRecord")
+public class BlockType<T extends Block & IFlexBlock>
 {
-    public static final BlockType PLAIN = register("plain", (props, builder) -> {
+    public static final BlockType<FlexBlock> PLAIN = register("plain", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexBlock(props, propertyDefaultValues)
@@ -29,7 +33,7 @@ public class BlockType
         };
     }, "solid", false);
 
-    public static final BlockType SLAB = register("slab", (props, builder) -> {
+    public static final BlockType<FlexSlabBlock> SLAB = register("slab", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexSlabBlock(props, propertyDefaultValues)
@@ -43,7 +47,7 @@ public class BlockType
         };
     }, "solid", false, SlabBlock.TYPE, SlabBlock.WATERLOGGED);
 
-    public static final BlockType STAIRS = register("stairs", (props, builder) -> {
+    public static final BlockType<FlexStairsBlock> STAIRS = register("stairs", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         final RegistryObject<Block> parentBlock = builder.getParentBlock();
@@ -60,7 +64,7 @@ public class BlockType
         };
     }, "solid", false, WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
 
-    public static final BlockType WALL = register("wall", (props, builder) -> {
+    public static final BlockType<FlexWallBlock> WALL = register("wall", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexWallBlock(props, propertyDefaultValues)
@@ -74,7 +78,7 @@ public class BlockType
         };
     }, "solid", false, WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
 
-    public static final BlockType FENCE = register("fence", (props, builder) -> {
+    public static final BlockType<FlexFenceBlock> FENCE = register("fence", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexFenceBlock(props, propertyDefaultValues)
@@ -88,7 +92,7 @@ public class BlockType
         };
     }, "solid", false, FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED);
 
-    public static final BlockType FENCE_GATE = register("fence_gate", (props, builder) -> {
+    public static final BlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexFenceGateBlock(props, propertyDefaultValues)
@@ -102,7 +106,7 @@ public class BlockType
         };
     }, "solid", false, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
 
-    public static final BlockType ROTATED_PILLAR = register("rotated_pillar", (props, builder) -> {
+    public static final BlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexRotatedPillarBlock(props, propertyDefaultValues)
@@ -116,7 +120,7 @@ public class BlockType
         };
     }, "solid", false, RotatedPillarBlock.AXIS);
 
-    public static final BlockType LEAVES = register("leaves", (props, builder) -> {
+    public static final BlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexLeavesBlock(props, propertyDefaultValues)
@@ -130,7 +134,7 @@ public class BlockType
         };
     }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
 
-    public static final BlockType DOOR = register("door", (props, builder) -> {
+    public static final BlockType<FlexDoorBlock> DOOR = register("door", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexDoorBlock(props, propertyDefaultValues)
@@ -144,7 +148,7 @@ public class BlockType
         };
     }, "cutout", true, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF);
 
-    public static final BlockType TRAPDOOR = register("trapdoor", (props, builder) -> {
+    public static final BlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexTrapdoorBlock(props, propertyDefaultValues)
@@ -163,18 +167,17 @@ public class BlockType
         /* do nothing */
     }
 
-    public static BlockType register(String name, IBlockFactory factory, String defaultLayer, boolean defaultSeeThrough, Property<?>... stockProperties)
+    public static <T extends Block & IFlexBlock> BlockType<T> register(String name, IBlockSerializer<T> factory, String defaultLayer, boolean defaultSeeThrough, Property<?>... stockProperties)
     {
-        return Registry.register(ThingRegistries.BLOCK_TYPES, name, new BlockType(factory, Arrays.asList(stockProperties), defaultLayer, defaultSeeThrough));
+        return Registry.register(ThingRegistries.BLOCK_TYPES, name, new BlockType<>(factory, Arrays.asList(stockProperties), defaultLayer, defaultSeeThrough));
     }
 
-    private final IBlockFactory factory;
+    private final IBlockSerializer<T> factory;
     private final List<Property<?>> stockProperties;
-    private String defaultLayer;
+    private final String defaultLayer;
+    private final boolean defaultSeeThrough;
 
-    private boolean defaultSeeThrough;
-
-    public BlockType(IBlockFactory factory, List<Property<?>> stockProperties, String defaultLayer, boolean defaultSeeThrough)
+    private BlockType(IBlockSerializer<T> factory, List<Property<?>> stockProperties, String defaultLayer, boolean defaultSeeThrough)
     {
         this.factory = factory;
         this.stockProperties = stockProperties;
@@ -182,9 +185,9 @@ public class BlockType
         this.defaultSeeThrough = defaultSeeThrough;
     }
 
-    public IBlockFactory getFactory()
+    public IBlockFactory<T> getFactory(JsonObject data)
     {
-        return factory;
+        return factory.createFactory(data);
     }
 
     public List<Property<?>> getStockProperties()

@@ -54,7 +54,7 @@ public class JsonThings
     public static ItemParser itemParser;
     public static EnchantmentParser enchantmentParser;
     public static FoodParser foodParser;
-    public final ShapeParser shapeParser;
+    public static ShapeParser shapeParser;
 
     public JsonThings()
     {

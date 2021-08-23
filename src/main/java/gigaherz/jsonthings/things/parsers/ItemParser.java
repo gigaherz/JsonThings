@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.JsonThings;
+import gigaherz.jsonthings.things.builders.BlockBuilder;
 import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.StackContext;
@@ -42,10 +43,16 @@ public class ItemParser extends ThingParser<ItemBuilder>
     @Override
     public ItemBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        ItemBuilder builder = ItemBuilder.begin(key);
-
+        ResourceLocation parentId = null;
         if (data.has("parent"))
-            builder = parseParent(data.get("parent"), builder);
+        {
+            parentId = new ResourceLocation(data.getAsString());
+        }
+
+        ItemBuilder builder = ItemBuilder.begin(key, parentId);
+
+        if (data.has("type"))
+            builder = builder.withType(data.get("type").getAsString(), data);
 
         if (data.has("max_stack_size"))
         {
@@ -86,40 +93,15 @@ public class ItemParser extends ThingParser<ItemBuilder>
             builder = parseDurabilityInfo(data, builder);
         }
 
-        if (data.has("tool"))
-        {
-            builder = parseToolInfo(data, builder);
-        }
-
         if (data.has("food"))
         {
             builder = parseFoodInfo(data, builder);
-        }
-
-        if (data.has("armor"))
-        {
-            builder = parseArmorInfo(data, builder);
         }
 
         if (data.has("color_handler"))
             builder = builder.withColorHandler(data.get("color_handler").getAsString());
 
         return builder;
-    }
-
-    private ItemBuilder parseParent(JsonElement data, ItemBuilder builder)
-    {
-        if (data.isJsonObject())
-        {
-            JsonObject obj = data.getAsJsonObject();
-            String id = GsonHelper.getAsString(obj, "id");
-            boolean isBuilder = GsonHelper.getAsBoolean(obj, "is_builder", true);
-            if (isBuilder)
-                return builder.withParentBuilder(new ResourceLocation(id));
-            else
-                return builder.withParentItem(new ResourceLocation(id));
-        }
-        return builder.withParentBuilder(new ResourceLocation(data.getAsString()));
     }
 
     private ItemBuilder parseAttributeModifiers(ResourceLocation key, JsonObject data, ItemBuilder builder)
@@ -218,114 +200,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 64, both inclusive.");
             }
         }
-        return builder;
-    }
-
-    private ItemBuilder parseArmorInfo(JsonObject data, ItemBuilder builder)
-    {
-        JsonObject toolData = data.get("armor").getAsJsonObject();
-
-        String slot;
-        if (toolData.has("equipment_slot"))
-        {
-            String str = toolData.get("equipment_slot").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                slot = str;
-            }
-            else
-            {
-                throw new RuntimeException("Armor equipment slot must be a non-empty string.");
-            }
-        }
-        else
-        {
-            throw new RuntimeException("Armor info must have a non-empty 'equipment_slot' string.");
-        }
-
-        String material;
-        if (toolData.has("material"))
-        {
-            String str = toolData.get("material").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                material = str;
-            }
-            else
-            {
-                throw new RuntimeException("Armor material must be a non-empty string.");
-            }
-        }
-        else
-        {
-            throw new RuntimeException("Armor info must have a non-empty 'material' string.");
-        }
-
-        builder = builder.makeArmor(slot, material);
-        return builder;
-    }
-
-    private ItemBuilder parseToolInfo(JsonObject data, ItemBuilder builder)
-    {
-        JsonElement tool = data.get("tool");
-        if (tool.isJsonArray())
-        {
-            JsonArray toolArray = tool.getAsJsonArray();
-            for (JsonElement e : toolArray)
-            {
-                JsonObject toolData = e.getAsJsonObject();
-
-                builder = parseSingleTool(builder, toolData);
-            }
-        }
-        else
-        {
-            JsonObject toolData = tool.getAsJsonObject();
-
-            builder = parseSingleTool(builder, toolData);
-        }
-        return builder;
-    }
-
-    private ItemBuilder parseSingleTool(ItemBuilder builder, JsonObject toolData)
-    {
-        String type;
-        if (toolData.has("class"))
-        {
-            String str = toolData.get("class").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                type = str;
-            }
-            else
-            {
-                throw new RuntimeException("Tool class must be a non-empty string.");
-            }
-        }
-        else
-        {
-            throw new RuntimeException("Tool info must have a non-empty 'class' string.");
-        }
-
-        String material;
-        if (toolData.has("material"))
-        {
-            String str = toolData.get("material").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                material = str;
-            }
-            else
-            {
-                throw new RuntimeException("Tool material must be a non-empty string.");
-            }
-        }
-        else
-        {
-            throw new RuntimeException("Tool info must have a non-empty 'material' string.");
-        }
-
-        builder = builder.withTool(type, new ResourceLocation(material));
         return builder;
     }
 

@@ -30,11 +30,24 @@ import java.util.stream.Collectors;
 
 public class FlexBlockItem extends BlockItem implements IFlexItem
 {
-    public FlexBlockItem(Block block, Item.Properties properties)
+    public FlexBlockItem(Block block, boolean useBlockName, Properties properties)
     {
         super(block, properties);
+        this.useBlockName = useBlockName;
         initializeFlex();
     }
+
+    //region BlockItem
+    private final boolean useBlockName;
+
+    // Recreation of ItemNameBlockItem's function
+    @Override
+    public String getDescriptionId()
+    {
+        return useBlockName ? getBlock().getDescriptionId() : super.getOrCreateDescriptionId();
+    }
+
+    //endregion
 
     //region IFlexItem
     private final Multimap<CreativeModeTab, StackContext> perTabStacks = ArrayListMultimap.create();

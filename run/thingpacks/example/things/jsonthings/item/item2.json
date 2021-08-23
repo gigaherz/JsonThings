@@ -1,0 +1,11 @@
+{
+  "max_stack_size": 64,
+
+  "group": "food",
+
+  "food": {
+    "heal_amount": 5,
+    "saturation": 1.5,
+    "meat": false
+  }
+}

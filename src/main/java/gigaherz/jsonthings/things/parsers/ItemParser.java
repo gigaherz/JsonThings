@@ -75,7 +75,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
             }
 
             String name = data.get("group").getAsString();
-            builder = builder.withCreativeMenuStack(new StackContext(key), new String[]{name});
+            builder = builder.withCreativeMenuStack(new StackContext(null), new String[]{name});
         }
 
         if (data.has("creative_menu_stacks"))

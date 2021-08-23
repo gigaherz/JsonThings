@@ -1,0 +1,7 @@
+{
+  "type": "trapdoor",
+  "parent": "jsonthings:sandwood_planks",
+  "item": {
+    "group": "decorations"
+  }
+}

@@ -34,12 +34,11 @@ public class ItemType<T extends Item & IFlexItem>
     });
 
     public static final ItemType<FlexArmorItem> ARMOR = register("armor", data -> {
-        JsonObject toolData = data.get("armor").getAsJsonObject();
 
         String slotName;
-        if (toolData.has("equipment_slot"))
+        if (data.has("equipment_slot"))
         {
-            String str = toolData.get("equipment_slot").getAsString();
+            String str = data.get("equipment_slot").getAsString();
             if (!Strings.isNullOrEmpty(str))
             {
                 slotName = str;
@@ -55,9 +54,9 @@ public class ItemType<T extends Item & IFlexItem>
         }
 
         String materialName;
-        if (toolData.has("material"))
+        if (data.has("material"))
         {
-            String str = toolData.get("material").getAsString();
+            String str = data.get("material").getAsString();
             if (!Strings.isNullOrEmpty(str))
             {
                 materialName = str;

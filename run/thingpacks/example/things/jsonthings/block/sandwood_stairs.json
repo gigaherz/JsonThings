@@ -1,0 +1,7 @@
+{
+  "type": "stairs",
+  "parent": "jsonthings:sandwood_planks",
+  "item": {
+    "group": "decorations"
+  }
+}

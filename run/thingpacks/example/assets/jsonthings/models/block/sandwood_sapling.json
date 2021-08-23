@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "jsonthings:block/sandwood_sapling"
+  }
+}

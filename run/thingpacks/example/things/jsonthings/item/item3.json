@@ -1,0 +1,21 @@
+{
+  "type": "armor",
+  "material": "iron",
+  "equipment_slot": "head",
+
+  "max_stack_size": 64,
+
+  "group": "combat",
+
+  "durability": {
+    "max_damage": 1536
+  },
+
+  "attribute_modifiers": [
+    { "name": "test", "amount": 2, "operation": "addition" }
+  ],
+
+  "events": {
+    "onItemUse": "regsitered_event_handler_name"
+  }
+}

@@ -1,7 +1,6 @@
 package gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.JsonThings;
@@ -9,24 +8,16 @@ import gigaherz.jsonthings.things.CompletionMode;
 import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.ThingRegistries;
-import gigaherz.jsonthings.things.items.*;
-import gigaherz.jsonthings.things.serializers.BlockType;
 import gigaherz.jsonthings.things.serializers.IItemFactory;
 import gigaherz.jsonthings.things.serializers.ItemType;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.minecraftforge.fmllegacy.RegistryObject;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -183,37 +174,52 @@ public class ItemBuilder
     {
         Item.Properties properties = new Item.Properties();
 
-        if (maxDamage != null)
+        var md = getMaxDamage();
+        if (md != null)
         {
-            properties = properties.durability(maxDamage);
+            properties = properties.durability(md);
         }
 
-        if (containerInfo != null)
+        var ci = getContainerInfo();
+        if (ci != null)
         {
-            properties = properties.craftRemainder(Utils.getItemOrCrash(containerInfo.emptyItem));
+            properties = properties.craftRemainder(Utils.getItemOrCrash(ci.emptyItem));
         }
 
-        if (foodInfo != null)
+        var fi = getFoodInfo();
+        if (fi != null)
         {
-            properties = properties.food(foodInfo);
+            properties = properties.food(fi);
+        }
+
+        var it = getItemType();
+        if (it == null)
+        {
+            it = ItemType.PLAIN;
+            factory = it.getFactory(new JsonObject());
         }
 
         IFlexItem flexItem = factory.construct(properties, this);
 
-        if (delayedUse != null)
+        var du = getDelayedUse();
+        if (du != null)
         {
             flexItem.setUseAction(delayedUse.useAction);
             flexItem.setUseTime(delayedUse.useTicks);
             flexItem.setUseFinishMode(delayedUse.onComplete);
         }
 
-        for (Pair<StackContext, String[]> tabEntries : creativeMenuStacks)
+        var stacks = getCreativeMenuStacks();
+        if (stacks.size() > 0)
         {
-            StackContext ctx = tabEntries.getFirst();
-            String[] tabs = tabEntries.getSecond();
+            for (Pair<StackContext, String[]> tabEntries : stacks)
+            {
+                StackContext ctx = tabEntries.getFirst();
+                String[] tabs = tabEntries.getSecond();
 
-            Set<CreativeModeTab> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).collect(Collectors.toSet());
-            flexItem.addCreativeStack(ctx, tabsIterable);
+                Set<CreativeModeTab> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).filter(Objects::nonNull).collect(Collectors.toSet());
+                flexItem.addCreativeStack(ctx, tabsIterable);
+            }
         }
 
         builtItem = flexItem;
@@ -261,6 +267,47 @@ public class ItemBuilder
             return parentGetter.apply(parent);
         }
         return null;
+    }
+
+    public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
+    {
+        if (creativeMenuStacks.size() > 0)
+            return creativeMenuStacks;
+
+        if (parentBuilder != null)
+            return getParentBuilder().getCreativeMenuStacks();
+
+        return creativeMenuStacks;
+    }
+
+    @Nullable
+    public Integer getMaxDamage()
+    {
+        return getValueWithParent(maxDamage, ItemBuilder::getMaxDamage);
+    }
+
+    @Nullable
+    public ContainerInfo getContainerInfo()
+    {
+        return getValueWithParent(containerInfo, ItemBuilder::getContainerInfo);
+    }
+
+    @Nullable
+    public FoodProperties getFoodInfo()
+    {
+        return getValueWithParent(foodInfo, ItemBuilder::getFoodInfo);
+    }
+
+    @Nullable
+    public ItemType<?> getItemType()
+    {
+        return getValueWithParent(itemType, ItemBuilder::getItemType);
+    }
+
+    @Nullable
+    public DelayedUse getDelayedUse()
+    {
+        return getValueWithParent(delayedUse, ItemBuilder::getDelayedUse);
     }
 
     @Nullable

@@ -1,0 +1,7 @@
+{
+  "type": "fence",
+  "parent": "jsonthings:sandwood_planks",
+  "item": {
+    "group": "decorations"
+  }
+}

@@ -12,6 +12,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
@@ -61,24 +62,7 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
 
     protected StackContext parseStackContext(ResourceLocation key, JsonObject item)
     {
-        StackContext ctx;
-
-        if (item.has("item"))
-        {
-            String name = item.get("item").getAsString();
-            if (!Strings.isNullOrEmpty(name))
-            {
-                ctx = new StackContext(makeResourceLocation(key, name));
-            }
-            else
-            {
-                throw new RuntimeException("If present, item must be a non-empty string.");
-            }
-        }
-        else
-        {
-            ctx = new StackContext(null);
-        }
+        StackContext ctx = new StackContext(null);
 
         if (item.has("count"))
         {

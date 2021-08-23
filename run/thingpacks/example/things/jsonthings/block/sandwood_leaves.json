@@ -1,0 +1,9 @@
+{
+  "type": "leaves",
+  "render_layer": "cutout_mipped",
+  "color_handler": "foliage",
+  "item": {
+    "group": "decorations",
+    "color_handler": "foliage"
+  }
+}

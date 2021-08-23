@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "jsonthings:block/sandwood_slab"
+    },
+    "type=double": {
+      "model": "jsonthings:block/sandwood_planks"
+    },
+    "type=top": {
+      "model": "jsonthings:block/sandwood_slab_top"
+    }
+  }
+}

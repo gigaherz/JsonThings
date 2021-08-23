@@ -1,0 +1,40 @@
+{
+  "properties": {
+    "facing": "horizontal_facing",
+    "powered": { "type": "boolean" },
+    "str": { "type": "string", "values": [ "value1", "value2" ] },
+    "num": { "type": "int", "min": 0, "max": 5 }
+  },
+
+  "default_state": {
+    "facing": "east",
+    "powered": false,
+    "str": "value1",
+    "num": 0
+  },
+
+  "shape_rotation": "facing",
+
+  "shape": [
+    {
+      "when": {
+        "facing": "east"
+      },
+      "shape": [2,2,2,14,14,14]
+    },
+    [0,0,0,16,2,16],
+    [5,2,0,11,16,11]
+  ],
+
+  "item": {
+    "group": "decorations"
+  },
+
+
+  "__comment0": "Stuff below this comment is not implemented yet!",
+
+  "falling": true,
+  "_falling": {
+    "entity": "something:somecustomentity"
+  }
+}

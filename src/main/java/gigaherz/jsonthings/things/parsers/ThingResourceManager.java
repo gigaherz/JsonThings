@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.server.packs.PackType;
+import gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
@@ -17,11 +17,8 @@ import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.Unit;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,26 +29,6 @@ import java.util.concurrent.Executor;
 
 public class ThingResourceManager
 {
-    private static final Method M_CREATE = ObfuscationReflectionHelper.findMethod(PackType.class, "create", String.class, String.class, com.mojang.bridge.game.PackType.class);
-    private static final PackType PACK_TYPE_THINGS;
-
-    static
-    {
-        try
-        {
-            PACK_TYPE_THINGS = (PackType) M_CREATE.invoke(null, "JSONTHINGS_THINGS", "things", com.mojang.bridge.game.PackType.DATA);
-        }
-        catch (IllegalAccessException | InvocationTargetException e)
-        {
-            throw new RuntimeException("Error calling private method", e);
-        }
-    }
-
-    public static void staticInit()
-    {
-        /* do nothing */
-    }
-
     private static ThingResourceManager instance;
 
     public static ThingResourceManager instance()
@@ -75,9 +52,9 @@ public class ThingResourceManager
 
     private ThingResourceManager()
     {
-        resourceManager = new SimpleReloadableResourceManager(PACK_TYPE_THINGS);
+        resourceManager = new SimpleReloadableResourceManager(CustomPackType.THINGS);
         folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), PackSource.DEFAULT);
-        packList = new PackRepository(PACK_TYPE_THINGS, folderPackFinder);
+        packList = new PackRepository(CustomPackType.THINGS, folderPackFinder);
     }
 
     public <TParser extends ThingParser<?>> TParser registerParser(TParser parser)

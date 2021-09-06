@@ -14,7 +14,7 @@ public class ServerMainMixin
     @Redirect(method = "main([Ljava/lang/String;)V",
             at = @At(value = "NEW", target = "(Lnet/minecraft/server/packs/PackType;[Lnet/minecraft/server/packs/repository/RepositorySource;)Lnet/minecraft/server/packs/repository/PackRepository;")
     )
-    public PackRepository redirectPackListCreation(PackType type, RepositorySource... finders)
+    private static PackRepository redirectPackListCreation(PackType type, RepositorySource... finders)
     {
         PackRepository list = new PackRepository(type, finders);
         list.addPackFinder(ThingResourceManager.instance().getWrappedPackFinder());

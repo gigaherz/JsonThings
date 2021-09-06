@@ -24,6 +24,11 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 
 public class ThingRegistries
 {
+    public static void staticInit()
+    {
+        /* do nothing */
+    }
+
     public static final ResourceKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
     public static final ResourceKey<Registry<Tier>> ITEM_TIER_REGISTRY = createKey("jsonthings:item_tier");
     public static final ResourceKey<Registry<ArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
@@ -37,7 +42,6 @@ public class ThingRegistries
     public static final ResourceKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
-    public static final Registry<Tier> ITEM_TIERS = makeRegistry(ITEM_TIER_REGISTRY);
     public static final Registry<ArmorMaterial> ARMOR_TIERS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
     public static final Registry<FoodProperties> FOODS = makeRegistry(FOOD_REGISTRY);
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
@@ -50,8 +54,6 @@ public class ThingRegistries
 
     static
     {
-        registerItemTiers();
-
         registerArmorMaterials();
 
         registerFoods();
@@ -82,11 +84,6 @@ public class ThingRegistries
     {
         MappedRegistry<T> registry = new MappedRegistry<T>(key, Lifecycle.experimental());
         return Registry.register(THING_REGISTRIES, key.location().toString(), registry);
-    }
-
-    public static void staticInit()
-    {
-        /* do nothing */
     }
 
     private static void registerDynamicShapes()
@@ -258,16 +255,6 @@ public class ThingRegistries
         {
             Registry.register(ARMOR_TIERS, mat.getName(), mat);
         }
-    }
-
-    private static void registerItemTiers()
-    {
-        // no "name" field in item tiers
-        Registry.register(ITEM_TIERS, "wood", Tiers.WOOD);
-        Registry.register(ITEM_TIERS, "stone", Tiers.STONE);
-        Registry.register(ITEM_TIERS, "gold", Tiers.GOLD);
-        Registry.register(ITEM_TIERS, "iron", Tiers.IRON);
-        Registry.register(ITEM_TIERS, "diamond", Tiers.DIAMOND);
     }
 
     private static void registerBlockMaterials()

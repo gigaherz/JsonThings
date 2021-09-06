@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.model.MultiLayerModel;
@@ -46,7 +47,6 @@ public class JsonThings
 
     static
     {
-        ThingResourceManager.staticInit();
         ThingRegistries.staticInit();
     }
 
@@ -67,13 +67,6 @@ public class JsonThings
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));
         foodParser = manager.registerParser(new FoodParser());
         shapeParser = manager.registerParser(new ShapeParser());
-
-        ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> {
-            var thingPackManager = ThingResourceManager.instance();
-            return new PackSelectionScreen(screen, thingPackManager.getRepository(),
-                    rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
-                    new TextComponent("Thing Packs"));
-        }));
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;
@@ -110,12 +103,23 @@ public class JsonThings
         }
     }
 
-    @Mod.EventBusSubscriber(modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @Mod.EventBusSubscriber(value=Dist.CLIENT, modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientHandlers
     {
         public static void addClientPackFinder()
         {
             Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.instance().getWrappedPackFinder());
+        }
+
+        @SubscribeEvent
+        public static void constructMod(FMLConstructModEvent event)
+        {
+            ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> {
+                var thingPackManager = ThingResourceManager.instance();
+                return new PackSelectionScreen(screen, thingPackManager.getRepository(),
+                        rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
+                        new TextComponent("Thing Packs"));
+            }));
         }
 
         @SubscribeEvent

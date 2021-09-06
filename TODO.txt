@@ -27,4 +27,9 @@ TODO (need to be done before release)
 MAYBE (to be considered)
 --------------------------
 
-* 1.17 Entity Models
+
+
+NOPE
+--------------------------
+
+* 1.17 Entity Models -- NOPE: Already done.

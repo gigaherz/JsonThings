@@ -2,7 +2,6 @@ package gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.IFlexBlock;

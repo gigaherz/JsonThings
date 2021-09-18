@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -36,6 +37,10 @@ public class FlexEventContext
     public static final ContextValue<Integer> TIME_LEFT = ContextValue.create("timeLeft", Integer.class);
     public static final ContextValue<BlockPos> BLOCK_POS = ContextValue.create("blockPos", BlockPos.class);
     public static final ContextValue<BlockState> BLOCK_STATE = ContextValue.create("blockState", BlockState.class);
+    public static final ContextValue<Entity> ATTACKER = ContextValue.create("attacker", Entity.class);
+    public static final ContextValue<Entity> TARGET = ContextValue.create("target", Entity.class);
+    public static final ContextValue<Enchantment> ENCHANTMENT = ContextValue.create("enchantment", Enchantment.class);
+    public static final ContextValue<Integer> ENCHANTMENT_LEVEL = ContextValue.create("enchantment_level", Integer.class);
 
     private final Map<ContextValue<?>, Object> parameters = Maps.newHashMap();
 
@@ -147,5 +152,10 @@ public class FlexEventContext
     public static FlexEventContext of(Level world, BlockPos pos, BlockState state)
     {
         return new FlexEventContext().with(WORLD, world).with(BLOCK_POS, pos).with(BLOCK_STATE, state);
+    }
+
+    public static FlexEventContext of(Enchantment enchantment, int level)
+    {
+        return new FlexEventContext().with(ENCHANTMENT, enchantment).with(ENCHANTMENT_LEVEL, level);
     }
 }

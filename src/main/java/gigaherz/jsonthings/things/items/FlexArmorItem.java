@@ -1,11 +1,12 @@
 package gigaherz.jsonthings.things.items;
 
 import com.google.common.collect.*;
-import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.CompletionMode;
+import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.events.ItemEventHandler;
+import gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -249,7 +250,7 @@ public class FlexArmorItem extends ArmorItem implements IFlexItem
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
     {
-        return IFlexItem.orElse(attributeModifiers.get(slot), () -> HashMultimap.create());
+        return Utils.orElse(attributeModifiers.get(slot), HashMultimap::create);
     }
 
     //endregion

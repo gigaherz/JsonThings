@@ -98,13 +98,13 @@ minecraft.runs.all {
     }
 }
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.44'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.53'
 
     library 'net.bytebuddy:byte-buddy:1.11.2'
     library 'com.google.guava:guava:21.0'
-    library 'org.spongepowered:mixin:0.8.4-SNAPSHOT'
+    library 'org.spongepowered:mixin:0.8.4'
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.4-SNAPSHOT:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 
 jar {

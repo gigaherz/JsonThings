@@ -107,11 +107,11 @@ public class ThingResourceManager
         return resourceManager
                 .reload(backgroundExecutor, gameExecutor, packList.openAllSelected(), CompletableFuture.completedFuture(Unit.INSTANCE))
                 .whenComplete((unit, throwable) -> {
-                        if (throwable != null)
-                        {
-                            resourceManager.close();
-                        }
-                    })
+                    if (throwable != null)
+                    {
+                        resourceManager.close();
+                    }
+                })
                 .thenApply((unit) -> this);
     }
 
@@ -190,5 +190,4 @@ public class ThingResourceManager
     {
         return FMLPaths.CONFIGDIR.get().resolve("jsonthings-thingpacks.json").toFile();
     }
-
 }

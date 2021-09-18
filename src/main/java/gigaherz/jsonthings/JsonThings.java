@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.model.MultiLayerModel;
@@ -103,7 +102,7 @@ public class JsonThings
         }
     }
 
-    @Mod.EventBusSubscriber(value=Dist.CLIENT, modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientHandlers
     {
         public static void addClientPackFinder()

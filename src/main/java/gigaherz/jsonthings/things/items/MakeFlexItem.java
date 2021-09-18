@@ -3,11 +3,12 @@ package gigaherz.jsonthings.things.items;
 import com.google.common.collect.*;
 import com.google.common.io.Files;
 import cpw.mods.modlauncher.api.INameMappingService;
-import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.CompletionMode;
+import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.events.ItemEventHandler;
+import gigaherz.jsonthings.util.Utils;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.NamingStrategy;
 import net.bytebuddy.description.NamedElement;
@@ -408,7 +409,7 @@ public class MakeFlexItem
                                                                                    @FieldValue("attributeModifiers")
                                                                                            Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers)
         {
-            return IFlexItem.orElse(attributeModifiers.get(slot), HashMultimap::create);
+            return Utils.orElse(attributeModifiers.get(slot), HashMultimap::create);
         }
     }
 

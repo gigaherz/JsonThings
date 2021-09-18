@@ -1,6 +1,5 @@
 package gigaherz.jsonthings.things.serializers;
 
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.ThingRegistries;
@@ -13,13 +12,14 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.TierSortingRegistry;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class ItemType<T extends Item & IFlexItem>
@@ -29,7 +29,7 @@ public class ItemType<T extends Item & IFlexItem>
     public static final ItemType<FlexBlockItem> BLOCK = register("block", data -> {
         String name = GsonHelper.getAsString(data, "places", null);
         ResourceLocation blockName = name != null ? new ResourceLocation(name) : null;
-        boolean useBlockName = GsonHelper.getAsBoolean(data,"use_block_name", true);
+        boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> new FlexBlockItem(Utils.getBlockOrCrash(blockName != null ? blockName : builder.getRegistryName()), useBlockName, props);
     });
 

@@ -2,8 +2,11 @@ package gigaherz.jsonthings.things.parsers;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.builders.EnchantmentBuilder;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
@@ -13,6 +16,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -82,17 +87,48 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         if (data.has("type"))
             builder = builder.withEnchantmentType(parseEnchantmentType(data.get("type").getAsString()));
 
-        if (data.has("minLevel"))
-            builder = builder.withMinLevel(data.get("minLevel").getAsInt());
-        if (data.has("maxLevel"))
-            builder = builder.withMaxLevel(data.get("maxLevel").getAsInt());
+        if (data.has("min_level"))
+            builder = builder.withMinLevel(data.get("min_level").getAsInt());
+        if (data.has("max_level"))
+            builder = builder.withMaxLevel(data.get("max_level").getAsInt());
 
-        if (data.has("minCost"))
-            builder = builder.withMinCost(data.get("minCost").getAsInt());
-        if (data.has("maxCost"))
-            builder = builder.withMaxCost(data.get("maxCost").getAsInt());
+        if (data.has("min_cost"))
+            builder = builder.withMinCost(data.get("min_cost").getAsInt());
+        if (data.has("max_cost"))
+            builder = builder.withMaxCost(data.get("max_cost").getAsInt());
+
+        if (data.has("item_compatibility"))
+            builder = builder.withItemCompatibility(ItemPredicate.fromJson(data.get("item_compatibility")));
+
+        if (data.has("disallow_enchants"))
+            builder = builder.withBlacklist(parseBlacklist(data.get("disallow_enchants").getAsJsonArray()));
+
+        if (data.has("treasure"))
+            builder = builder.isTreasure(data.get("treasure").getAsBoolean());
+
+        if (data.has("curse"))
+            builder = builder.isCurse(data.get("curse").getAsBoolean());
+
+        if (data.has("tradeable"))
+            builder = builder.isTradeable(data.get("tradeable").getAsBoolean());
+
+        if (data.has("discoverable"))
+            builder = builder.isDiscoverable(data.get("discoverable").getAsBoolean());
+
+        if (data.has("allow_on_books"))
+            builder = builder.isAllowedOnBooks(data.get("allow_on_books").getAsBoolean());
 
         return builder;
+    }
+
+    private List<ResourceLocation> parseBlacklist(JsonArray blacklist)
+    {
+        var list = new ArrayList<ResourceLocation>();
+        for (JsonElement e : blacklist)
+        {
+            list.add(new ResourceLocation(e.getAsString()));
+        }
+        return list;
     }
 
     private EnchantmentCategory parseEnchantmentType(String str)

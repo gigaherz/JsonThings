@@ -1,15 +1,14 @@
 package gigaherz.jsonthings.things;
 
 import gigaherz.jsonthings.things.events.BlockEventHandler;
-import gigaherz.jsonthings.things.events.FlexEventContext;
+import gigaherz.jsonthings.things.events.IEventRunner;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
-public interface IFlexBlock
+public interface IFlexBlock extends IEventRunner<InteractionResult, BlockEventHandler>
 {
     default Block self()
     {
@@ -23,17 +22,4 @@ public interface IFlexBlock
     void setRaytraceShape(@Nullable DynamicShape shape);
 
     void setRenderShape(@Nullable DynamicShape shape);
-
-    void addEventHandler(String eventName, BlockEventHandler eventHandler);
-
-    @Nullable
-    BlockEventHandler getEventHandler(String eventName);
-
-    default InteractionResult runEvent(String eventName, FlexEventContext context, Supplier<InteractionResult> defaultValue)
-    {
-        BlockEventHandler handler = getEventHandler(eventName);
-        if (handler != null)
-            return handler.apply(eventName, context);
-        return defaultValue.get();
-    }
 }

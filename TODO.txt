@@ -1,19 +1,22 @@
-DONE (working, every feature implemented)
+DONE (working, every intended feature implemented)
 -------------------------------------------
 
 * Voxel shape "models"
 * Food definitions
+* Enchantments
+
+
+FUNCTIONAL (working, primary features implemented, extra features WIP)
+------------------------------------------------------------------------
+* Items
+
 
 WIP (work but incomplete)
 ---------------------------
 
-* Items
-    * Tool system needs to be reevaluated
 * Blocks
     * Implement more types of block
-* Enchantments
-    * Implement item compatibility predicate
-    * Implement enchant compatibility predicate
+
 
 TODO (need to be done before release)
 --------------------------------------
@@ -21,12 +24,16 @@ TODO (need to be done before release)
 * Item materials
 * Armor materials
 * Block materials
+
+
+FUTURE (to be implemented after release)
+------------------------------------------
+
 * Screen layouts
 * Container types
 
 MAYBE (to be considered)
 --------------------------
-
 
 
 NOPE

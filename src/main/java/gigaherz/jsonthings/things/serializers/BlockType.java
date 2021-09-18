@@ -1,6 +1,5 @@
 package gigaherz.jsonthings.things.serializers;
 
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;

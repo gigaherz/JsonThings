@@ -1,4 +1,4 @@
-package gigaherz.jsonthings.things.enchantments;
+package gigaherz.jsonthings.things.misc;
 
 import com.google.common.collect.Maps;
 import gigaherz.jsonthings.things.events.FlexEventContext;
@@ -15,17 +15,16 @@ import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class FlexEnchantment extends Enchantment implements IEventRunner<InteractionResult>
 {
     private final Map<String, FlexEventHandler<InteractionResult>> eventHandlers = Maps.newHashMap();
     private int minLevel;
     private int maxLevel;
-    private Integer minCost;
-    private Integer maxCost;
+    private int baseCost;
+    private int perLevelCost;
+    private int randomCost;
     private List<Predicate<Enchantment>> blackList = List.of();
     private ItemPredicate itemCompatibility;
     private boolean isTreasure;
@@ -61,14 +60,19 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
         this.maxLevel = maxLevel;
     }
 
-    public void setMinCost(Integer minCost)
+    public void setBaseCost(int baseCost)
     {
-        this.minCost = minCost;
+        this.baseCost = baseCost;
     }
 
-    public void setMaxCost(Integer maxCost)
+    public void setPerLevelCost(int perLevelCost)
     {
-        this.maxCost = maxCost;
+        this.perLevelCost = perLevelCost;
+    }
+
+    public void setRandomCost(int randomCost)
+    {
+        this.randomCost = randomCost;
     }
 
     public void setTreasure(boolean treasure)
@@ -121,15 +125,13 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
     @Override
     public int getMinCost(int enchantmentLevel)
     {
-        if (minCost != null) return minCost;
-        return super.getMinCost(enchantmentLevel);
+        return baseCost * enchantmentLevel * perLevelCost;
     }
 
     @Override
     public int getMaxCost(int enchantmentLevel)
     {
-        if (maxCost != null) return maxCost;
-        return super.getMaxCost(enchantmentLevel);
+        return getMinCost(enchantmentLevel) + randomCost;
     }
 
     @Override

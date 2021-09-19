@@ -1,7 +1,7 @@
 package gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
-import gigaherz.jsonthings.things.enchantments.FlexEnchantment;
+import gigaherz.jsonthings.things.misc.FlexEnchantment;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,8 +24,9 @@ public class EnchantmentBuilder
     private EquipmentSlot[] slots = EquipmentSlot.values();
     private int minLevel = 1;
     private int maxLevel = 1;
-    private Integer minCost;
-    private Integer maxCost;
+    private int baseCost = 1;
+    private int perLevelCost = 10;
+    private int randomCost = 5;
     private List<ResourceLocation> blackList = Lists.newArrayList();
     private ItemPredicate itemCompatibility;
     private boolean isTreasure = false;
@@ -68,15 +69,21 @@ public class EnchantmentBuilder
         return this;
     }
 
-    public EnchantmentBuilder withMinCost(int minCost)
+    public EnchantmentBuilder withBaseCost(int baseCost)
     {
-        this.minCost = minCost;
+        this.baseCost = baseCost;
         return this;
     }
 
-    public EnchantmentBuilder withMaxCost(int macCost)
+    public EnchantmentBuilder withPerLevelCost(int perLevelCost)
     {
-        this.maxCost = macCost;
+        this.perLevelCost = perLevelCost;
+        return this;
+    }
+
+    public EnchantmentBuilder withRandomCost(int randomCost)
+    {
+        this.randomCost = randomCost;
         return this;
     }
 
@@ -122,8 +129,9 @@ public class EnchantmentBuilder
 
         flexEnchantment.setMinLevel(minLevel);
         flexEnchantment.setMaxLevel(maxLevel);
-        flexEnchantment.setMinCost(minCost);
-        flexEnchantment.setMaxCost(maxCost);
+        flexEnchantment.setBaseCost(baseCost);
+        flexEnchantment.setPerLevelCost(perLevelCost);
+        flexEnchantment.setRandomCost(randomCost);
         flexEnchantment.setItemCompatibility(itemCompatibility);
         flexEnchantment.setTreasure(isTreasure);
         flexEnchantment.setCurse(isCurse);

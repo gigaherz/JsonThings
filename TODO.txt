@@ -3,11 +3,12 @@ DONE (working, every intended feature implemented)
 
 * Voxel shape "models"
 * Food definitions
-* Enchantments
-
+* Block materials
+* Armor materials
 
 FUNCTIONAL (working, primary features implemented, extra features WIP)
 ------------------------------------------------------------------------
+
 * Items
 * Blocks
     * Implement more types of block
@@ -15,14 +16,12 @@ FUNCTIONAL (working, primary features implemented, extra features WIP)
 WIP (work but incomplete)
 ---------------------------
 
-
-
 TODO (need to be done before release)
 --------------------------------------
 
-* Item materials
-* Armor materials
-* Block materials
+* Documentation
+* Documentation
+* Documentation
 
 
 FUTURE (to be implemented after release)

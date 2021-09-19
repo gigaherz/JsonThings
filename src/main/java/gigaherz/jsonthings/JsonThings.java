@@ -1,6 +1,7 @@
 package gigaherz.jsonthings;
 
 import gigaherz.jsonthings.things.ThingRegistries;
+import gigaherz.jsonthings.things.builders.ArmorMaterialBuilder;
 import gigaherz.jsonthings.things.client.BlockColorHandler;
 import gigaherz.jsonthings.things.client.ItemColorHandler;
 import gigaherz.jsonthings.things.parsers.*;
@@ -54,6 +55,9 @@ public class JsonThings
     public static EnchantmentParser enchantmentParser;
     public static FoodParser foodParser;
     public static ShapeParser shapeParser;
+    public static TierParser tierParser;
+    public static BlockMaterialParser blockMaterialParser;
+    public static ArmorMaterialParser armorMaterialParser;
 
     public JsonThings()
     {
@@ -66,6 +70,9 @@ public class JsonThings
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));
         foodParser = manager.registerParser(new FoodParser());
         shapeParser = manager.registerParser(new ShapeParser());
+        tierParser = manager.registerParser(new TierParser());
+        blockMaterialParser = manager.registerParser(new BlockMaterialParser());
+        armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;

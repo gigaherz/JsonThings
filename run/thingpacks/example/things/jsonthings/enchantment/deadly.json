@@ -1,9 +1,5 @@
 {
   "max_level": 3,
-
-  "min_cost": 5,
-  "max_cost": 20,
-
   "disallow_enchants": [
     "minecraft:smite", "minecraft:bane_of_arthropods"
   ]

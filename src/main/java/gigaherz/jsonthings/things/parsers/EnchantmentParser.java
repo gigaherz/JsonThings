@@ -92,10 +92,12 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         if (data.has("max_level"))
             builder = builder.withMaxLevel(data.get("max_level").getAsInt());
 
-        if (data.has("min_cost"))
-            builder = builder.withMinCost(data.get("min_cost").getAsInt());
-        if (data.has("max_cost"))
-            builder = builder.withMaxCost(data.get("max_cost").getAsInt());
+        if (data.has("base_cost"))
+            builder = builder.withBaseCost(data.get("base_cost").getAsInt());
+        if (data.has("per_level_cost"))
+            builder = builder.withPerLevelCost(data.get("per_level_cost").getAsInt());
+        if (data.has("random_cost"))
+            builder = builder.withRandomCost(data.get("random_cost").getAsInt());
 
         if (data.has("item_compatibility"))
             builder = builder.withItemCompatibility(ItemPredicate.fromJson(data.get("item_compatibility")));

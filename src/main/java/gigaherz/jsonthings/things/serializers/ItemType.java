@@ -19,6 +19,7 @@ import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.TierSortingRegistry;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 @SuppressWarnings("ClassCanBeRecord")
@@ -85,7 +86,7 @@ public class ItemType<T extends Item & IFlexItem>
 
     public static final ItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
 
-        Tier tier = parseTier(data);
+        String tier = parseTier(data);
 
         String tagName = GsonHelper.getAsString(data, "mineable");
 
@@ -94,19 +95,19 @@ public class ItemType<T extends Item & IFlexItem>
         float damage = GsonHelper.getAsInt(data, "damage");
         float speed = GsonHelper.getAsFloat(data, "speed");
 
-        return (props, builder) -> new FlexDiggerItem(tier, damage, speed, tag, props);
+        return (props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, tag, props);
     });
 
     private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
     {
         return data -> {
 
-            Tier tier = parseTier(data);
+            String tier = parseTier(data);
 
             float damage = GsonHelper.getAsFloat(data, "damage");
             float speed = GsonHelper.getAsFloat(data, "speed");
 
-            return (props, builder) -> factory.create(tier, damage, speed, props);
+            return (props, builder) -> factory.create(getTier(tier), damage, speed, props);
         };
     }
 
@@ -114,12 +115,12 @@ public class ItemType<T extends Item & IFlexItem>
     {
         return data -> {
 
-            Tier tier = parseTier(data);
+            String tier = parseTier(data);
 
             int damage = GsonHelper.getAsInt(data, "damage");
             float speed = GsonHelper.getAsFloat(data, "speed");
 
-            return (props, builder) -> factory.create(tier, damage, speed, props);
+            return (props, builder) -> factory.create(getTier(tier), damage, speed, props);
         };
     }
 
@@ -127,9 +128,9 @@ public class ItemType<T extends Item & IFlexItem>
     {
         return data -> {
 
-            Tier tier = parseTier(data);
+            String tier = parseTier(data);
 
-            return (props, builder) -> factory.create(tier, props);
+            return (props, builder) -> factory.create(getTier(tier), props);
         };
     }
 
@@ -151,7 +152,12 @@ public class ItemType<T extends Item & IFlexItem>
         T create(Tier tier, Item.Properties properties);
     }
 
-    private static Tier parseTier(JsonObject data)
+    private static Tier getTier(String tierName)
+    {
+        return Objects.requireNonNull(TierSortingRegistry.byName(new ResourceLocation(tierName)), "The specified tier has not been found in the tier sorting registry");
+    }
+
+    private static String parseTier(JsonObject data)
     {
         String tierName;
         if (data.has("tier"))
@@ -171,7 +177,7 @@ public class ItemType<T extends Item & IFlexItem>
             throw new RuntimeException("Tool info must have a non-empty 'tier' string.");
         }
 
-        return Objects.requireNonNull(TierSortingRegistry.byName(new ResourceLocation(tierName)), "The specified tier has not been found in the tier sorting registry");
+        return tierName;
     }
 
     public static void init()

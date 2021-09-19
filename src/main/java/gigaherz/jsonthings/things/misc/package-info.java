@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package gigaherz.jsonthings.things.enchantments;
+package gigaherz.jsonthings.things.misc;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

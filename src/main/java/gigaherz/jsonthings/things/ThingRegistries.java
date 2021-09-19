@@ -15,7 +15,6 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
-import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Material;
@@ -29,7 +28,6 @@ public class ThingRegistries
     }
 
     public static final ResourceKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
-    public static final ResourceKey<Registry<Tier>> ITEM_TIER_REGISTRY = createKey("jsonthings:item_tier");
     public static final ResourceKey<Registry<ArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
     public static final ResourceKey<Registry<FoodProperties>> FOOD_REGISTRY = createKey("jsonthings:food");
     public static final ResourceKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
@@ -41,7 +39,7 @@ public class ThingRegistries
     public static final ResourceKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
-    public static final Registry<ArmorMaterial> ARMOR_TIERS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
+    public static final Registry<ArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
     public static final Registry<FoodProperties> FOODS = makeRegistry(FOOD_REGISTRY);
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
@@ -252,7 +250,7 @@ public class ThingRegistries
     {
         for (ArmorMaterials mat : ArmorMaterials.values())
         {
-            Registry.register(ARMOR_TIERS, mat.getName(), mat);
+            Registry.register(ARMOR_MATERIALS, mat.getName(), mat);
         }
     }
 

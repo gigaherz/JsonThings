@@ -25,7 +25,7 @@ Defines which potion effect to apply.
 
 Required.
 
-Must be a resource location string like "poison", or "minecraft:blindness". Like on model jsons and other vanilla files,
+Must be a resource location string like `"poison"`, or `"minecraft:blindness"`. Like on model jsons and other vanilla files,
 if the namespace (the part before the colon) is missing "minecraft" is implied.
 
 ## "duration"

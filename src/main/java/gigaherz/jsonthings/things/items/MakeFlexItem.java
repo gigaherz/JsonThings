@@ -7,7 +7,7 @@ import gigaherz.jsonthings.things.CompletionMode;
 import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
-import gigaherz.jsonthings.things.events.ItemEventHandler;
+import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.util.Utils;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.NamingStrategy;
@@ -251,14 +251,14 @@ public class MakeFlexItem
 
     public static class FlexItemImplementation
     {
-        public static void addEventHandler(String eventName, ItemEventHandler eventHandler,
-                                           @FieldValue("eventHandlers") Map<String, ItemEventHandler> eventHandlers)
+        public static void addEventHandler(String eventName, FlexEventHandler<InteractionResultHolder<ItemStack>> eventHandler,
+                                           @FieldValue("eventHandlers") Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers)
         {
             eventHandlers.put(eventName, eventHandler);
         }
 
-        public static ItemEventHandler getEventHandler(String eventName,
-                                                       @FieldValue("eventHandlers") Map<String, ItemEventHandler> eventHandlers)
+        public static FlexEventHandler<InteractionResultHolder<ItemStack>> getEventHandler(String eventName,
+                                                       @FieldValue("eventHandlers") Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers)
         {
             return eventHandlers.get(eventName);
         }

@@ -5,7 +5,7 @@ import gigaherz.jsonthings.things.CompletionMode;
 import gigaherz.jsonthings.things.IFlexItem;
 import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.events.FlexEventContext;
-import gigaherz.jsonthings.things.events.ItemEventHandler;
+import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -41,7 +41,7 @@ public class FlexHoeItem extends HoeItem implements IFlexItem
     private final List<StackContext> searchTabStacks = Lists.newArrayList();
     private final List<Component> tooltipStrings = Lists.newArrayList();
     private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
-    private final Map<String, ItemEventHandler> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers = Maps.newHashMap();
 
     private UseAnim useAction;
     private int useTime;
@@ -95,13 +95,13 @@ public class FlexHoeItem extends HoeItem implements IFlexItem
     }
 
     @Override
-    public void addEventHandler(String eventName, ItemEventHandler eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler<InteractionResultHolder<ItemStack>> eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public ItemEventHandler getEventHandler(String eventName)
+    public FlexEventHandler<InteractionResultHolder<ItemStack>> getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }

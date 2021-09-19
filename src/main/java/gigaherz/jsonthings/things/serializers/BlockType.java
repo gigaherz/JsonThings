@@ -32,6 +32,48 @@ public class BlockType<T extends Block & IFlexBlock>
         };
     }, "solid", false);
 
+    public static final BlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional", data -> (props, builder) -> {
+        List<Property<?>> _properties = builder.getProperties();
+        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+        return new FlexDirectionalBlock(props, propertyDefaultValues)
+        {
+            @Override
+            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            {
+                super.createBlockStateDefinition(builder1);
+                _properties.forEach(builder1::add);
+            }
+        };
+    }, "solid", false, DirectionalBlock.FACING);
+
+    public static final BlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional", data -> (props, builder) -> {
+        List<Property<?>> _properties = builder.getProperties();
+        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+        return new FlexHorizontalDirectionalBlock(props, propertyDefaultValues)
+        {
+            @Override
+            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            {
+                super.createBlockStateDefinition(builder1);
+                _properties.forEach(builder1::add);
+            }
+        };
+    }, "solid", false, HorizontalDirectionalBlock.FACING);
+
+    public static final BlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
+        List<Property<?>> _properties = builder.getProperties();
+        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+        return new FlexRotatedPillarBlock(props, propertyDefaultValues)
+        {
+            @Override
+            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            {
+                super.createBlockStateDefinition(builder1);
+                _properties.forEach(builder1::add);
+            }
+        };
+    }, "solid", false, RotatedPillarBlock.AXIS);
+
     public static final BlockType<FlexSlabBlock> SLAB = register("slab", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
@@ -104,20 +146,6 @@ public class BlockType<T extends Block & IFlexBlock>
             }
         };
     }, "solid", false, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
-
-    public static final BlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexRotatedPillarBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    }, "solid", false, RotatedPillarBlock.AXIS);
 
     public static final BlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();

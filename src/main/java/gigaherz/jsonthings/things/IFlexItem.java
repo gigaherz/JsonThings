@@ -1,7 +1,7 @@
 package gigaherz.jsonthings.things;
 
+import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.things.events.IEventRunner;
-import gigaherz.jsonthings.things.events.ItemEventHandler;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -12,7 +12,7 @@ import net.minecraft.world.item.UseAnim;
 
 import javax.annotation.Nullable;
 
-public interface IFlexItem extends IEventRunner<InteractionResultHolder<ItemStack>, ItemEventHandler>
+public interface IFlexItem extends IEventRunner<InteractionResultHolder<ItemStack>>
 {
     void setUseAction(UseAnim useAction);
 

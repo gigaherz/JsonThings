@@ -1,8 +1,9 @@
 package gigaherz.jsonthings.things.enchantments;
 
 import com.google.common.collect.Maps;
-import gigaherz.jsonthings.things.events.EnchantmentEventHandler;
 import gigaherz.jsonthings.things.events.FlexEventContext;
+import gigaherz.jsonthings.things.events.FlexEventHandler;
+import gigaherz.jsonthings.things.events.IEventRunner;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -18,9 +19,9 @@ import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class FlexEnchantment extends Enchantment
+public class FlexEnchantment extends Enchantment implements IEventRunner<InteractionResult>
 {
-    private final Map<String, EnchantmentEventHandler> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler<InteractionResult>> eventHandlers = Maps.newHashMap();
     private int minLevel;
     private int maxLevel;
     private Integer minCost;
@@ -30,38 +31,24 @@ public class FlexEnchantment extends Enchantment
     private boolean isTreasure;
     private boolean isCurse;
     private boolean isTradeable = true;
-    private boolean isDiscoverable;
-    private boolean isAllowedOnBooks;
+    private boolean isDiscoverable = true;
+    private boolean isAllowedOnBooks = true;
 
     public FlexEnchantment(Rarity rarity, EnchantmentCategory enchantmentCategory, EquipmentSlot[] slots)
     {
         super(rarity, enchantmentCategory, slots);
     }
 
-    public void addEventHandler(String eventName, EnchantmentEventHandler eventHandler)
+    @Override
+    public void addEventHandler(String eventName, FlexEventHandler<InteractionResult> eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
-    public EnchantmentEventHandler getEventHandler(String eventName)
+    @Override
+    public FlexEventHandler<InteractionResult> getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
-    }
-
-    protected InteractionResult runEvent(String eventName, FlexEventContext context, Supplier<InteractionResult> defaultValue)
-    {
-        EnchantmentEventHandler handler = getEventHandler(eventName);
-        if (handler != null)
-            return handler.apply(eventName, context);
-        return defaultValue.get();
-    }
-
-    protected InteractionResult runEventThrowing(String eventName, FlexEventContext context, Callable<InteractionResult> defaultValue) throws Exception
-    {
-        EnchantmentEventHandler handler = getEventHandler(eventName);
-        if (handler != null)
-            return handler.apply(eventName, context);
-        return defaultValue.call();
     }
 
     public void setMinLevel(int minLevel)

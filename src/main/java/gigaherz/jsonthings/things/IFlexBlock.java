@@ -1,6 +1,6 @@
 package gigaherz.jsonthings.things;
 
-import gigaherz.jsonthings.things.events.BlockEventHandler;
+import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.things.events.IEventRunner;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.world.InteractionResult;
@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
 
-public interface IFlexBlock extends IEventRunner<InteractionResult, BlockEventHandler>
+public interface IFlexBlock extends IEventRunner<InteractionResult>
 {
     default Block self()
     {

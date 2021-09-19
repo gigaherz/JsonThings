@@ -2,7 +2,7 @@ package gigaherz.jsonthings.things.blocks;
 
 import com.google.common.collect.Maps;
 import gigaherz.jsonthings.things.IFlexBlock;
-import gigaherz.jsonthings.things.events.BlockEventHandler;
+import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.things.events.FlexEventContext;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.BlockPos;
@@ -11,7 +11,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -35,7 +34,7 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
     private DynamicShape collisionShape;
     private DynamicShape raytraceShape;
     private DynamicShape renderShape;
-    private final Map<String, BlockEventHandler> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler<InteractionResult>> eventHandlers = Maps.newHashMap();
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
@@ -55,13 +54,13 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
     }
 
     @Override
-    public void addEventHandler(String eventName, BlockEventHandler eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler<InteractionResult> eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public BlockEventHandler getEventHandler(String eventName)
+    public FlexEventHandler<InteractionResult> getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }

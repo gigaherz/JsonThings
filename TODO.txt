@@ -31,12 +31,17 @@ FUTURE (to be implemented after release)
 
 * Screen layouts
 * Container types
+* Datagen
+
 
 MAYBE (to be considered)
 --------------------------
+
+*
 
 
 NOPE
 --------------------------
 
-* 1.17 Entity Models -- NOPE: Already done.
+* 1.17 Entity Models
+    * Reason: Already done. https://www.curseforge.com/minecraft/mc-mods/entity-model-json

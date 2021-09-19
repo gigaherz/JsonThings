@@ -5,5 +5,6 @@
   "block.jsonthings.sandwood_slab": "Sandwood Slab",
   "block.jsonthings.sandwood_stairs": "Sandwood Stairs",
   "block.jsonthings.sandwood_fence": "Sandwood Fence",
-  "block.jsonthings.sandwood_fence_gate": "Sandwood Fence Gate"
+  "block.jsonthings.sandwood_fence_gate": "Sandwood Fence Gate",
+  "enchantment.jsonthings.deadly": "Deadly"
 }

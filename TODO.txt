@@ -3,8 +3,10 @@ DONE (working, every intended feature implemented)
 
 * Voxel shape "models"
 * Food definitions
+* Item tiers
 * Block materials
 * Armor materials
+* Enchantments
 
 FUNCTIONAL (working, primary features implemented, extra features WIP)
 ------------------------------------------------------------------------
@@ -30,6 +32,7 @@ FUTURE (to be implemented after release)
 * Screen layouts
 * Container types
 * Datagen
+* Scripting
 
 
 MAYBE (to be considered)

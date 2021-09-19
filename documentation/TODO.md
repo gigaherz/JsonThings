@@ -14,6 +14,7 @@
 * Items
   * Maybe I missed some types of item
 * Blocks
+  * Ore 
   * Maybe I missed some types of block
 
 ## WIP (work but incomplete)
@@ -23,20 +24,18 @@
 ## TODO (need to be done before release)
 
 * Documentation
-* Documentation
-* Documentation
 
 ## FUTURE (to be implemented after release)
 
 * Screen layouts
-  * 
 * Container types
 * Datagen
 * Scripting
 
 ## MAYBE (to be considered)
 
-[ nothing here right now ]
+* Structures & Jigsaw pieces
+* Worldgen modifications (set of additions to be performed in BiomeLoadingEvent)
 
 ## REJECTED
 

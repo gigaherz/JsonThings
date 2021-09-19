@@ -9,13 +9,12 @@ DONE (working, every intended feature implemented)
 FUNCTIONAL (working, primary features implemented, extra features WIP)
 ------------------------------------------------------------------------
 * Items
-
+* Blocks
+    * Implement more types of block
 
 WIP (work but incomplete)
 ---------------------------
 
-* Blocks
-    * Implement more types of block
 
 
 TODO (need to be done before release)

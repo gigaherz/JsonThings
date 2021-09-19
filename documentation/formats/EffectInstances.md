@@ -19,7 +19,7 @@ See [Food](./Food.md) for an exmaple of where this is used.
 }
 ```
 
-### "effect"
+## "effect"
 
 Defines which potion effect to apply.
 
@@ -28,7 +28,7 @@ Required.
 Must be a resource location string like "poison", or "minecraft:blindness". Like on model jsons and other vanilla files,
 if the namespace (the part before the colon) is missing "minecraft" is implied.
 
-### "duration"
+## "duration"
 
 Defines how long the effect lasts, in ingame ticks (20ths of a second).
 
@@ -38,7 +38,7 @@ The default will disappear immediately so a non-zero value is advised.
 
 Must be a positive integer.
 
-### "amplifier"
+## "amplifier"
 
 Defines how strong the effect is. Higher numbers increase the potency of the effect further.
 
@@ -48,7 +48,7 @@ The default means no amplification, and will do the standard effect.
 
 Must be a positive integer or zero.
 
-### "ambient"
+## "ambient"
 
 Defines if the effect should be considered an ambient effect such as coming from a beacon. Ambient effects appear
 in a different color and without a countdown. It is advised not to set the "ambient" property to true for foods and other

@@ -17,7 +17,7 @@ Food definitions let you define the properties of food items. They can be define
 }
 ```
 
-### "heal_amount"
+## "heal_amount"
 
 Defines how much hunger this food restores.
 
@@ -25,7 +25,7 @@ Required.
 
 Must be a positive integer bigger than zero.
 
-### "saturation"
+## "saturation"
 
 Defines how much saturation this food adds. Saturation is the delay until hunger restarts.
 
@@ -33,7 +33,7 @@ Required.
 
 Must be a positive number or zero. Decimals are allowed. 
 
-### "meat"
+## "meat"
 
 Defines if the food is considered meat. Meats are appealing to carnivores like wolves.
 
@@ -41,7 +41,7 @@ Optional. Default: false.
 
 Must be a boolean (`false` or `true`).
 
-### "fast"
+## "fast"
 
 Defines if the food can be eaten fast.
 
@@ -49,7 +49,7 @@ Optional. Default: false.
 
 Must be a boolean (`false` or `true`).
 
-### "always_eat"
+## "always_eat"
 
 Defines if the food can be eaten with a full stomach. Should only be used for snack foods and not big meals.
 
@@ -57,7 +57,7 @@ Optional. Default: false.
 
 Must be a boolean (`false` or `true`).
 
-### "effects"
+## "effects"
 
 Defines a list of effects that are applied when the food is eaten.
 

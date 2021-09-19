@@ -2,6 +2,15 @@
 
 Food definitions let you define the properties of food items. They can be defined by name, or included directly in an item's `"food"` key.
 
+Named food definitions go in the `food` directory in the thing pack.
+
+Eg.
+```
+/things/examplepack/food/stick.json
+```
+
+NOTE: Food definitions **do not** automatically create an item. You must define an item that uses the food definition for it to appear ingame.
+
 ## Basic structure of the JSON file
 
 ```json

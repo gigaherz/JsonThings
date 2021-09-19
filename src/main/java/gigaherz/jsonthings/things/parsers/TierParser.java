@@ -21,7 +21,7 @@ public class TierParser extends ThingParser<TierBuilder>
 {
     public TierParser()
     {
-        super(GSON, "tier");
+        super(GSON, "item_tier");
     }
 
     @Override

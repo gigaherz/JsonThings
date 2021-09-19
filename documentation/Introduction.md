@@ -9,11 +9,11 @@ A Thing Pack supports a set of file types for defining different things.
 * Items
 * Blocks
 * Enchantments
-* Voxel Shape models
 * [Food Definitions](./formats/Food.md)
 * [Item Tiers](./formats/ItemTiers.md)
+* [Armor Materials](./formats/ArmorMaterials.md)
 * Block materials
-* Armor materials
+* Voxel Shape models
 
 ### Formats used inside other JSON files
 

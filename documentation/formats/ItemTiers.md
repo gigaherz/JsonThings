@@ -15,11 +15,11 @@ Eg.
 {
   "uses": 10,
   "speed": 1.0,
-  "attack_damage_bonus": false,
-  "enchantment_value": false,
-  "tag": false,
+  "attack_damage_bonus": 1,
+  "enchantment_value": 1,
+  "tag": "forge:requires_gold_tool",
   "repair_ingredient": {
-    
+    "item": "string"
   },
   "sort_after": [],
   "sort_before": []
@@ -65,7 +65,7 @@ Defines the set of blocks this tool can break faster than an empty hand.
 
 Required.
 
-Must be a resource location string like `"mineable/axe"`, or `"minecraft:mineable/pickaxe"`. Like on model jsons and 
+Must be a resource location string like `"requires_stone_tool"`, or `"minecraft:requires_gold_tool"`. Like on model jsons and 
 other vanilla files, if the namespace (the part before the colon) is missing "minecraft" is implied.
 
 ## "repair_ingredient"
@@ -92,3 +92,15 @@ Tag ingredients contain a `"tag"` key with a resource location indicating the it
   "tag": "forge:string"
 }
 ```
+
+## "sort_before" and "sort_after"
+
+Define the ordering of this tier in relation to others.
+
+Sort After: Defines the tiers that are considered lower than this tier and must appear first on the list. This tier goes after them.
+
+Sort Before: Defines the tiers that are considered higher than this tier and must appear later on the list. This tier goes before them.
+
+Optional. Default: no dependencies.
+
+Must be a json array (`[]`) containing strings.

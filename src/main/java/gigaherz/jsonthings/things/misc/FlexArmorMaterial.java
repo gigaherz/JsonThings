@@ -8,6 +8,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class FlexArmorMaterial implements ArmorMaterial
 {
     private final String name;
@@ -34,13 +35,13 @@ public class FlexArmorMaterial implements ArmorMaterial
     @Override
     public int getDurabilityForSlot(EquipmentSlot pSlot)
     {
-        return durability.get(pSlot);
+        return durability.getOrDefault(pSlot, 0);
     }
 
     @Override
     public int getDefenseForSlot(EquipmentSlot pSlot)
     {
-        return defense.get(pSlot);
+        return defense.getOrDefault(pSlot, 0);
     }
 
     @Override

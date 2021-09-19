@@ -37,7 +37,7 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
         }
         else
         {
-            throw new RuntimeException("'toughness' must be positive.");
+            throw new RuntimeException("'toughness' must be positive or zero.");
         }
 
         float knockbackResistance = GsonHelper.getAsFloat(data, "knockback_resistance");
@@ -47,17 +47,17 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
         }
         else
         {
-            throw new RuntimeException("'knockback_resistance' must be positive and not zero.");
+            throw new RuntimeException("'knockback_resistance' must be positive or zero.");
         }
 
         int enchantmentValue = GsonHelper.getAsInt(data, "enchantment_value");
-        if (enchantmentValue > 0)
+        if (enchantmentValue >= 0)
         {
             builder = builder.withEnchantmentValue(enchantmentValue);
         }
         else
         {
-            throw new RuntimeException("'enchantment_value' must be positive and not zero.");
+            throw new RuntimeException("'enchantment_value' must be positive or zero.");
         }
 
         if (data.has("repair_ingredient"))

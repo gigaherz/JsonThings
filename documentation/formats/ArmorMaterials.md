@@ -61,28 +61,11 @@ Must be a positive integer or zero.
 
 ## "repair_ingredient"
 
-Defines an ingredient to be used for repairing this tool tier. Due to initialization timing, the ingredient cannot be
-a custom (mod-defined) ingredient. Only item and tag ingredients are supported.
+Defines an ingredient to be used for repairing this tool tier.
 
 Required.
 
-Must be a json objects (`{}`) as defined below.
-
-Item ingredients contain an `"item"` key with a resource location indicating the item registry name.
-
-```json
-{
-  "item": "minecraft:clay"
-}
-```
-
-Tag ingredients contain a `"tag"` key with a resource location indicating the item registry name.
-
-```json
-{
-  "tag": "forge:string"
-}
-```
+Must be a json objects (`{}`) as defined in the [Ingredient definitions](./misc/Ingredient.md).
 
 ## "durability"
 

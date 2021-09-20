@@ -18,6 +18,6 @@ A Thing Pack supports a set of file types for defining different things.
 ### Formats used inside other JSON files
 
 * [Effect Instances](./formats/misc/EffectInstances.md)
-* Ingredients (See the repair ingredient section in [Item Tiers](./formats/ItemTiers.md#repair_ingredient))
+* [Ingredients](./formats/misc/Ingredient.md)
 * [Item Stacks](./formats/misc/ItemStack.md)
 * [Attribute Modifiers](./formats/misc/AttributeModifiers.md)

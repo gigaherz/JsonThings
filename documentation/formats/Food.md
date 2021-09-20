@@ -93,4 +93,4 @@ The format for the effect is as follows:
 }
 ```
 
-See the [Effect Instances](./misc/EffectInstances.md) documentation page for details on the meaning of the values.
+See the [Effect Instances](./EffectInstances.md) documentation page for details on the meaning of the values.

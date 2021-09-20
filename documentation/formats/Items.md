@@ -47,7 +47,7 @@ Optional. Default: plain type without additional properties.
 Must be a resource location string like `"block"`, or `"minecraft:sword"`. Like on recipe jsons and other vanilla files,
 if the namespace (the part before the colon) is missing "minecraft" is implied.
 
-See the avilable item types in the [Item Types](./item_types/Index.md) page.
+See the available item types in the [Item Types](./ItemTypes.md) page.
 
 ## "max_stack_size"
 
@@ -101,7 +101,7 @@ The `"tabs"` key is required and must be a json array (`[]`) containing strings.
 
 The rest of the object are values defining the itemstack.
 
-For details on the definition of itemstacks in json, see the [ItemStack Definitions](./misc/ItemStack.md) page.
+For details on the definition of itemstacks in json, see the [ItemStack Definitions](./ItemStack.md) page.
 
 ## "food"
 
@@ -119,7 +119,7 @@ Optional. Default: no attribute modifiers.
 
 Must be a json array (`[]`) containing json objects (`{}`). Each object must describe one attribute modifier.
 
-The syntax for attribute modifiers is described in the [Attribute Modifiers](./misc/AttributeModifiers.md) page.
+The syntax for attribute modifiers is described in the [Attribute Modifiers](./AttributeModifiers.md) page.
 
 ## "color_handler"
 

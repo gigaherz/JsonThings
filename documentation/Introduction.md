@@ -17,7 +17,7 @@ A Thing Pack supports a set of file types for defining different things.
 
 ### Formats used inside other JSON files
 
-* [Effect Instances](./formats/misc/EffectInstances.md)
-* [Ingredients](./formats/misc/Ingredient.md)
-* [Item Stacks](./formats/misc/ItemStack.md)
-* [Attribute Modifiers](./formats/misc/AttributeModifiers.md)
+* [Effect Instances](./formats/EffectInstances.md)
+* [Ingredients](./formats/Ingredient.md)
+* [Item Stacks](./formats/ItemStack.md)
+* [Attribute Modifiers](./formats/AttributeModifiers.md)

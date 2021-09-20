@@ -65,7 +65,7 @@ Defines an ingredient to be used for repairing this tool tier.
 
 Required.
 
-Must be a json objects (`{}`) as defined in the [Ingredient definitions](./misc/Ingredient.md).
+Must be a json objects (`{}`) as defined in the [Ingredient definitions](./Ingredient.md).
 
 ## "durability"
 

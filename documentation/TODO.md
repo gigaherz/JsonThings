@@ -13,6 +13,7 @@
 
 * Items
   * Maybe I missed some types of item
+  * Custom item properties, assigned via NBT, available to be used by models.
 * Blocks
   * Ore 
   * Maybe I missed some types of block

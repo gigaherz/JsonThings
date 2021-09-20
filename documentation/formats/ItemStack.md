@@ -2,7 +2,7 @@
 
 Item Stack definitions are not named, but rather contained within other json files.
 
-See [Items](../Items.md#creative_menu_stacks) for an example of where this is used.
+See [Items](./Items.md#creative_menu_stacks) for an example of where this is used.
 
 ## Basic structure of the JSON file
 

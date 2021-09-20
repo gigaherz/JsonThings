@@ -92,8 +92,6 @@ Values are optional. Missing values will be 0 and the armor will not protect whe
 Example:
 ```json
 {
-  ...
-  
   "armor": {
     "feet": 30,
     "legs": 40,

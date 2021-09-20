@@ -78,8 +78,6 @@ The format for the effect is as follows:
 
 ```json
 {
-  ...
-  
   "effects": [
     {
       "effect": "minecraft:poison",

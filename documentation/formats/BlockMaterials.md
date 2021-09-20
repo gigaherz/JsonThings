@@ -13,7 +13,7 @@ Eg.
 
 ```json
 {
-  "color_index": 0,
+  "map_color": "dirt",
   "liquid": false,
   "flammable": false,
   "replaceable": false,
@@ -24,13 +24,13 @@ Eg.
 }
 ```
 
-## "color_index"
+## "map_color"
 
 Defines the color displayed in a map, from the choices available in the map color palette.
 
 Required.
 
-Must be a positive integer between 0 and 63 (inclusive).
+Must be either a string, or a positive integer between 0 and 63 (inclusive).
 
 ## "liquid"
 
@@ -50,7 +50,7 @@ Must be a boolean (`false` or `true`).
 
 ## "replaceable"
 
-Defines if the block can be replaced when placing another block. Eg. grass.
+Defines if the block can be replaced when placing another block. E.g. grass.
 
 Optional. Default: false.
 
@@ -68,7 +68,7 @@ Must be a boolean (`false` or `true`).
 
 ## "blocks_motion"
 
-Defines if the block prevents entities from walking through it. When false, the block does not block movement. Eg. signs.
+Defines if the block prevents entities from walking through it. When false, the block does not block movement. E.g. signs.
 
 Optional. Default: true.
 

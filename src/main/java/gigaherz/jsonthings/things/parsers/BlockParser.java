@@ -8,12 +8,14 @@ import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.BlockBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.properties.PropertyType;
+import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -55,7 +57,30 @@ public class BlockParser extends ThingParser<BlockBuilder>
             builder = builder.withMaterial(data.get("material").getAsString());
 
         if (data.has("map_color"))
-            builder = builder.withMaterialColor(data.get("map_color").getAsString());
+        {
+            MaterialColor mapColor;
+
+            JsonElement map_color = data.get("map_color");
+            if (GsonHelper.isStringValue(map_color))
+            {
+                mapColor = MaterialColors.get(map_color.getAsString());
+            }
+            else if (GsonHelper.isNumberValue(map_color))
+            {
+                int color = map_color.getAsInt();
+                if (color < 0 || color >= 64)
+                {
+                    throw new RuntimeException("'map_color' must either be a string, or an integer be between 0 and 63 (both inclusive).");
+                }
+                mapColor = MaterialColor.MATERIAL_COLORS[color];
+            }
+            else
+            {
+                throw new RuntimeException("'map_color' must either be a string, or an integer be between 0 and 63 (both inclusive).");
+            }
+
+            builder = builder.withMaterialColor(mapColor);
+        }
 
         if (data.has("properties"))
         {

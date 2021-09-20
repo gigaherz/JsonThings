@@ -3,6 +3,7 @@ package gigaherz.jsonthings.things.serializers;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.world.level.material.MaterialColor;
 
+import java.util.Locale;
 import java.util.Map;
 
 public class MaterialColors
@@ -76,7 +77,7 @@ public class MaterialColors
 
     public static MaterialColor get(String mapColor)
     {
-        MaterialColor color = COLORS.get(mapColor);
+        MaterialColor color = COLORS.get(mapColor.toUpperCase(Locale.ROOT));
         if (color == null)
             throw new IllegalStateException("No block map color known with name " + mapColor);
         return color;

@@ -3,7 +3,7 @@
 This format applies to effect instances as defined in other json files. There is no names definitions for effect instances
 at this point.
 
-See [Food](../Food.md) for an example of where this is used.
+See [Food](./Food.md) for an example of where this is used.
 
 ## Basic structure of the JSON file
 

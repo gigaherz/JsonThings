@@ -2,7 +2,7 @@
 
 Attribute Modifier definitions are not named, but rather contained within other json files.
 
-See [Items](../Items.md#attribute_modifiers) for an example of where this is used.
+See [Items](./Items.md#attribute_modifiers) for an example of where this is used.
 
 ## Basic structure of the JSON file
 
@@ -59,6 +59,6 @@ Can be either a number or one of the following strings:
 * `2` or `"multiply_total"`: The amount is multiplied by the base value of the attribute, then added to the accumulated.
   * Formula: `accumulated = accumulated * (1 + amount)`
 
-Negative amount values can be used to reduce the total by a percent, eg.: operation "multiply_total" and amount `-0.2` will effectively result in a 20% reduction of the total, or what's the same, a factor or 80% on the total.
+Negative amount values can be used to reduce the total by a percent, e.g.: operation "multiply_total" and amount `-0.2` will effectively result in a 20% reduction of the total, or what's the same, a factor or 80% on the total.
 
 **Note:** The values in the modifier are not displayed raw. Multiply type modifiers are shown as percent values (multiplied by 100). Additive modifiers are displayed as-is, except Knockback Resistance, which is multiplied by 10. So a Knockback Resistance of 0.1 will display as "1".

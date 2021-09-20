@@ -160,9 +160,9 @@ public class BlockBuilder
         return this;
     }
 
-    public BlockBuilder withMaterialColor(String map_color)
+    public BlockBuilder withMaterialColor(MaterialColor mapColor)
     {
-        blockMaterialColor = MaterialColors.get(map_color);
+        blockMaterialColor = mapColor;
         return this;
     }
 

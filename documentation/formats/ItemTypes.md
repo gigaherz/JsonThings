@@ -16,7 +16,7 @@ Block items are items that represent and place a block. They are normally used v
 
 Parameters:
 * `"places"`: The block registry name for the block that will be placed by this item.
-  * Optional. Default: a blcok with the same name as the item.
+  * Optional. Default: a block with the same name as the item.
 
 ## "armor" 
 

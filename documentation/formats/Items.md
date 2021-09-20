@@ -99,9 +99,9 @@ Each json object corresponds to the combination of a tab list and information ab
 
 The `"tabs"` key is required and must be a json array (`[]`) containing strings.
 
-The rest of the object are values defining the itemstack.
+The rest of the object are values defining the item stack.
 
-For details on the definition of itemstacks in json, see the [ItemStack Definitions](./ItemStack.md) page.
+For details on the definition of item stacks in json, see the [ItemStack Definitions](./ItemStack.md) page.
 
 ## "food"
 
@@ -113,7 +113,7 @@ For details on the values used to define food, see the [Food Definitions](./Food
 
 ## "attribute_modifiers"
 
-Defines the attribute changes that are applied when this item is equipped. Eg.: +20% speed
+Defines the attribute changes that are applied when this item is equipped. E.g.: +20% speed
 
 Optional. Default: no attribute modifiers.
 

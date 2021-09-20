@@ -103,7 +103,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
+    }, "solid", false, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
 
     public static final BlockType<FlexWallBlock> WALL = register("wall", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();

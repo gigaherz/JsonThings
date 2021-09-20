@@ -86,9 +86,17 @@ public class ItemParser extends ThingParser<ItemBuilder>
             builder = parseAttributeModifiers(key, data, builder);
         }
 
-        if (data.has("durability"))
+        if (data.has("max_damage"))
         {
-            builder = parseDurabilityInfo(data, builder);
+            int max_damage = data.get("max_damage").getAsInt();
+            if (max_damage >= 1 && max_damage < 128)
+            {
+                builder = builder.makeDamageable(max_damage);
+            }
+            else
+            {
+                throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 127, both inclusive.");
+            }
         }
 
         if (data.has("food"))
@@ -163,7 +171,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
             }
             else
             {
-                throw new RuntimeException("Attribute modifier amount must be a floating point number.");
+                throw new RuntimeException("Attribute modifier amount must have an operation type.");
             }
 
             builder = builder.withAttributeModifier(uuid, name, amount, operation);
@@ -178,25 +186,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
         {
             JsonObject item = e.getAsJsonObject();
             builder = builder.withCreativeMenuStack(parseStackContext(key, item), parseTabsList(item));
-        }
-        return builder;
-    }
-
-    private ItemBuilder parseDurabilityInfo(JsonObject data, ItemBuilder builder)
-    {
-        JsonObject durability = data.get("durability").getAsJsonObject();
-
-        if (durability.has("max_damage"))
-        {
-            int max_damage = durability.get("max_damage").getAsInt();
-            if (max_damage >= 1)
-            {
-                builder = builder.makeDamageable(max_damage);
-            }
-            else
-            {
-                throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 64, both inclusive.");
-            }
         }
         return builder;
     }

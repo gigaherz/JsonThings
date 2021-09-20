@@ -3,7 +3,7 @@
 This format applies to effect instances as defined in other json files. There is no names definitions for effect instances
 at this point.
 
-See [Food](./Food.md) for an exmaple of where this is used.
+See [Food](../Food.md) for an example of where this is used.
 
 ## Basic structure of the JSON file
 
@@ -58,14 +58,26 @@ Optional. Default: false.
 
 Must be a boolean (`false` or `true`).
 
-    private MobEffectInstance parseEffectInstance(JsonObject data)
-    {
-        MobEffect ef = Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, new ResourceLocation(GsonHelper.getAsString(data, "effect")));
-        int duration = GsonHelper.getAsInt(data, "duration", 0);
-        int amplifier = GsonHelper.getAsInt(data, "amplifier", 0);
-        boolean isAmbient = GsonHelper.getAsBoolean(data, "ambient", false);
-        boolean visible = GsonHelper.getAsBoolean(data, "visible", true);
-        boolean showParticles = GsonHelper.getAsBoolean(data, "show_particles", visible);
-        boolean showIcon = GsonHelper.getAsBoolean(data, "show_icon", visible);
-        return new MobEffectInstance(ef, duration, amplifier, isAmbient, showParticles, showIcon);
-    }
+## "visible"
+
+Defines if the effect is visible. Invisible effects by default have no icon or particles, and don't appear in the list.
+
+Optional. Default: true.
+
+Must be a boolean (`false` or `true`).
+
+## "show_particles"
+
+Defines if the effect produces particles around the player.
+
+Optional. Default: same as "visible".
+
+Must be a boolean (`false` or `true`).
+
+## "show_icon"
+
+Defines if the effect has an icon in the top right of the HUD.
+
+Optional. Default: same as "visible".
+
+Must be a boolean (`false` or `true`).

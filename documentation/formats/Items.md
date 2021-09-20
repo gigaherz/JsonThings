@@ -47,6 +47,8 @@ Optional. Default: plain type without additional properties.
 Must be a resource location string like `"block"`, or `"minecraft:sword"`. Like on recipe jsons and other vanilla files,
 if the namespace (the part before the colon) is missing "minecraft" is implied.
 
+See the avilable item types in the [Item Types](./item_types/Index.md) page.
+
 ## "max_stack_size"
 
 Defines how much the item stacks.

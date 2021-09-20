@@ -2,13 +2,13 @@
 
 A Thing Pack supports a set of file types for defining different things.
 
-## Currently Supported Formats
+## Current Supported Formats
 
 ### Formats with their own JSON files
 
 * [Items](./formats/Items.md)
 * [Blocks](./formats/Blocks.md)
-* [Enchantments](.formats/Enchantments.md)
+* [Enchantments](./formats/Enchantments.md)
 * [Food Definitions](./formats/Food.md)
 * [Item Tiers](./formats/ItemTiers.md)
 * [Armor Materials](./formats/ArmorMaterials.md)

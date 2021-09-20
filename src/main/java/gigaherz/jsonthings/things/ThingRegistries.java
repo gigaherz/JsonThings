@@ -32,7 +32,6 @@ public class ThingRegistries
     public static final ResourceKey<Registry<FoodProperties>> FOOD_REGISTRY = createKey("jsonthings:food");
     public static final ResourceKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
     public static final ResourceKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
-    public static final ResourceKey<Registry<BooleanOp>> BOOLEAN_FUNCTION_REGISTRY = createKey("jsonthings:boolean_function");
     public static final ResourceKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
     public static final ResourceKey<Registry<BlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
     public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
@@ -44,7 +43,6 @@ public class ThingRegistries
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
     public static final Registry<DynamicShape> DYNAMIC_SHAPES = makeRegistry(DYNAMIC_SHAPE_REGISTRY);
-    public static final Registry<BooleanOp> BOOLEAN_FUNCTIONS = makeRegistry(BOOLEAN_FUNCTION_REGISTRY);
     public static final Registry<ItemType<?>> ITEM_TYPES = makeRegistry(ITEM_TYPE_REGISTRY);
     public static final Registry<BlockType<?>> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
     public static final Registry<Material> BLOCK_MATERIALS = makeRegistry(BLOCK_MATERIAL_REGISTRY);
@@ -56,8 +54,6 @@ public class ThingRegistries
         registerFoods();
 
         registerProperties();
-
-        registerBooleanFunctions();
 
         registerDynamicShapes();
 
@@ -86,26 +82,6 @@ public class ThingRegistries
     private static void registerDynamicShapes()
     {
         Registry.register(DYNAMIC_SHAPES, "empty", DynamicShape.empty());
-    }
-
-    private static void registerBooleanFunctions()
-    {
-        Registry.register(BOOLEAN_FUNCTIONS, "false", BooleanOp.FALSE);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_or", BooleanOp.NOT_OR);
-        Registry.register(BOOLEAN_FUNCTIONS, "only_second", BooleanOp.ONLY_SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_first", BooleanOp.NOT_FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS, "only_first", BooleanOp.ONLY_FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_second", BooleanOp.NOT_SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_same", BooleanOp.NOT_SAME);
-        Registry.register(BOOLEAN_FUNCTIONS, "not_and", BooleanOp.NOT_AND);
-        Registry.register(BOOLEAN_FUNCTIONS, "and", BooleanOp.AND);
-        Registry.register(BOOLEAN_FUNCTIONS, "same", BooleanOp.SAME);
-        Registry.register(BOOLEAN_FUNCTIONS, "second", BooleanOp.SECOND);
-        Registry.register(BOOLEAN_FUNCTIONS, "causes", BooleanOp.CAUSES);
-        Registry.register(BOOLEAN_FUNCTIONS, "first", BooleanOp.FIRST);
-        Registry.register(BOOLEAN_FUNCTIONS, "caused_by", BooleanOp.CAUSED_BY);
-        Registry.register(BOOLEAN_FUNCTIONS, "or", BooleanOp.OR);
-        Registry.register(BOOLEAN_FUNCTIONS, "true", BooleanOp.TRUE);
     }
 
     private static void registerProperties()

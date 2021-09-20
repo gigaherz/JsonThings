@@ -1,4 +1,15 @@
-TODO
+# Food Definitions
+
+Food definitions let you define the properties of food items. They can be defined by name, or included directly in an item's `"food"` key.
+
+Named food definitions go in the `food` directory in the thing pack.
+
+E.g.
+```
+/things/examplepack/food/stick.json
+```
+
+## Basic structure of the JSON file
 
 ```json
 {

@@ -3,6 +3,13 @@
 This format applies to effect instances as defined in other json files. There is no names definitions for effect instances
 at this point.
 
+Item definitions go in the `item` directory in the thing pack.
+
+E.g.
+```
+/things/examplepack/item/cheese_stick.json
+```
+
 ## Basic structure of the JSON file
 
 ```json

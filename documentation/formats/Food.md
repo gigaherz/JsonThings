@@ -4,7 +4,7 @@ Food definitions let you define the properties of food items. They can be define
 
 Named food definitions go in the `food` directory in the thing pack.
 
-Eg.
+E.g.
 ```
 /things/examplepack/food/stick.json
 ```

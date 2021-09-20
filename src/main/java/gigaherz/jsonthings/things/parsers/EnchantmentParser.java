@@ -87,17 +87,68 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         if (data.has("type"))
             builder = builder.withEnchantmentType(parseEnchantmentType(data.get("type").getAsString()));
 
+        int minLevel = 1;
         if (data.has("min_level"))
-            builder = builder.withMinLevel(data.get("min_level").getAsInt());
+        {
+            minLevel = data.get("min_level").getAsInt();
+            if (minLevel > 0)
+            {
+                builder = builder.withMinLevel(minLevel);
+            }
+            else
+            {
+                throw new IllegalStateException("'min_level' must be positive and bigger than zero.");
+            }
+        }
         if (data.has("max_level"))
-            builder = builder.withMaxLevel(data.get("max_level").getAsInt());
+        {
+            int maxLevel = data.get("max_level").getAsInt();
+            if (maxLevel > minLevel)
+            {
+                builder = builder.withMaxLevel(minLevel);
+            }
+            else
+            {
+                throw new IllegalStateException("'min_level' must be positive and bigger than `min_level`.");
+            }
+        }
 
         if (data.has("base_cost"))
-            builder = builder.withBaseCost(data.get("base_cost").getAsInt());
+        {
+            var value = data.get("base_cost").getAsInt();
+            if (value >= 0)
+            {
+                builder = builder.withBaseCost(value);
+            }
+            else
+            {
+                throw new IllegalStateException("'base_cost' must be positive or zero.");
+            }
+        }
         if (data.has("per_level_cost"))
-            builder = builder.withPerLevelCost(data.get("per_level_cost").getAsInt());
+        {
+            var value = data.get("per_level_cost").getAsInt();
+            if (value >= 0)
+            {
+                builder = builder.withPerLevelCost(value);
+            }
+            else
+            {
+                throw new IllegalStateException("'per_level_cost' must be positive or zero.");
+            }
+        }
         if (data.has("random_cost"))
-            builder = builder.withRandomCost(data.get("random_cost").getAsInt());
+        {
+            var value = data.get("random_cost").getAsInt();
+            if (value >= 0)
+            {
+                builder = builder.withRandomCost(value);
+            }
+            else
+            {
+                throw new IllegalStateException("'random_cost' must be positive or zero.");
+            }
+        }
 
         if (data.has("item_compatibility"))
             builder = builder.withItemCompatibility(ItemPredicate.fromJson(data.get("item_compatibility")));

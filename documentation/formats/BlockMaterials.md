@@ -4,7 +4,7 @@ Armor Materials define the tier and material properties of armor items.
 
 Named item armor materials go in the `armor_material` directory in the thing pack.
 
-Eg.
+E.g.
 ```
 /things/examplepack/armor_material/rubber.json
 ```

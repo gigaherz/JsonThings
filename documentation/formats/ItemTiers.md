@@ -4,9 +4,9 @@ Item tiers define the material tiers for tools.
 
 Named item tiers go in the `item_tier` directory in the thing pack.
 
-Eg.
+E.g.
 ```
-/things/examplepack/item_tiers/clay.json
+/things/examplepack/item_tier/clay.json
 ```
 
 ## Basic structure of the JSON file

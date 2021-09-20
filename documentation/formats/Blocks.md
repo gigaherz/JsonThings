@@ -3,6 +3,13 @@
 This format applies to effect instances as defined in other json files. There is no names definitions for effect instances
 at this point.
 
+Block definitions go in the `block` directory in the thing pack.
+
+E.g.
+```
+/things/examplepack/block/mud.json
+```
+
 ## Basic structure of the JSON file
 
 ```json

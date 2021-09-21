@@ -1,7 +1,6 @@
 package gigaherz.jsonthings;
 
 import gigaherz.jsonthings.things.ThingRegistries;
-import gigaherz.jsonthings.things.builders.ArmorMaterialBuilder;
 import gigaherz.jsonthings.things.client.BlockColorHandler;
 import gigaherz.jsonthings.things.client.ItemColorHandler;
 import gigaherz.jsonthings.things.parsers.*;
@@ -58,6 +57,7 @@ public class JsonThings
     public static TierParser tierParser;
     public static BlockMaterialParser blockMaterialParser;
     public static ArmorMaterialParser armorMaterialParser;
+    public static CreativeModeTabParser creativeModeTabParser;
 
     public JsonThings()
     {
@@ -73,6 +73,7 @@ public class JsonThings
         tierParser = manager.registerParser(new TierParser());
         blockMaterialParser = manager.registerParser(new BlockMaterialParser());
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
+        creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;

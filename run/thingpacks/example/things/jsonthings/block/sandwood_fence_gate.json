@@ -1,7 +1,0 @@
-{
-  "type": "fence_gate",
-  "parent": "jsonthings:sandwood_planks",
-  "item": {
-    "group": "decorations"
-  }
-}

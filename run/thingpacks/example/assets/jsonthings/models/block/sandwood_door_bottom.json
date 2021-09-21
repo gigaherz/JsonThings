@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/door_bottom",
-  "textures": {
-    "top": "jsonthings:block/sandwood_door_top",
-    "bottom": "jsonthings:block/sandwood_door_bottom"
-  }
-}

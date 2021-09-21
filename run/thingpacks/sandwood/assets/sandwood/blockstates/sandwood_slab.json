@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "sandwood:block/sandwood_slab"
+    },
+    "type=double": {
+      "model": "sandwood:block/sandwood_planks"
+    },
+    "type=top": {
+      "model": "sandwood:block/sandwood_slab_top"
+    }
+  }
+}

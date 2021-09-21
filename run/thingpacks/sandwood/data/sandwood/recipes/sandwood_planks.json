@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "planks",
+  "ingredients": [
+    {
+      "tag": "sandwood:sandwood_logs"
+    }
+  ],
+  "result": {
+    "item": "sandwood:sandwood_planks",
+    "count": 4
+  }
+}

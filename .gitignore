@@ -24,5 +24,6 @@ eclipse
 run/*
 !run/thingpacks
 run/thingpacks/*
-!run/thingpacks/example
+!run/thingpacks/sandwood
+!run/thingpacks/test
 

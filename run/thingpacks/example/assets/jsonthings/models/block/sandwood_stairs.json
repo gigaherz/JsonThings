@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/stairs",
-  "textures": {
-    "bottom": "jsonthings:block/sandwood_planks",
-    "top": "jsonthings:block/sandwood_planks",
-    "side": "jsonthings:block/sandwood_planks"
-  }
-}

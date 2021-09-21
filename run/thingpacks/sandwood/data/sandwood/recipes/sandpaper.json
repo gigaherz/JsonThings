@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "sandwood:sandwood_planks"
+    }
+  },
+  "result": {
+    "item": "sandwood:sandpaper",
+    "count": 4
+  }
+}

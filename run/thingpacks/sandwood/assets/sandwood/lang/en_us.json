@@ -9,5 +9,7 @@
   "block.sandwood.sandwood_fence_gate": "Sandwood Fence Gate",
   "block.sandwood.sandwood_door": "Sandwood Door",
   "block.sandwood.sandwood_trapdoor": "Sandwood Trapdoor",
-  "item.sandwood.sandpaper": "Sandpaper"
+  "block.sandwood.sandwood_sapling": "Sandwood Sapling",
+  "item.sandwood.sandpaper": "Sandpaper",
+  "itemGroup.sandwood.sandwood": "Sandwood Items"
 }

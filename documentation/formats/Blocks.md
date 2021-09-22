@@ -196,6 +196,88 @@ Optional. Default: false (solid).
 
 Must be a boolean (`false` or `true`).
 
+## "requires_tool_for_drops"
+
+Defines that the block requires using the right tool to drop loot.
+
+Optional. Default: tool not required.
+
+Must be a boolean (`false` or `true`).
+
+## "is_air"
+
+Defines that the block is equivalent to air.
+
+Optional. Default: false.
+
+Must be a boolean (`false` or `true`).
+
+## "has_collision"
+
+Defines that the block prevents entities from passing through the collision box.
+
+Optional. Default: true.
+
+Must be a boolean (`false` or `true`).
+
+## "ticks_randomly"
+
+Defines that the block receives random ticks. Not relevant until the scripting system is in place.
+
+Optional. Default: false.
+
+Must be a boolean (`false` or `true`).
+
+## "light_emission"
+
+Defines the amount of light emitted by the block.
+
+Optional. Default: 0.
+
+Must be an integer between 0 and 15 (inclusive.
+
+## "explosion_resistance"
+
+Defines the amount explosion power required to break the block.
+
+Optional. Default: 0.
+
+Must be a positive integer or zero.
+
+## "destroy_time"
+
+Defines the amount time needed to mine the block without a tool.
+
+Optional. Default: 0.
+
+Must be a positive integer or zero.
+
+## "friction"
+
+Defines the friction coeficient applied to changes in movement. 
+
+The values can be unintuitive: Values close to 0 mean fast changes (high friction), while values close to 1 mean slow changes (low friction).
+
+Optional. Default: 0.6.
+
+Must be a number between 0 and 1. Decimals allowed.
+
+## "speed_factor"
+
+Defines the speed factor applied to the maximum movement speed. A value of 1 means default speed.
+
+Optional. Default: 1.
+
+Must be a positive number or zero1. Decimals allowed.
+
+## "jump_factor"
+
+Defines the jump factor applied to the maximum jump height. A value of 1 means default jump height.
+
+Optional. Default: 1.
+
+Must be a positive number or zero1. Decimals allowed.
+
 ## "color_handler"
 
 Defines a color handler for the block. Color handler provides tint values based on context.
@@ -206,6 +288,15 @@ Must be a resource location string like `"foliage"`, or `"minecraft:tall_grass"`
 if the namespace (the part before the colon) is missing "minecraft" is implied.
 
 By default, only 2 color handlers are defined: `"foliage"` and `"tall_grass"`. More can be defined by mod code, and in the future it will be possible to define them via scripting.
+
+## "sound_type"
+
+Defines the sound type used to define the sound events that play when the block is placed, broken, or stepped on.
+
+Optional. Default: wood sound.
+
+Must be a resource location string like `"wood"`, or `"minecraft:powder_snow"`. Like on recipe jsons and other vanilla files,
+if the namespace (the part before the colon) is missing "minecraft" is implied.
 
 ## "item"
 

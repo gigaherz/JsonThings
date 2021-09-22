@@ -9,7 +9,12 @@ import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import joptsimple.internal.Strings;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.BaseComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
@@ -18,6 +23,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ItemParser extends ThingParser<ItemBuilder>
@@ -107,7 +114,20 @@ public class ItemParser extends ThingParser<ItemBuilder>
         if (data.has("color_handler"))
             builder = builder.withColorHandler(data.get("color_handler").getAsString());
 
+        if (data.has("lore"))
+            builder = builder.withLore(parseLore(data.get("lore").getAsJsonArray()));
+
         return builder;
+    }
+
+    private List<MutableComponent> parseLore(JsonArray lines)
+    {
+        var lore = new ArrayList<MutableComponent>();
+        for(JsonElement e : lines)
+        {
+            lore.add(Component.Serializer.fromJson(e));
+        }
+        return lore;
     }
 
     private ItemBuilder parseAttributeModifiers(ResourceLocation key, JsonObject data, ItemBuilder builder)

@@ -10,6 +10,8 @@ import gigaherz.jsonthings.things.builders.ItemBuilder;
 import gigaherz.jsonthings.things.properties.PropertyType;
 import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
+import gigaherz.jsonthings.util.ParseUtils;
+import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -48,13 +50,13 @@ public class BlockParser extends ThingParser<BlockBuilder>
     @Override
     public BlockBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        BlockBuilder builder = BlockBuilder.begin(key, GsonHelper.getAsString(data, "type", "plain"), data);
+        final BlockBuilder builder = BlockBuilder.begin(key, GsonHelper.getAsString(data, "type", "plain"), data);
 
         if (data.has("parent"))
-            builder = parseParent(data.get("parent"), builder);
+            parseParent(data.get("parent"), builder);
 
         if (data.has("material"))
-            builder = builder.withMaterial(data.get("material").getAsString());
+            builder.withMaterial(data.get("material").getAsString());
 
         if (data.has("map_color"))
         {
@@ -79,19 +81,41 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 throw new RuntimeException("'map_color' must either be a string, or an integer be between 0 and 63 (both inclusive).");
             }
 
-            builder = builder.withMaterialColor(mapColor);
+            builder.withMaterialColor(mapColor);
         }
+
+        ParseUtils.boolOptional(data, "requires_tool_for_drops", builder::withRequiresToolForDrops);
+
+        ParseUtils.boolOptional(data, "is_air", builder::withIsAir);
+
+        ParseUtils.boolOptional(data, "has_collision", builder::withCollision);
+
+        ParseUtils.boolOptional(data, "ticks_randomly", builder::withRandomTicks);
+
+        ParseUtils.intRangeOptional(data, "light_emission", 0, 16, builder::withLightEmission);
+
+        ParseUtils.intPositiveOrZeroOptional(data, "explosion_resistance", builder::withExplosionResistance);
+
+        ParseUtils.intPositiveOrZeroOptional(data, "destroy_time", builder::withDestroyTime);
+
+        ParseUtils.floatRangeOptional(data, "friction", 0.0f, 1.0f, builder::withFriction);
+
+        ParseUtils.floatPositiveOrZeroOptional(data, "speed_factor", (FloatConsumer)builder::withSpeedFactor);
+
+        ParseUtils.floatPositiveOrZeroOptional(data, "jump_factor", (FloatConsumer)builder::withJumpFactor);
+
+        ParseUtils.stringOptional(data, "sound_type", str -> builder.withSoundType(new ResourceLocation(str)));
 
         if (data.has("properties"))
         {
             JsonObject props = data.get("properties").getAsJsonObject();
-            builder = parseProperties(props, builder);
+            parseProperties(props, builder);
         }
 
         if (data.has("default_state"))
         {
             JsonObject props = data.get("default_state").getAsJsonObject();
-            builder = parseBlockState(props, builder);
+            parseBlockState(props, builder);
         }
 
         Map<String, Property<?>> propertiesByName = builder.getPropertiesByName();
@@ -109,25 +133,25 @@ public class BlockParser extends ThingParser<BlockBuilder>
         }
 
         if (data.has("shape"))
-            builder = builder.withGeneralShape(parseShape(data.get("shape"), facingProperty, propertiesByName));
+            builder.withGeneralShape(parseShape(data.get("shape"), facingProperty, propertiesByName));
 
         if (data.has("collision_shape"))
-            builder = builder.withCollisionShape(parseShape(data.get("collision_shape"), facingProperty, propertiesByName));
+            builder.withCollisionShape(parseShape(data.get("collision_shape"), facingProperty, propertiesByName));
 
         if (data.has("raytrace_shape"))
-            builder = builder.withRaytraceShape(parseShape(data.get("raytrace_shape"), facingProperty, propertiesByName));
+            builder.withRaytraceShape(parseShape(data.get("raytrace_shape"), facingProperty, propertiesByName));
 
         if (data.has("render_shape"))
-            builder = builder.withRenderShape(parseShape(data.get("render_shape"), facingProperty, propertiesByName));
+            builder.withRenderShape(parseShape(data.get("render_shape"), facingProperty, propertiesByName));
 
         if (data.has("render_layer"))
-            builder = builder.withRenderLayers(parseRenderLayers(data.get("render_layer")));
+            builder.withRenderLayers(parseRenderLayers(data.get("render_layer")));
 
         if (data.has("not_solid"))
-            builder = builder.withSeeThrough(data.get("not_solid").getAsBoolean());
+            builder.withSeeThrough(data.get("not_solid").getAsBoolean());
 
         if (data.has("color_handler"))
-            builder = builder.withColorHandler(data.get("color_handler").getAsString());
+            builder.withColorHandler(data.get("color_handler").getAsString());
 
         if (data.has("item"))
         {
@@ -136,12 +160,12 @@ public class BlockParser extends ThingParser<BlockBuilder>
             {
                 if (item.getAsBoolean())
                 {
-                    builder = createStockItemBlock(builder);
+                    createStockItemBlock(builder);
                 }
             }
             else if (item.isJsonObject())
             {
-                builder = parseItemBlock(data.get("item").getAsJsonObject(), builder);
+                parseItemBlock(data.get("item").getAsJsonObject(), builder);
             }
             else
             {

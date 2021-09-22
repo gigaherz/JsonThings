@@ -9,6 +9,7 @@ import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -41,7 +42,6 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     //region IFlexItem
     private final Multimap<CreativeModeTab, StackContext> perTabStacks = ArrayListMultimap.create();
     private final List<StackContext> searchTabStacks = Lists.newArrayList();
-    private final List<Component> tooltipStrings = Lists.newArrayList();
     private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
     private final Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers = Maps.newHashMap();
 
@@ -49,6 +49,7 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     private int useTime;
     private CompletionMode useFinishMode;
     private InteractionResultHolder<ItemStack> containerResult;
+    private List<MutableComponent> lore;
 
     private void initializeFlex()
     {
@@ -131,6 +132,13 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
             {attributeModifiers.get(slot1).put(attribute, modifier);}
         }
     }
+
+    @Override
+    public void setLore(List<MutableComponent> lore)
+    {
+        this.lore = lore;
+    }
+
     //endregion
 
     //region Item
@@ -186,7 +194,7 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.addAll(tooltipStrings);
+        tooltip.addAll(lore);
     }
 
     @Override

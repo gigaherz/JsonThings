@@ -76,6 +76,10 @@ public class JsonThings
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
     }
 
+    public static final class Test {
+        public static final String CLSNAME = Minecraft.class.getCanonicalName();
+    }
+
     private static CompletableFuture<ThingResourceManager> loaderFuture;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

@@ -11,6 +11,7 @@ import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.serializers.IItemFactory;
 import gigaherz.jsonthings.things.serializers.ItemType;
 import gigaherz.jsonthings.util.Utils;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
@@ -48,6 +49,8 @@ public class ItemBuilder
     private ContainerInfo containerInfo = null;
 
     private String colorHandler = null;
+
+    private List<MutableComponent> lore = List.of();
 
     private ItemBuilder(ResourceLocation registryName, @Nullable ResourceLocation parentBuilder)
     {
@@ -172,6 +175,12 @@ public class ItemBuilder
         return this;
     }
 
+    public ItemBuilder withLore(List<MutableComponent> lore)
+    {
+        this.lore = lore;
+        return this;
+    }
+
     public IFlexItem build()
     {
         Item.Properties properties = new Item.Properties();
@@ -211,6 +220,8 @@ public class ItemBuilder
             flexItem.setUseFinishMode(delayedUse.onComplete);
         }
 
+        flexItem.setLore(lore);
+
         var stacks = getCreativeMenuStacks();
         if (stacks.size() > 0)
         {
@@ -231,6 +242,12 @@ public class ItemBuilder
     @Nullable
     private CreativeModeTab findCreativeTab(String label)
     {
+        var rl = new ResourceLocation(label);
+        for(CreativeModeTabBuilder builder : JsonThings.creativeModeTabParser.getBuilders())
+        {
+            if (builder.getRegistryName().equals(rl))
+                return builder.getBuiltTab();
+        }
         for (CreativeModeTab tab : CreativeModeTab.TABS)
         {
             if (tab.getRecipeFolderName().equals(label))

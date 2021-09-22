@@ -8,7 +8,6 @@ import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.serializers.BlockType;
 import gigaherz.jsonthings.things.serializers.IBlockFactory;
-import gigaherz.jsonthings.things.serializers.MaterialColors;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
@@ -50,6 +49,17 @@ public class BlockBuilder
     private Boolean seeThrough;
     private Set<String> renderLayers;
     private String colorHandler;
+    private Boolean requiresToolForDrops;
+    private Boolean isAir;
+    private Boolean hasCollision;
+    private Boolean randomTicks;
+    private Integer lightEmission;
+    private Integer explosionResistance;
+    private Integer destroyTime;
+    private Float friction;
+    private Float speedFactor;
+    private Float jumpFactor;
+    private ResourceLocation soundType;
 
     private BlockBuilder(ResourceLocation registryName, BlockType<?> blockType, IBlockFactory<?> factory)
     {
@@ -166,6 +176,72 @@ public class BlockBuilder
         return this;
     }
 
+    public BlockBuilder withRequiresToolForDrops(boolean requiresToolForDrops)
+    {
+        this.requiresToolForDrops = requiresToolForDrops;
+        return this;
+    }
+
+    public BlockBuilder withIsAir(boolean isAir)
+    {
+        this.isAir = isAir;
+        return this;
+    }
+
+    public BlockBuilder withCollision(boolean hasCollision)
+    {
+        this.hasCollision = hasCollision;
+        return this;
+    }
+
+    public BlockBuilder withRandomTicks(boolean randomTicks)
+    {
+        this.randomTicks = randomTicks;
+        return this;
+    }
+
+    public BlockBuilder withLightEmission(int lightEmission)
+    {
+        this.lightEmission = lightEmission;
+        return this;
+    }
+
+    public BlockBuilder withExplosionResistance(int explosionResistance)
+    {
+        this.explosionResistance = explosionResistance;
+        return this;
+    }
+
+    public BlockBuilder withDestroyTime(int destroyTime)
+    {
+        this.destroyTime = destroyTime;
+        return this;
+    }
+
+    public BlockBuilder withFriction(float friction)
+    {
+        this.friction = friction;
+        return this;
+    }
+
+    public BlockBuilder withSpeedFactor(float speedFactor)
+    {
+        this.speedFactor = speedFactor;
+        return this;
+    }
+
+    public BlockBuilder withJumpFactor(float jumpFactor)
+    {
+        this.jumpFactor = jumpFactor;
+        return this;
+    }
+
+    public BlockBuilder withSoundType(ResourceLocation loc)
+    {
+        this.soundType = loc;
+        return this;
+    }
+
     public IFlexBlock build()
     {
         Material material = Utils.orElse(getBlockMaterial(), Material.STONE);
@@ -174,8 +250,19 @@ public class BlockBuilder
                 Block.Properties.of(material, blockMaterialColor) :
                 Block.Properties.of(material);
 
-        if (Utils.orElse(isSeeThrough(), blockType.isDefaultSeeThrough()))
-            props = props.noOcclusion();
+        if (Utils.orElse(isSeeThrough(), blockType.isDefaultSeeThrough())) props.noOcclusion();
+        if (Utils.orElse(requiresToolForDrops(), false)) props.requiresCorrectToolForDrops();
+        if (Utils.orElse(isAir(), false)) props.air();
+        if (!Utils.orElse(hasCollision(), true)) props.noCollission();
+        if (Utils.orElse(hasRandomTicks(), false)) props.randomTicks();
+        if (Utils.orElse(getLightEmission(), 0) > 0) props.lightLevel(state -> getLightEmission());
+        if (Utils.orElse(getExplosionResistance(), 0) > 0) props.explosionResistance(getExplosionResistance());
+        if (Utils.orElse(getDestroyTime(), 0) > 0) props.destroyTime(getDestroyTime());
+        if (Utils.orElse(getFriction(), 0.6f) != 0.6f) props.friction(getFriction());
+        if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
+        if (Utils.orElse(getJumpFactor(), 1.0f) != 1) props.jumpFactor(getSpeedFactor());
+
+        if (getSoundType() != null) props.sound(Utils.getOrCrash(ThingRegistries.SOUND_TYPES, getSoundType()));
 
         final List<Property<?>> stockProperties = blockType.getStockProperties();
 
@@ -297,6 +384,32 @@ public class BlockBuilder
     {
         return getValueWithParent(seeThrough, BlockBuilder::isSeeThrough);
     }
+
+    @Nullable
+    public Boolean requiresToolForDrops() { return getValueWithParent(requiresToolForDrops, BlockBuilder::requiresToolForDrops); }
+    @Nullable
+    public Boolean isAir() { return getValueWithParent(isAir, BlockBuilder::isAir); }
+    @Nullable
+    public Boolean hasCollision() { return getValueWithParent(hasCollision, BlockBuilder::hasCollision); }
+    @Nullable
+    public Boolean hasRandomTicks() { return getValueWithParent(randomTicks, BlockBuilder::hasRandomTicks); }
+
+    @Nullable
+    public Integer getLightEmission() { return getValueWithParent(lightEmission, BlockBuilder::getLightEmission); }
+    @Nullable
+    public Integer getExplosionResistance() { return getValueWithParent(explosionResistance, BlockBuilder::getExplosionResistance); }
+    @Nullable
+    public Integer getDestroyTime() { return getValueWithParent(destroyTime, BlockBuilder::getDestroyTime); }
+
+    @Nullable
+    public Float getFriction() { return getValueWithParent(friction, BlockBuilder::getFriction); }
+    @Nullable
+    public Float getSpeedFactor() { return getValueWithParent(speedFactor, BlockBuilder::getSpeedFactor); }
+    @Nullable
+    public Float getJumpFactor() { return getValueWithParent(jumpFactor, BlockBuilder::getJumpFactor); }
+
+    @Nullable
+    public ResourceLocation getSoundType() { return getValueWithParent(soundType, BlockBuilder::getSoundType); }
 
     public IFlexBlock getBuiltBlock()
     {

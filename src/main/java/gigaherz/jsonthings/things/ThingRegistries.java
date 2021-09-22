@@ -11,10 +11,12 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Material;
@@ -36,6 +38,7 @@ public class ThingRegistries
     public static final ResourceKey<Registry<BlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
     public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
     public static final ResourceKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
+    public static final ResourceKey<Registry<SoundType>> SOUND_TYPE_REGISTRY = createKey("jsonthings:sound_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
     public static final Registry<ArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
@@ -46,6 +49,7 @@ public class ThingRegistries
     public static final Registry<ItemType<?>> ITEM_TYPES = makeRegistry(ITEM_TYPE_REGISTRY);
     public static final Registry<BlockType<?>> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
     public static final Registry<Material> BLOCK_MATERIALS = makeRegistry(BLOCK_MATERIAL_REGISTRY);
+    public static final Registry<SoundType> SOUND_TYPES = makeRegistry(SOUND_TYPE_REGISTRY);
 
     static
     {
@@ -58,6 +62,8 @@ public class ThingRegistries
         registerDynamicShapes();
 
         registerBlockMaterials();
+
+        registerSoundTypes();
 
         PropertyTypes.init();
 
@@ -279,5 +285,86 @@ public class ThingRegistries
         Registry.register(BLOCK_MATERIALS, "sculk", Material.SCULK);
         Registry.register(BLOCK_MATERIALS, "amethyst", Material.AMETHYST);
         Registry.register(BLOCK_MATERIALS, "powder_snow", Material.POWDER_SNOW);
+    }
+
+    private static void registerSoundTypes()
+    {
+        Registry.register(SOUND_TYPES, "wood", SoundType.WOOD);
+        Registry.register(SOUND_TYPES, "gravel", SoundType.GRAVEL);
+        Registry.register(SOUND_TYPES, "grass", SoundType.GRASS);
+        Registry.register(SOUND_TYPES, "lily_pad", SoundType.LILY_PAD);
+        Registry.register(SOUND_TYPES, "stone", SoundType.STONE);
+        Registry.register(SOUND_TYPES, "metal", SoundType.METAL);
+        Registry.register(SOUND_TYPES, "glass", SoundType.GLASS);
+        Registry.register(SOUND_TYPES, "wool", SoundType.WOOL);
+        Registry.register(SOUND_TYPES, "sand", SoundType.SAND);
+        Registry.register(SOUND_TYPES, "snow", SoundType.SNOW);
+        Registry.register(SOUND_TYPES, "powder_snow", SoundType.POWDER_SNOW);
+        Registry.register(SOUND_TYPES, "ladder", SoundType.LADDER);
+        Registry.register(SOUND_TYPES, "anvil", SoundType.ANVIL);
+        Registry.register(SOUND_TYPES, "slime_block", SoundType.SLIME_BLOCK);
+        Registry.register(SOUND_TYPES, "honey_block", SoundType.HONEY_BLOCK);
+        Registry.register(SOUND_TYPES, "wet_grass", SoundType.WET_GRASS);
+        Registry.register(SOUND_TYPES, "coral_block", SoundType.CORAL_BLOCK);
+        Registry.register(SOUND_TYPES, "bamboo", SoundType.BAMBOO);
+        Registry.register(SOUND_TYPES, "bamboo_sapling", SoundType.BAMBOO_SAPLING);
+        Registry.register(SOUND_TYPES, "scaffolding", SoundType.SCAFFOLDING);
+        Registry.register(SOUND_TYPES, "sweet_berry_bush", SoundType.SWEET_BERRY_BUSH);
+        Registry.register(SOUND_TYPES, "crop", SoundType.CROP);
+        Registry.register(SOUND_TYPES, "hard_crop", SoundType.HARD_CROP);
+        Registry.register(SOUND_TYPES, "vine", SoundType.VINE);
+        Registry.register(SOUND_TYPES, "nether_wart", SoundType.NETHER_WART);
+        Registry.register(SOUND_TYPES, "lantern", SoundType.LANTERN);
+        Registry.register(SOUND_TYPES, "stem", SoundType.STEM);
+        Registry.register(SOUND_TYPES, "nylium", SoundType.NYLIUM);
+        Registry.register(SOUND_TYPES, "fungus", SoundType.FUNGUS);
+        Registry.register(SOUND_TYPES, "roots", SoundType.ROOTS);
+        Registry.register(SOUND_TYPES, "shroomlight", SoundType.SHROOMLIGHT);
+        Registry.register(SOUND_TYPES, "weeping_vines", SoundType.WEEPING_VINES);
+        Registry.register(SOUND_TYPES, "twisting_vines", SoundType.TWISTING_VINES);
+        Registry.register(SOUND_TYPES, "soul_sand", SoundType.SOUL_SAND);
+        Registry.register(SOUND_TYPES, "soul_soil", SoundType.SOUL_SOIL);
+        Registry.register(SOUND_TYPES, "basalt", SoundType.BASALT);
+        Registry.register(SOUND_TYPES, "wart_block", SoundType.WART_BLOCK);
+        Registry.register(SOUND_TYPES, "netherrack", SoundType.NETHERRACK);
+        Registry.register(SOUND_TYPES, "nether_bricks", SoundType.NETHER_BRICKS);
+        Registry.register(SOUND_TYPES, "nether_sprouts", SoundType.NETHER_SPROUTS);
+        Registry.register(SOUND_TYPES, "nether_ore", SoundType.NETHER_ORE);
+        Registry.register(SOUND_TYPES, "bone_block", SoundType.BONE_BLOCK);
+        Registry.register(SOUND_TYPES, "netherite_block", SoundType.NETHERITE_BLOCK);
+        Registry.register(SOUND_TYPES, "ancient_debris", SoundType.ANCIENT_DEBRIS);
+        Registry.register(SOUND_TYPES, "lodestone", SoundType.LODESTONE);
+        Registry.register(SOUND_TYPES, "chain", SoundType.CHAIN);
+        Registry.register(SOUND_TYPES, "nether_gold_ore", SoundType.NETHER_GOLD_ORE);
+        Registry.register(SOUND_TYPES, "gilded_blackstone", SoundType.GILDED_BLACKSTONE);
+        Registry.register(SOUND_TYPES, "candle", SoundType.CANDLE);
+        Registry.register(SOUND_TYPES, "amethyst", SoundType.AMETHYST);
+        Registry.register(SOUND_TYPES, "amethyst_cluster", SoundType.AMETHYST_CLUSTER);
+        Registry.register(SOUND_TYPES, "small_amethyst_bud", SoundType.SMALL_AMETHYST_BUD);
+        Registry.register(SOUND_TYPES, "medium_amethyst_bud", SoundType.MEDIUM_AMETHYST_BUD);
+        Registry.register(SOUND_TYPES, "large_amethyst_bud", SoundType.LARGE_AMETHYST_BUD);
+        Registry.register(SOUND_TYPES, "tuff", SoundType.TUFF);
+        Registry.register(SOUND_TYPES, "calcite", SoundType.CALCITE);
+        Registry.register(SOUND_TYPES, "dripstone_block", SoundType.DRIPSTONE_BLOCK);
+        Registry.register(SOUND_TYPES, "pointed_dripstone", SoundType.POINTED_DRIPSTONE);
+        Registry.register(SOUND_TYPES, "copper", SoundType.COPPER);
+        Registry.register(SOUND_TYPES, "cave_vines", SoundType.CAVE_VINES);
+        Registry.register(SOUND_TYPES, "spore_blossom", SoundType.SPORE_BLOSSOM);
+        Registry.register(SOUND_TYPES, "azalea", SoundType.AZALEA);
+        Registry.register(SOUND_TYPES, "flowering_azalea", SoundType.FLOWERING_AZALEA);
+        Registry.register(SOUND_TYPES, "moss_carpet", SoundType.MOSS_CARPET);
+        Registry.register(SOUND_TYPES, "moss", SoundType.MOSS);
+        Registry.register(SOUND_TYPES, "big_dripleaf", SoundType.BIG_DRIPLEAF);
+        Registry.register(SOUND_TYPES, "small_dripleaf", SoundType.SMALL_DRIPLEAF);
+        Registry.register(SOUND_TYPES, "rooted_dirt", SoundType.ROOTED_DIRT);
+        Registry.register(SOUND_TYPES, "hanging_roots", SoundType.HANGING_ROOTS);
+        Registry.register(SOUND_TYPES, "azalea_leaves", SoundType.AZALEA_LEAVES);
+        Registry.register(SOUND_TYPES, "sculk_sensor", SoundType.SCULK_SENSOR);
+        Registry.register(SOUND_TYPES, "glow_lichen", SoundType.GLOW_LICHEN);
+        Registry.register(SOUND_TYPES, "deepslate", SoundType.DEEPSLATE);
+        Registry.register(SOUND_TYPES, "deepslate_bricks", SoundType.DEEPSLATE_BRICKS);
+        Registry.register(SOUND_TYPES, "deepslate_tiles", SoundType.DEEPSLATE_TILES);
+        Registry.register(SOUND_TYPES, "polished_deepslate", SoundType.POLISHED_DEEPSLATE);
+
     }
 }

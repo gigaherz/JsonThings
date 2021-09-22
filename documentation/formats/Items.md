@@ -32,7 +32,11 @@ E.g.
       "nbt": {}
     }
   ],
-  "color_handler": "foliage"  
+  "color_handler": "foliage",
+  "lore": [
+    "Hello",
+    {"text": "Hi", "italic": true, "color": "gray" }
+  ]
 }
 ```
 
@@ -138,3 +142,11 @@ Must be a resource location string like `"foliage"`, or `"minecraft:tall_grass"`
 if the namespace (the part before the colon) is missing "minecraft" is implied.
 
 By default, only 2 color handlers are defined: `"foliage"` and `"tall_grass"`. More can be defined by mod code, and in the future it will be possible to define them via scripting.
+
+## "lore"
+
+Defines a list of lines of lore text to show in the tooltip box.
+
+Optional. Default: no lore.
+
+Must be a json array (`[]`) containing strings and json-formatted text components, as they would be used in commands such as `/tellraw`.

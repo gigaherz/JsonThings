@@ -50,12 +50,17 @@ public class Utils
         return reg.getValue(which);
     }
 
-    public static <T> T getOrCrash(Registry<T> registry, String name)
+    public static <T> T getOrCrash(Registry<T> registry, ResourceLocation name)
     {
-        T t = registry.get(new ResourceLocation(name));
+        T t = registry.get(name);
         if (t == null)
             throw new IllegalStateException("No object with name " + name + " found in the registry " + registry);
         return t;
+    }
+
+    public static <T> T getOrCrash(Registry<T> registry, String name)
+    {
+        return getOrCrash(registry, new ResourceLocation(name));
     }
 
     public MutableComponent withFont(MutableComponent component, ResourceLocation font)

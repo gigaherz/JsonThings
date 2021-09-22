@@ -1,6 +1,12 @@
 {
-  "heal_amount": 1,
+  "nutrition": 1,
   "saturation": 0,
   "fast": true,
-  "always_eat": true
+  "always_eat": true,
+  "effects": [
+    {
+      "visible": 2,
+      "complex \"name\" test": null
+    }
+  ]
 }

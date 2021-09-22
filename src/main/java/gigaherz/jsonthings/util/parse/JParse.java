@@ -1,17 +1,16 @@
 package gigaherz.jsonthings.util.parse;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.mojang.datafixers.util.Pair;
+import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.storage.loot.IntRange;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -30,7 +29,7 @@ public class JParse
 
     public static Any begin(JsonElement data)
     {
-        return new JParse("/", data);
+        return new JParse("$", data);
     }
 
     private String formatAltTypes(String and)
@@ -48,7 +47,7 @@ public class JParse
     {
         if (!data.isJsonObject())
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("a Json Object"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a Json Object"));
         }
         return this;
     }
@@ -58,7 +57,7 @@ public class JParse
     {
         if (!data.isJsonArray())
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("a Json Array"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a Json Array"));
         }
         return this;
     }
@@ -68,7 +67,7 @@ public class JParse
     {
         if (!GsonHelper.isStringValue(data))
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("a String"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a String"));
         }
         return this;
     }
@@ -78,7 +77,7 @@ public class JParse
     {
         if (!GsonHelper.isNumberValue(data))
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("an Integer"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("an Integer"));
         }
         return this;
     }
@@ -88,7 +87,7 @@ public class JParse
     {
         if (!GsonHelper.isNumberValue(data))
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("a Long Integer"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a Long Integer"));
         }
         return this;
     }
@@ -98,7 +97,7 @@ public class JParse
     {
         if (!GsonHelper.isNumberValue(data))
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("a Float"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a Float"));
         }
         return this;
     }
@@ -108,7 +107,7 @@ public class JParse
     {
         if (!GsonHelper.isNumberValue(data))
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("a Double"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a Double"));
         }
         return this;
     }
@@ -118,7 +117,7 @@ public class JParse
     {
         if (!GsonHelper.isBooleanValue(data))
         {
-            throw new JsonParseException("Value at '" + path + "' must be " + formatAltTypes("a Boolean"));
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a Boolean"));
         }
         return this;
     }
@@ -129,7 +128,16 @@ public class JParse
         altTypes.add("a Json Object");
         if (data.isJsonObject())
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -140,7 +148,16 @@ public class JParse
         altTypes.add("a Json Array");
         if (data.isJsonArray())
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -151,7 +168,16 @@ public class JParse
         altTypes.add("aString");
         if (GsonHelper.isStringValue(data))
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -162,7 +188,16 @@ public class JParse
         altTypes.add("an Integer");
         if (GsonHelper.isNumberValue(data))
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -173,7 +208,16 @@ public class JParse
         altTypes.add("a Long Integer");
         if (GsonHelper.isNumberValue(data))
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -184,7 +228,16 @@ public class JParse
         altTypes.add("a Float");
         if (GsonHelper.isNumberValue(data))
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -195,7 +248,16 @@ public class JParse
         altTypes.add("a Double");
         if (GsonHelper.isNumberValue(data))
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -206,7 +268,16 @@ public class JParse
         altTypes.add("a Boolean");
         if (GsonHelper.isBooleanValue(data))
         {
-            visitor.accept(this);
+            try
+            {
+                visitor.accept(this);
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
         }
         return this;
     }
@@ -217,10 +288,17 @@ public class JParse
         var obj = data.getAsJsonObject();
         if (!obj.has(keyName))
         {
-            throw new JsonParseException("Object at '" + path + "' must contain a key with name '" + keyName + "'.");
+            throw new JParseException("Json Object at '" + path + "' must contain a key with name '" + keyName + "'.");
         }
-        var keyPath = path + "/" + keyName;
-        visitor.accept(new JParse(keyPath, obj.get(keyName)));
+        var keyPath = path + wrapName(keyName);
+        try
+        {
+            visitor.accept(new JParse(keyPath, obj.get(keyName)));
+        }
+        catch(Exception e)
+        {
+            throw new RuntimeException("Error running visitor for " + keyPath);
+        }
         return this;
     }
 
@@ -228,12 +306,44 @@ public class JParse
     public ObjValue ifKey(String keyName, Consumer<Any> visitor)
     {
         var obj = data.getAsJsonObject();
-        if (obj.has("keyName"))
+        if (obj.has(keyName))
         {
-            var keyPath = path + "/" + keyName;
-            visitor.accept(new JParse(keyPath, obj.get(keyName)));
+            var keyPath = path + wrapName(keyName);
+            try
+            {
+                visitor.accept(new JParse(keyPath, obj.get(keyName)));
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + keyPath, e);
+            }
         }
         return this;
+    }
+
+    private static final Pattern SIMPLE_IDENT = Pattern.compile("^[a-zA-Z0-9_]+$");
+    private String wrapName(String keyName)
+    {
+        if (SIMPLE_IDENT.matcher(keyName).matches())
+            return "." + keyName;
+        return "[\"" + keyName.replace("\"", "\\\"") + "\"]";
+    }
+
+    @Override
+    public void handleObj(Consumer<JsonObject> value)
+    {
+        try
+        {
+            value.accept(data.getAsJsonObject());
+        }
+        catch(Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
     }
 
     @Override
@@ -243,7 +353,16 @@ public class JParse
         for (int i=0;i<arr.size();i++)
         {
             var entryPath = path + "[" + i + "]";
-            visitor.accept(i, new JParse(entryPath, arr.get(i)));
+            try
+            {
+                visitor.accept(i, new JParse(entryPath, arr.get(i)));
+            }
+            catch(Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + entryPath, e);
+            }
         }
     }
 
@@ -254,8 +373,32 @@ public class JParse
         collector.accept(IntStream.range(0, arr.size())
                 .mapToObj(i -> {
                     var entryPath = path + "[" + i + "]";
-                    return new JParse(entryPath, arr.get(i));
+                    try
+                    {
+                        return new JParse(entryPath, arr.get(i));
+                    }
+                    catch(Exception e)
+                    {
+                        if (e instanceof JParseException)
+                            throw e;
+                        throw new JParseException("Error running visitor for " + entryPath, e);
+                    }
                 }));
+    }
+
+    @Override
+    public void handleArray(Consumer<JsonArray> value)
+    {
+        try
+        {
+            value.accept(data.getAsJsonArray());
+        }
+        catch(Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
     }
 
     @Override
@@ -264,7 +407,7 @@ public class JParse
         var arr = data.getAsJsonArray();
         if (arr.size() == 0)
         {
-            throw new JsonParseException("Array at '" + path + "' must not be empty.");
+            throw new JParseException("Json Array at '" + path + "' must not be empty.");
         }
         return this;
     }
@@ -275,7 +418,7 @@ public class JParse
         var arr = data.getAsJsonArray();
         if (arr.size() < min)
         {
-            throw new JsonParseException("Array at '" + path + "' must contain at least "+min+".");
+            throw new JParseException("Json Array at '" + path + "' must contain at least "+min+".");
         }
         return this;
     }
@@ -286,7 +429,7 @@ public class JParse
         var arr = data.getAsJsonArray();
         if (arr.size() < min)
         {
-            throw new JsonParseException("Array at '" + path + "' must contain at least "+min+".");
+            throw new JParseException("Json Array at '" + path + "' must contain at least "+min+".");
         }
         return this;
     }
@@ -294,7 +437,16 @@ public class JParse
     @Override
     public void handle(Consumer<String> value)
     {
-        value.accept(data.getAsJsonPrimitive().getAsString());
+        try
+        {
+            value.accept(data.getAsJsonPrimitive().getAsString());
+        }
+        catch(Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
     }
 
     @Override
@@ -309,7 +461,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsFloat();
         if (val < min)
         {
-            throw new JsonParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
         }
         return this;
     }
@@ -320,7 +472,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsFloat();
         if (val < min || val >= maxExclusive)
         {
-            throw new JsonParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
         }
         return this;
     }
@@ -328,7 +480,16 @@ public class JParse
     @Override
     public void handle(DoubleConsumer value)
     {
-        value.accept(data.getAsJsonPrimitive().getAsDouble());
+        try
+        {
+            value.accept(data.getAsJsonPrimitive().getAsDouble());
+        }
+        catch(Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
     }
 
     @Override
@@ -337,7 +498,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsDouble();
         if (val < min)
         {
-            throw new JsonParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
         }
         return this;
     }
@@ -348,7 +509,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsDouble();
         if (val < min || val >= maxExclusive)
         {
-            throw new JsonParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
         }
         return this;
     }
@@ -356,7 +517,16 @@ public class JParse
     @Override
     public void handle(IntConsumer value)
     {
-        value.accept(data.getAsJsonPrimitive().getAsInt());
+        try
+        {
+            value.accept(data.getAsJsonPrimitive().getAsInt());
+        }
+        catch(Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
     }
 
     @Override
@@ -365,7 +535,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsInt();
         if (val < min)
         {
-            throw new JsonParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
         }
         return this;
     }
@@ -376,7 +546,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsInt();
         if (val < min || val >= maxExclusive)
         {
-            throw new JsonParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
         }
         return this;
     }
@@ -384,13 +554,31 @@ public class JParse
     @Override
     public void handle(BooleanConsumer value)
     {
-        value.accept(data.getAsJsonPrimitive().getAsBoolean());
+        try
+        {
+            value.accept(data.getAsJsonPrimitive().getAsBoolean());
+        }
+        catch(Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
     }
 
     @Override
     public void handle(LongConsumer value)
     {
-        value.accept(data.getAsJsonPrimitive().getAsLong());
+        try
+        {
+            value.accept(data.getAsJsonPrimitive().getAsLong());
+        }
+        catch(Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
     }
 
     @Override
@@ -399,7 +587,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsLong();
         if (val < min)
         {
-            throw new JsonParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
         }
         return this;
     }
@@ -410,7 +598,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsLong();
         if (val < min || val >= maxExclusive)
         {
-            throw new JsonParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
         }
         return this;
     }

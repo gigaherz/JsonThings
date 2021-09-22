@@ -15,7 +15,7 @@ NOTE: Food definitions **do not** automatically create an item. You must define 
 
 ```json
 {
-  "heal_amount": 1,
+  "nutrition": 1,
   "saturation": 1.0,
   "meat": false,
   "fast": false,
@@ -26,7 +26,7 @@ NOTE: Food definitions **do not** automatically create an item. You must define 
 }
 ```
 
-## "heal_amount"
+## "nutrition"
 
 Defines how much hunger this food restores.
 

@@ -44,10 +44,17 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
 
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json)
     {
-        TBuilder builder = processThing(key, json.getAsJsonObject());
-        buildersByName.put(key, builder);
-        builders.add(builder);
-        return builder;
+        try
+        {
+            TBuilder builder = processThing(key, json.getAsJsonObject());
+            buildersByName.put(key, builder);
+            builders.add(builder);
+            return builder;
+        }
+        catch(Exception e)
+        {
+            throw new RuntimeException("Error parsing " + key, e);
+        }
     }
 
     public List<TBuilder> getBuilders()

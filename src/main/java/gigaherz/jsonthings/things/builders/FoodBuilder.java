@@ -1,16 +1,26 @@
 package gigaherz.jsonthings.things.builders;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FoodBuilder
 {
     private FoodProperties builtFood = null;
 
     private final ResourceLocation registryName;
+    private final List<Pair<MobEffectInstanceBuilder, Float>> effects = new ArrayList<>();
+    private int nutrition;
+    private float saturation;
+    private boolean isMeat;
+    private boolean alwaysEat;
+    private boolean fast;
 
-    private FoodProperties.Builder foodBuilder = new FoodProperties.Builder();
 
     private FoodBuilder(ResourceLocation registryName)
     {
@@ -22,44 +32,47 @@ public class FoodBuilder
         return new FoodBuilder(registryName);
     }
 
-    public FoodBuilder withHealAmount(int num)
+    public void setNutrition(int num)
     {
-        foodBuilder = foodBuilder.nutrition(num);
-        return this;
+        this.nutrition = num;
     }
 
-    public FoodBuilder withSaturation(float num)
+    public void setSaturation(float num)
     {
-        foodBuilder = foodBuilder.saturationMod(num);
-        return this;
+        this.saturation = num;
     }
 
-    public FoodBuilder makeMeat()
+    public void setIsMeat(boolean isMeat)
     {
-        foodBuilder = foodBuilder.meat();
-        return this;
+        this.isMeat = isMeat;
     }
 
-    public FoodBuilder alwaysEat()
+    public void setAlwaysEat(boolean alwaysEat)
     {
-        foodBuilder = foodBuilder.alwaysEat();
-        return this;
+        this.alwaysEat = alwaysEat;
     }
 
-    public FoodBuilder fast()
+    public void setFast(boolean fast)
     {
-        foodBuilder = foodBuilder.fast();
-        return this;
+        this.fast = fast;
     }
 
-    public FoodBuilder effect(MobEffectInstance effect, float probability)
+    public void effect(MobEffectInstanceBuilder effect, float probability)
     {
-        foodBuilder = foodBuilder.effect(effect, probability);
-        return this;
+        effects.add(Pair.of(effect, probability));
     }
 
     public FoodProperties build()
     {
+        var foodBuilder = new FoodProperties.Builder();
+        foodBuilder.nutrition(nutrition);
+        foodBuilder.saturationMod(saturation);
+        if (isMeat) foodBuilder.meat();
+        if (fast) foodBuilder.fast();
+        if (alwaysEat) foodBuilder.alwaysEat();
+        effects.forEach(pair -> {
+            foodBuilder.effect(pair.getFirst()::build, pair.getSecond());
+        });
         return builtFood = foodBuilder.build();
     }
 

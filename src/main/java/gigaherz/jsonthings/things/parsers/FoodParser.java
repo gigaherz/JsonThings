@@ -1,17 +1,14 @@
 package gigaherz.jsonthings.things.parsers;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.FoodBuilder;
-import gigaherz.jsonthings.util.Utils;
+import gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
+import gigaherz.jsonthings.util.parse.JParse;
+import gigaherz.jsonthings.util.parse.ObjValue;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.mutable.MutableFloat;
 
 public class FoodParser extends ThingParser<FoodBuilder>
 {
@@ -29,67 +26,37 @@ public class FoodParser extends ThingParser<FoodBuilder>
     @Override
     public FoodBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        FoodBuilder builder = FoodBuilder.begin(key);
+        final FoodBuilder builder = FoodBuilder.begin(key);
 
-        int heal_amount = GsonHelper.getAsInt(data, "heal_amount");
-        if (heal_amount > 0)
-        {
-            builder = builder.withHealAmount(heal_amount);
-        }
-        else
-        {
-            throw new RuntimeException("'heal_amount' must be positive and not zero.");
-        }
-
-        float saturation = GsonHelper.getAsFloat(data, "saturation");
-        if (saturation >= 0)
-        {
-            builder = builder.withSaturation(saturation);
-        }
-        else
-        {
-            throw new RuntimeException("'saturation' not be negative.");
-        }
-
-        if (GsonHelper.getAsBoolean(data, "meat", false))
-        {
-            builder = builder.makeMeat();
-        }
-
-        if (GsonHelper.getAsBoolean(data, "fast", false))
-        {
-            builder = builder.fast();
-        }
-
-        if (GsonHelper.getAsBoolean(data, "always_eat", false))
-        {
-            builder = builder.alwaysEat();
-        }
-
-        if (data.has("effects"))
-        {
-            JsonArray effects = data.get("effects").getAsJsonArray();
-            for (JsonElement element : effects)
-            {
-                JsonObject effect = element.getAsJsonObject();
-                MobEffectInstance ei = parseEffectInstance(effect);
-                float probability = GsonHelper.getAsFloat(effect, "probability", 1.0f);
-                builder = builder.effect(ei, probability);
-            }
-        }
+        JParse.begin(data)
+                .obj()
+                .key("nutrition", val -> val.intValue().min(1).handle(builder::setNutrition))
+                .key("saturation", val -> val.intValue().min(0).handle(builder::setSaturation))
+                .ifKey("meat", val -> val.bool().handle(builder::setIsMeat))
+                .ifKey("fast", val -> val.bool().handle(builder::setFast))
+                .ifKey("always_eat", val -> val.bool().handle(builder::setAlwaysEat))
+                .ifKey("effects", val -> val.array().forEach((i,entry) -> {
+                    var probability = new MutableFloat(1.0f);
+                    var ei = parseEffectInstance(entry.obj()
+                            .ifKey("probability", v3 -> v3.floatValue().range(0,1).handle(probability::setValue)));
+                    builder.effect(ei, probability.getValue());
+                }));
 
         return builder;
     }
 
-    private MobEffectInstance parseEffectInstance(JsonObject data)
+    private MobEffectInstanceBuilder parseEffectInstance(ObjValue obj)
     {
-        MobEffect ef = Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, new ResourceLocation(GsonHelper.getAsString(data, "effect")));
-        int duration = GsonHelper.getAsInt(data, "duration", 0);
-        int amplifier = GsonHelper.getAsInt(data, "amplifier", 0);
-        boolean isAmbient = GsonHelper.getAsBoolean(data, "ambient", false);
-        boolean visible = GsonHelper.getAsBoolean(data, "visible", true);
-        boolean showParticles = GsonHelper.getAsBoolean(data, "show_particles", visible);
-        boolean showIcon = GsonHelper.getAsBoolean(data, "show_icon", visible);
-        return new MobEffectInstance(ef, duration, amplifier, isAmbient, showParticles, showIcon);
+        var builder = new MobEffectInstanceBuilder();
+        obj
+                .key("complex \"name\" test", val -> val.bool())
+                .key("effect", val -> val.string().handle(str -> builder.setEffect(new ResourceLocation(str))))
+                .key("duration", val -> val.intValue().min(0).handle(builder::setDuration))
+                .key("amplifier", val -> val.intValue().min(0).handle(builder::setAmplifier))
+                .key("ambient", val -> val.bool().handle(builder::setAmbient))
+                .key("visible", val -> val.bool().handle(builder::setAmbient))
+                .key("show_particles", val -> val.bool().handle(builder::setAmbient))
+                .key("show_icon", val -> val.bool().handle(builder::setAmbient));
+        return builder;
     }
 }

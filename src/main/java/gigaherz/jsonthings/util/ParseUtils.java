@@ -1,16 +1,25 @@
 package gigaherz.jsonthings.util;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.util.GsonHelper;
 
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
+import java.util.function.*;
+import java.util.stream.Stream;
 
 public class ParseUtils
 {
+    /*
+    JParse.begin(data)
+        .obj()
+            .key("x", v -> v.string().
+     */
+
+
     public static void bool(JsonObject data, String key, BooleanConsumer action)
     {
         action.accept(GsonHelper.getAsBoolean(data, key));

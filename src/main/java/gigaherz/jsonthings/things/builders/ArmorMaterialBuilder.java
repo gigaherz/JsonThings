@@ -47,7 +47,7 @@ public class ArmorMaterialBuilder
         return this;
     }
 
-    public ArmorMaterialBuilder withToughness(float toughness)
+    public ArmorMaterialBuilder setToughness(float toughness)
     {
         this.toughness = toughness;
         return this;

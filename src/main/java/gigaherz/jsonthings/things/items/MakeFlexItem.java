@@ -261,7 +261,7 @@ public class MakeFlexItem
         }
 
         public static FlexEventHandler<InteractionResultHolder<ItemStack>> getEventHandler(String eventName,
-                                                       @FieldValue("eventHandlers") Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers)
+                                                                                           @FieldValue("eventHandlers") Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers)
         {
             return eventHandlers.get(eventName);
         }

@@ -1,6 +1,5 @@
 package gigaherz.jsonthings.things;
 
-import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.things.events.IEventRunner;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionResultHolder;

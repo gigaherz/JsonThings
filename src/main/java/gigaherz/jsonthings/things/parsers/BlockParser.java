@@ -100,9 +100,9 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
         ParseUtils.floatRangeOptional(data, "friction", 0.0f, 1.0f, builder::withFriction);
 
-        ParseUtils.floatPositiveOrZeroOptional(data, "speed_factor", (FloatConsumer)builder::withSpeedFactor);
+        ParseUtils.floatPositiveOrZeroOptional(data, "speed_factor", (FloatConsumer) builder::withSpeedFactor);
 
-        ParseUtils.floatPositiveOrZeroOptional(data, "jump_factor", (FloatConsumer)builder::withJumpFactor);
+        ParseUtils.floatPositiveOrZeroOptional(data, "jump_factor", (FloatConsumer) builder::withJumpFactor);
 
         ParseUtils.stringOptional(data, "sound_type", str -> builder.withSoundType(new ResourceLocation(str)));
 

@@ -45,79 +45,79 @@ public class EnchantmentBuilder
         return new EnchantmentBuilder(registryName);
     }
 
-    public EnchantmentBuilder withRarity(Enchantment.Rarity rarity)
+    public EnchantmentBuilder setRarity(Enchantment.Rarity rarity)
     {
         this.rarity = rarity;
         return this;
     }
 
-    public EnchantmentBuilder withEnchantmentType(EnchantmentCategory type)
+    public EnchantmentBuilder setEnchantmentType(EnchantmentCategory type)
     {
         this.type = type;
         return this;
     }
 
-    public EnchantmentBuilder withMinLevel(int minLevel)
+    public EnchantmentBuilder setMinLevel(int minLevel)
     {
         this.minLevel = minLevel;
         return this;
     }
 
-    public EnchantmentBuilder withMaxLevel(int macLevel)
+    public EnchantmentBuilder setMaxLevel(int macLevel)
     {
         this.maxLevel = macLevel;
         return this;
     }
 
-    public EnchantmentBuilder withBaseCost(int baseCost)
+    public EnchantmentBuilder setBaseCost(int baseCost)
     {
         this.baseCost = baseCost;
         return this;
     }
 
-    public EnchantmentBuilder withPerLevelCost(int perLevelCost)
+    public EnchantmentBuilder setPerLevelCost(int perLevelCost)
     {
         this.perLevelCost = perLevelCost;
         return this;
     }
 
-    public EnchantmentBuilder withRandomCost(int randomCost)
+    public EnchantmentBuilder setRandomCost(int randomCost)
     {
         this.randomCost = randomCost;
         return this;
     }
 
-    public EnchantmentBuilder isTreasure(boolean treasure)
+    public EnchantmentBuilder setIsTreasure(boolean treasure)
     {
         this.isTreasure = treasure;
         return this;
     }
 
-    public EnchantmentBuilder isCurse(boolean curse)
+    public EnchantmentBuilder setIsCurse(boolean curse)
     {
         this.isCurse = curse;
         return this;
     }
 
-    public EnchantmentBuilder isTradeable(boolean tradeable)
+    public EnchantmentBuilder setIsTradeable(boolean tradeable)
     {
         this.isTradeable = tradeable;
         return this;
     }
 
-    public EnchantmentBuilder isDiscoverable(boolean discoverable)
+    public EnchantmentBuilder setIsDiscoverable(boolean discoverable)
     {
         this.isDiscoverable = discoverable;
         return this;
     }
 
-    public EnchantmentBuilder withItemCompatibility(ItemPredicate item_compatibility)
+    public EnchantmentBuilder setItemCompatibility(ItemPredicate item_compatibility)
     {
         this.itemCompatibility = item_compatibility;
         return this;
     }
 
-    public EnchantmentBuilder withBlacklist(List<ResourceLocation> blacklist)
+    public EnchantmentBuilder setBlacklist(List<ResourceLocation> blacklist)
     {
         this.blackList = blacklist;
         return this;
@@ -159,7 +159,7 @@ public class EnchantmentBuilder
         return registryName;
     }
 
-    public EnchantmentBuilder isAllowedOnBooks(boolean allow_on_books)
+    public EnchantmentBuilder setIsAllowedOnBooks(boolean allow_on_books)
     {
         this.isAllowedOnBooks = allow_on_books;
         return this;

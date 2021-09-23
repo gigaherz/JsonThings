@@ -243,7 +243,7 @@ public class ItemBuilder
     private CreativeModeTab findCreativeTab(String label)
     {
         var rl = new ResourceLocation(label);
-        for(CreativeModeTabBuilder builder : JsonThings.creativeModeTabParser.getBuilders())
+        for (CreativeModeTabBuilder builder : JsonThings.creativeModeTabParser.getBuilders())
         {
             if (builder.getRegistryName().equals(rl))
                 return builder.getBuiltTab();

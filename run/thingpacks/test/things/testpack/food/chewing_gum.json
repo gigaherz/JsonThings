@@ -2,11 +2,5 @@
   "nutrition": 1,
   "saturation": 0,
   "fast": true,
-  "always_eat": true,
-  "effects": [
-    {
-      "visible": 2,
-      "complex \"name\" test": null
-    }
-  ]
+  "always_eat": true
 }

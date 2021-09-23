@@ -1,12 +1,12 @@
 package gigaherz.jsonthings.things.parsers;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.ArmorMaterialBuilder;
+import gigaherz.jsonthings.util.parse.JParse;
+import gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.HashMap;
@@ -28,104 +28,40 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
     @Override
     public ArmorMaterialBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        ArmorMaterialBuilder builder = ArmorMaterialBuilder.begin(key);
+        final ArmorMaterialBuilder builder = ArmorMaterialBuilder.begin(key);
 
-        float toughness = GsonHelper.getAsFloat(data, "toughness");
-        if (toughness >= 0)
-        {
-            builder = builder.withToughness(toughness);
-        }
-        else
-        {
-            throw new RuntimeException("'toughness' must be positive or zero.");
-        }
-
-        float knockbackResistance = GsonHelper.getAsFloat(data, "knockback_resistance");
-        if (knockbackResistance >= 0)
-        {
-            builder = builder.withKnockbackResistance(knockbackResistance);
-        }
-        else
-        {
-            throw new RuntimeException("'knockback_resistance' must be positive or zero.");
-        }
-
-        int enchantmentValue = GsonHelper.getAsInt(data, "enchantment_value");
-        if (enchantmentValue >= 0)
-        {
-            builder = builder.withEnchantmentValue(enchantmentValue);
-        }
-        else
-        {
-            throw new RuntimeException("'enchantment_value' must be positive or zero.");
-        }
-
-        if (data.has("repair_ingredient"))
-        {
-            builder = builder.withRepairIngredient(TierParser.parseMiniIngredient(data.get("repair_ingredient")));
-        }
-        else
-        {
-            throw new RuntimeException("Missing required 'repair_ingredient'.");
-        }
-
-        if (data.has("equip_sound"))
-        {
-            builder = builder.withEquipSound(new ResourceLocation(GsonHelper.getAsString(data, "equip_sound")));
-        }
-        else
-        {
-            throw new RuntimeException("Missing required 'equip_sound'.");
-        }
-
-        if (data.has("durability"))
-        {
-            builder = builder.withDurability(parseEquipmentSlotMap(data, "durability"));
-        }
-        else
-        {
-            throw new RuntimeException("Missing required 'durability'.");
-        }
-
-        if (data.has("armor"))
-        {
-            builder = builder.withDefense(parseEquipmentSlotMap(data, "armor"));
-        }
-        else
-        {
-            throw new RuntimeException("Missing required 'armor'.");
-        }
+        JParse.begin(data)
+                .obj()
+                .key("toughness", val -> val.floatValue().min(0).handle(builder::setToughness))
+                .key("knockback_resistance", val -> val.floatValue().min(0).handle(builder::withKnockbackResistance))
+                .key("enchantment_value", val -> val.intValue().min(0).handle(builder::withEnchantmentValue))
+                .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::withRepairIngredient))
+                .key("equip_sound", val -> val.string().map(ResourceLocation::new).handle(builder::withEquipSound))
+                .key("durability", val -> val.map(this::parseEquipmentSlotMap).handle(builder::withDurability))
+                .key("armor", val -> val.map(this::parseEquipmentSlotMap).handle(builder::withDefense));
 
         return builder;
     }
 
-    private Map<EquipmentSlot, Integer> parseEquipmentSlotMap(JsonObject data, String name)
+    private Map<EquipmentSlot, Integer> parseEquipmentSlotMap(Any data)
     {
-        JsonElement element = data.get(name);
-
         Map<EquipmentSlot, Integer> map = new HashMap<>();
-        if (element.isJsonObject())
-        {
-            var obj = element.getAsJsonObject();
 
-            for(EquipmentSlot slot : EquipmentSlot.values())
-            {
-                map.put(slot, obj.get(slot.getName()).getAsInt());
-            }
-        }
-        else if(GsonHelper.isNumberValue(element))
-        {
-            int number = element.getAsInt();
-
-            for(EquipmentSlot slot : EquipmentSlot.values())
-            {
-                map.put(slot, number);
-            }
-        }
-        else
-        {
-            throw new RuntimeException("'" + name + "' must be either a json object, or a string");
-        }
+        data
+                .ifObj(obj -> {
+                    for (EquipmentSlot slot : EquipmentSlot.values())
+                    {
+                        obj.ifKey(slot.getName(), val -> val.intValue().handle(num -> map.put(slot, num)));
+                    }
+                })
+                .ifInteger(val -> {
+                    var num = val.getAsInt();
+                    for (EquipmentSlot slot : EquipmentSlot.values())
+                    {
+                        map.put(slot, num);
+                    }
+                })
+                .typeError();
 
         return map;
     }

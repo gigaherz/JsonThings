@@ -1,4 +1,4 @@
-package gigaherz.jsonthings.util.parse;
+package gigaherz.jsonthings.util.parse.function;
 
 @FunctionalInterface
 public interface IntObjBiFunction<T, R>

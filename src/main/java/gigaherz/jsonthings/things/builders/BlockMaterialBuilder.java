@@ -1,81 +1,90 @@
 package gigaherz.jsonthings.things.builders;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 
 public class BlockMaterialBuilder
 {
-    private Material builtFood = null;
+    private Material builtMaterial = null;
 
     private final ResourceLocation registryName;
 
-    private final Material.Builder materialBuilder;
+    private PushReaction pushReaction = PushReaction.NORMAL;
 
-    private BlockMaterialBuilder(ResourceLocation registryName, MaterialColor color)
+    private MaterialColor color;
+    private boolean blocksMotion = true;
+    private boolean flammable;
+    private boolean liquid;
+    private boolean replaceable;
+    private boolean solid = true;
+    private boolean solidBlocking = true;
+
+    private BlockMaterialBuilder(ResourceLocation registryName)
     {
         this.registryName = registryName;
-        this.materialBuilder = new Material.Builder(color);
     }
 
-    public static BlockMaterialBuilder begin(ResourceLocation registryName, MaterialColor color)
+    public static BlockMaterialBuilder begin(ResourceLocation registryName)
     {
-        return new BlockMaterialBuilder(registryName, color);
+        return new BlockMaterialBuilder(registryName);
     }
 
-    public BlockMaterialBuilder liquid() {
-        materialBuilder.liquid();
-        return this;
-    }
-
-    public BlockMaterialBuilder nonSolid() {
-        materialBuilder.nonSolid();
-        return this;
-    }
-
-    public BlockMaterialBuilder noCollider() {
-        materialBuilder.noCollider();
-        return this;
-    }
-
-    public BlockMaterialBuilder notSolidBlocking() {
-        materialBuilder.notSolidBlocking();
-        return this;
-    }
-
-    public BlockMaterialBuilder flammable() {
-        materialBuilder.flammable();
-        return this;
-    }
-
-    public BlockMaterialBuilder replaceable() {
-        materialBuilder.replaceable();
-        return this;
-    }
-
-    public BlockMaterialBuilder destroyOnPush() {
-        materialBuilder.destroyOnPush();
-        return this;
-    }
-
-    public BlockMaterialBuilder notPushable() {
-        materialBuilder.notPushable();
-        return this;
-    }
-
-    public Material build()
+    public void setBuiltMaterial(Material builtMaterial)
     {
-        return builtFood = materialBuilder.build();
+        this.builtMaterial = builtMaterial;
+    }
+
+    public void setPushReaction(PushReaction pushReaction)
+    {
+        this.pushReaction = pushReaction;
+    }
+
+    public void setBlocksMotion(boolean blocksMotion)
+    {
+        this.blocksMotion = blocksMotion;
+    }
+
+    public void setFlammable(boolean flammable)
+    {
+        this.flammable = flammable;
+    }
+
+    public void setLiquid(boolean liquid)
+    {
+        this.liquid = liquid;
+    }
+
+    public void setReplaceable(boolean replaceable)
+    {
+        this.replaceable = replaceable;
+    }
+
+    public void setSolid(boolean solid)
+    {
+        this.solid = solid;
+    }
+
+    public void setColor(MaterialColor color)
+    {
+        this.color = color;
+    }
+
+    public void setSolidBlocking(boolean solidBlocking)
+    {
+        this.solidBlocking = solidBlocking;
+    }
+
+    public Material build() {
+        return builtMaterial = new Material(this.color, this.liquid, this.solid, this.blocksMotion, this.solidBlocking, this.flammable, this.replaceable, this.pushReaction);
     }
 
     public Material getBuiltMaterial()
     {
-        if (builtFood == null)
+        if (builtMaterial == null)
             return build();
-        return builtFood;
+        return builtMaterial;
     }
 
     public ResourceLocation getRegistryName()

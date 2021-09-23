@@ -2,13 +2,10 @@ package gigaherz.jsonthings.things.builders;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ForgeTier;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -38,58 +35,49 @@ public class TierBuilder
         return new TierBuilder(registryName);
     }
 
-    public TierBuilder withLevel(int level)
+    public void setLevel(int level)
     {
         this.level = level;
-        return this;
     }
 
-    public TierBuilder withUses(int uses)
+    public void setUses(int uses)
     {
         this.uses = uses;
-        return this;
     }
 
-    public TierBuilder withSpeed(float speed)
+    public void setSpeed(float speed)
     {
         this.speed = speed;
-        return this;
     }
 
-    public TierBuilder withAttackDamageBonus(float attackDamageBonus)
+    public void setAttackDamageBonus(float attackDamageBonus)
     {
         this.attackDamageBonus = attackDamageBonus;
-        return this;
     }
 
-    public TierBuilder withEnchantmentValue(int enchantmentValue)
+    public void setEnchantmentValue(int enchantmentValue)
     {
         this.enchantmentValue = enchantmentValue;
-        return this;
     }
 
-    public TierBuilder withTag(Tag<Block> tag)
+    public void setTag(Tag<Block> tag)
     {
         this.tag = tag;
-        return this;
     }
 
-    public TierBuilder withRepairIngredient(Supplier<Ingredient> repairIngredient)
+    public void setRepairIngredient(Supplier<Ingredient> repairIngredient)
     {
         this.repairIngredient = repairIngredient;
-        return this;
     }
 
-    public TierBuilder withAfterDependencies(List<Object> sortAfter)
+    public void setAfterDependencies(List<Object> sortAfter)
     {
         this.sortAfter = sortAfter;
-        return this;
     }
 
-    public TierBuilder withBeforeDependencies(List<Object> sortBefore)
+    public void setBeforeDependencies(List<Object> sortBefore)
     {
         this.sortBefore = sortBefore;
-        return this;
     }
 
     public ForgeTier build()

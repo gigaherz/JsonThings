@@ -1,14 +1,14 @@
 package gigaherz.jsonthings.things.parsers;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.BlockMaterialBuilder;
 import gigaherz.jsonthings.things.serializers.MaterialColors;
+import gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.PushReaction;
 
 public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
 {
@@ -26,45 +26,36 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
     @Override
     public BlockMaterialBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        MaterialColor mapColor;
+        final BlockMaterialBuilder builder = BlockMaterialBuilder.begin(key);
 
-        JsonElement map_color = data.get("map_color");
-        if (GsonHelper.isStringValue(map_color))
-        {
-            mapColor = MaterialColors.get(map_color.getAsString());
-        }
-        else if (GsonHelper.isNumberValue(map_color))
-        {
-            int color = map_color.getAsInt();
-            if (color < 0 || color >= 64)
-            {
-                throw new RuntimeException("'map_color' must either be a string, or an integer be between 0 and 63 (both inclusive).");
-            }
-            mapColor = MaterialColor.MATERIAL_COLORS[color];
-        }
-        else
-        {
-            throw new RuntimeException("'map_color' must either be a string, or an integer be between 0 and 63 (both inclusive).");
-        }
-
-        BlockMaterialBuilder builder = BlockMaterialBuilder.begin(key, mapColor);
-
-        if (GsonHelper.getAsBoolean(data, "liquid", false)) builder = builder.liquid();
-        if (GsonHelper.getAsBoolean(data, "flammable", false)) builder = builder.flammable();
-        if (GsonHelper.getAsBoolean(data, "replaceable", false)) builder = builder.replaceable();
-        if (!GsonHelper.getAsBoolean(data, "solid", true)) builder = builder.nonSolid();
-        if (!GsonHelper.getAsBoolean(data, "blocks_motion", true)) builder = builder.noCollider();
-        if (!GsonHelper.getAsBoolean(data, "solid_blocking", true)) builder = builder.notSolidBlocking();
-
-        String pushReaction = GsonHelper.getAsString(data, "push_reaction", "normal");
-        switch(pushReaction)
-        {
-            case "block" -> builder = builder.notPushable();
-            case "destroy" -> builder = builder.destroyOnPush();
-            case "normal" -> {}
-            default -> throw new IllegalStateException("'push_reaction' must be one of: block, destroy, normal");
-        }
+        JParse.begin(data)
+                .obj()
+                .key("map_color", val -> val
+                        .ifString(str -> builder.setColor(MaterialColors.get(str.getAsString())))
+                        .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.getAsInt()]))
+                        .typeError()
+                )
+                .ifKey("liquid", val -> val.bool().handle(builder::setLiquid))
+                .ifKey("flammable", val -> val.bool().handle(builder::setFlammable))
+                .ifKey("replaceable", val -> val.bool().handle(builder::setReplaceable))
+                .ifKey("solid", val -> val.bool().handle(builder::setSolid))
+                .ifKey("blocks_motion", val -> val.bool().handle(builder::setBlocksMotion))
+                .ifKey("solid_blocking", val -> val.bool().handle(builder::setSolidBlocking))
+                .ifKey("push_reaction", val -> val.string().map(BlockMaterialParser::parsePushReaction).handle(builder::setPushReaction));
 
         return builder;
+    }
+
+    private static PushReaction parsePushReaction(String s)
+    {
+        return switch (s)
+        {
+            case "block" -> PushReaction.BLOCK;
+            case "destroy" -> PushReaction.DESTROY;
+            case "ignore" -> PushReaction.IGNORE;
+            case "push_only" -> PushReaction.PUSH_ONLY;
+            case "normal" -> PushReaction.NORMAL;
+            default -> throw new IllegalStateException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
+        };
     }
 }

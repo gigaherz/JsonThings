@@ -51,7 +51,7 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
             builders.add(builder);
             return builder;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new RuntimeException("Error parsing " + key, e);
         }

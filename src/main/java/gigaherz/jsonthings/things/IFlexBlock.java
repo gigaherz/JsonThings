@@ -1,6 +1,5 @@
 package gigaherz.jsonthings.things;
 
-import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.things.events.IEventRunner;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.world.InteractionResult;

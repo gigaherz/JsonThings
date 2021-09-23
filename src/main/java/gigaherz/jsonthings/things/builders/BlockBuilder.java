@@ -386,30 +386,70 @@ public class BlockBuilder
     }
 
     @Nullable
-    public Boolean requiresToolForDrops() { return getValueWithParent(requiresToolForDrops, BlockBuilder::requiresToolForDrops); }
-    @Nullable
-    public Boolean isAir() { return getValueWithParent(isAir, BlockBuilder::isAir); }
-    @Nullable
-    public Boolean hasCollision() { return getValueWithParent(hasCollision, BlockBuilder::hasCollision); }
-    @Nullable
-    public Boolean hasRandomTicks() { return getValueWithParent(randomTicks, BlockBuilder::hasRandomTicks); }
+    public Boolean requiresToolForDrops()
+    {
+        return getValueWithParent(requiresToolForDrops, BlockBuilder::requiresToolForDrops);
+    }
 
     @Nullable
-    public Integer getLightEmission() { return getValueWithParent(lightEmission, BlockBuilder::getLightEmission); }
-    @Nullable
-    public Integer getExplosionResistance() { return getValueWithParent(explosionResistance, BlockBuilder::getExplosionResistance); }
-    @Nullable
-    public Integer getDestroyTime() { return getValueWithParent(destroyTime, BlockBuilder::getDestroyTime); }
+    public Boolean isAir()
+    {
+        return getValueWithParent(isAir, BlockBuilder::isAir);
+    }
 
     @Nullable
-    public Float getFriction() { return getValueWithParent(friction, BlockBuilder::getFriction); }
-    @Nullable
-    public Float getSpeedFactor() { return getValueWithParent(speedFactor, BlockBuilder::getSpeedFactor); }
-    @Nullable
-    public Float getJumpFactor() { return getValueWithParent(jumpFactor, BlockBuilder::getJumpFactor); }
+    public Boolean hasCollision()
+    {
+        return getValueWithParent(hasCollision, BlockBuilder::hasCollision);
+    }
 
     @Nullable
-    public ResourceLocation getSoundType() { return getValueWithParent(soundType, BlockBuilder::getSoundType); }
+    public Boolean hasRandomTicks()
+    {
+        return getValueWithParent(randomTicks, BlockBuilder::hasRandomTicks);
+    }
+
+    @Nullable
+    public Integer getLightEmission()
+    {
+        return getValueWithParent(lightEmission, BlockBuilder::getLightEmission);
+    }
+
+    @Nullable
+    public Integer getExplosionResistance()
+    {
+        return getValueWithParent(explosionResistance, BlockBuilder::getExplosionResistance);
+    }
+
+    @Nullable
+    public Integer getDestroyTime()
+    {
+        return getValueWithParent(destroyTime, BlockBuilder::getDestroyTime);
+    }
+
+    @Nullable
+    public Float getFriction()
+    {
+        return getValueWithParent(friction, BlockBuilder::getFriction);
+    }
+
+    @Nullable
+    public Float getSpeedFactor()
+    {
+        return getValueWithParent(speedFactor, BlockBuilder::getSpeedFactor);
+    }
+
+    @Nullable
+    public Float getJumpFactor()
+    {
+        return getValueWithParent(jumpFactor, BlockBuilder::getJumpFactor);
+    }
+
+    @Nullable
+    public ResourceLocation getSoundType()
+    {
+        return getValueWithParent(soundType, BlockBuilder::getSoundType);
+    }
 
     public IFlexBlock getBuiltBlock()
     {

@@ -3,6 +3,11 @@ package gigaherz.jsonthings.util.parse;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import gigaherz.jsonthings.util.parse.function.IntObjBiConsumer;
+import gigaherz.jsonthings.util.parse.function.JsonArrayConsumer;
+import gigaherz.jsonthings.util.parse.function.JsonElementConsumer;
+import gigaherz.jsonthings.util.parse.function.JsonObjectConsumer;
+import gigaherz.jsonthings.util.parse.value.*;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.util.GsonHelper;
@@ -20,6 +25,7 @@ public class JParse
     private final String path;
     private final JsonElement data;
     private final List<String> altTypes = new ArrayList<>();
+    private boolean handledType = false;
 
     public JParse(String path, JsonElement data)
     {
@@ -40,6 +46,16 @@ public class JParse
         }
 
         return and;
+    }
+
+    private String formatAltTypes()
+    {
+        if (altTypes.size() > 0)
+        {
+            return String.join(", ", altTypes);
+        }
+
+        throw new RuntimeException("IMPLEMENTATION ERROR: typeError() called without having used any ifType() methods!");
     }
 
     @Override
@@ -123,16 +139,24 @@ public class JParse
     }
 
     @Override
+    public void typeError()
+    {
+        if (!handledType)
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes());
+    }
+
+    @Override
     public Any ifObj(Consumer<ObjValue> visitor)
     {
         altTypes.add("a Json Object");
         if (data.isJsonObject())
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -148,11 +172,12 @@ public class JParse
         altTypes.add("a Json Array");
         if (data.isJsonArray())
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -168,11 +193,12 @@ public class JParse
         altTypes.add("aString");
         if (GsonHelper.isStringValue(data))
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -188,11 +214,12 @@ public class JParse
         altTypes.add("an Integer");
         if (GsonHelper.isNumberValue(data))
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -208,11 +235,12 @@ public class JParse
         altTypes.add("a Long Integer");
         if (GsonHelper.isNumberValue(data))
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -228,11 +256,12 @@ public class JParse
         altTypes.add("a Float");
         if (GsonHelper.isNumberValue(data))
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -248,11 +277,12 @@ public class JParse
         altTypes.add("a Double");
         if (GsonHelper.isNumberValue(data))
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -268,11 +298,12 @@ public class JParse
         altTypes.add("a Boolean");
         if (GsonHelper.isBooleanValue(data))
         {
+            handledType = true;
             try
             {
                 visitor.accept(this);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -283,9 +314,21 @@ public class JParse
     }
 
     @Override
+    public void raw(JsonElementConsumer visitor)
+    {
+        visitor.accept(data);
+    }
+
+    @Override
+    public JsonElement get()
+    {
+        return data;
+    }
+
+    @Override
     public ObjValue key(String keyName, Consumer<Any> visitor)
     {
-        var obj = data.getAsJsonObject();
+        var obj = getAsJsonObject();
         if (!obj.has(keyName))
         {
             throw new JParseException("Json Object at '" + path + "' must contain a key with name '" + keyName + "'.");
@@ -295,7 +338,7 @@ public class JParse
         {
             visitor.accept(new JParse(keyPath, obj.get(keyName)));
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new RuntimeException("Error running visitor for " + keyPath);
         }
@@ -305,7 +348,7 @@ public class JParse
     @Override
     public ObjValue ifKey(String keyName, Consumer<Any> visitor)
     {
-        var obj = data.getAsJsonObject();
+        var obj = getAsJsonObject();
         if (obj.has(keyName))
         {
             var keyPath = path + wrapName(keyName);
@@ -313,7 +356,7 @@ public class JParse
             {
                 visitor.accept(new JParse(keyPath, obj.get(keyName)));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -323,7 +366,20 @@ public class JParse
         return this;
     }
 
+    @Override
+    public boolean hasKey(String keyName)
+    {
+        return getAsJsonObject().has(keyName);
+    }
+
+    @Override
+    public JsonObject getAsJsonObject()
+    {
+        return data.getAsJsonObject();
+    }
+
     private static final Pattern SIMPLE_IDENT = Pattern.compile("^[a-zA-Z0-9_]+$");
+
     private String wrapName(String keyName)
     {
         if (SIMPLE_IDENT.matcher(keyName).matches())
@@ -332,13 +388,13 @@ public class JParse
     }
 
     @Override
-    public void handleObj(Consumer<JsonObject> value)
+    public void raw(JsonObjectConsumer value)
     {
         try
         {
-            value.accept(data.getAsJsonObject());
+            value.accept(getAsJsonObject());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             if (e instanceof JParseException)
                 throw e;
@@ -349,15 +405,15 @@ public class JParse
     @Override
     public void forEach(IntObjBiConsumer<Any> visitor)
     {
-        var arr = data.getAsJsonArray();
-        for (int i=0;i<arr.size();i++)
+        var arr = getAsJsonArray();
+        for (int i = 0; i < arr.size(); i++)
         {
             var entryPath = path + "[" + i + "]";
             try
             {
                 visitor.accept(i, new JParse(entryPath, arr.get(i)));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (e instanceof JParseException)
                     throw e;
@@ -369,7 +425,7 @@ public class JParse
     @Override
     public void collect(Consumer<Stream<Any>> collector)
     {
-        var arr = data.getAsJsonArray();
+        var arr = getAsJsonArray();
         collector.accept(IntStream.range(0, arr.size())
                 .mapToObj(i -> {
                     var entryPath = path + "[" + i + "]";
@@ -377,7 +433,7 @@ public class JParse
                     {
                         return new JParse(entryPath, arr.get(i));
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         if (e instanceof JParseException)
                             throw e;
@@ -387,13 +443,33 @@ public class JParse
     }
 
     @Override
-    public void handleArray(Consumer<JsonArray> value)
+    public <T> T flatMap(Function<Stream<Any>, T> collector)
+    {
+        var arr = getAsJsonArray();
+        return collector.apply(IntStream.range(0, arr.size())
+                .mapToObj(i -> {
+                    var entryPath = path + "[" + i + "]";
+                    try
+                    {
+                        return new JParse(entryPath, arr.get(i));
+                    }
+                    catch (Exception e)
+                    {
+                        if (e instanceof JParseException)
+                            throw e;
+                        throw new JParseException("Error running visitor for " + entryPath, e);
+                    }
+                }));
+    }
+
+    @Override
+    public void raw(JsonArrayConsumer value)
     {
         try
         {
-            value.accept(data.getAsJsonArray());
+            value.accept(getAsJsonArray());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             if (e instanceof JParseException)
                 throw e;
@@ -404,7 +480,7 @@ public class JParse
     @Override
     public ArrayValue notEmpty()
     {
-        var arr = data.getAsJsonArray();
+        var arr = getAsJsonArray();
         if (arr.size() == 0)
         {
             throw new JParseException("Json Array at '" + path + "' must not be empty.");
@@ -415,10 +491,10 @@ public class JParse
     @Override
     public ArrayValue atLeast(int min)
     {
-        var arr = data.getAsJsonArray();
+        var arr = getAsJsonArray();
         if (arr.size() < min)
         {
-            throw new JParseException("Json Array at '" + path + "' must contain at least "+min+".");
+            throw new JParseException("Json Array at '" + path + "' must contain at least " + min + ".");
         }
         return this;
     }
@@ -426,12 +502,18 @@ public class JParse
     @Override
     public ArrayValue between(int min, int maxExclusive)
     {
-        var arr = data.getAsJsonArray();
+        var arr = getAsJsonArray();
         if (arr.size() < min)
         {
-            throw new JParseException("Json Array at '" + path + "' must contain at least "+min+".");
+            throw new JParseException("Json Array at '" + path + "' must contain at least " + min + ".");
         }
         return this;
+    }
+
+    @Override
+    public JsonArray getAsJsonArray()
+    {
+        return data.getAsJsonArray();
     }
 
     @Override
@@ -439,9 +521,9 @@ public class JParse
     {
         try
         {
-            value.accept(data.getAsJsonPrimitive().getAsString());
+            value.accept(getAsString());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             if (e instanceof JParseException)
                 throw e;
@@ -450,18 +532,24 @@ public class JParse
     }
 
     @Override
+    public String getAsString()
+    {
+        return data.getAsJsonPrimitive().getAsString();
+    }
+
+    @Override
     public void handle(FloatConsumer value)
     {
-        value.accept(data.getAsJsonPrimitive().getAsFloat());
+        value.accept(getAsFloat());
     }
 
     @Override
     public FloatValue min(float min)
     {
-        var val = data.getAsJsonPrimitive().getAsFloat();
+        var val = getAsFloat();
         if (val < min)
         {
-            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be " + min + " or bigger.");
         }
         return this;
     }
@@ -469,12 +557,18 @@ public class JParse
     @Override
     public FloatValue range(float min, float maxExclusive)
     {
-        var val = data.getAsJsonPrimitive().getAsFloat();
+        var val = getAsFloat();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
+    }
+
+    @Override
+    public float getAsFloat()
+    {
+        return data.getAsJsonPrimitive().getAsFloat();
     }
 
     @Override
@@ -482,9 +576,9 @@ public class JParse
     {
         try
         {
-            value.accept(data.getAsJsonPrimitive().getAsDouble());
+            value.accept(getAsDouble());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             if (e instanceof JParseException)
                 throw e;
@@ -495,10 +589,10 @@ public class JParse
     @Override
     public DoubleValue min(double min)
     {
-        var val = data.getAsJsonPrimitive().getAsDouble();
+        var val = getAsDouble();
         if (val < min)
         {
-            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be " + min + " or bigger.");
         }
         return this;
     }
@@ -506,12 +600,18 @@ public class JParse
     @Override
     public DoubleValue range(double min, double maxExclusive)
     {
-        var val = data.getAsJsonPrimitive().getAsDouble();
+        var val = getAsDouble();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
+    }
+
+    @Override
+    public double getAsDouble()
+    {
+        return data.getAsJsonPrimitive().getAsDouble();
     }
 
     @Override
@@ -519,9 +619,9 @@ public class JParse
     {
         try
         {
-            value.accept(data.getAsJsonPrimitive().getAsInt());
+            value.accept(getAsInt());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             if (e instanceof JParseException)
                 throw e;
@@ -532,10 +632,10 @@ public class JParse
     @Override
     public IntValue min(int min)
     {
-        var val = data.getAsJsonPrimitive().getAsInt();
+        var val = getAsInt();
         if (val < min)
         {
-            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be " + min + " or bigger.");
         }
         return this;
     }
@@ -546,9 +646,15 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsInt();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
+    }
+
+    @Override
+    public int getAsInt()
+    {
+        return data.getAsJsonPrimitive().getAsInt();
     }
 
     @Override
@@ -556,9 +662,9 @@ public class JParse
     {
         try
         {
-            value.accept(data.getAsJsonPrimitive().getAsBoolean());
+            value.accept(getAsBoolean());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             if (e instanceof JParseException)
                 throw e;
@@ -567,13 +673,19 @@ public class JParse
     }
 
     @Override
+    public boolean getAsBoolean()
+    {
+        return data.getAsJsonPrimitive().getAsBoolean();
+    }
+
+    @Override
     public void handle(LongConsumer value)
     {
         try
         {
-            value.accept(data.getAsJsonPrimitive().getAsLong());
+            value.accept(getAsLong());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             if (e instanceof JParseException)
                 throw e;
@@ -584,10 +696,10 @@ public class JParse
     @Override
     public LongValue min(long min)
     {
-        var val = data.getAsJsonPrimitive().getAsLong();
+        var val = getAsLong();
         if (val < min)
         {
-            throw new JParseException("Value at '" + path + "' must be "+min+" or bigger.");
+            throw new JParseException("Value at '" + path + "' must be " + min + " or bigger.");
         }
         return this;
     }
@@ -595,11 +707,17 @@ public class JParse
     @Override
     public LongValue range(long min, long maxExclusive)
     {
-        var val = data.getAsJsonPrimitive().getAsLong();
+        var val = getAsLong();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee "+min+" and "+maxExclusive+" (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
+    }
+
+    @Override
+    public long getAsLong()
+    {
+        return data.getAsJsonPrimitive().getAsLong();
     }
 }

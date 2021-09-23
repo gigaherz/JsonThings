@@ -1,15 +1,13 @@
 package gigaherz.jsonthings.util;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.util.GsonHelper;
 
-import java.util.function.*;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public class ParseUtils
 {
@@ -53,7 +51,7 @@ public class ParseUtils
         }
         else
         {
-            throw new JsonSyntaxException("'"+key+"' must be a positive integer greater than zero.");
+            throw new JsonSyntaxException("'" + key + "' must be a positive integer greater than zero.");
         }
     }
 
@@ -73,7 +71,7 @@ public class ParseUtils
         }
         else
         {
-            throw new JsonSyntaxException("'"+key+"' must be a positive integer or zero.");
+            throw new JsonSyntaxException("'" + key + "' must be a positive integer or zero.");
         }
     }
 
@@ -93,7 +91,7 @@ public class ParseUtils
         }
         else
         {
-            throw new JsonSyntaxException("'"+key+"' must be an integer between "+min+" and "+max+".");
+            throw new JsonSyntaxException("'" + key + "' must be an integer between " + min + " and " + max + ".");
         }
     }
 
@@ -113,7 +111,7 @@ public class ParseUtils
         }
         else
         {
-            throw new JsonSyntaxException("'"+key+"' must be a positive number greater than zero.");
+            throw new JsonSyntaxException("'" + key + "' must be a positive number greater than zero.");
         }
     }
 
@@ -133,7 +131,7 @@ public class ParseUtils
         }
         else
         {
-            throw new JsonSyntaxException("'"+key+"' must be a positive number or zero.");
+            throw new JsonSyntaxException("'" + key + "' must be a positive number or zero.");
         }
     }
 
@@ -153,7 +151,7 @@ public class ParseUtils
         }
         else
         {
-            throw new JsonSyntaxException("'"+key+"' must be a number between "+min+" and "+max+".");
+            throw new JsonSyntaxException("'" + key + "' must be a number between " + min + " and " + max + ".");
         }
     }
 

@@ -76,7 +76,8 @@ public class JsonThings
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
     }
 
-    public static final class Test {
+    public static final class Test
+    {
         public static final String CLSNAME = Minecraft.class.getCanonicalName();
     }
 

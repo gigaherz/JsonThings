@@ -5,7 +5,7 @@ import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
 import gigaherz.jsonthings.util.parse.JParse;
-import gigaherz.jsonthings.util.parse.ObjValue;
+import gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableFloat;
@@ -35,10 +35,10 @@ public class FoodParser extends ThingParser<FoodBuilder>
                 .ifKey("meat", val -> val.bool().handle(builder::setIsMeat))
                 .ifKey("fast", val -> val.bool().handle(builder::setFast))
                 .ifKey("always_eat", val -> val.bool().handle(builder::setAlwaysEat))
-                .ifKey("effects", val -> val.array().forEach((i,entry) -> {
+                .ifKey("effects", val -> val.array().forEach((i, entry) -> {
                     var probability = new MutableFloat(1.0f);
                     var ei = parseEffectInstance(entry.obj()
-                            .ifKey("probability", v3 -> v3.floatValue().range(0,1).handle(probability::setValue)));
+                            .ifKey("probability", v3 -> v3.floatValue().range(0, 1).handle(probability::setValue)));
                     builder.effect(ei, probability.getValue());
                 }));
 

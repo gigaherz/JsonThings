@@ -2,8 +2,8 @@ package gigaherz.jsonthings.things.blocks;
 
 import com.google.common.collect.Maps;
 import gigaherz.jsonthings.things.IFlexBlock;
-import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.things.events.FlexEventContext;
+import gigaherz.jsonthings.things.events.FlexEventHandler;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;

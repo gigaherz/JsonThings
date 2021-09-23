@@ -9,12 +9,9 @@ import gigaherz.jsonthings.things.StackContext;
 import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
 import joptsimple.internal.Strings;
-import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.network.chat.BaseComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
@@ -123,7 +120,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
     private List<MutableComponent> parseLore(JsonArray lines)
     {
         var lore = new ArrayList<MutableComponent>();
-        for(JsonElement e : lines)
+        for (JsonElement e : lines)
         {
             lore.add(Component.Serializer.fromJson(e));
         }

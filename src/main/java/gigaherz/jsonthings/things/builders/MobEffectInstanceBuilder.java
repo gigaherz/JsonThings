@@ -1,11 +1,14 @@
 package gigaherz.jsonthings.things.builders;
 
+import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class MobEffectInstanceBuilder
+import java.util.function.Supplier;
+
+public class MobEffectInstanceBuilder implements Supplier<MobEffectInstance>
 {
     private ResourceLocation effect;
     private int duration;
@@ -14,6 +17,7 @@ public class MobEffectInstanceBuilder
     private boolean visible;
     private boolean showParticles;
     private boolean showIcon;
+    private MobEffectInstance builtEffectInstance;
 
     public ResourceLocation getEffect()
     {
@@ -25,19 +29,9 @@ public class MobEffectInstanceBuilder
         this.effect = effect;
     }
 
-    public int getDuration()
-    {
-        return duration;
-    }
-
     public void setDuration(int duration)
     {
         this.duration = duration;
-    }
-
-    public int getAmplifier()
-    {
-        return amplifier;
     }
 
     public void setAmplifier(int amplifier)
@@ -45,19 +39,9 @@ public class MobEffectInstanceBuilder
         this.amplifier = amplifier;
     }
 
-    public boolean isAmbient()
-    {
-        return isAmbient;
-    }
-
     public void setAmbient(boolean ambient)
     {
         isAmbient = ambient;
-    }
-
-    public boolean isVisible()
-    {
-        return visible;
     }
 
     public void setVisible(boolean visible)
@@ -65,19 +49,9 @@ public class MobEffectInstanceBuilder
         this.visible = visible;
     }
 
-    public boolean isShowParticles()
-    {
-        return showParticles;
-    }
-
     public void setShowParticles(boolean showParticles)
     {
         this.showParticles = showParticles;
-    }
-
-    public boolean isShowIcon()
-    {
-        return showIcon;
     }
 
     public void setShowIcon(boolean showIcon)
@@ -85,8 +59,15 @@ public class MobEffectInstanceBuilder
         this.showIcon = showIcon;
     }
 
-    public MobEffectInstance build()
+    private MobEffectInstance build()
     {
-        return new MobEffectInstance(Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
+        return builtEffectInstance = new MobEffectInstance(Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
+    }
+
+    public MobEffectInstance get()
+    {
+        if (builtEffectInstance == null)
+            return build();
+        return builtEffectInstance;
     }
 }

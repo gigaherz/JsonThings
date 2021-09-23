@@ -2,8 +2,8 @@ package gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
+import gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 
 public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
 {
@@ -15,15 +15,17 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
     @Override
     public void finishLoading()
     {
-        getBuilders().forEach(CreativeModeTabBuilder::build);
+        getBuilders().forEach(CreativeModeTabBuilder::get);
     }
 
     @Override
     protected CreativeModeTabBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        CreativeModeTabBuilder builder = CreativeModeTabBuilder.begin(key);
+        final CreativeModeTabBuilder builder = CreativeModeTabBuilder.begin(key);
 
-        builder = builder.withIcon(new ResourceLocation(GsonHelper.getAsString(data, "icon")));
+        JParse.begin(data)
+                .obj()
+                .key("icon", val -> val.string().map(ResourceLocation::new).handle(builder::setIcon));
 
         return builder;
     }

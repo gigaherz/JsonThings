@@ -14,6 +14,7 @@ import net.minecraft.util.GsonHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.*;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -364,6 +365,18 @@ public class JParse
             }
         }
         return this;
+    }
+
+    @Override
+    public void forEach(StringAnyConsumer visitor)
+    {
+        var obj = getAsJsonObject();
+        for(Map.Entry<String, JsonElement> entry : obj.entrySet())
+        {
+            var keyName = entry.getKey();
+            var keyPath = path + wrapName(keyName);
+            visitor.accept(keyName, new JParse(keyPath, entry.getValue()));
+        }
     }
 
     @Override

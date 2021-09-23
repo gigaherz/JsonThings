@@ -17,7 +17,7 @@ public class ShapeParser extends ThingParser<ShapeBuilder>
     @Override
     public void finishLoading()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.DYNAMIC_SHAPES, thing.getRegistryName(), thing.build()));
+        getBuilders().forEach(thing -> Registry.register(ThingRegistries.DYNAMIC_SHAPES, thing.getRegistryName(), thing.get()));
     }
 
     @Override

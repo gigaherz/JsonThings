@@ -15,6 +15,8 @@ public interface ObjValue
 
     ObjValue ifKey(String keyName, Consumer<Any> visitor);
 
+    void forEach(StringAnyConsumer visitor);
+
     boolean hasKey(String keyName);
 
     JsonObject getAsJsonObject();

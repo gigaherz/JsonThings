@@ -20,7 +20,7 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
     @Override
     public void finishLoading()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.BLOCK_MATERIALS, thing.getRegistryName(), thing.build()));
+        getBuilders().forEach(thing -> Registry.register(ThingRegistries.BLOCK_MATERIALS, thing.getRegistryName(), thing.get()));
     }
 
     @Override
@@ -32,7 +32,7 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
                 .obj()
                 .key("map_color", val -> val
                         .ifString(str -> builder.setColor(MaterialColors.get(str.getAsString())))
-                        .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.getAsInt()]))
+                        .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.range(0,64).getAsInt()]))
                         .typeError()
                 )
                 .ifKey("liquid", val -> val.bool().handle(builder::setLiquid))

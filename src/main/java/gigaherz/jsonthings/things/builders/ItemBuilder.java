@@ -4,10 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.JsonThings;
-import gigaherz.jsonthings.things.CompletionMode;
-import gigaherz.jsonthings.things.IFlexItem;
-import gigaherz.jsonthings.things.StackContext;
-import gigaherz.jsonthings.things.ThingRegistries;
+import gigaherz.jsonthings.things.*;
 import gigaherz.jsonthings.things.serializers.IItemFactory;
 import gigaherz.jsonthings.things.serializers.ItemType;
 import gigaherz.jsonthings.util.Utils;
@@ -22,9 +19,10 @@ import net.minecraft.world.item.UseAnim;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ItemBuilder
+public class ItemBuilder implements Supplier<IFlexItem>
 {
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
 
@@ -181,7 +179,7 @@ public class ItemBuilder
         return this;
     }
 
-    public IFlexItem build()
+    private IFlexItem build()
     {
         Item.Properties properties = new Item.Properties();
 
@@ -239,6 +237,13 @@ public class ItemBuilder
         return flexItem;
     }
 
+    public IFlexItem get()
+    {
+        if (builtItem == null)
+            return build();
+        return builtItem;
+    }
+
     @Nullable
     private CreativeModeTab findCreativeTab(String label)
     {
@@ -246,7 +251,7 @@ public class ItemBuilder
         for (CreativeModeTabBuilder builder : JsonThings.creativeModeTabParser.getBuilders())
         {
             if (builder.getRegistryName().equals(rl))
-                return builder.getBuiltTab();
+                return builder.get();
         }
         for (CreativeModeTab tab : CreativeModeTab.TABS)
         {
@@ -254,13 +259,6 @@ public class ItemBuilder
                 return tab;
         }
         return null;
-    }
-
-    public IFlexItem getBuiltItem()
-    {
-        if (builtItem == null)
-            return build();
-        return builtItem;
     }
 
     public ItemBuilder getParentBuilder()

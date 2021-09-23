@@ -1,13 +1,15 @@
 package gigaherz.jsonthings.things.builders;
 
 import com.mojang.datafixers.util.Pair;
+import gigaherz.jsonthings.things.IFlexBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-public class FoodBuilder
+public class FoodBuilder implements Supplier<FoodProperties>
 {
     private FoodProperties builtFood = null;
 
@@ -60,7 +62,7 @@ public class FoodBuilder
         effects.add(Pair.of(effect, probability));
     }
 
-    public FoodProperties build()
+    private FoodProperties build()
     {
         var foodBuilder = new FoodProperties.Builder();
         foodBuilder.nutrition(nutrition);
@@ -69,12 +71,12 @@ public class FoodBuilder
         if (fast) foodBuilder.fast();
         if (alwaysEat) foodBuilder.alwaysEat();
         effects.forEach(pair -> {
-            foodBuilder.effect(pair.getFirst()::build, pair.getSecond());
+            foodBuilder.effect(pair.getFirst()::get, pair.getSecond());
         });
         return builtFood = foodBuilder.build();
     }
 
-    public FoodProperties getBuiltFood()
+    public FoodProperties get()
     {
         if (builtFood == null)
             return build();

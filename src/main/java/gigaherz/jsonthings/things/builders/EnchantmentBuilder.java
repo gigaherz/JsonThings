@@ -1,6 +1,7 @@
 package gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
+import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.misc.FlexEnchantment;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.resources.ResourceLocation;
@@ -12,8 +13,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-public class EnchantmentBuilder
+public class EnchantmentBuilder implements Supplier<FlexEnchantment>
 {
     private FlexEnchantment builtEnchantment = null;
 
@@ -45,85 +47,72 @@ public class EnchantmentBuilder
         return new EnchantmentBuilder(registryName);
     }
 
-    public EnchantmentBuilder setRarity(Enchantment.Rarity rarity)
+    public void setRarity(Enchantment.Rarity rarity)
     {
         this.rarity = rarity;
-        return this;
     }
 
-    public EnchantmentBuilder setEnchantmentType(EnchantmentCategory type)
+    public void setEnchantmentType(EnchantmentCategory type)
     {
         this.type = type;
-        return this;
     }
 
-    public EnchantmentBuilder setMinLevel(int minLevel)
+    public void setMinLevel(int minLevel)
     {
         this.minLevel = minLevel;
-        return this;
     }
 
-    public EnchantmentBuilder setMaxLevel(int macLevel)
+    public void setMaxLevel(int macLevel)
     {
         this.maxLevel = macLevel;
-        return this;
     }
 
-    public EnchantmentBuilder setBaseCost(int baseCost)
+    public void setBaseCost(int baseCost)
     {
         this.baseCost = baseCost;
-        return this;
     }
 
-    public EnchantmentBuilder setPerLevelCost(int perLevelCost)
+    public void setPerLevelCost(int perLevelCost)
     {
         this.perLevelCost = perLevelCost;
-        return this;
     }
 
-    public EnchantmentBuilder setRandomCost(int randomCost)
+    public void setRandomCost(int randomCost)
     {
         this.randomCost = randomCost;
-        return this;
     }
 
-    public EnchantmentBuilder setIsTreasure(boolean treasure)
+    public void setIsTreasure(boolean treasure)
     {
         this.isTreasure = treasure;
-        return this;
     }
 
-    public EnchantmentBuilder setIsCurse(boolean curse)
+    public void setIsCurse(boolean curse)
     {
         this.isCurse = curse;
-        return this;
     }
 
-    public EnchantmentBuilder setIsTradeable(boolean tradeable)
+    public void setIsTradeable(boolean tradeable)
     {
         this.isTradeable = tradeable;
-        return this;
     }
 
-    public EnchantmentBuilder setIsDiscoverable(boolean discoverable)
+    public void setIsDiscoverable(boolean discoverable)
     {
         this.isDiscoverable = discoverable;
-        return this;
     }
 
-    public EnchantmentBuilder setItemCompatibility(ItemPredicate item_compatibility)
+    public void setItemCompatibility(ItemPredicate item_compatibility)
     {
         this.itemCompatibility = item_compatibility;
-        return this;
     }
 
-    public EnchantmentBuilder setBlacklist(List<ResourceLocation> blacklist)
+    public void setBlacklist(List<ResourceLocation> blacklist)
     {
         this.blackList = blacklist;
-        return this;
     }
 
-    public FlexEnchantment build()
+    private FlexEnchantment build()
     {
         FlexEnchantment flexEnchantment = new FlexEnchantment(rarity, type, slots);
 
@@ -147,7 +136,7 @@ public class EnchantmentBuilder
         return flexEnchantment;
     }
 
-    public FlexEnchantment getBuiltEnchantment()
+    public FlexEnchantment get()
     {
         if (builtEnchantment == null)
             return build();

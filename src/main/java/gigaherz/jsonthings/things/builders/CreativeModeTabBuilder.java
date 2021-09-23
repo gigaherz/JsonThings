@@ -1,10 +1,13 @@
 package gigaherz.jsonthings.things.builders;
 
+import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 
-public class CreativeModeTabBuilder
+import java.util.function.Supplier;
+
+public class CreativeModeTabBuilder implements Supplier<FlexCreativeModeTab>
 {
     private FlexCreativeModeTab builtTab = null;
 
@@ -21,18 +24,17 @@ public class CreativeModeTabBuilder
         return new CreativeModeTabBuilder(registryName);
     }
 
-    public CreativeModeTabBuilder withIcon(ResourceLocation iconItem)
+    public void setIcon(ResourceLocation iconItem)
     {
         this.iconItem = iconItem;
-        return this;
     }
 
-    public FlexCreativeModeTab build()
+    private FlexCreativeModeTab build()
     {
         return builtTab = new FlexCreativeModeTab(registryName.getNamespace() + "." + registryName.getPath().replace("/", "."), () -> Utils.getItemOrCrash(iconItem));
     }
 
-    public FlexCreativeModeTab getBuiltTab()
+    public FlexCreativeModeTab get()
     {
         if (builtTab == null)
             return build();

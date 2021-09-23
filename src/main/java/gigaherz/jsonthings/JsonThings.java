@@ -76,11 +76,6 @@ public class JsonThings
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
     }
 
-    public static final class Test
-    {
-        public static final String CLSNAME = Minecraft.class.getCanonicalName();
-    }
-
     private static CompletableFuture<ThingResourceManager> loaderFuture;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -142,7 +137,7 @@ public class JsonThings
                 if (layers.size() != 1 || !layers.contains("solid"))
                 {
                     Set<RenderType> renderTypes = layers.stream().map(MultiLayerModel.Loader.BLOCK_LAYERS::get).collect(Collectors.toSet());
-                    ItemBlockRenderTypes.setRenderLayer(thing.getBuiltBlock().self(), renderTypes::contains);
+                    ItemBlockRenderTypes.setRenderLayer(thing.get().self(), renderTypes::contains);
                 }
             });
         }
@@ -155,7 +150,7 @@ public class JsonThings
                 if (handlerName != null)
                 {
                     BlockColor bc = BlockColorHandler.get(handlerName);
-                    event.getBlockColors().register(bc, thing.getBuiltBlock().self());
+                    event.getBlockColors().register(bc, thing.get().self());
                 }
             });
         }
@@ -169,7 +164,7 @@ public class JsonThings
                 {
                     Function<BlockColors, ItemColor> handler = ItemColorHandler.get(handlerName);
                     ItemColor ic = handler.apply(event.getBlockColors());
-                    event.getItemColors().register(ic, ((Item) thing.getBuiltItem()));
+                    event.getItemColors().register(ic, ((Item) thing.get()));
                 }
             });
         }

@@ -1,11 +1,14 @@
 package gigaherz.jsonthings.things.builders;
 
+import gigaherz.jsonthings.things.IFlexBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 
-public class BlockMaterialBuilder
+import java.util.function.Supplier;
+
+public class BlockMaterialBuilder implements Supplier<Material>
 {
     private Material builtMaterial = null;
 
@@ -76,11 +79,11 @@ public class BlockMaterialBuilder
         this.solidBlocking = solidBlocking;
     }
 
-    public Material build() {
+    private Material build() {
         return builtMaterial = new Material(this.color, this.liquid, this.solid, this.blocksMotion, this.solidBlocking, this.flammable, this.replaceable, this.pushReaction);
     }
 
-    public Material getBuiltMaterial()
+    public Material get()
     {
         if (builtMaterial == null)
             return build();

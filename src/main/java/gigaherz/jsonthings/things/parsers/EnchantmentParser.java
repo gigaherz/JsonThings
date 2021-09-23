@@ -35,7 +35,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     {
         LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
         IForgeRegistry<Enchantment> registry = event.getRegistry();
-        getBuilders().forEach(thing -> registry.register((thing.build()).setRegistryName(thing.getRegistryName())));
+        getBuilders().forEach(thing -> registry.register((thing.get()).setRegistryName(thing.getRegistryName())));
         LOGGER.info("Done processing thingpack Enchantments.");
     }
 

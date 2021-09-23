@@ -22,7 +22,7 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
     @Override
     public void finishLoading()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.ARMOR_MATERIALS, thing.getRegistryName(), thing.build()));
+        getBuilders().forEach(thing -> Registry.register(ThingRegistries.ARMOR_MATERIALS, thing.getRegistryName(), thing.get()));
     }
 
     @Override

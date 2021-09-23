@@ -1,5 +1,6 @@
 package gigaherz.jsonthings.things.builders;
 
+import gigaherz.jsonthings.things.IFlexBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -9,7 +10,7 @@ import net.minecraftforge.common.ForgeTier;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TierBuilder
+public class TierBuilder implements Supplier<ForgeTier>
 {
     private ForgeTier builtTier = null;
 
@@ -80,12 +81,12 @@ public class TierBuilder
         this.sortBefore = sortBefore;
     }
 
-    public ForgeTier build()
+    private ForgeTier build()
     {
         return builtTier = new ForgeTier(level, uses, speed, attackDamageBonus, enchantmentValue, tag, repairIngredient);
     }
 
-    public ForgeTier getBuiltTier()
+    public ForgeTier get()
     {
         if (builtTier == null)
             return build();

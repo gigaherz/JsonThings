@@ -20,7 +20,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
     @Override
     public void finishLoading()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.build()));
+        getBuilders().forEach(thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.get()));
     }
 
     @Override
@@ -49,14 +49,13 @@ public class FoodParser extends ThingParser<FoodBuilder>
     {
         var builder = new MobEffectInstanceBuilder();
         obj
-                .key("complex \"name\" test", val -> val.bool())
                 .key("effect", val -> val.string().handle(str -> builder.setEffect(new ResourceLocation(str))))
                 .key("duration", val -> val.intValue().min(0).handle(builder::setDuration))
                 .key("amplifier", val -> val.intValue().min(0).handle(builder::setAmplifier))
                 .key("ambient", val -> val.bool().handle(builder::setAmbient))
-                .key("visible", val -> val.bool().handle(builder::setAmbient))
-                .key("show_particles", val -> val.bool().handle(builder::setAmbient))
-                .key("show_icon", val -> val.bool().handle(builder::setAmbient));
+                .key("visible", val -> val.bool().handle(builder::setVisible))
+                .key("show_particles", val -> val.bool().handle(builder::setShowParticles))
+                .key("show_icon", val -> val.bool().handle(builder::setShowIcon));
         return builder;
     }
 }

@@ -27,7 +27,7 @@ public class TierParser extends ThingParser<TierBuilder>
     @Override
     public void finishLoading()
     {
-        getBuilders().forEach(thing -> TierSortingRegistry.registerTier(thing.build(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()));
+        getBuilders().forEach(thing -> TierSortingRegistry.registerTier(thing.get(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()));
     }
 
     @Override

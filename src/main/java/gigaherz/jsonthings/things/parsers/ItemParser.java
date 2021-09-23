@@ -38,7 +38,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
     {
         LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
         IForgeRegistry<Item> registry = event.getRegistry();
-        getBuilders().forEach(thing -> registry.register(((Item) thing.build()).setRegistryName(thing.getRegistryName())));
+        getBuilders().forEach(thing -> registry.register((thing.get().self()).setRegistryName(thing.getRegistryName())));
         LOGGER.info("Done processing thingpack Items.");
     }
 
@@ -217,7 +217,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         else
         {
             FoodBuilder foodBuilder = JsonThings.foodParser.parseFromElement(builder.getRegistryName(), foodData);
-            builder = builder.makeFood(foodBuilder.build());
+            builder = builder.makeFood(foodBuilder.get());
         }
         return builder;
     }

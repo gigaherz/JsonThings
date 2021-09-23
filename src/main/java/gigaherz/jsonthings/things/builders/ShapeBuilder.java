@@ -1,10 +1,13 @@
 package gigaherz.jsonthings.things.builders;
 
+import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.Supplier;
+
 @SuppressWarnings("ClassCanBeRecord")
-public class ShapeBuilder
+public class ShapeBuilder implements Supplier<DynamicShape>
 {
     private final ResourceLocation registryName;
     private final DynamicShape dynamicShape;
@@ -25,7 +28,7 @@ public class ShapeBuilder
         return registryName;
     }
 
-    public DynamicShape build()
+    public DynamicShape get()
     {
         return dynamicShape;
     }

@@ -6,8 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.StackContext;
-import gigaherz.jsonthings.things.builders.FoodBuilder;
 import gigaherz.jsonthings.things.builders.ItemBuilder;
+import gigaherz.jsonthings.util.parse.JParse;
 import joptsimple.internal.Strings;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -45,74 +45,28 @@ public class ItemParser extends ThingParser<ItemBuilder>
     @Override
     public ItemBuilder processThing(ResourceLocation key, JsonObject data)
     {
-        ResourceLocation parentId = null;
-        if (data.has("parent"))
-        {
-            parentId = new ResourceLocation(data.getAsString());
-        }
+        final ItemBuilder builder = ItemBuilder.begin(key, data);
 
-        ItemBuilder builder = ItemBuilder.begin(key, parentId);
-
-        if (data.has("type"))
-            builder = builder.withType(data.get("type").getAsString(), data);
-
-        if (data.has("max_stack_size"))
-        {
-            int stack_size = data.get("max_stack_size").getAsInt();
-            if (stack_size >= 1 && stack_size <= 64)
-            {
-                builder = builder.withMaxStackSize(stack_size);
-            }
-            else
-            {
-                throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 64, both inclusive.");
-            }
-        }
-
-        if (data.has("group"))
-        {
-            if (data.has("creative_menu_stacks"))
-            {
-                throw new RuntimeException("Cannot have group and creative_menu_stacks at the same time.");
-            }
-
-            String name = data.get("group").getAsString();
-            builder = builder.withCreativeMenuStack(new StackContext(null), new String[]{name});
-        }
-
-        if (data.has("creative_menu_stacks"))
-        {
-            builder = parseCreativeMenuStacks(key, data, builder);
-        }
-
-        if (data.has("attribute_modifiers"))
-        {
-            builder = parseAttributeModifiers(key, data, builder);
-        }
-
-        if (data.has("max_damage"))
-        {
-            int max_damage = data.get("max_damage").getAsInt();
-            if (max_damage >= 1 && max_damage < 128)
-            {
-                builder = builder.makeDamageable(max_damage);
-            }
-            else
-            {
-                throw new RuntimeException("If present, max_stack_size must be an integer between 1 and 127, both inclusive.");
-            }
-        }
-
-        if (data.has("food"))
-        {
-            builder = parseFoodInfo(data, builder);
-        }
-
-        if (data.has("color_handler"))
-            builder = builder.withColorHandler(data.get("color_handler").getAsString());
-
-        if (data.has("lore"))
-            builder = builder.withLore(parseLore(data.get("lore").getAsJsonArray()));
+        JParse.begin(data)
+                .obj()
+                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
+                .ifKey("type", val -> val.string().handle(builder::setType))
+                .ifKey("max_stack_size", val -> val.intValue().range(1,128).handle(builder::setMaxStackSize))
+                .mutex(List.of("group", "creative_menu_stacks"), () -> new RuntimeException("Cannot have group and creative_menu_stacks at the same time."))
+                .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
+                .ifKey("creative_menu_stacks", val -> val
+                        .array().forEach((i,entry) -> entry
+                                .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item), parseTabsList(item))))
+                )
+                .ifKey("attribute_modifiers", val -> val.array().raw(arr -> parseAttributeModifiers(arr, builder)))
+                .ifKey("max_damage", val -> val.intValue().range(1,128).handle(builder::setMaxDamage))
+                .ifKey("food", val -> val
+                                .ifString(str -> str.map(ResourceLocation::new).handle(builder::setFood))
+                                .ifObj(obj -> obj.raw(food -> builder.setFood(JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food).get())))
+                                .typeError()
+                )
+                .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
+            .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore));
 
         return builder;
     }
@@ -127,9 +81,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
         return lore;
     }
 
-    private ItemBuilder parseAttributeModifiers(ResourceLocation key, JsonObject data, ItemBuilder builder)
+    private void parseAttributeModifiers(JsonArray list, ItemBuilder builder)
     {
-        JsonArray list = data.get("attribute_modifiers").getAsJsonArray();
         for (JsonElement e : list)
         {
             JsonObject item = e.getAsJsonObject();
@@ -191,35 +144,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 throw new RuntimeException("Attribute modifier amount must have an operation type.");
             }
 
-            builder = builder.withAttributeModifier(uuid, name, amount, operation);
+            builder.withAttributeModifier(uuid, name, amount, operation);
         }
-        return builder;
-    }
-
-    private ItemBuilder parseCreativeMenuStacks(ResourceLocation key, JsonObject data, ItemBuilder builder)
-    {
-        JsonArray list = data.get("creative_menu_stacks").getAsJsonArray();
-        for (JsonElement e : list)
-        {
-            JsonObject item = e.getAsJsonObject();
-            builder = builder.withCreativeMenuStack(parseStackContext(key, item), parseTabsList(item));
-        }
-        return builder;
-    }
-
-    private ItemBuilder parseFoodInfo(JsonObject data, ItemBuilder builder)
-    {
-        JsonElement foodData = data.get("food");
-        if (foodData.isJsonPrimitive() && foodData.getAsJsonPrimitive().isString())
-        {
-            builder = builder.makeFood(new ResourceLocation(foodData.getAsString()));
-        }
-        else
-        {
-            FoodBuilder foodBuilder = JsonThings.foodParser.parseFromElement(builder.getRegistryName(), foodData);
-            builder = builder.makeFood(foodBuilder.get());
-        }
-        return builder;
     }
 
     private String[] parseTabsList(JsonObject stackEntry)

@@ -67,7 +67,7 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
         return Collections.unmodifiableMap(buildersByName);
     }
 
-    protected StackContext parseStackContext(ResourceLocation key, JsonObject item)
+    protected StackContext parseStackContext(JsonObject item)
     {
         StackContext ctx = new StackContext(null);
 

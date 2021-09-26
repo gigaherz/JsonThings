@@ -1,14 +1,11 @@
 package gigaherz.jsonthings.things.builders;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import gigaherz.jsonthings.JsonThings;
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
-import gigaherz.jsonthings.things.misc.FlexArmorMaterial;
 import gigaherz.jsonthings.things.serializers.BlockType;
-import gigaherz.jsonthings.things.serializers.IBlockFactory;
 import gigaherz.jsonthings.things.shapes.DynamicShape;
 import gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
@@ -20,10 +17,7 @@ import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -37,12 +31,15 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
     private List<Property<?>> properties;
     private Map<String, Property<?>> propertiesByName;
-    private Map<Property<?>, Comparable<?>> propertyDefaultValues;
+    private Map<String, String> propertyDefaultValues;
+    private Map<Property<?>, Comparable<?>> propertyDefaultValuesMap;
     private BlockType<?> blockType;
     private ResourceLocation blockMaterial;
     private MaterialColor blockMaterialColor;
+
     private ItemBuilder itemBuilder;
-    private BlockBuilder parentBuilderObj;
+    private ResourceLocation parentBuilderName;
+    private BlockBuilder parentBuilder;
     private RegistryObject<Block> parentBlock;
     private DynamicShape generalShape;
     private DynamicShape collisionShape;
@@ -91,6 +88,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     {
         if (this.parentBlock != null)
             throw new IllegalStateException("Parent block already set");
+        this.parentBuilderName = parentName; // maybe
         this.parentBlock = RegistryObject.of(parentName, ForgeRegistries.BLOCKS);
     }
 
@@ -102,10 +100,8 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
     public void withDefaultState(String name, String value)
     {
-        Property<?> prop = propertiesByName.get(name);
-        if (prop == null)
-            throw new IllegalStateException("No property declared with name " + name);
-        this.propertyDefaultValues.put(prop, Utils.getPropertyValue(prop, value));
+        if (propertyDefaultValues == null) propertyDefaultValues = new HashMap<>();
+        this.propertyDefaultValues.put(name, value);
     }
 
     public void setGeneralShape(DynamicShape shape)
@@ -211,12 +207,13 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     private IFlexBlock build()
     {
 
-        Material material = Utils.getOrCrash(ThingRegistries.BLOCK_MATERIALS, Utils.orElse(getBlockMaterial(), () -> new ResourceLocation("stone")));
+        Material material = Utils.getOrCrash(ThingRegistries.BLOCK_MATERIALS, getBlockMaterial());
         MaterialColor blockMaterialColor = getBlockMaterialColor();
         Block.Properties props = blockMaterialColor != null ?
                 Block.Properties.of(material, blockMaterialColor) :
                 Block.Properties.of(material);
 
+        var blockType = getBlockType();
         if (Utils.orElse(isSeeThrough(), blockType.isDefaultSeeThrough())) props.noOcclusion();
         if (Utils.orElse(requiresToolForDrops(), false)) props.requiresCorrectToolForDrops();
         if (Utils.orElse(isAir(), false)) props.air();
@@ -233,6 +230,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
         final List<Property<?>> stockProperties = blockType.getStockProperties();
 
+        List<Property<?>> properties = getProperties();
         List<Property<?>> badProperties = properties.stream().filter(prop -> {
             for (Property<?> p : stockProperties)
             {
@@ -267,35 +265,56 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         return builtBlock;
     }
 
-    public BlockBuilder getParentBuilder()
+    public BlockBuilder getParentBuilderName()
     {
         if (parentBuilder == null)
-            throw new IllegalStateException("Parent builder not set");
-        if (parentBuilderObj == null)
         {
-            parentBuilderObj = JsonThings.blockParser.getBuildersMap().get(parentBuilder);
+            if (parentBuilderName == null)
+                throw new IllegalStateException("Parent not set");
+            parentBuilder = JsonThings.blockParser.getBuildersMap().get(parentBuilderName);
+            if (parentBuilder == null)
+                throw new IllegalStateException("The specified parent " + parentBuilderName + " is not a Json Things defined Block");
         }
-        if (parentBuilderObj == null)
-            throw new IllegalStateException("Parent builder not found");
-        return parentBuilderObj;
+        return parentBuilder;
+    }
+
+    @Nullable
+    public BlockBuilder getParent()
+    {
+        if (parentBuilderName == null) return null;
+        if (parentBuilder == null)
+        {
+            parentBuilder = JsonThings.blockParser.getBuildersMap().get(parentBlock.getId());
+            if (parentBuilder == null)
+            {
+                parentBuilderName = null;
+                return null;
+            }
+        }
+        return parentBuilder;
     }
 
     @Nullable
     private <T> T getValueWithParent(@Nullable T thisValue, Function<BlockBuilder, T> parentGetter)
     {
         if (thisValue != null) return thisValue;
-        if (parentBuilder != null)
+        if (getParent() != null)
         {
-            BlockBuilder parent = getParentBuilder();
+            BlockBuilder parent = getParentBuilderName();
             return parentGetter.apply(parent);
         }
         return null;
     }
 
     @Nullable
+    public BlockType<?> getBlockTypeRaw()
+    {
+        return getValueWithParent(blockType, BlockBuilder::getBlockTypeRaw);
+    }
+
     public BlockType<?> getBlockType()
     {
-        return getValueWithParent(blockType, BlockBuilder::getBlockType);
+        return Utils.orElse(getBlockTypeRaw(), () -> BlockType.PLAIN);
     }
 
     @Nullable
@@ -322,10 +341,15 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         return getValueWithParent(renderShape, BlockBuilder::getRenderShape);
     }
 
+    public ResourceLocation getBlockMaterialRaw()
+    {
+        return getValueWithParent(blockMaterial, BlockBuilder::getBlockMaterialRaw);
+    }
+
     @Nullable
     public ResourceLocation getBlockMaterial()
     {
-        return getValueWithParent(blockMaterial, BlockBuilder::getBlockMaterial);
+        return Utils.orElse(getBlockMaterialRaw(), () -> new ResourceLocation("stone"));
     }
 
     @Nullable
@@ -340,26 +364,54 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         return getValueWithParent(renderLayers, BlockBuilder::getRenderLayers);
     }
 
+    public Set<String> getRenderLayersDefaulted()
+    {
+        return Utils.orElse(getRenderLayers(), () -> Collections.singleton(getBlockType().getDefaultLayer()));
+    }
+
     @Nullable
     public String getColorHandler()
     {
         return getValueWithParent(colorHandler, BlockBuilder::getColorHandler);
     }
 
+    @Nullable
+    public List<Property<?>> getPropertiesRaw()
+    {
+        return getValueWithParent(properties, BlockBuilder::getPropertiesRaw);
+    }
+
     public List<Property<?>> getProperties()
     {
-        return properties;
+        return Utils.orElse(getPropertiesRaw(), List::of);
+    }
+
+    @Nullable
+    public Map<String, String> getPropertyDefaultValuesRaw()
+    {
+        return getValueWithParent(propertyDefaultValues, BlockBuilder::getPropertyDefaultValuesRaw);
     }
 
     public Map<Property<?>, Comparable<?>> getPropertyDefaultValues()
     {
-        return propertyDefaultValues;
+        if (propertyDefaultValuesMap == null)
+        {
+            var raw = getPropertyDefaultValuesRaw();
+            propertyDefaultValuesMap = raw == null ? Map.of() : raw.entrySet().stream()
+                    .map(e -> {
+                        var key = propertiesByName.get(e.getKey());
+                        var value = Utils.getPropertyValue(key, e.getValue());
+                        return Pair.of(key, value);
+                    })
+                    .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+        }
+        return propertyDefaultValuesMap;
     }
 
     @Nullable
-    public BlockBuilder getParentBuilderObj()
+    public BlockBuilder getParentBuilder()
     {
-        return parentBuilderObj;
+        return parentBuilder;
     }
 
     @Nullable
@@ -445,13 +497,14 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     }
 
     @Nullable
+    public ItemBuilder getItemBuilder()
+    {
+        return itemBuilder;
+    }
+
+    @Nullable
     public RegistryObject<Block> getParentBlock()
     {
         return parentBlock;
-    }
-
-    public Set<String> getRenderLayersOrDefault()
-    {
-        return Utils.orElse(getRenderLayers(), () -> Collections.singleton(blockType.getDefaultLayer()));
     }
 }

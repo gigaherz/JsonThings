@@ -1,6 +1,6 @@
 {
   "type": "leaves",
-  "render_layer": "cutout_mipped",
+  "__render_layer": "cutout_mipped",
   "color_handler": "foliage",
   "item": {
     "group": "sandwood:sandwood",

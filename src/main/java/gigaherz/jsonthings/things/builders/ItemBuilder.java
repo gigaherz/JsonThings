@@ -30,11 +30,12 @@ public class ItemBuilder implements Supplier<IFlexItem>
 
     private final ResourceLocation registryName;
 
+    private JsonObject jsonSource;
+
     private ResourceLocation parentBuilder;
     private ItemBuilder parentBuilderObj;
 
     private ItemType<?> itemType;
-    private IItemFactory<?> factory;
 
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
@@ -50,91 +51,57 @@ public class ItemBuilder implements Supplier<IFlexItem>
 
     private List<MutableComponent> lore = List.of();
 
-    private ItemBuilder(ResourceLocation registryName, @Nullable ResourceLocation parentBuilder)
+    private ItemBuilder(ResourceLocation registryName, JsonObject data)
     {
         this.registryName = registryName;
+        this.jsonSource = data;
+    }
+
+    public static ItemBuilder begin(ResourceLocation registryName, JsonObject data)
+    {
+        return new ItemBuilder(registryName, data);
+    }
+
+    public void setParent(ResourceLocation parentBuilder)
+    {
         this.parentBuilder = parentBuilder;
     }
 
-    public static ItemBuilder begin(ResourceLocation registryName, @Nullable ResourceLocation parentBuilder)
-    {
-        return new ItemBuilder(registryName, parentBuilder);
-    }
-
-    public ItemBuilder withType(String typeName, JsonObject data)
+    public void setType(String typeName)
     {
         if (this.itemType != null) throw new RuntimeException("Item type already set.");
         ItemType<?> itemType = ThingRegistries.ITEM_TYPES.get(new ResourceLocation(typeName));
         if (itemType == null)
             throw new IllegalStateException("No known block type with name " + typeName);
         this.itemType = itemType;
-        this.factory = itemType.getFactory(data);
-        return this;
     }
 
-    public ItemBuilder withMaxStackSize(int maxStackSize)
+    public void setMaxStackSize(int maxStackSize)
     {
         if (this.maxStackSize != null) throw new RuntimeException("Max stack size already set.");
         this.maxStackSize = maxStackSize;
-        return this;
     }
 
-    public ItemBuilder withCreativeMenuStack(StackContext stackContext, String[] tabs)
+    public void withCreativeMenuStack(StackContext stackContext, String[] tabs)
     {
         creativeMenuStacks.add(Pair.of(stackContext, tabs));
-        return this;
     }
 
-    public ItemBuilder withAttributeModifier(@Nullable UUID uuid, String name, double amount, int op)
+    public void withAttributeModifier(@Nullable UUID uuid, String name, double amount, int op)
     {
         AttributeModifier.Operation operation = AttributeModifier.Operation.fromValue(op);
         attributeModifiers.add(uuid != null ?
                 new AttributeModifier(uuid, name, amount, operation) :
                 new AttributeModifier(name, amount, operation));
-        return this;
     }
 
-    public ItemBuilder makeDamageable(int maxDamage)
+    public void setMaxDamage(int maxDamage)
     {
         if (this.maxDamage != null) throw new RuntimeException("Damageable already set.");
         this.maxDamage = maxDamage;
-        return this;
-    }
-/*
-    public ItemBuilder makeBlock(ResourceLocation blockName)
-    {
-        if (this.blockInfo != null) throw new RuntimeException("Block info already set.");
-        if (this.foodInfo != null) throw new RuntimeException("An item cannot be block and food at the same time.");
-        if (this.toolInfos.size() > 0) throw new RuntimeException("An item cannot be block and tool at the same time.");
-        if (this.armorInfo != null) throw new RuntimeException("An item cannot be block and armor at the same time.");
-        this.blockInfo = new BlockInfo(blockName);
-        return this;
     }
 
-    public ItemBuilder withTool(String toolType, ResourceLocation tierName)
-    {
-        if (this.blockInfo != null) throw new RuntimeException("An item can not be tool and block at the same time.");
-        if (this.armorInfo != null) throw new RuntimeException("An item cannot be tool and armor at the same time.");
-        if (!ThingRegistries.ITEM_TIERS.containsKey(tierName))
-            throw new RuntimeException("No known item tier definition with name '" + tierName + "'");
-        Tier tier = ThingRegistries.ITEM_TIERS.get(tierName);
-        if (tier == null)
-            throw new IllegalStateException("Property with name " + tierName + " not found in ThingRegistries.ITEM_TIERS");
-        this.toolInfos.add(new ToolInfo(toolType, tier));
-        return this;
-    }
-
-    public ItemBuilder makeArmor(String equipmentSlot, String material)
-    {
-        if (this.armorInfo != null) throw new RuntimeException("Armor info already set.");
-        if (this.blockInfo != null) throw new RuntimeException("An item can not be armor and block at the same time.");
-        if (this.toolInfos.size() > 0) throw new RuntimeException("An item cannot be armor and tool at the same time.");
-        this.armorInfo = new ArmorInfo(equipmentSlot, material);
-        return this;
-    }
-*/
-
-    public ItemBuilder makeFood(ResourceLocation foodName)
+    public void setFood(ResourceLocation foodName)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
         if (!ThingRegistries.FOODS.containsKey(foodName))
@@ -143,40 +110,34 @@ public class ItemBuilder implements Supplier<IFlexItem>
         if (foodInfo == null)
             throw new IllegalStateException("Property with name " + foodName + " not found in ThingRegistries.FOODS");
         this.foodInfo = foodInfo;
-        return this;
     }
 
-    public ItemBuilder makeFood(FoodProperties food)
+    public void setFood(FoodProperties food)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
         this.foodInfo = food;
-        return this;
     }
 
-    public ItemBuilder makeDelayedUse(int useTicks, String useType, String completeAction)
+    public void makeDelayedUse(int useTicks, String useType, String completeAction)
     {
         if (this.delayedUse != null) throw new RuntimeException("Delayed use already set.");
         this.delayedUse = new DelayedUse(useTicks, useType, completeAction);
-        return this;
     }
 
-    public ItemBuilder makeContainer(String emptyItem)
+    public void makeContainer(String emptyItem)
     {
         if (this.containerInfo != null) throw new RuntimeException("Delayed use already set.");
         this.containerInfo = new ContainerInfo(registryName, emptyItem);
-        return this;
     }
 
-    public ItemBuilder withColorHandler(String colorHandler)
+    public void setColorHandler(String colorHandler)
     {
         this.colorHandler = colorHandler;
-        return this;
     }
 
-    public ItemBuilder withLore(List<MutableComponent> lore)
+    public void setLore(List<MutableComponent> lore)
     {
         this.lore = lore;
-        return this;
     }
 
     private IFlexItem build()
@@ -201,12 +162,9 @@ public class ItemBuilder implements Supplier<IFlexItem>
             properties = properties.food(fi);
         }
 
-        var it = getItemType();
-        if (it == null)
-        {
-            it = ItemType.PLAIN;
-            factory = it.getFactory(new JsonObject());
-        }
+        var factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);
+
+        jsonSource = null;
 
         IFlexItem flexItem = factory.construct(properties, this);
 

@@ -54,7 +54,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         final BlockBuilder builder = BlockBuilder.begin(key, data);
 
-        MutableObject<Map<String, Property<?>>> propertiesByName = new MutableObject<>();
+        MutableObject<Map<String, Property<?>>> propertiesByName = new MutableObject<>(new HashMap<>());
         MutableObject<Property<Direction>> facingProperty = new MutableObject<>();
 
         JParse.begin(data)
@@ -78,7 +78,10 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("speed_factor", val -> val.floatValue().range(0,1).handle(builder::setSpeedFactor))
                 .ifKey("jump_factor", val -> val.floatValue().range(0,1).handle(builder::setJumpFactor))
                 .ifKey("sound_type", val -> val.string().map(ResourceLocation::new).handle(builder::setSoundType))
-                .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(builder::setProperties))
+                .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
+                    propertiesByName.setValue(properties);
+                    builder.setProperties(properties);
+                }))
                 .ifKey("default_state", val -> val.obj().raw(obj -> parseBlockState(obj, builder)))
                 .ifKey("shape_rotation", val -> val.string().handle(name -> {
                     Property<?> prop = getRotationProperty(propertiesByName, name);
@@ -94,7 +97,11 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("item", val -> val
                                 .ifBool(v -> v.handle(b -> { if (b) createStockItemBlock(builder);}))
-                                .ifObj(obj -> obj.map((JsonObject item) -> JsonThings.itemParser.parseFromElement(builder.getRegistryName(), item).withType("block", item)).handle(builder::withItem) )
+                                .ifObj(obj -> obj.map((JsonObject item) -> {
+                                    ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), item);
+                                    itemBuilder.setType("block");
+                                    return itemBuilder;
+                                }).handle(builder::withItem) )
                         );
 
         return builder;
@@ -174,7 +181,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
     private void createStockItemBlock(BlockBuilder builder)
     {
-        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject()).withType("block", new JsonObject());
+        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject());
+        itemBuilder.setType("block");
         builder.withItem(itemBuilder);
     }
 }

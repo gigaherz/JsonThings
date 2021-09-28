@@ -133,7 +133,7 @@ public class JsonThings
         public static void clientSetup(FMLClientSetupEvent event)
         {
             JsonThings.blockParser.getBuilders().forEach(thing -> {
-                Set<String> layers = thing.getRenderLayersDefaulted();
+                Set<String> layers = thing.getRenderLayers();
                 if (layers.size() != 1 || !layers.contains("solid"))
                 {
                     Set<RenderType> renderTypes = layers.stream().map(MultiLayerModel.Loader.BLOCK_LAYERS::get).collect(Collectors.toSet());

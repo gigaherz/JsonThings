@@ -1,4 +1,6 @@
 {
+  "type": "sapling",
+  "tree_feature": "sandwood:sandwood_tree",
   "material": "plant",
   "render_layer": "cutout",
   "shape": [2,0,2,14,12,14],

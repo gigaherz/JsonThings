@@ -4,11 +4,16 @@ import com.google.gson.JsonObject;
 import gigaherz.jsonthings.things.IFlexBlock;
 import gigaherz.jsonthings.things.ThingRegistries;
 import gigaherz.jsonthings.things.blocks.*;
+import gigaherz.jsonthings.things.misc.FlexTreeGrower;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.fmllegacy.RegistryObject;
 
 import java.util.Arrays;
@@ -30,7 +35,24 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false);
+    }, "solid", false, Material.STONE);
+
+    public static final BlockType<FlexSaplingBlock> SAPLING = register("sapling", data -> (props, builder) -> {
+        List<Property<?>> _properties = builder.getProperties();
+        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+        var featureId = new ResourceLocation(GsonHelper.getAsString(data, "tree_feature"));
+        var featureKey = ResourceKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, featureId);
+        var treeGrower = new FlexTreeGrower(featureKey);
+        return new FlexSaplingBlock(treeGrower, props, propertyDefaultValues)
+        {
+            @Override
+            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            {
+                super.createBlockStateDefinition(builder1);
+                _properties.forEach(builder1::add);
+            }
+        };
+    }, "cutout", false, Material.PLANT);
 
     public static final BlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -44,7 +66,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, DirectionalBlock.FACING);
+    }, "solid", false, Material.STONE, DirectionalBlock.FACING);
 
     public static final BlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -58,7 +80,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, HorizontalDirectionalBlock.FACING);
+    }, "solid", false, Material.STONE, HorizontalDirectionalBlock.FACING);
 
     public static final BlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -72,7 +94,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, RotatedPillarBlock.AXIS);
+    }, "solid", false, Material.STONE, RotatedPillarBlock.AXIS);
 
     public static final BlockType<FlexSlabBlock> SLAB = register("slab", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -86,7 +108,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, SlabBlock.TYPE, SlabBlock.WATERLOGGED);
+    }, "solid", false, Material.STONE, SlabBlock.TYPE, SlabBlock.WATERLOGGED);
 
     public static final BlockType<FlexStairsBlock> STAIRS = register("stairs", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -103,7 +125,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
+    }, "solid", false, Material.STONE, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
 
     public static final BlockType<FlexWallBlock> WALL = register("wall", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -117,7 +139,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
+    }, "solid", false, Material.STONE, WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
 
     public static final BlockType<FlexFenceBlock> FENCE = register("fence", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -131,7 +153,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED);
+    }, "solid", false, Material.STONE, FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED);
 
     public static final BlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -145,7 +167,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
+    }, "solid", false, Material.STONE, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
 
     public static final BlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -159,7 +181,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
+    }, "cutout_mipped", true, Material.LEAVES, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
 
     public static final BlockType<FlexDoorBlock> DOOR = register("door", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -173,7 +195,7 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "cutout", true, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF);
+    }, "cutout", true, Material.STONE, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF);
 
     public static final BlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -187,29 +209,31 @@ public class BlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "cutout", true, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
+    }, "cutout", true, Material.STONE, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
 
     public static void init()
     {
         /* do nothing */
     }
 
-    public static <T extends Block & IFlexBlock> BlockType<T> register(String name, IBlockSerializer<T> factory, String defaultLayer, boolean defaultSeeThrough, Property<?>... stockProperties)
+    public static <T extends Block & IFlexBlock> BlockType<T> register(String name, IBlockSerializer<T> factory, String defaultLayer, boolean defaultSeeThrough, Material defaultMaterial, Property<?>... stockProperties)
     {
-        return Registry.register(ThingRegistries.BLOCK_TYPES, name, new BlockType<>(factory, Arrays.asList(stockProperties), defaultLayer, defaultSeeThrough));
+        return Registry.register(ThingRegistries.BLOCK_TYPES, name, new BlockType<>(factory, Arrays.asList(stockProperties), defaultLayer, defaultSeeThrough, defaultMaterial));
     }
 
     private final IBlockSerializer<T> factory;
     private final List<Property<?>> stockProperties;
     private final String defaultLayer;
     private final boolean defaultSeeThrough;
+    private final Material defaultMaterial;
 
-    private BlockType(IBlockSerializer<T> factory, List<Property<?>> stockProperties, String defaultLayer, boolean defaultSeeThrough)
+    private BlockType(IBlockSerializer<T> factory, List<Property<?>> stockProperties, String defaultLayer, boolean defaultSeeThrough, Material defaultMaterial)
     {
         this.factory = factory;
         this.stockProperties = stockProperties;
         this.defaultLayer = defaultLayer;
         this.defaultSeeThrough = defaultSeeThrough;
+        this.defaultMaterial = defaultMaterial;
     }
 
     public IBlockFactory<T> getFactory(JsonObject data)
@@ -230,6 +254,11 @@ public class BlockType<T extends Block & IFlexBlock>
     public boolean isDefaultSeeThrough()
     {
         return defaultSeeThrough;
+    }
+
+    public Material getDefaultMaterial()
+    {
+        return defaultMaterial;
     }
 
     public String toString()

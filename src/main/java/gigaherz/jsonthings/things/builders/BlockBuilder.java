@@ -206,8 +206,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
     private IFlexBlock build()
     {
-
-        Material material = Utils.getOrCrash(ThingRegistries.BLOCK_MATERIALS, getBlockMaterial());
+        Material material = getBlockMaterial();
         MaterialColor blockMaterialColor = getBlockMaterialColor();
         Block.Properties props = blockMaterialColor != null ?
                 Block.Properties.of(material, blockMaterialColor) :
@@ -341,15 +340,17 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         return getValueWithParent(renderShape, BlockBuilder::getRenderShape);
     }
 
+    @Nullable
     public ResourceLocation getBlockMaterialRaw()
     {
         return getValueWithParent(blockMaterial, BlockBuilder::getBlockMaterialRaw);
     }
 
-    @Nullable
-    public ResourceLocation getBlockMaterial()
+    public Material getBlockMaterial()
     {
-        return Utils.orElse(getBlockMaterialRaw(), () -> new ResourceLocation("stone"));
+        var matName = getBlockMaterialRaw();
+        var mat = matName != null ? ThingRegistries.BLOCK_MATERIALS.get(matName) : null;
+        return Utils.orElse(mat, getBlockType().getDefaultMaterial());
     }
 
     @Nullable
@@ -359,14 +360,14 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     }
 
     @Nullable
-    public Set<String> getRenderLayers()
+    public Set<String> getRenderLayersRaw()
     {
-        return getValueWithParent(renderLayers, BlockBuilder::getRenderLayers);
+        return getValueWithParent(renderLayers, BlockBuilder::getRenderLayersRaw);
     }
 
-    public Set<String> getRenderLayersDefaulted()
+    public Set<String> getRenderLayers()
     {
-        return Utils.orElse(getRenderLayers(), () -> Collections.singleton(getBlockType().getDefaultLayer()));
+        return Utils.orElse(getRenderLayersRaw(), () -> Collections.singleton(getBlockType().getDefaultLayer()));
     }
 
     @Nullable

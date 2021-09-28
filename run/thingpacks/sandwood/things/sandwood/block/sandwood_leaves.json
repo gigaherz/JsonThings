@@ -2,6 +2,10 @@
   "type": "leaves",
   "__render_layer": "cutout_mipped",
   "color_handler": "foliage",
+  "sound_type": "grass",
+  "explosion_resistance": 0.2,
+  "destroy_time": 0.2,
+  "ticks_randomly": true,
   "item": {
     "group": "sandwood:sandwood",
     "color_handler": "foliage"

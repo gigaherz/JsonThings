@@ -2,31 +2,30 @@ package dev.gigaherz.jsonthings;
 
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.ModLoadingWarning;
-import net.minecraftforge.fmllegacy.packs.ModFileResourcePack;
-import net.minecraftforge.fmllegacy.packs.ResourcePackLoader;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
+import net.minecraftforge.resource.PathResourcePack;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static net.minecraftforge.fml.Logging.CORE;
 
 class ModResourcesFinder
 {
-    static ResourcePackLoader.IPackInfoFinder buildPackFinder(Map<IModFile, ? extends ModFileResourcePack> modResourcePacks, BiConsumer<? super ModFileResourcePack, Pack> packSetter)
+    static RepositorySource buildPackFinder(Map<IModFile, ? extends PathResourcePack> modResourcePacks)
     {
-        return (packList, factory) -> serverPackFinder(modResourcePacks, packSetter, packList, factory);
+        return (packList, factory) -> serverPackFinder(modResourcePacks, packList, factory);
     }
 
-    private static void serverPackFinder(Map<IModFile, ? extends ModFileResourcePack> modResourcePacks, BiConsumer<? super ModFileResourcePack, Pack> packSetter, Consumer<Pack> consumer, Pack.PackConstructor factory)
+    private static void serverPackFinder(Map<IModFile, ? extends PathResourcePack> modResourcePacks, Consumer<Pack> consumer, Pack.PackConstructor factory)
     {
-        for (Map.Entry<IModFile, ? extends ModFileResourcePack> e : modResourcePacks.entrySet())
+        for (Map.Entry<IModFile, ? extends PathResourcePack> e : modResourcePacks.entrySet())
         {
             IModInfo mod = e.getKey().getModInfos().get(0);
             if (Objects.equals(mod.getModId(), "minecraft")) continue; // skip the minecraft "mod"
@@ -38,7 +37,6 @@ class ModResourcesFinder
                 ModLoader.get().addWarning(new ModLoadingWarning(mod, ModLoadingStage.ERROR, "fml.modloading.brokenresources", e.getKey()));
                 continue;
             }
-            packSetter.accept(e.getValue(), packInfo);
             JsonThings.LOGGER.debug(CORE, "Generating PackInfo named {} for mod file {}", name, e.getKey().getFilePath());
             consumer.accept(packInfo);
         }

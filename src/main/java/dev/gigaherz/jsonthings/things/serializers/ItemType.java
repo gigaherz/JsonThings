@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.items.*;
-import gigaherz.jsonthings.things.items.*;
 import dev.gigaherz.jsonthings.util.Utils;
 import joptsimple.internal.Strings;
 import net.minecraft.core.Registry;

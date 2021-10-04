@@ -8,7 +8,6 @@ import dev.gigaherz.jsonthings.util.parse.value.*;
 import dev.gigaherz.jsonthings.util.parse.function.JsonArrayConsumer;
 import dev.gigaherz.jsonthings.util.parse.function.JsonElementConsumer;
 import dev.gigaherz.jsonthings.util.parse.function.JsonObjectConsumer;
-import gigaherz.jsonthings.util.parse.value.*;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.util.GsonHelper;

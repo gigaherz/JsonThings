@@ -10,7 +10,6 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.JsonThings;
-import gigaherz.jsonthings.things.*;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;

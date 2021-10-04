@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.*;
-import gigaherz.jsonthings.codegen.api.*;
 import dev.gigaherz.jsonthings.codegen.codetree.ClassInfo;
 import dev.gigaherz.jsonthings.codegen.codetree.CodeBlock;
 import dev.gigaherz.jsonthings.codegen.codetree.MethodInfo;

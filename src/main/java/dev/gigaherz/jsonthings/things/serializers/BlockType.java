@@ -5,7 +5,6 @@ import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.blocks.*;
 import dev.gigaherz.jsonthings.things.misc.FlexTreeGrower;
-import gigaherz.jsonthings.things.blocks.*;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

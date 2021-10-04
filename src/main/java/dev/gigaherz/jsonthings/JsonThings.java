@@ -4,7 +4,6 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
-import gigaherz.jsonthings.things.parsers.*;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
@@ -14,10 +13,12 @@ import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.model.MultiLayerModel;
+import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -63,7 +64,6 @@ public class JsonThings
     public JsonThings()
     {
         var bus = FMLJavaModLoadingContext.get().getModEventBus();
-        bus.addListener(this::finishLoading);
 
         var manager = ThingResourceManager.initialize(bus);
         blockParser = manager.registerParser(new BlockParser(bus));
@@ -98,7 +98,17 @@ public class JsonThings
         });
     }
 
-    public void finishLoading(RegistryEvent.NewRegistry event)
+    @SubscribeEvent
+    public static void packFinder(AddPackFindersEvent event)
+    {
+        if (event.getPackType() == PackType.SERVER_DATA)
+        {
+            event.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder());
+        }
+    }
+
+    @SubscribeEvent
+    public static void finishLoading(RegistryEvent.NewRegistry event)
     {
         try
         {

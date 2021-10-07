@@ -169,6 +169,7 @@ public class ClassData<T> implements ClassInfo<T>
         for (Field f : superClass.getDeclaredFields())
         {
             FieldData<?> fi = new FieldData<>();
+            fi.owner = ci;
             fi.name = f.getName();
             fi.modifiers = f.getModifiers();
             ci.fields.add(fi);

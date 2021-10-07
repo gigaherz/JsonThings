@@ -1,6 +1,6 @@
 package dev.gigaherz.jsonthings.codegen.api;
 
-import dev.gigaherz.jsonthings.codegen.codetree.ValueExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 
 public interface DefineField<C, F> extends FinishToClass<C>, Annotatable<DefineField<C, F>>
 {

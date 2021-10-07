@@ -8,4 +8,5 @@ public interface FieldInfo<T>
     String name();
     int modifiers();
     TypeToken<T> type();
+    ClassInfo<?> owner();
 }

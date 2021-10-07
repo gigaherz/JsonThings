@@ -1,9 +1,5 @@
 package dev.gigaherz.jsonthings.codegen;
 
-import dev.gigaherz.jsonthings.codegen.api.BasicClass;
-import dev.gigaherz.jsonthings.codegen.api.DefineClass;
-import dev.gigaherz.jsonthings.codegen.codetree.CodeBlock;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,16 +34,16 @@ public class ClassGenDemo
                 .param(int.class).withName("y")
                 .param(int.class).withName("z")
                 .implementation(cb -> cb
-                        .getThis().getLocal("x").setField("x")
-                        .getThis().getLocal("y").setField("y")
-                        .getThis().getLocal("z").setField("z")
+                        .assign(cb.fieldRef("x"), cb.localVar("x"))
+                        .assign(cb.fieldRef("y"), cb.localVar("y"))
+                        .assign(cb.fieldRef("z"), cb.localVar("z"))
                         .returnVoid())
                 .method("getX", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.getThis().getField("x").returnInt())
+                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("x")))
                 .method("getY", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.getThis().getField("y").returnInt())
+                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("y")))
                 .method("getZ", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.getThis().getField("z").returnInt());
+                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("z")));
 
         try
         {
@@ -58,7 +54,6 @@ public class ClassGenDemo
             e.printStackTrace();
         }
 
-        var ci = builder
-                .make();
+        var ci = builder.make();
     }
 }

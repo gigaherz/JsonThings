@@ -7,6 +7,7 @@ import dev.gigaherz.jsonthings.codegen.api.codetree.info.ClassInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.*;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -22,7 +23,7 @@ import java.util.List;
 public class CodeBlock<R>
 {
     public final List<InstructionSource> instructions = Lists.newArrayList();
-    public final List<LocalVariable> locals = Lists.newArrayList();
+    public final List<LocalVariable<?>> locals = Lists.newArrayList();
     public final List<StackEntry> stack = Lists.newArrayList();
 
     private final MethodInfo<R> methodInfo;
@@ -155,9 +156,86 @@ public class CodeBlock<R>
         return instructions;
     }
 
+    private LocalVariable<?> getLocalVariable(String localName)
+    {
+        return locals.stream().filter(local -> Objects.equal(local.name, localName)).findFirst().orElseThrow(() -> new IllegalStateException("No local or parameter with name " + localName));
+    }
+
+    private LocalVariable<?> getLocalVariable(int localNumber)
+    {
+        return locals.stream().filter(local -> local.index == localNumber).findFirst().orElseThrow(() -> new IllegalStateException("No local or parameter with index " + localNumber));
+    }
+
+    public FieldRef<?> fieldRef(String fieldName)
+    {
+        return new FieldRef<>(thisVar(), methodInfo.owner().getField(fieldName));
+    }
+
+    public FieldRef<?> fieldRef(ValueExpression<?> objRef, String fieldName)
+    {
+        return new FieldRef<>(objRef, methodInfo.owner().getField(fieldName));
+    }
+
+    public FieldExpression<?> field(String fieldName)
+    {
+        return new FieldExpression<>(thisVar(), methodInfo.owner().getField(fieldName));
+    }
+
+    public FieldExpression<?> fieldOf(ValueExpression<?> objRef, String fieldName)
+    {
+        return new FieldExpression<>(objRef, methodInfo.owner().getField(fieldName));
+    }
+
+    public VarExpression<?> thisVar()
+    {
+        return new VarExpression<>(getLocalVariable(0));
+    }
+
+    public VarExpression<?> localVar(String varName)
+    {
+        return new VarExpression<>(getLocalVariable(varName));
+    }
+
+    public CodeBlock<R> assign(FieldRef<?> target, ValueExpression<?> value)
+    {
+        // TODO: value = applyAutomaticCasting(target, value);
+        if (target.targetType().isSupertypeOf(value.effectiveType()))
+        {
+            instructions.add(new Assignment(new AssignExpression<>(target, value)));
+            return this;
+        }
+        throw new IllegalStateException("Cannot assign field of type " + target.targetType() + " from expression of type " + value.effectiveType());
+    }
+
+    public void returnVal(ValueExpression<?> value)
+    {
+        // TODO: value = applyAutomaticCasting(target, value);
+        if (methodInfo.returnType().isSupertypeOf(value.effectiveType()))
+        {
+            instructions.add(new ExprReturn(methodInfo.returnType(), value));
+        }
+    }
+
     public abstract static class InstructionSource
     {
         public abstract void compile(MethodVisitor mv);
+    }
+
+    public class Assignment extends InstructionSource
+    {
+        private final AssignExpression<?, ?> assignExpression;
+
+        public Assignment(AssignExpression<?, ?> assignExpression)
+        {
+            this.assignExpression = assignExpression;
+        }
+
+        @Override
+        public void compile(MethodVisitor mv)
+        {
+            label(mv);
+            assignExpression.compile(mv, false);
+        }
     }
 
     public static class SuperCall extends MethodCall
@@ -174,6 +252,27 @@ public class CodeBlock<R>
         }
     }
 
+    public class ExprReturn extends InstructionSource
+    {
+        private final TypeToken<?> returnType;
+
+        private final ValueExpression<?> value;
+
+        public ExprReturn(TypeToken<?> returnType, ValueExpression<?> value)
+        {
+            this.returnType = returnType;
+            this.value = value;
+        }
+
+        @Override
+        public void compile(MethodVisitor mv)
+        {
+            label(mv);
+            value.compile(mv, true);
+            Return.compileReturn(returnType, mv);
+        }
+    }
+
     public class Return extends InstructionSource
     {
         private final TypeToken<?> returnType;
@@ -187,6 +286,11 @@ public class CodeBlock<R>
         public void compile(MethodVisitor mv)
         {
             label(mv);
+            compileReturn(returnType, mv);
+        }
+
+        public static void compileReturn(TypeToken<?> returnType, MethodVisitor mv)
+        {
             Class<?> rawType = returnType.getRawType();
             if (rawType == void.class)
             {
@@ -235,18 +339,21 @@ public class CodeBlock<R>
         {
             label(mv);
 
-            LocalVariable localVariable;
+            LocalVariable<?> localVariable;
 
             if (localName != null)
             {
-                localVariable = locals.stream().filter(local -> Objects.equal(local.name, localName)).findFirst().orElseThrow(() -> new IllegalStateException("No local or parameter with name " + localName));
+                localVariable = getLocalVariable(localName);
                 localNumber = localVariable.index;
             }
             else
             {
-                localVariable = locals.stream().filter(local -> local.index == localNumber).findFirst().orElseThrow(() -> new IllegalStateException("No local or parameter with name " + localName));
+                int localNumber = this.localNumber;
+                localVariable = getLocalVariable(localNumber);
             }
-
+        }
+        public static void compile(LocalVariable<?> localVariable, MethodVisitor mv)
+        {
             if (!localVariable.variableType.isPrimitive())
             {
                 mv.visitVarInsn(Opcodes.ALOAD, localVariable.index);
@@ -294,7 +401,7 @@ public class CodeBlock<R>
         {
             label(mv);
 
-            LocalVariable localVariable;
+            LocalVariable<?> localVariable;
 
             if (localName != null)
             {
@@ -306,6 +413,11 @@ public class CodeBlock<R>
                 localVariable = locals.stream().filter(local -> local.index == localNumber).findFirst().orElseThrow(() -> new IllegalStateException("No local or parameter with name " + localName));
             }
 
+            compile(localVariable, mv);
+        }
+
+        public static void compile(LocalVariable<?> localVariable, MethodVisitor mv)
+        {
             if (!localVariable.variableType.isPrimitive())
             {
                 mv.visitVarInsn(Opcodes.ASTORE, localVariable.index);
@@ -355,7 +467,12 @@ public class CodeBlock<R>
                 fieldInfo = owner.getField(fieldName);
             }
 
-            mv.visitFieldInsn(Opcodes.GETFIELD, owner.thisType().getInternalName(), fieldName, TypeProxy.getTypeDescriptor(fieldInfo.type()));
+            compile(fieldInfo, mv);
+        }
+
+        public static void compile(FieldInfo<?> fieldInfo, MethodVisitor mv)
+        {
+            mv.visitFieldInsn(Opcodes.GETFIELD, fieldInfo.owner().thisType().getInternalName(), fieldInfo.name(), TypeProxy.getTypeDescriptor(fieldInfo.type()));
         }
     }
 
@@ -381,21 +498,26 @@ public class CodeBlock<R>
                 fieldInfo = owner.getField(fieldName);
             }
 
-            mv.visitFieldInsn(Opcodes.PUTFIELD, owner.thisType().getInternalName(), fieldName, TypeProxy.getTypeDescriptor(fieldInfo.type()));
+            compile(fieldInfo, mv);
+        }
+
+        public static void compile(FieldInfo<?> fieldInfo, MethodVisitor mv)
+        {
+            mv.visitFieldInsn(Opcodes.PUTFIELD, fieldInfo.owner().thisType().getInternalName(), fieldInfo.name(), TypeProxy.getTypeDescriptor(fieldInfo.type()));
         }
     }
 
-    public static class LocalVariable
+    public static class LocalVariable<T>
     {
         public final int index;
-        public final TypeProxy<?> variableType;
+        public final TypeProxy<T> variableType;
         public final int slotCount;
 
         @Nullable
         public String name;
 
 
-        private LocalVariable(int index, TypeProxy<?> variableType, int slotCount)
+        private LocalVariable(int index, TypeProxy<T> variableType, int slotCount)
         {
             this.index = index;
             this.variableType = variableType;

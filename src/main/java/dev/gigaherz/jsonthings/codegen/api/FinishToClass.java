@@ -1,10 +1,10 @@
 package dev.gigaherz.jsonthings.codegen.api;
 
 import com.google.common.reflect.TypeToken;
-import dev.gigaherz.jsonthings.codegen.codetree.ClassInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
 
 @SuppressWarnings("UnstableApiUsage")
-public interface FinishToClass<T> extends Finishable<DefineClass<T>>, DefineClass<T>
+public interface FinishToClass<T> extends Finishable<ClassDef<T>>, DefineClass<T>
 {
     @Override
     default DefineClass<T> implementing(TypeToken<?> interfaceClass)
@@ -31,8 +31,14 @@ public interface FinishToClass<T> extends Finishable<DefineClass<T>>, DefineClas
     }
 
     @Override
-    default ClassInfo<? extends T> make()
+    default ClassData<? extends T> make()
     {
         return finish().make();
+    }
+
+    @Override
+    default byte[] makeClass()
+    {
+        return finish().makeClass();
     }
 }

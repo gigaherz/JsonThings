@@ -3,11 +3,11 @@ package dev.gigaherz.jsonthings.codegen.api;
 import com.google.common.reflect.TypeToken;
 
 @SuppressWarnings("UnstableApiUsage")
-public interface BasicClass extends DefineClass<Object>, Annotatable<BasicClass>
+public interface BasicClass extends ClassDef<Object>, Annotatable<BasicClass>
 {
-    <T> DefineClass<? extends T> extending(TypeToken<T> baseClass);
+    <T> ClassDef<? extends T> extending(TypeToken<T> baseClass);
 
-    default <T> DefineClass<? extends T> extending(Class<T> baseClass)
+    default <T> ClassDef<? extends T> extending(Class<T> baseClass)
     {
         return extending(TypeToken.of(baseClass));
     }

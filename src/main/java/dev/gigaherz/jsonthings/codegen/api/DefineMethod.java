@@ -1,10 +1,10 @@
 package dev.gigaherz.jsonthings.codegen.api;
 
 import com.google.common.reflect.TypeToken;
-import dev.gigaherz.jsonthings.codegen.codetree.MethodInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.MethodData;
 
 @SuppressWarnings("UnstableApiUsage")
-public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annotatable<DefineMethod<C, R>>
+public interface DefineMethod<C, R> extends Implementable<C, R>, Annotatable<DefineMethod<C, R>>
 {
     // default: package-private
     DefineMethod<C, R> setPublic();
@@ -20,7 +20,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
 
     DefineArgs1<C, R, C> setInstance();
 
-    interface DefineArgs0<C, R> extends Implementable<C, MethodInfo>
+    interface DefineArgs0<C, R> extends Implementable<C, R>
     {
         <P> DefineArgs1<C, R, P> param(TypeToken<P> paramClass);
 
@@ -30,7 +30,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
         }
     }
 
-    public interface DefineArgs1<C, R, P0> extends DefineParam<C, P0, DefineArgs1<C, R, P0>>
+    public interface DefineArgs1<C, R, P0> extends DefineParam<C, R, P0, DefineArgs1<C, R, P0>>
     {
         <P> DefineArgs2<C, R, P0, P> param(TypeToken<P> paramClass);
 
@@ -40,7 +40,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
         }
     }
 
-    public interface DefineArgs2<C, R, P0, P1> extends DefineParam<C, P1, DefineArgs2<C, R, P0, P1>>
+    public interface DefineArgs2<C, R, P0, P1> extends DefineParam<C, R, P1, DefineArgs2<C, R, P0, P1>>
     {
         <P> DefineArgs3<C, R, P0, P1, P> param(TypeToken<P> paramClass);
 
@@ -50,7 +50,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
         }
     }
 
-    public interface DefineArgs3<C, R, P0, P1, P2> extends DefineParam<C, P2, DefineArgs3<C, R, P0, P1, P2>>
+    public interface DefineArgs3<C, R, P0, P1, P2> extends DefineParam<C, R, P2, DefineArgs3<C, R, P0, P1, P2>>
     {
         <P> DefineArgs4<C, R, P0, P1, P2, P> param(TypeToken<P> paramClass);
 
@@ -60,7 +60,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
         }
     }
 
-    public interface DefineArgs4<C, R, P0, P1, P2, P3> extends DefineParam<C, P3, DefineArgs4<C, R, P0, P1, P2, P3>>
+    public interface DefineArgs4<C, R, P0, P1, P2, P3> extends DefineParam<C, R, P3, DefineArgs4<C, R, P0, P1, P2, P3>>
     {
         <P> DefineArgs5<C, R, P0, P1, P2, P3, P> param(TypeToken<P> paramClass);
 
@@ -71,7 +71,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
     }
 
     public interface DefineArgs5<C, R, P0, P1, P2, P3, P4>
-            extends DefineParam<C, P4, DefineArgs5<C, R, P0, P1, P2, P3, P4>>
+            extends DefineParam<C, R, P4, DefineArgs5<C, R, P0, P1, P2, P3, P4>>
     {
         <P> DefineArgs6<C, R, P0, P1, P2, P3, P4, P> param(TypeToken<P> paramClass);
 
@@ -82,7 +82,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
     }
 
     public interface DefineArgs6<C, R, P0, P1, P2, P3, P4, P5>
-            extends DefineParam<C, P5, DefineArgs6<C, R, P0, P1, P2, P3, P4, P5>>
+            extends DefineParam<C, R, P5, DefineArgs6<C, R, P0, P1, P2, P3, P4, P5>>
     {
         <P> DefineArgs7<C, R, P0, P1, P2, P3, P4, P5, P> param(TypeToken<P> paramClass);
 
@@ -93,7 +93,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
     }
 
     public interface DefineArgs7<C, R, P0, P1, P2, P3, P4, P5, P6>
-            extends DefineParam<C, P6, DefineArgs7<C, R, P0, P1, P2, P3, P4, P5, P6>>
+            extends DefineParam<C, R, P6, DefineArgs7<C, R, P0, P1, P2, P3, P4, P5, P6>>
     {
         <P> DefineArgs8<C, R, P0, P1, P2, P3, P4, P5, P6, P> param(TypeToken<P> paramClass);
 
@@ -104,7 +104,7 @@ public interface DefineMethod<C, R> extends Implementable<C, MethodInfo>, Annota
     }
 
     public interface DefineArgs8<C, R, P0, P1, P2, P3, P4, P5, P6, P7>
-            extends DefineParam<C, P7, DefineArgs8<C, R, P0, P1, P2, P3, P4, P5, P6, P7>>
+            extends DefineParam<C, R, P7, DefineArgs8<C, R, P0, P1, P2, P3, P4, P5, P6, P7>>
     {
 
     }

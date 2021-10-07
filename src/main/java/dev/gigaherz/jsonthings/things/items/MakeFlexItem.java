@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.things.items;
 
+/*
 import com.google.common.collect.*;
 import com.google.common.io.Files;
 import cpw.mods.modlauncher.api.INameMappingService;
@@ -68,9 +69,7 @@ import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-/*
 WIP unused code
- */
 public class MakeFlexItem
 {
     public static boolean debugDumpSubclasses = true;
@@ -89,18 +88,6 @@ public class MakeFlexItem
                 }
             });
 
-    /*
-    setUseAction
-    getUseAction
-    setUseTime
-    getUseTime
-    setUseFinishMode
-    getUseFinishMode
-    addEventHandler
-    getEventHandler
-    addCreativeStack
-    addAttributeModifier
-     */
     public static <T extends Item> Class<? extends T> makeFlex(Class<T> clsIn)
     {
         List<Constructor<?>> constructors = Arrays.stream(clsIn.getDeclaredConstructors())
@@ -405,7 +392,7 @@ public class MakeFlexItem
             finally {
                 containerResult.set(null);
             }
-        }*/
+        }* /
 
         public static Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot,
                                                                                    ItemStack stack,
@@ -438,3 +425,5 @@ public class MakeFlexItem
         void set(T value);
     }
 }
+
+        */

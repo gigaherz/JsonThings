@@ -6,21 +6,32 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.*;
-import dev.gigaherz.jsonthings.codegen.codetree.ClassInfo;
+import dev.gigaherz.jsonthings.codegen.api.codetree.info.ClassInfo;
+import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
+import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
+import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
 import dev.gigaherz.jsonthings.codegen.codetree.CodeBlock;
-import dev.gigaherz.jsonthings.codegen.codetree.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.codetree.ValueExpression;
-import dev.gigaherz.jsonthings.codegen.type.TypeTokenProxy;
+import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ClassMaker
 {
+    public static boolean generateMethodParameterTable = false;
+
     public BasicClass begin()
     {
         return new BasicClassImpl();
@@ -35,7 +46,7 @@ public class ClassMaker
         }
 
         @Override
-        public <T> DefineClass<? extends T> extending(TypeToken<T> baseClass)
+        public <T> ClassDef<? extends T> extending(TypeToken<T> baseClass)
         {
             Class<? super T> rawType = baseClass.getRawType();
             if (baseClass.isArray())
@@ -99,27 +110,33 @@ public class ClassMaker
         }
     }
 
-    private class ClassImpl<C, T extends C> implements DefineClass<T>
+    public class ClassImpl<C, T extends C> implements ClassDef<T>
     {
         protected final List<Annotation> annotations = Lists.newArrayList();
-        protected final Map<String, FieldImpl<?>> fields = Maps.newHashMap();
-        protected final Multimap<String, MethodImpl<?>> methods = ArrayListMultimap.create();
-        protected final TypeTokenProxy<T> thisClass = new TypeTokenProxy<>();
+        protected final List<FieldImpl<?>> fields = Lists.newArrayList();
+        protected final List<MethodImpl<?>> constructors = Lists.newArrayList();
+        protected final List<MethodImpl<?>> methods = Lists.newArrayList();
         protected final TypeToken<C> superClass;
         protected final List<TypeToken<?>> superInterfaces = Lists.newArrayList();
         protected int modifiers;
+
+        private static int nextClassId = 1;
+        private final int classId = (nextClassId++);// + classId
+        protected String name = /*this.getClass().getPackageName() + "." + */ "C" + classId;
+        protected String fullName = this.getClass().getPackageName() + "." + name;
 
         public ClassImpl(TypeToken<C> baseClass)
         {
             this.superClass = baseClass;
         }
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         public ClassImpl(TypeToken<C> baseClass, BasicClassImpl copyFrom)
         {
             this(baseClass);
 
-            copyFrom.fields.forEach((k, v) -> fields.put(k, new FieldImpl(v)));
-            copyFrom.methods.forEach((k, v) -> methods.put(k, new MethodImpl(v)));
+            copyFrom.fields.forEach((v) -> fields.add(new FieldImpl(v)));
+            copyFrom.methods.forEach((v) -> methods.add(new MethodImpl(v)));
             annotations.addAll(copyFrom.annotations);
         }
 
@@ -134,44 +151,327 @@ public class ClassMaker
         @Override
         public <F> DefineField<T, F> field(String name, TypeToken<F> fieldType)
         {
-            FieldImpl<F> field = new FieldImpl<>(fieldType);
-            fields.put(name, field);
+            FieldImpl<F> field = new FieldImpl<>(name, fieldType);
+            fields.add(field);
             return field;
         }
 
         @Override
         public <R> DefineMethod<T, R> method(String name, TypeToken<R> returnType)
         {
-            return null;
+            var m = new MethodImpl<>(name, returnType);
+            methods.add(m);
+            return m;
         }
 
         @Override
         public DefineMethod<T, Void> constructor()
         {
-            return null;
+            var m = new MethodImpl<>("<init>", TypeToken.of(void.class));
+            constructors.add(m);
+            return m;
+        }
+
+        public byte[] makeClass()
+        {
+            var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+
+            cw.visit(Opcodes.V16, modifiers | Opcodes.ACC_SUPER, getInternalName(), getSignature(),
+                    TypeProxy.of(superClass).getInternalName(),
+                    superInterfaces.stream().map(iface -> TypeProxy.of(iface).getInternalName()).toArray(String[]::new));
+
+                /*for(var ann : annotations)
+                {
+                    cw.visitAnnotation(ann.annotationType())
+                }*/
+
+            for(var fi : fields)
+            {
+                var fname = fi.name;
+
+                var fv = cw.visitField(fi.modifiers, fname, TypeProxy.getTypeDescriptor(fi.fieldType), TypeProxy.getTypeSignature(fi.fieldType), null);
+
+                    /*for(var ann : fi.annotations)
+                    {
+                        fv.visitAnnotation(ann.annotationType())
+                    }*/
+
+                //fv.visitTypeAnnotation()
+
+                //fv.visitAttribute();
+
+                fv.visitEnd();
+            }
+
+
+            for(var mi : constructors)
+            {
+                var mv = cw.visitMethod(mi.modifiers, mi.name, mi.getDescriptor(), mi.getSignature(), mi.getExceptions());
+
+                    /*for(var ann : mi.annotations)
+                    {
+                        mv.visitAnnotation(ann.annotationType())
+                    }*/
+
+                if (generateMethodParameterTable)
+                {
+                    for (var param : mi.params)
+                    {
+                        if (param.name == null)
+                            continue;
+                        mv.visitParameter(param.name, param.modifiers);
+                        // mv.visitParameterAnnotation()
+                    }
+                }
+
+                if ((mi.modifiers & Opcodes.ACC_ABSTRACT) == 0)
+                {
+                    CodeBlock<?> code = CodeBlock.begin(mi);
+
+                    //noinspection unchecked,rawtypes
+                    mi.impl.accept((CodeBlock)code);
+
+                    var insns = code.instructions();
+
+                    Label startLabel = code.startLabel;
+
+                    mv.visitCode();
+
+                    if ((mi.modifiers & Opcodes.ACC_STATIC) == 0)
+                    {
+                        // super
+
+                        if (code.instructions().size() > 0 && code.instructions().get(0) instanceof CodeBlock.SuperCall sc)
+                        {
+                            insns.remove(0);
+
+                            sc.compile(mv);
+                        }
+                        else
+                        {
+                            // default constructor
+
+                            mv.visitLabel(startLabel = new Label());
+                            mv.visitVarInsn(Opcodes.ALOAD,0);
+                            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, TypeProxy.of(superClass).getInternalName(), "<init>", "()V", false);
+                        }
+                    }
+
+                    // field initializers
+
+                    for (var fi : fields)
+                    {
+                        var fname = fi.name;
+
+                        if (fi.init != null)
+                        {
+                            mv.visitLabel(new Label());
+
+                            mv.visitVarInsn(Opcodes.ALOAD,0); // this
+
+                            fi.init.compile(mv);
+
+                            mv.visitFieldInsn(Opcodes.PUTFIELD, mi.owner().thisType().getInternalName(), fname, TypeProxy.getTypeDescriptor(fi.fieldType));
+                        }
+                    }
+
+                    for(var ins : insns)
+                    {
+                        ins.compile(mv);
+                    }
+
+                    var endLabel = new Label();
+                    mv.visitLabel(endLabel);
+
+                    // locals
+                    for(var local : code.locals)
+                    {
+                        var n = local.name == null ? "this" : local.name;
+                        mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
+                        // mv.visitLocalVariableAnnotation
+                    }
+                }
+                mv.visitEnd();
+            }
+
+            for(var mi : methods)
+            {
+                var mname = mi.name;
+
+                var mv = cw.visitMethod(mi.modifiers, mname, mi.getDescriptor(), mi.getSignature(), mi.getExceptions());
+
+                    /*for(var ann : mi.annotations)
+                    {
+                        mv.visitAnnotation(ann.annotationType())
+                    }*/
+
+                if (generateMethodParameterTable)
+                {
+                    for (var param : mi.params)
+                    {
+                        if (param.name == null)
+                            continue;
+                        mv.visitParameter(param.name, param.modifiers);
+
+                        // mv.visitParameterAnnotation()
+                    }
+                }
+
+                if ((mi.modifiers & Opcodes.ACC_ABSTRACT) == 0)
+                {
+                    CodeBlock<?> code = CodeBlock.begin(mi);
+
+                    //noinspection unchecked,rawtypes
+                    mi.impl.accept((CodeBlock)code);
+
+                    var insns = code.instructions();
+
+                    Label startLabel = code.startLabel;
+
+                    mv.visitCode();
+
+                    for(var ins : insns)
+                    {
+                        ins.compile(mv);
+                    }
+
+                    var endLabel = new Label();
+                    mv.visitLabel(endLabel);
+
+                    // locals
+                    for(var local : code.locals)
+                    {
+                        var n = local.name == null ? "this" : local.name;
+                        mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
+                        // mv.visitLocalVariableAnnotation
+                    }
+                }
+                mv.visitEnd();
+            }
+
+            return cw.toByteArray();
         }
 
         @Override
-        public ClassInfo<T> make()
+        public ClassData<T> make()
         {
             return null;
         }
 
-        private class FieldImpl<F> implements DefineField<T, F>
+        @Override
+        public TypeToken<T> actualType()
+        {
+            throw new IllegalStateException("Cannot resolve a type definition to its actual type!");
+        }
+
+        @Override
+        public String getSimpleName()
+        {
+            return name;
+        }
+
+        @Override
+        public String getInternalName()
+        {
+            return fullName.replace(".","/");
+        }
+
+        @Override
+        public String getCanonicalName()
+        {
+            return fullName;
+        }
+
+        @Override
+        public String getDescriptor()
+        {
+            return "L" + getInternalName() + ";";
+        }
+
+        @Override
+        public boolean isPrimitive()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isArray()
+        {
+            return false;
+        }
+
+        @Nullable
+        @Override
+        public Class<?> getRawType()
+        {
+            return null;
+        }
+
+        @Override
+        public TypeToken<? super C> superClass()
+        {
+            return superClass;
+        }
+
+        @Override
+        public TypeProxy<T> thisType()
+        {
+            return this;
+        }
+
+        @Override
+        public List<? extends MethodInfo<?>> constructors()
+        {
+            return this.constructors;
+        }
+
+        @Override
+        public List<? extends MethodInfo<?>> methods()
+        {
+            return this.methods;
+        }
+
+        @Override
+        public List<? extends FieldInfo<?>> fields()
+        {
+            return this.fields;
+        }
+
+        @Override
+        public ClassInfo<? super C> superClassInfo()
+        {
+            return ClassData.getSuperClassInfo(superClass);
+        }
+
+        @Override
+        public Optional<FieldInfo<?>> findField(String fieldName)
+        {
+            return fields.stream().filter(f -> fieldName.equals(f.name)).findFirst().map(f -> f);
+        }
+
+        @Override
+        public ClassDef<T> finish()
+        {
+            return this;
+        }
+
+        private class FieldImpl<F> implements DefineField<T, F>, FieldInfo<F>
         {
             protected final List<Annotation> annotations = Lists.newArrayList();
             protected final TypeToken<F> fieldType;
             protected int modifiers;
             protected ValueExpression<F> init;
+            protected String name;
 
-            private FieldImpl(TypeToken<F> fieldType)
+            private FieldImpl(String name, TypeToken<F> fieldType)
             {
+                this.name = name;
                 this.fieldType = fieldType;
             }
 
             public FieldImpl(FieldImpl<F> copyFrom)
             {
-                this(copyFrom.fieldType);
+                this(copyFrom.name, copyFrom.fieldType);
 
                 this.modifiers = copyFrom.modifiers;
                 this.init = copyFrom.init;
@@ -228,29 +528,50 @@ public class ClassMaker
             }
 
             @Override
-            public DefineClass<T> finish()
+            public ClassDef<T> finish()
             {
-                return this;
+                return ClassImpl.this;
+            }
+
+            @Override
+            public String name()
+            {
+                return this.name;
+            }
+
+            @Override
+            public int modifiers()
+            {
+                return this.modifiers;
+            }
+
+            @Override
+            public TypeToken<F> type()
+            {
+                return this.fieldType;
             }
         }
 
-        private class MethodImpl<R> implements DefineMethod<T, R>
+        private class MethodImpl<R> implements DefineMethod<T, R>, MethodInfo<R>
         {
             protected final List<Annotation> annotations = Lists.newArrayList();
             protected final List<ParamDefinition<?>> params = Lists.newArrayList();
+            protected final List<TypeToken<? extends Throwable>> exceptions = Lists.newArrayList();
+            protected final String name;
             protected final TypeToken<R> returnType;
             protected int modifiers;
-            protected Function<MethodInfo, CodeBlock> impl;
+            protected Consumer<CodeBlock<R>> impl;
 
 
-            public MethodImpl(TypeToken<R> returnType)
+            public MethodImpl(String name, TypeToken<R> returnType)
             {
+                this.name = name;
                 this.returnType = returnType;
             }
 
             public MethodImpl(MethodImpl<R> copyFrom)
             {
-                this(copyFrom.returnType);
+                this(copyFrom.name, copyFrom.returnType);
                 this.modifiers = copyFrom.modifiers;
                 this.impl = copyFrom.impl;
                 annotations.addAll(copyFrom.annotations);
@@ -302,13 +623,13 @@ public class ClassMaker
             public DefineArgs1<T, R, T> setInstance()
             {
                 modifiers &= ~Modifier.STATIC;
-                return new DefineArgsImpl1<T>(addParam(thisClass));
+                return new DefineArgsImpl1<T>(addParam(ClassImpl.this));
             }
 
             @Override
-            public DefineClass<T> finish()
+            public ClassDef<T> finish()
             {
-                return this;
+                return ClassImpl.this;
             }
 
             @Override
@@ -318,7 +639,7 @@ public class ClassMaker
                 return finish();
             }
 
-            protected <P> ParamDefinition<P> addParam(TypeToken<P> paramType)
+            protected <P> ParamDefinition<P> addParam(TypeProxy<P> paramType)
             {
                 ParamDefinition<P> def = new ParamDefinition<>(paramType);
                 params.add(def);
@@ -326,35 +647,100 @@ public class ClassMaker
             }
 
             @Override
-            public DefineClass<T> implementation(Function<MethodInfo, CodeBlock> code)
+            public DefineClass<T> implementation(Consumer<CodeBlock<R>> code)
             {
                 this.impl = code;
                 return this;
             }
 
-            private class Impl implements Implementable<T, MethodInfo>
+            @Nullable
+            public String[] getExceptions()
+            {
+                if (exceptions.size() > 0)
+                    return exceptions.stream().map(ex -> TypeProxy.of(ex).getInternalName()).toArray(String[]::new);
+
+                return null;
+            }
+
+            public String getDescriptor()
+            {
+                var sb = new StringBuilder();
+
+                sb.append("(");
+
+                for(var param : params)
+                {
+                    if (param.name == null)
+                        continue;
+                    sb.append(param.paramType().getDescriptor());
+                }
+
+                sb.append(")");
+
+                sb.append(TypeProxy.getTypeDescriptor(returnType));
+
+                return sb.toString();
+            }
+
+            @Nullable
+            public String getSignature()
+            {
+                return null;
+            }
+
+            @Override
+            public List<? extends ParamInfo<?>> params()
+            {
+                return params;
+            }
+
+            @Override
+            public TypeToken<R> returnType()
+            {
+                return returnType;
+            }
+
+            @Override
+            public ClassInfo<?> owner()
+            {
+                return ClassImpl.this;
+            }
+
+            @Override
+            public String name()
+            {
+                return null;
+            }
+
+            @Override
+            public int modifiers()
+            {
+                return 0;
+            }
+
+            private class Impl implements Implementable<T, R>
             {
                 @Override
-                public DefineClass<T> finish()
+                public ClassDef<T> finish()
                 {
-                    return this;
+                    return ClassImpl.this;
                 }
 
                 @Override
                 public DefineClass<T> makeAbstract()
                 {
                     modifiers |= Modifier.ABSTRACT;
-                    return this;
+                    return finish();
                 }
 
                 @Override
-                public DefineClass<T> implementation(Function<MethodInfo, CodeBlock> code)
+                public DefineClass<T> implementation(Consumer<CodeBlock<R>> code)
                 {
                     return MethodImpl.this.implementation(code);
                 }
             }
 
-            private class ImplWithParam<P, Z extends DefineParam<T, P, Z>> extends Impl implements DefineParam<T, P, Z>
+            private class ImplWithParam<P, Z extends DefineParam<T, R, P, Z>> extends Impl implements DefineParam<T, R, P, Z>
             {
                 protected final ParamDefinition<P> param;
 
@@ -383,7 +769,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs1<T, R, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl1<>(addParam(paramClass));
+                    return new DefineArgsImpl1<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -398,7 +784,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs2<T, R, P0, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl2<>(addParam(paramClass));
+                    return new DefineArgsImpl2<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -414,7 +800,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs3<T, R, P0, P1, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl3<>(addParam(paramClass));
+                    return new DefineArgsImpl3<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -430,7 +816,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs4<T, R, P0, P1, P2, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl4<>(addParam(paramClass));
+                    return new DefineArgsImpl4<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -446,7 +832,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs5<T, R, P0, P1, P2, P3, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl5<>(addParam(paramClass));
+                    return new DefineArgsImpl5<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -463,7 +849,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs6<T, R, P0, P1, P2, P3, P4, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl6<>(addParam(paramClass));
+                    return new DefineArgsImpl6<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -480,7 +866,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs7<T, R, P0, P1, P2, P3, P4, P5, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl7<>(addParam(paramClass));
+                    return new DefineArgsImpl7<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -497,7 +883,7 @@ public class ClassMaker
                 @Override
                 public <P> DefineArgs8<T, R, P0, P1, P2, P3, P4, P5, P6, P> param(TypeToken<P> paramClass)
                 {
-                    return new DefineArgsImpl8<>(addParam(paramClass));
+                    return new DefineArgsImpl8<>(addParam(TypeProxy.of(paramClass)));
                 }
             }
 
@@ -511,17 +897,33 @@ public class ClassMaker
                 }
             }
 
-            public class ParamDefinition<P>
+            public class ParamDefinition<P> implements ParamInfo<P>
             {
                 protected final List<Annotation> annotations = Lists.newArrayList();
-                protected final TypeToken<P> paramType;
+                protected final TypeProxy<P> paramType;
+                @Nullable
                 protected String name;
+                protected int modifiers;
 
-                public ParamDefinition(TypeToken<P> paramType)
+                public ParamDefinition(TypeProxy<P> paramType)
                 {
                     this.paramType = paramType;
+                }
+
+                @Override
+                public TypeProxy<P> paramType()
+                {
+                    return this.paramType;
+                }
+
+                @Nullable
+                @Override
+                public String name()
+                {
+                    return this.name;
                 }
             }
         }
     }
+
 }

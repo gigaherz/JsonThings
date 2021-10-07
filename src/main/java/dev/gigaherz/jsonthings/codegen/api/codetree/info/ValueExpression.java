@@ -1,4 +1,4 @@
-package dev.gigaherz.jsonthings.codegen.codetree;
+package dev.gigaherz.jsonthings.codegen.api.codetree.info;
 
 import org.objectweb.asm.MethodVisitor;
 

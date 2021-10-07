@@ -19,7 +19,7 @@ Things, in JSON sauce.
 [[dependencies.jsonthings]]
    modId="forge"
    mandatory=true
-   versionRange="[37.0.31,)"
+   versionRange="[37.0.81,)"
    ordering="NONE"
    side="BOTH"
 [[dependencies.jsonthings]]

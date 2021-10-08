@@ -167,6 +167,12 @@ public class ClassMaker
             return m;
         }
 
+        @Override
+        public String toString()
+        {
+            return "ClassDefinition[" + fullName + "]";
+        }
+
         public byte[] makeClass()
         {
             var cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
@@ -212,8 +218,6 @@ public class ClassMaker
                 {
                     for (var param : mi.params)
                     {
-                        if (param.name == null)
-                            continue;
                         mv.visitParameter(param.name, param.modifiers);
                         // mv.visitParameterAnnotation()
                     }
@@ -304,8 +308,6 @@ public class ClassMaker
                 {
                     for (var param : mi.params)
                     {
-                        if (param.name == null)
-                            continue;
                         mv.visitParameter(param.name, param.modifiers);
 
                         // mv.visitParameterAnnotation()
@@ -378,6 +380,12 @@ public class ClassMaker
         }
 
         @Override
+        public ClassInfo<T> classInfo()
+        {
+            return this;
+        }
+
+        @Override
         public String getDescriptor()
         {
             return "L" + getInternalName() + ";";
@@ -392,6 +400,13 @@ public class ClassMaker
         @Override
         public boolean isArray()
         {
+            return false;
+        }
+
+        @Override
+        public boolean isInterface()
+        {
+            // TODO: maybe in the future
             return false;
         }
 
@@ -621,10 +636,10 @@ public class ClassMaker
             }
 
             @Override
-            public DefineArgs1<T, R, T> setInstance()
+            public DefineArgs0<T, R> setInstance()
             {
                 modifiers &= ~Modifier.STATIC;
-                return new DefineArgsImpl1<T>(addParam(ClassImpl.this));
+                return new DefineArgsImpl0();
             }
 
             @Override
@@ -663,32 +678,6 @@ public class ClassMaker
                 return null;
             }
 
-            public String getDescriptor()
-            {
-                var sb = new StringBuilder();
-
-                sb.append("(");
-
-                for(var param : params)
-                {
-                    if (param.name == null)
-                        continue;
-                    sb.append(param.paramType().getDescriptor());
-                }
-
-                sb.append(")");
-
-                sb.append(TypeProxy.getTypeDescriptor(returnType));
-
-                return sb.toString();
-            }
-
-            @Nullable
-            public String getSignature()
-            {
-                return null;
-            }
-
             @Override
             public List<? extends ParamInfo<?>> params()
             {
@@ -710,7 +699,7 @@ public class ClassMaker
             @Override
             public String name()
             {
-                return null;
+                return name;
             }
 
             @Override

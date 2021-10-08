@@ -1,6 +1,8 @@
 package dev.gigaherz.jsonthings.codegen.type;
 
 import com.google.common.reflect.TypeToken;
+import dev.gigaherz.jsonthings.codegen.api.codetree.info.ClassInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
@@ -29,6 +31,8 @@ public interface TypeProxy<T>
     String getInternalName();
 
     String getCanonicalName();
+
+    ClassInfo<T> classInfo();
 
     default String getDescriptor()
     {
@@ -72,6 +76,8 @@ public interface TypeProxy<T>
     boolean isPrimitive();
 
     boolean isArray();
+
+    boolean isInterface();
 
     @Nullable
     Class<?> getRawType();
@@ -125,6 +131,12 @@ public interface TypeProxy<T>
         }
 
         @Override
+        public ClassInfo<T> classInfo()
+        {
+            return ClassData.getClassInfo(type);
+        }
+
+        @Override
         public boolean isPrimitive()
         {
             return type.isPrimitive();
@@ -137,9 +149,21 @@ public interface TypeProxy<T>
         }
 
         @Override
+        public boolean isInterface()
+        {
+            return type.getRawType().isInterface();
+        }
+
+        @Override
         public Class<?> getRawType()
         {
             return type.getRawType();
+        }
+
+        @Override
+        public String toString()
+        {
+            return type.toString();
         }
     }
 }

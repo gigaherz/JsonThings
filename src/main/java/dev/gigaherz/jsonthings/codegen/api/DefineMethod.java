@@ -18,7 +18,7 @@ public interface DefineMethod<C, R> extends Implementable<C, R>, Annotatable<Def
 
     DefineArgs0<C, R> setStatic();
 
-    DefineArgs1<C, R, C> setInstance();
+    DefineArgs0<C, R> setInstance();
 
     interface DefineArgs0<C, R> extends Implementable<C, R>
     {

@@ -12,6 +12,14 @@ public class FieldData<T> implements FieldInfo<T>
     public TypeToken<?> type;
     public ClassInfo<?> owner;
 
+    public FieldData(ClassInfo<?> owner, String name, TypeToken<?> type, int modifiers)
+    {
+        this.owner = owner;
+        this.name= name;
+        this.type = type;
+        this.modifiers = modifiers;
+    }
+
     @Override
     public String name()
     {

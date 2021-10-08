@@ -17,6 +17,14 @@ public class MethodData<R> implements MethodInfo<R>
     public String name;
     public int modifiers;
 
+    public MethodData(ClassData<?> owner, String name, TypeToken<R> returnType, int modifiers)
+    {
+        this.owner = owner;
+        this.name = name;
+        this.returnType = returnType;
+        this.modifiers = modifiers;
+    }
+
     @Override
     public List<ParamInfo<?>> params()
     {

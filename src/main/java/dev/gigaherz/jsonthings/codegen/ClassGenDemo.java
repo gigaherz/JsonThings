@@ -7,19 +7,37 @@ import java.nio.file.Path;
 @SuppressWarnings("UnstableApiUsage")
 public class ClassGenDemo
 {
-    public final static class Test {
-        private final int x;
-        private final int y;
-        private final int z;
+    public static class Test {
+        protected final int x;
+        protected final int y;
+        protected final int z;
         public Test(int x, int y, int z)
         {
             this.x=x;
             this.y=y;
             this.z=z;
         }
-        public final int getX() { return x;}
-        public final int getY() { return y;}
-        public final int getZ() { return z;}
+        public int getX() { return x;}
+        public int getY() { return getX();}
+        public int getZ() { return z;}
+    }
+
+    public static class Test2 extends Test {
+        public int x;
+
+        public Test2(int x, int y, int z)
+        {
+            super(x, y, z);
+            this.x = x;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getSuperX() {
+            return super.x;
+        }
     }
 
     public static void main(String[] args)
@@ -34,6 +52,7 @@ public class ClassGenDemo
                 .param(int.class).withName("y")
                 .param(int.class).withName("z")
                 .implementation(cb -> cb
+                        .superCall()
                         .assign(cb.fieldRef("x"), cb.localVar("x"))
                         .assign(cb.fieldRef("y"), cb.localVar("y"))
                         .assign(cb.fieldRef("z"), cb.localVar("z"))
@@ -41,7 +60,7 @@ public class ClassGenDemo
                 .method("getX", int.class)
                 .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("x")))
                 .method("getY", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("y")))
+                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.thisVar().methodCall("getX")))
                 .method("getZ", int.class)
                 .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("z")));
 

@@ -136,13 +136,11 @@ public class ClassData<T> implements ClassInfo<T>
     public static <C> ClassData<C> getClassInfo(Class<C> cls, TypeToken<C> clsToken)
     {
         Class<? super C> superClass = cls.getSuperclass();
-        TypeToken<? super C> superToken = clsToken.getSupertype(superClass);
+        TypeToken<? super C> superToken = superClass == null ? null : clsToken.getSupertype(superClass);
         ClassData<C> ci = new ClassData<>(superToken, clsToken);
-        for (Constructor<?> cnt : superClass.getDeclaredConstructors())
+        for (Constructor<?> cnt : cls.getDeclaredConstructors())
         {
-            MethodData<?> mi = new MethodData<>();
-            mi.name = cnt.getName();
-            mi.modifiers = cnt.getModifiers();
+            var mi = new MethodData<>(ci, "<init>", TypeToken.of(void.class), cnt.getModifiers());
             for (Parameter p : cnt.getParameters())
             {
                 ParamData<?> pi = new ParamData<>();
@@ -152,11 +150,9 @@ public class ClassData<T> implements ClassInfo<T>
             }
             ci.constructors.add(mi);
         }
-        for (Method m : superClass.getDeclaredMethods())
+        for (Method m : cls.getDeclaredMethods())
         {
-            MethodData<?> mi = new MethodData<>();
-            mi.name = m.getName();
-            mi.modifiers = m.getModifiers();
+            var mi = new MethodData<>(ci, m.getName(), TypeToken.of(m.getReturnType()), m.getModifiers());
             for (Parameter p : m.getParameters())
             {
                 ParamData<?> pi = new ParamData<>();
@@ -166,12 +162,9 @@ public class ClassData<T> implements ClassInfo<T>
             }
             ci.methods.add(mi);
         }
-        for (Field f : superClass.getDeclaredFields())
+        for (Field f : cls.getDeclaredFields())
         {
-            FieldData<?> fi = new FieldData<>();
-            fi.owner = ci;
-            fi.name = f.getName();
-            fi.modifiers = f.getModifiers();
+            FieldData<?> fi = new FieldData<>(ci, f.getName(), TypeToken.of(f.getType()), f.getModifiers());
             ci.fields.add(fi);
         }
         return ci;

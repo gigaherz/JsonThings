@@ -38,6 +38,21 @@ public class ClassGenDemo
         public int getSuperX() {
             return super.x;
         }
+
+        public int maxCoord() {
+            if (x > y && x > z)
+            {
+                return x;
+            }
+            else if (y > z)
+            {
+                return y;
+            }
+            else
+            {
+                return z;
+            }
+        }
     }
 
     public static void main(String[] args)
@@ -62,7 +77,19 @@ public class ClassGenDemo
                 .method("getY", int.class)
                 .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.thisVar().methodCall("getX")))
                 .method("getZ", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("z")));
+                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.thisVar().field("z")))
+                .method("maxCoord", int.class)
+                .setPublic().setFinal().setInstance().implementation(cb -> cb
+                        .ifElse(
+                                cb.and(cb.gt(cb.field("x"), cb.field("y")), cb.gt(cb.field("x"), cb.field("z"))),
+                                ct -> ct.returnVal(ct.field("x")),
+                                ct -> ct.ifElse(
+                                        cb.gt(cb.field("y"), cb.field("z")),
+                                        cz -> cz.returnVal(cz.field("u")),
+                                        cz -> cz.returnVal(cz.field("z"))
+                                )
+                        )
+                        .returnVal(cb.field("z")));
 
         try
         {

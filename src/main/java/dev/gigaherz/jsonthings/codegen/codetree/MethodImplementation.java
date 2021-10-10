@@ -14,22 +14,19 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @param <R> The return type of the code block
  */
 @SuppressWarnings("UnstableApiUsage")
-public class CodeBlock<R>
+public class MethodImplementation<R>
 {
-    public final List<InstructionSource> instructions = Lists.newArrayList();
     public final List<LocalVariable<?>> locals = Lists.newArrayList();
     public final List<StackEntry> stack = Lists.newArrayList();
 
     private final MethodInfo<R> methodInfo;
+    private final CodeBlock<R,?,R> rootBlock;
 
     public int stackSize = 0;
     public int localsSize = 0;
@@ -47,7 +44,7 @@ public class CodeBlock<R>
         mv.visitLabel(endLabel = new Label());
     }
 
-    public CodeBlock(MethodInfo<R> methodInfo)
+    public MethodImplementation(MethodInfo<R> methodInfo)
     {
         this.methodInfo = methodInfo;
 
@@ -62,6 +59,13 @@ public class CodeBlock<R>
         {
             localsSize += makeLocal(localsSize, f.paramType(), f.name());
         }
+
+        rootBlock = new CodeBlock<>(this, null, methodInfo.returnType());
+    }
+
+    public MethodInfo<R> methodInfo()
+    {
+        return methodInfo;
     }
 
     private int makeLocal(int cLocal, TypeProxy<?> type, @Nullable String name)
@@ -84,16 +88,16 @@ public class CodeBlock<R>
                 slotCount = 2;
             }
         }
-        LocalVariable local = new LocalVariable(cLocal, type, slotCount);
+        LocalVariable<?> local = new LocalVariable<>(cLocal, type, slotCount);
         if (name != null)
             local.name = name;
         locals.add(local);
         return slotCount;
     }
 
-    public static <R> CodeBlock<R> begin(MethodInfo<R> methodInfo)
+    public static <R> MethodImplementation<R> begin(MethodInfo<R> methodInfo)
     {
-        return new CodeBlock<>(methodInfo);
+        return new MethodImplementation<>(methodInfo);
     }
 /*
     public void compile(MethodVisitor mv)
@@ -105,128 +109,14 @@ public class CodeBlock<R>
     }
 */
 
-
-    public CodeBlock<R> getThis()
-    {
-        instructions.add(new LocalLoad(0));
-        return this;
-    }
-
-    public CodeBlock<R> getLocal(String localName)
-    {
-        instructions.add(new LocalLoad(localName));
-        return this;
-    }
-
-    public CodeBlock<R> setLocal(String localName)
-    {
-        instructions.add(new LocalStore(localName));
-        return this;
-    }
-
-    public CodeBlock<R> getField(String fieldName)
-    {
-        instructions.add(new FieldLoad(null, fieldName));
-        return this;
-    }
-
-    public CodeBlock<R> setField(String fieldName)
-    {
-        instructions.add(new FieldStore(null, fieldName));
-        return this;
-    }
-
-    public CodeBlock<R> returnVoid()
-    {
-        instructions.add(new Return(TypeToken.of(void.class)));
-        return this;
-    }
-
-    public CodeBlock<R> returnInt()
-    {
-        instructions.add(new Return(TypeToken.of(int.class)));
-        return this;
-    }
-
-    public CodeBlock<R> returnType(TypeToken<?> type)
-    {
-        instructions.add(new Return(type));
-        return this;
-    }
-
-    public List<InstructionSource> instructions()
-    {
-        return instructions;
-    }
-
-    private LocalVariable<?> getLocalVariable(String localName)
+    public LocalVariable<?> getLocalVariable(String localName)
     {
         return locals.stream().filter(local -> Objects.equal(local.name, localName)).findFirst().orElseThrow(() -> new IllegalStateException("No local or parameter with name " + localName));
     }
 
-    private LocalVariable<?> getLocalVariable(int localNumber)
+    public LocalVariable<?> getLocalVariable(int localNumber)
     {
         return locals.stream().filter(local -> local.index == localNumber).findFirst().orElseThrow(() -> new IllegalStateException("No local or parameter with index " + localNumber));
-    }
-
-    public LRef<?> fieldRef(String fieldName)
-    {
-        return new FieldRef<>(thisVar(), methodInfo.owner().getField(fieldName));
-    }
-
-    public LRef<?> fieldRef(ValueExpression<?> objRef, String fieldName)
-    {
-        return new FieldRef<>(objRef, methodInfo.owner().getField(fieldName));
-    }
-
-    public static LRef<?> fieldRef(ValueExpression<?> objRef, FieldInfo<?> fieldInfo)
-    {
-        return new FieldRef<>(objRef, fieldInfo);
-    }
-
-    public ValueExpression<?> field(String fieldName)
-    {
-        return new FieldExpression<>(thisVar(), methodInfo.owner().getField(fieldName));
-    }
-
-    public ValueExpression<?> fieldOf(ValueExpression<?> objRef, String fieldName)
-    {
-        return new FieldExpression<>(objRef, methodInfo.owner().getField(fieldName));
-    }
-
-    public ValueExpression<?> thisVar()
-    {
-        return new VarExpression<>(getLocalVariable(0));
-    }
-
-    public ValueExpression<?> superVar()
-    {
-        return new NoopConversion<>(methodInfo.owner().superClass(), new VarExpression<>(getLocalVariable(0)));
-    }
-
-    public VarExpression<?> localVar(String varName)
-    {
-        return new VarExpression<>(getLocalVariable(varName));
-    }
-
-    public CodeBlock<R> assign(LRef<?> target, ValueExpression<?> value)
-    {
-        value = applyAutomaticCasting(target.targetType(), value);
-        if (target.targetType().isSupertypeOf(value.effectiveType()))
-        {
-            instructions.add(new Assignment(new AssignExpression<>(target, value)));
-            return this;
-        }
-        throw new IllegalStateException("Cannot assign field of type " + target.targetType() + " from expression of type " + value.effectiveType());
-    }
-
-    public void returnVal(ValueExpression<?> value)
-    {
-        value = applyAutomaticCasting(methodInfo.returnType(), value);
-        if (methodInfo.returnType().isSupertypeOf(value.effectiveType()))
-        {
-            instructions.add(new ExprReturn(methodInfo.returnType(), value));
-        }
     }
 
     public static TypeToken<?> applyAutomaticCasting(TypeToken<?> targetType, TypeToken<?> valueType)
@@ -282,7 +172,7 @@ public class CodeBlock<R>
         return valueType;
     }
 
-    public static ValueExpression<?> applyAutomaticCasting(TypeToken<?> targetType, ValueExpression<?> value)
+    public <B> ValueExpression<?,B> applyAutomaticCasting(TypeToken<?> targetType, ValueExpression<?,B> value)
     {
         var rt = targetType.getRawType();
         var rs = value.effectiveType().getRawType();
@@ -293,29 +183,29 @@ public class CodeBlock<R>
             if ((rt == int.class && (rs == byte.class || rs == short.class || rs == char.class))
                     || (rt == short.class && rs == byte.class))
             {
-                return new NoopConversion<>(targetType, value);
+                return new NoopConversion<>(value.block(), targetType, value);
             }
 
             boolean isInteger = rs == int.class || rs == byte.class || rs == short.class || rs == char.class;
 
             if (rt == long.class && isInteger)
             {
-                return new SingleOpConversion<>(targetType, Opcodes.I2L, value);
+                return new SingleOpConversion<>(value.block(), targetType, Opcodes.I2L, value);
             }
 
             if (rt == float.class && isInteger)
             {
-                return new SingleOpConversion<>(targetType, Opcodes.I2F, value);
+                return new SingleOpConversion<>(value.block(), targetType, Opcodes.I2F, value);
             }
 
             if (rt == double.class && isInteger)
             {
-                return new SingleOpConversion<>(targetType, Opcodes.I2D, value);
+                return new SingleOpConversion<>(value.block(), targetType, Opcodes.I2D, value);
             }
 
             if (rt == double.class && rs == float.class)
             {
-                return new SingleOpConversion<>(targetType, Opcodes.F2D, value);
+                return new SingleOpConversion<>(value.block(), targetType, Opcodes.F2D, value);
             }
         }
 
@@ -335,57 +225,9 @@ public class CodeBlock<R>
         return value;
     }
 
-    public CodeBlock<R> exec(ValueExpression<?> value)
+    public CodeBlock<R,?,R> rootBlock()
     {
-        instructions.add(new ExecuteExpression(value));
-        return this;
-    }
-
-    public CodeBlock<R> superCall()
-    {
-        superCall(ml -> ml);
-        return this;
-    }
-
-    public CodeBlock<R> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?>... values)
-    {
-        var ml = new MethodLookup<>(methodInfo.owner().superClass(), "<init>");
-        ml = methodLookup.apply(ml);
-        superCall(ml.result(), values);
-        return this;
-    }
-
-    public CodeBlock<R> superCall(MethodInfo<?> method, ValueExpression<?>... values)
-    {
-        if (!method.owner().thisType().actualType().equals(methodInfo.owner().superClass()))
-            throw new IllegalStateException("Super call must be a method or constructor of the immediate super class of this class.");
-        instructions.add(new SuperCall(methodCall(superVar(), method, values)));
-        return this;
-    }
-
-    public static <R> MethodCallExpression<R> methodCall(ValueExpression<?> objRef, MethodInfo<R> method, ValueExpression<?>... values)
-    {
-        List<? extends ParamInfo<?>> params = method.params();
-        var lValues = Arrays.stream(values).collect(Collectors.toList());
-        if (params.size() != values.length)
-            throw new IllegalStateException("Mismatched set of values. Expected: " + params.stream().map(ParamInfo::paramType).toList()
-                    + "; Received: " +  lValues.stream().map(ValueExpression::effectiveType).toList());
-        for(int i = 0; i< params.size(); i++)
-        {
-            var param = params.get(i);
-            var val = lValues.get(i);
-            var lVal = applyAutomaticCasting(param.paramType().actualType(), val);
-            if (!param.paramType().actualType().isSupertypeOf(lVal.effectiveType()))
-                throw new IllegalStateException("Param " + i + " cannot be converted from " + lVal.effectiveType() + " to " + param.paramType().actualType());
-            if (lVal != val)
-                lValues.set(i, lVal);
-        }
-        return new MethodCallExpression<>(objRef, method, lValues);
-    }
-
-    public MethodLookup<?> method(String name)
-    {
-        return new MethodLookup<>(methodInfo.owner(), name);
+        return rootBlock;
     }
 
     public abstract static class InstructionSource
@@ -395,9 +237,9 @@ public class CodeBlock<R>
 
     public class Assignment extends InstructionSource
     {
-        private final AssignExpression<?, ?> assignExpression;
+        private final AssignExpression<?, ?, ?> assignExpression;
 
-        public Assignment(AssignExpression<?, ?> assignExpression)
+        public Assignment(AssignExpression<?, ?, ?> assignExpression)
         {
             this.assignExpression = assignExpression;
         }
@@ -410,9 +252,26 @@ public class CodeBlock<R>
         }
     }
 
+    public class IfBlock<B> extends InstructionSource
+    {
+        private final ValueExpression<?, B> iif;
+
+        public IfBlock(ValueExpression<?, B> iif)
+        {
+
+            this.iif = iif;
+        }
+
+        @Override
+        public void compile(MethodVisitor mv)
+        {
+
+        }
+    }
+
     public static class SuperCall extends ExecuteExpression
     {
-        public SuperCall(MethodCallExpression<?> methodCall)
+        public SuperCall(MethodCallExpression<?,?> methodCall)
         {
             super(methodCall);
         }
@@ -420,9 +279,9 @@ public class CodeBlock<R>
 
     public static class ExecuteExpression extends InstructionSource
     {
-        private final ValueExpression<?> methodCall;
+        private final ValueExpression<?,?> methodCall;
 
-        public ExecuteExpression(ValueExpression<?> methodCall)
+        public ExecuteExpression(ValueExpression<?,?> methodCall)
         {
             this.methodCall = methodCall;
         }
@@ -438,9 +297,9 @@ public class CodeBlock<R>
     {
         private final TypeToken<?> returnType;
 
-        private final ValueExpression<?> value;
+        private final ValueExpression<?,?> value;
 
-        public ExprReturn(TypeToken<?> returnType, ValueExpression<?> value)
+        public ExprReturn(TypeToken<?> returnType, ValueExpression<?,?> value)
         {
             this.returnType = returnType;
             this.value = value;

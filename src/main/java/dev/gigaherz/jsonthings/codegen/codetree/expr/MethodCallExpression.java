@@ -10,15 +10,16 @@ import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings("UnstableApiUsage")
-public class MethodCallExpression<R> implements ValueExpression<R>
+public class MethodCallExpression<R,B> extends ValueExpression<R,B>
 {
     @Nullable
-    private final ValueExpression<?> objRef;
+    private final ValueExpression<?,B> objRef;
     private final MethodInfo<R> method;
-    private final List<ValueExpression<?>> lValues;
+    private final List<ValueExpression<?,B>> lValues;
 
-    public MethodCallExpression(@Nullable ValueExpression<?> objRef, MethodInfo<R> method, List<ValueExpression<?>> lValues)
+    public MethodCallExpression(CodeBlock<B,?,?> cb, @Nullable ValueExpression<?,B> objRef, MethodInfo<R> method, List<ValueExpression<?,B>> lValues)
     {
+        super(cb);
         this.objRef = objRef;
         this.method = method;
         this.lValues = lValues;

@@ -1,37 +1,44 @@
 package dev.gigaherz.jsonthings.codegen.codetree.expr;
 
 import com.google.common.reflect.TypeToken;
-import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
-import dev.gigaherz.jsonthings.codegen.codetree.CodeBlock;
 import dev.gigaherz.jsonthings.codegen.codetree.MethodLookup;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.MethodVisitor;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
-public interface ValueExpression<R>
+public abstract class ValueExpression<T, B> extends ExprBase<B>
 {
-    TypeToken<R> effectiveType();
-    default TypeProxy<R> proxyType() {
+    public ValueExpression(CodeBlock<B,?,?> cb)
+    {
+        super(cb);
+    }
+
+    public abstract TypeToken<T> effectiveType();
+    public TypeProxy<T> proxyType() {
         return TypeProxy.of(effectiveType());
     }
 
-    void compile(MethodVisitor mv, boolean needsResult);
+    public abstract void compile(MethodVisitor mv, boolean needsResult);
 
-    default LRef<?> fieldRef(CodeBlock<?> cb, String fieldName)
+    public LRef<?,B> fieldRef(String fieldName)
     {
-        return CodeBlock.fieldRef(this, ClassData.getClassInfo(effectiveType()).getField(fieldName));
+        return cb.fieldRef(this, ClassData.getClassInfo(effectiveType()).getField(fieldName));
     }
 
-    default MethodCallExpression<?> methodCall(String name)
+    public ValueExpression<?,B> field(String fieldName)
+    {
+        return cb.field(this, ClassData.getClassInfo(effectiveType()).getField(fieldName));
+    }
+
+    public MethodCallExpression<?,B> methodCall(String name)
     {
         return methodCall(name, ml -> ml);
     }
 
-    default MethodCallExpression<?> methodCall(String name, ValueExpression<?>... values)
+    public MethodCallExpression<?,B> methodCall(String name, ValueExpression<?,B>... values)
     {
         return methodCall(name, ml -> {
             for(var val : values)
@@ -43,10 +50,10 @@ public interface ValueExpression<R>
 
     }
 
-    default MethodCallExpression<?> methodCall(String name, Function<MethodLookup<R>, MethodLookup<R>> lookup, ValueExpression<?>... values)
+    public MethodCallExpression<?,B> methodCall(String name, Function<MethodLookup<T>, MethodLookup<T>> lookup, ValueExpression<?,B>... values)
     {
         var ml = new MethodLookup<>(proxyType().classInfo(), name);
         ml = lookup.apply(ml);
-        return CodeBlock.methodCall(this, ml.result(), values);
+        return cb.methodCall(this, ml.result(), values);
     }
 }

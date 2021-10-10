@@ -5,19 +5,20 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 @SuppressWarnings("UnstableApiUsage")
-public class AssignExpression<R, V> implements ValueExpression<R>
+public class AssignExpression<T, S, B> extends ValueExpression<T, B>
 {
-    LRef<R> target;
-    ValueExpression<V> value;
+    LRef<T, B> target;
+    ValueExpression<S, B> value;
 
-    public AssignExpression(LRef<R> target, ValueExpression<V> value)
+    public AssignExpression(CodeBlock<B,?,?> cb, LRef<T, B> target, ValueExpression<S, B> value)
     {
+        super(cb);
         this.target = target;
         this.value = value;
     }
 
     @Override
-    public TypeToken<R> effectiveType()
+    public TypeToken<T> effectiveType()
     {
         return target.targetType();
     }

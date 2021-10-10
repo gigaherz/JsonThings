@@ -8,7 +8,8 @@ import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
 import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
-import dev.gigaherz.jsonthings.codegen.codetree.CodeBlock;
+import dev.gigaherz.jsonthings.codegen.codetree.MethodImplementation;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.ClassWriter;
@@ -109,7 +110,7 @@ public class ClassMaker
     {
         protected final List<Annotation> annotations = Lists.newArrayList();
         protected final List<FieldImpl<?>> fields = Lists.newArrayList();
-        protected final List<MethodImpl<?>> constructors = Lists.newArrayList();
+        protected final List<ConstructorImpl<?>> constructors = Lists.newArrayList();
         protected final List<MethodImpl<?>> methods = Lists.newArrayList();
         protected final TypeToken<C> superClass;
         protected final List<TypeToken<?>> superInterfaces = Lists.newArrayList();
@@ -131,6 +132,7 @@ public class ClassMaker
             this(baseClass);
 
             copyFrom.fields.forEach((v) -> fields.add(new FieldImpl(v)));
+            copyFrom.constructors.forEach((v) -> constructors.add(new ConstructorImpl(v)));
             copyFrom.methods.forEach((v) -> methods.add(new MethodImpl(v)));
             annotations.addAll(copyFrom.annotations);
         }
@@ -162,7 +164,7 @@ public class ClassMaker
         @Override
         public DefineMethod<T, Void> constructor()
         {
-            var m = new MethodImpl<>("<init>", TypeToken.of(void.class));
+            var m = new ConstructorImpl();
             constructors.add(m);
             return m;
         }
@@ -207,143 +209,12 @@ public class ClassMaker
 
             for(var mi : constructors)
             {
-                var mv = cw.visitMethod(mi.modifiers, mi.name, mi.getDescriptor(), mi.getSignature(), mi.getExceptions());
-
-                    /*for(var ann : mi.annotations)
-                    {
-                        mv.visitAnnotation(ann.annotationType())
-                    }*/
-
-                if (generateMethodParameterTable)
-                {
-                    for (var param : mi.params)
-                    {
-                        mv.visitParameter(param.name, param.modifiers);
-                        // mv.visitParameterAnnotation()
-                    }
-                }
-
-                if ((mi.modifiers & Opcodes.ACC_ABSTRACT) == 0)
-                {
-                    CodeBlock<?> code = CodeBlock.begin(mi);
-
-                    //noinspection unchecked,rawtypes
-                    mi.impl.accept((CodeBlock)code);
-
-                    var insns = code.instructions();
-
-                    Label startLabel = code.startLabel;
-
-                    mv.visitCode();
-
-                    if ((mi.modifiers & Opcodes.ACC_STATIC) == 0)
-                    {
-                        // super
-
-                        if (code.instructions().size() > 0 && code.instructions().get(0) instanceof CodeBlock.SuperCall sc)
-                        {
-                            insns.remove(0);
-
-                            sc.compile(mv);
-                        }
-                        else
-                        {
-                            // default constructor
-
-                            mv.visitLabel(startLabel = new Label());
-                            mv.visitVarInsn(Opcodes.ALOAD,0);
-                            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, TypeProxy.of(superClass).getInternalName(), "<init>", "()V", false);
-                        }
-                    }
-
-                    // field initializers
-
-                    for (var fi : fields)
-                    {
-                        var fname = fi.name;
-
-                        if (fi.init != null)
-                        {
-                            mv.visitLabel(new Label());
-
-                            mv.visitVarInsn(Opcodes.ALOAD,0); // this
-
-                            fi.init.compile(mv, true);
-
-                            mv.visitFieldInsn(Opcodes.PUTFIELD, mi.owner().thisType().getInternalName(), fname, TypeProxy.getTypeDescriptor(fi.fieldType));
-                        }
-                    }
-
-                    for(var ins : insns)
-                    {
-                        ins.compile(mv);
-                    }
-
-                    var endLabel = new Label();
-                    mv.visitLabel(endLabel);
-
-                    // locals
-                    for(var local : code.locals)
-                    {
-                        var n = local.name == null ? "this" : local.name;
-                        mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
-                        // mv.visitLocalVariableAnnotation
-                    }
-                }
-                mv.visitEnd();
+                mi.makeMethod(cw);
             }
 
             for(var mi : methods)
             {
-                var mname = mi.name;
-
-                var mv = cw.visitMethod(mi.modifiers, mname, mi.getDescriptor(), mi.getSignature(), mi.getExceptions());
-
-                    /*for(var ann : mi.annotations)
-                    {
-                        mv.visitAnnotation(ann.annotationType())
-                    }*/
-
-                if (generateMethodParameterTable)
-                {
-                    for (var param : mi.params)
-                    {
-                        mv.visitParameter(param.name, param.modifiers);
-
-                        // mv.visitParameterAnnotation()
-                    }
-                }
-
-                if ((mi.modifiers & Opcodes.ACC_ABSTRACT) == 0)
-                {
-                    CodeBlock<?> code = CodeBlock.begin(mi);
-
-                    //noinspection unchecked,rawtypes
-                    mi.impl.accept((CodeBlock)code);
-
-                    var insns = code.instructions();
-
-                    Label startLabel = code.startLabel;
-
-                    mv.visitCode();
-
-                    for(var ins : insns)
-                    {
-                        ins.compile(mv);
-                    }
-
-                    var endLabel = new Label();
-                    mv.visitLabel(endLabel);
-
-                    // locals
-                    for(var local : code.locals)
-                    {
-                        var n = local.name == null ? "this" : local.name;
-                        mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
-                        // mv.visitLocalVariableAnnotation
-                    }
-                }
-                mv.visitEnd();
+                mi.makeMethod(cw);
             }
 
             return cw.toByteArray();
@@ -430,7 +301,7 @@ public class ClassMaker
         }
 
         @Override
-        public List<? extends MethodInfo<?>> constructors()
+        public List<? extends MethodInfo<Void>> constructors()
         {
             return this.constructors;
         }
@@ -470,7 +341,7 @@ public class ClassMaker
             protected final List<Annotation> annotations = Lists.newArrayList();
             protected final TypeToken<F> fieldType;
             protected int modifiers;
-            protected ValueExpression<F> init;
+            protected ValueExpression<F,?> init;
             protected String name;
 
             private FieldImpl(String name, TypeToken<F> fieldType)
@@ -531,7 +402,7 @@ public class ClassMaker
             }
 
             @Override
-            public DefineField<T, F> initializer(ValueExpression<F> expr)
+            public DefineField<T, F> initializer(ValueExpression<F,?> expr)
             {
                 init = expr;
                 return this;
@@ -568,6 +439,109 @@ public class ClassMaker
             }
         }
 
+        private class ConstructorImpl<WorkaroundBecauseJavaIsStupid> extends MethodImpl<Void>
+        {
+            public ConstructorImpl(ConstructorImpl<WorkaroundBecauseJavaIsStupid> copyFrom)
+            {
+                super(copyFrom);
+            }
+
+            public ConstructorImpl()
+            {
+                super("<init>>", TypeToken.of(void.class));
+            }
+
+            @Override
+            public void makeMethod(ClassWriter cw)
+            {
+                var mv = cw.visitMethod(this.modifiers, this.name, this.getDescriptor(), this.getSignature(), this.getExceptions());
+
+                    /*for(var ann : this.annotations)
+                    {
+                        mv.visitAnnotation(ann.annotationType())
+                    }*/
+
+                if (generateMethodParameterTable)
+                {
+                    for (var param : this.params)
+                    {
+                        mv.visitParameter(param.name, param.modifiers);
+                        // mv.visitParameterAnnotation()
+                    }
+                }
+
+                if ((this.modifiers & Opcodes.ACC_ABSTRACT) == 0)
+                {
+                    MethodImplementation<Void> code = MethodImplementation.begin(this);
+
+                    var codeBlock = code.rootBlock();
+
+                    this.impl.accept(codeBlock);
+
+                    var insns = codeBlock.instructions();
+
+                    Label startLabel = code.startLabel;
+
+                    mv.visitCode();
+
+                    if ((this.modifiers & Opcodes.ACC_STATIC) == 0)
+                    {
+                        // super
+
+                        if (insns.size() > 0 && insns.get(0) instanceof MethodImplementation.SuperCall sc)
+                        {
+                            insns.remove(0);
+
+                            sc.compile(mv);
+                        }
+                        else
+                        {
+                            // default constructor
+
+                            mv.visitLabel(startLabel = new Label());
+                            mv.visitVarInsn(Opcodes.ALOAD,0);
+                            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, TypeProxy.of(superClass).getInternalName(), "<init>", "()V", false);
+                        }
+                    }
+
+                    // field initializers
+
+                    for (var fi : fields)
+                    {
+                        var fname = fi.name;
+
+                        if (fi.init != null)
+                        {
+                            mv.visitLabel(new Label());
+
+                            mv.visitVarInsn(Opcodes.ALOAD,0); // this
+
+                            fi.init.compile(mv, true);
+
+                            mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner().thisType().getInternalName(), fname, TypeProxy.getTypeDescriptor(fi.fieldType));
+                        }
+                    }
+
+                    for(var ins : insns)
+                    {
+                        ins.compile(mv);
+                    }
+
+                    var endLabel = new Label();
+                    mv.visitLabel(endLabel);
+
+                    // locals
+                    for(var local : code.locals)
+                    {
+                        var n = local.name == null ? "this" : local.name;
+                        mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
+                        // mv.visitLocalVariableAnnotation
+                    }
+                }
+                mv.visitEnd();
+            }
+        }
+
         private class MethodImpl<R> implements DefineMethod<T, R>, MethodInfo<R>
         {
             protected final List<Annotation> annotations = Lists.newArrayList();
@@ -576,7 +550,7 @@ public class ClassMaker
             protected final String name;
             protected final TypeToken<R> returnType;
             protected int modifiers;
-            protected Consumer<CodeBlock<R>> impl;
+            protected Consumer<CodeBlock<R,?,R>> impl;
 
 
             public MethodImpl(String name, TypeToken<R> returnType)
@@ -663,7 +637,7 @@ public class ClassMaker
             }
 
             @Override
-            public DefineClass<T> implementation(Consumer<CodeBlock<R>> code)
+            public DefineClass<T> implementation(Consumer<CodeBlock<R,?,R>> code)
             {
                 this.impl = code;
                 return this;
@@ -708,6 +682,58 @@ public class ClassMaker
                 return 0;
             }
 
+            public void makeMethod(ClassWriter cw)
+            {
+                var mv = cw.visitMethod(this.modifiers, this.name, this.getDescriptor(), this.getSignature(), this.getExceptions());
+
+                    /*for(var ann : this.annotations)
+                    {
+                        mv.visitAnnotation(ann.annotationType())
+                    }*/
+
+                if (generateMethodParameterTable)
+                {
+                    for (var param : this.params)
+                    {
+                        mv.visitParameter(param.name, param.modifiers);
+
+                        // mv.visitParameterAnnotation()
+                    }
+                }
+
+                if ((this.modifiers & Opcodes.ACC_ABSTRACT) == 0)
+                {
+                    MethodImplementation<R> code = MethodImplementation.begin(this);
+
+                    var codeBlock = code.rootBlock();
+
+                    this.impl.accept(codeBlock);
+
+                    var insns = codeBlock.instructions();
+
+                    Label startLabel = code.startLabel;
+
+                    mv.visitCode();
+
+                    for(var ins : insns)
+                    {
+                        ins.compile(mv);
+                    }
+
+                    var endLabel = new Label();
+                    mv.visitLabel(endLabel);
+
+                    // locals
+                    for(var local : code.locals)
+                    {
+                        var n = local.name == null ? "this" : local.name;
+                        mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
+                        // mv.visitLocalVariableAnnotation
+                    }
+                }
+                mv.visitEnd();
+            }
+
             private class Impl implements Implementable<T, R>
             {
                 @Override
@@ -724,7 +750,7 @@ public class ClassMaker
                 }
 
                 @Override
-                public DefineClass<T> implementation(Consumer<CodeBlock<R>> code)
+                public DefineClass<T> implementation(Consumer<CodeBlock<R,?,R>> code)
                 {
                     return MethodImpl.this.implementation(code);
                 }

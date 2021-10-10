@@ -2,17 +2,18 @@ package dev.gigaherz.jsonthings.codegen.codetree.expr;
 
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
-import dev.gigaherz.jsonthings.codegen.codetree.CodeBlock;
+import dev.gigaherz.jsonthings.codegen.codetree.MethodImplementation;
 import org.objectweb.asm.MethodVisitor;
 
 @SuppressWarnings("UnstableApiUsage")
-public class FieldExpression<T> implements ValueExpression<T>
+public class FieldExpression<T,B> extends ValueExpression<T,B>
 {
-    private final ValueExpression<?> objRef;
+    private final ValueExpression<?,B> objRef;
     private final FieldInfo<T> field;
 
-    public FieldExpression(ValueExpression<?> objRef, FieldInfo<T> field)
+    public FieldExpression(CodeBlock<B,?,?> cb, ValueExpression<?,B> objRef, FieldInfo<T> field)
     {
+        super(cb);
         this.objRef = objRef;
         this.field = field;
     }
@@ -28,7 +29,7 @@ public class FieldExpression<T> implements ValueExpression<T>
     {
         if (needsResult) {
             objRef.compile(mv, true);
-            CodeBlock.FieldLoad.compile(field, mv);
+            MethodImplementation.FieldLoad.compile(field, mv);
         }
     }
 }

@@ -65,7 +65,7 @@ public class MethodLookup<R>
             for(int i=0;i<params.size();i++)
             {
                 var rt = params.get(i).paramType().actualType();
-                var rs = CodeBlock.applyAutomaticCasting(rt, this.params.get(i));
+                var rs = MethodImplementation.applyAutomaticCasting(rt, this.params.get(i));
 
                 if (!rt.equals(rs))
                 {

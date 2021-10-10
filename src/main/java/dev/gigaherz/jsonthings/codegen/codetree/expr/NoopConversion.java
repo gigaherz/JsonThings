@@ -3,13 +3,15 @@ package dev.gigaherz.jsonthings.codegen.codetree.expr;
 import com.google.common.reflect.TypeToken;
 import org.objectweb.asm.MethodVisitor;
 
-public class NoopConversion<R> implements ValueExpression<R>
+@SuppressWarnings("UnstableApiUsage")
+public class NoopConversion<R,B> extends ValueExpression<R,B>
 {
     private final TypeToken<R> targetType;
-    private final ValueExpression<?> value;
+    private final ValueExpression<?,B> value;
 
-    public NoopConversion(TypeToken<R> targetType, ValueExpression<?> value)
+    public NoopConversion(CodeBlock<B,?,?> cb, TypeToken<R> targetType, ValueExpression<?,B> value)
     {
+        super(cb);
         this.targetType = targetType;
         this.value = value;
     }

@@ -3,14 +3,16 @@ package dev.gigaherz.jsonthings.codegen.codetree.expr;
 import com.google.common.reflect.TypeToken;
 import org.objectweb.asm.MethodVisitor;
 
-public class SingleOpConversion<R, T> implements ValueExpression<R>
+@SuppressWarnings("UnstableApiUsage")
+public class SingleOpConversion<R, T, B> extends ValueExpression<R,B>
 {
     private final TypeToken<R> targetType;
     private final int opcode;
-    private final ValueExpression<T> value;
+    private final ValueExpression<T,B> value;
 
-    public SingleOpConversion(TypeToken<R> targetType, int opcode, ValueExpression<T> value)
+    public SingleOpConversion(CodeBlock<B,?,?> cb, TypeToken<R> targetType, int opcode, ValueExpression<T,B> value)
     {
+        super(cb);
         this.targetType = targetType;
         this.opcode = opcode;
         this.value = value;

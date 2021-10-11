@@ -104,6 +104,8 @@ public class LogicExpression<B> extends BooleanExpression<B>
 
             if (MethodImplementation.isInteger(first.effectiveType()))
             {
+                cb.popStack();
+                cb.popStack();
                 if (jumpTrue == null)
                 {
                     switch (comparisonType)
@@ -134,7 +136,10 @@ public class LogicExpression<B> extends BooleanExpression<B>
             }
             else if (MethodImplementation.isFloat(first.effectiveType()))
             {
+                cb.popStack();
+                cb.popStack();
                 mv.visitInsn(Opcodes.LCMP);
+                cb.pushStack(1);
                 if (jumpTrue == null)
                 {
                     switch (comparisonType)
@@ -162,10 +167,14 @@ public class LogicExpression<B> extends BooleanExpression<B>
                     }
                     if (jumpFalse != null) mv.visitJumpInsn(Opcodes.GOTO, jumpFalse);
                 }
+                cb.popStack();
             }
             else if (MethodImplementation.isFloat(first.effectiveType()))
             {
+                cb.popStack();
+                cb.popStack();
                 mv.visitInsn(Opcodes.FCMPL);
+                cb.pushStack(1);
                 if (jumpTrue == null)
                 {
                     switch (comparisonType)
@@ -193,10 +202,14 @@ public class LogicExpression<B> extends BooleanExpression<B>
                     }
                     if (jumpFalse != null) mv.visitJumpInsn(Opcodes.GOTO, jumpFalse);
                 }
+                cb.popStack();
             }
             else if (MethodImplementation.isDouble(first.effectiveType()))
             {
+                cb.popStack();
+                cb.popStack();
                 mv.visitInsn(Opcodes.DCMPL);
+                cb.pushStack(1);
                 if (jumpTrue == null)
                 {
                     switch (comparisonType)
@@ -224,9 +237,12 @@ public class LogicExpression<B> extends BooleanExpression<B>
                     }
                     if (jumpFalse != null) mv.visitJumpInsn(Opcodes.GOTO, jumpFalse);
                 }
+                cb.popStack();
             }
             else
             {
+                cb.popStack();
+                cb.popStack();
                 if (jumpTrue == null)
                 {
                     switch (comparisonType)

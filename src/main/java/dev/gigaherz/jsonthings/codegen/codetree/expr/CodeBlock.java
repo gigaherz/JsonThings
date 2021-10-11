@@ -50,10 +50,23 @@ public class CodeBlock<B,P,M>
         for (int i = 0; i <= last; i++)
         {
             InstructionSource insn = instructions.get(i);
-            if (insn.compile(mv, i == last ? jumpEnd : null))
+            if (insn.compile(mv, i == last ? jumpEnd : null, false))
                 return false;
         }
         return true;
+    }
+
+    public void compile(MethodVisitor mv, boolean needsResult)
+    {
+        var jumpEnd = new Label();
+        int last = instructions.size() - 1;
+        for (int i = 0; i <= last; i++)
+        {
+            InstructionSource insn = instructions.get(i);
+            if (insn.compile(mv, i == last ? jumpEnd : null, needsResult))
+                break;
+        }
+        mv.visitLabel(jumpEnd);
     }
 
     public boolean isEmpty()
@@ -64,6 +77,20 @@ public class CodeBlock<B,P,M>
     public List<InstructionSource> instructions()
     {
         return instructions;
+    }
+
+    public void pushStack(TypeToken<?> type)
+    {
+        owner.pushStack(type);
+    }
+
+    public void pushStack(int slots)
+    {
+        owner.pushStack(slots);
+    }
+    public void popStack()
+    {
+        owner.popStack();
     }
 
     public CodeBlock<B,P,M> getThis()
@@ -114,6 +141,44 @@ public class CodeBlock<B,P,M>
         return this;
     }
 
+    public <T> void returnVal(ValueExpression<T, M> value)
+    {
+        ValueExpression<?, M> nValue = owner.applyAutomaticCasting(owner.methodInfo().returnType(), value);
+        if (owner.methodInfo().returnType().isSupertypeOf(value.effectiveType()))
+        {
+            instructions.add(new ExprReturn(this, owner.methodInfo().returnType(), nValue));
+        }
+    }
+
+    public CodeBlock<B,P,M> breakLoop()
+    {
+        instructions.add(new SkipLoop(true));
+        return this;
+    }
+
+    public CodeBlock<B,P,M> continueLoop()
+    {
+        instructions.add(new SkipLoop(false));
+        return this;
+    }
+
+    public <T> void breakVal(ValueExpression<?, M> value)
+    {
+        ValueExpression<?, M> nValue = value;
+        if (returnType == null)
+        {
+            returnType = nValue.effectiveType();
+        }
+        else
+        {
+            nValue = owner.applyAutomaticCasting(returnType, nValue);
+        }
+        if (returnType.isSupertypeOf(value.effectiveType()))
+        {
+            instructions.add(new ExprBreak(this, nValue));
+        }
+    }
+
     public CodeBlock<B,P,M> assign(LRef<?,B> target, ValueExpression<?, B> value)
     {
         value = owner.applyAutomaticCasting(target.targetType(), value);
@@ -140,7 +205,7 @@ public class CodeBlock<B,P,M>
         return new FieldRef<>(this, objRef, fieldInfo);
     }
 
-    public ValueExpression<?, B> field(String fieldName)
+    public <T> ValueExpression<T, B> field(String fieldName)
     {
         return field(thisVar(), owner.methodInfo().owner().getField(fieldName));
     }
@@ -168,23 +233,6 @@ public class CodeBlock<B,P,M>
     public VarExpression<?, B> localVar(String varName)
     {
         return new VarExpression<>(this, owner.getLocalVariable(varName));
-    }
-
-    public <T> void returnVal(ValueExpression<?, M> value)
-    {
-        ValueExpression<?, M> nValue = value;
-        if (returnType == null)
-        {
-            returnType = nValue.effectiveType();
-        }
-        else
-        {
-            nValue = owner.applyAutomaticCasting(returnType, nValue);
-        }
-        if (owner.methodInfo().returnType().isSupertypeOf(value.effectiveType()))
-        {
-            instructions.add(new ExprReturn(this, owner.methodInfo().returnType(), nValue));
-        }
     }
 
     public CodeBlock<B,P,M> exec(ValueExpression<?, B> value)
@@ -267,13 +315,102 @@ public class CodeBlock<B,P,M>
         return new LogicExpression<>(this, LogicExpression.ComparisonType.GT, x, y);
     }
 
+    public BooleanExpression<B> ge(ValueExpression<?, B> x, ValueExpression<?, B> y)
+    {
+        if (!x.effectiveType().equals(y.effectiveType()))
+        {
+            y = owner.applyAutomaticCasting(x.effectiveType(), y);
+            if (!x.effectiveType().equals(y.effectiveType()))
+            {
+                x = owner.applyAutomaticCasting(y.effectiveType(), x);
+                if (!x.effectiveType().equals(y.effectiveType()))
+                    throw new IllegalStateException("Cannot compare " + x.effectiveType() + " to " + y.effectiveType());
+            }
+        }
+
+        return new LogicExpression<>(this, LogicExpression.ComparisonType.GE, x, y);
+    }
+
+    public BooleanExpression<B> lt(ValueExpression<?, B> x, ValueExpression<?, B> y)
+    {
+        if (!x.effectiveType().equals(y.effectiveType()))
+        {
+            y = owner.applyAutomaticCasting(x.effectiveType(), y);
+            if (!x.effectiveType().equals(y.effectiveType()))
+            {
+                x = owner.applyAutomaticCasting(y.effectiveType(), x);
+                if (!x.effectiveType().equals(y.effectiveType()))
+                    throw new IllegalStateException("Cannot compare " + x.effectiveType() + " to " + y.effectiveType());
+            }
+        }
+
+        return new LogicExpression<>(this, LogicExpression.ComparisonType.LT, x, y);
+    }
+
+    public BooleanExpression<B> le(ValueExpression<?, B> x, ValueExpression<?, B> y)
+    {
+        if (!x.effectiveType().equals(y.effectiveType()))
+        {
+            y = owner.applyAutomaticCasting(x.effectiveType(), y);
+            if (!x.effectiveType().equals(y.effectiveType()))
+            {
+                x = owner.applyAutomaticCasting(y.effectiveType(), x);
+                if (!x.effectiveType().equals(y.effectiveType()))
+                    throw new IllegalStateException("Cannot compare " + x.effectiveType() + " to " + y.effectiveType());
+            }
+        }
+
+        return new LogicExpression<>(this, LogicExpression.ComparisonType.LE, x, y);
+    }
+
+    public BooleanExpression<B> eq(ValueExpression<?, B> x, ValueExpression<?, B> y)
+    {
+        if (!x.effectiveType().equals(y.effectiveType()))
+        {
+            y = owner.applyAutomaticCasting(x.effectiveType(), y);
+            if (!x.effectiveType().equals(y.effectiveType()))
+            {
+                x = owner.applyAutomaticCasting(y.effectiveType(), x);
+                if (!x.effectiveType().equals(y.effectiveType()))
+                    throw new IllegalStateException("Cannot compare " + x.effectiveType() + " to " + y.effectiveType());
+            }
+        }
+
+        return new LogicExpression<>(this, LogicExpression.ComparisonType.EQ, x, y);
+    }
+
+    public BooleanExpression<B> ne(ValueExpression<?, B> x, ValueExpression<?, B> y)
+    {
+        if (!x.effectiveType().equals(y.effectiveType()))
+        {
+            y = owner.applyAutomaticCasting(x.effectiveType(), y);
+            if (!x.effectiveType().equals(y.effectiveType()))
+            {
+                x = owner.applyAutomaticCasting(y.effectiveType(), x);
+                if (!x.effectiveType().equals(y.effectiveType()))
+                    throw new IllegalStateException("Cannot compare " + x.effectiveType() + " to " + y.effectiveType());
+            }
+        }
+
+        return new LogicExpression<>(this, LogicExpression.ComparisonType.NE, x, y);
+    }
+
     public BooleanExpression<B> and(ValueExpression<?, B> a, ValueExpression<?, B> b)
     {
         if (!BooleanExpression.BOOLEAN_TYPE_TOKEN.equals(a.effectiveType())
                 || !BooleanExpression.BOOLEAN_TYPE_TOKEN.equals(b.effectiveType()))
-            throw new IllegalStateException("Operator and requires two boolean parameters, found " + a.effectiveType() + " to " + b.effectiveType());
+            throw new IllegalStateException("Operator and requires two boolean parameters, found " + a.effectiveType() + " and " + b.effectiveType());
 
         return new LogicExpression<>(this, LogicExpression.ComparisonType.AND, a, b);
+    }
+
+    public BooleanExpression<B> or(ValueExpression<?, B> a, ValueExpression<?, B> b)
+    {
+        if (!BooleanExpression.BOOLEAN_TYPE_TOKEN.equals(a.effectiveType())
+                || !BooleanExpression.BOOLEAN_TYPE_TOKEN.equals(b.effectiveType()))
+            throw new IllegalStateException("Operator and requires two boolean parameters, found " + a.effectiveType() + " and " + b.effectiveType());
+
+        return new LogicExpression<>(this, LogicExpression.ComparisonType.OR, a, b);
     }
 
     public <C> ValueExpression<C, B> iif(BooleanExpression<B> condition, ValueExpression<C, B> trueBranch, ValueExpression<C, B> falseBranch)

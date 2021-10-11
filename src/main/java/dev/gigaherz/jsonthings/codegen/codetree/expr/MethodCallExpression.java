@@ -37,19 +37,23 @@ public class MethodCallExpression<R,B> extends ValueExpression<R,B>
         if(method.isStatic())
         {
             lValues.forEach(val -> val.compile(mv, true));
+            for(int i=0;i<lValues.size();i++) cb.popStack();
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, method.owner().thisType().getInternalName(), method.name(), method.getDescriptor(), method.owner().thisType().isInterface());
         }
         else if (method.name().equals("<init>"))
         {
             Objects.requireNonNull(objRef).compile(mv, true);
             lValues.forEach(val -> val.compile(mv, true));
+            for(int i=0;i<=lValues.size();i++) cb.popStack();
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, method.owner().thisType().getInternalName(), method.name(), method.getDescriptor(), method.owner().thisType().isInterface());
         }
         else
         {
             Objects.requireNonNull(objRef).compile(mv, true);
             lValues.forEach(val -> val.compile(mv, true));
+            for(int i=0;i<=lValues.size();i++) cb.popStack();
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, method.owner().thisType().getInternalName(), method.name(), method.getDescriptor(), method.owner().thisType().isInterface());
         }
+        cb.pushStack(method.returnType());
     }
 }

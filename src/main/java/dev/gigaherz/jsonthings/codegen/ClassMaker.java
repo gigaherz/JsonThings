@@ -29,6 +29,15 @@ public class ClassMaker
 {
     public static boolean generateMethodParameterTable = false;
 
+    private final ClassLoader parentClassLoader;
+    private final RuntimeClassLoader dynamicClassLoader;
+
+    public ClassMaker(ClassLoader contextClassLoader)
+    {
+        this.parentClassLoader = contextClassLoader;
+        this.dynamicClassLoader= new RuntimeClassLoader(parentClassLoader);
+    }
+
     public BasicClass begin()
     {
         return new BasicClassImpl();
@@ -221,10 +230,11 @@ public class ClassMaker
             return cw.toByteArray();
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public ClassData<T> make()
         {
-            return null;
+            return ClassData.getClassInfo((Class<T>)dynamicClassLoader.defineClass(fullName, makeClass()));
         }
 
         @Override
@@ -494,7 +504,7 @@ public class ClassMaker
                         {
                             insns.remove(0);
 
-                            sc.compile(mv, endLabel);
+                            sc.compile(mv, endLabel, false);
                         }
                         else
                         {
@@ -933,4 +943,15 @@ public class ClassMaker
         }
     }
 
+    private static class RuntimeClassLoader extends ClassLoader
+    {
+        public RuntimeClassLoader(ClassLoader parent)
+        {
+            super(parent);
+        }
+
+        public Class<?> defineClass(String name, byte[] classBytes) {
+            return this.defineClass(name, classBytes, 0, classBytes.length);
+        }
+    }
 }

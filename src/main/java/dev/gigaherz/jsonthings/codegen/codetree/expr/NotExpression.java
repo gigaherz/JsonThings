@@ -19,15 +19,17 @@ public class NotExpression<B> extends BooleanExpression<B>
     @Override
     public void compile(MethodVisitor mv, boolean needsResult)
     {
+        first.compile(mv, needsResult);
         if (needsResult)
         {
-            first.compile(mv, true);
-
-            cb.emitConditional(mv, first, () -> {
-                mv.visitInsn(Opcodes.ICONST_0);
-            }, () -> {
-                mv.visitInsn(Opcodes.ICONST_1);
-            });
+            var jumpFalse = new Label();
+            var jumpEnd = new Label();
+            mv.visitJumpInsn(Opcodes.IFNE, jumpFalse);
+            mv.visitInsn(Opcodes.ICONST_0);
+            mv.visitJumpInsn(Opcodes.GOTO, jumpEnd);
+            mv.visitLabel(jumpFalse);
+            mv.visitInsn(Opcodes.ICONST_1);
+            mv.visitLabel(jumpEnd);
         }
     }
 
@@ -36,18 +38,17 @@ public class NotExpression<B> extends BooleanExpression<B>
     {
         if (jumpFalse == null && jumpTrue == null)
             throw new IllegalStateException("Comparison compile called with both labels null");
-    }
 
-    public enum ComparisonType
-    {
-        GT,
-        GE,
-        LT,
-        LE,
-        EQ,
-        NE,
-        AND,
-        OR,
-        NAND
+        if (first instanceof BooleanExpression x)
+        {
+            x.compile(mv, jumpFalse, jumpTrue);
+        }
+        else
+        {
+            first.compile(mv, true);
+            mv.visitJumpInsn(Opcodes.IFEQ, jumpTrue);
+            cb.popStack();
+            mv.visitJumpInsn(Opcodes.GOTO, jumpFalse);
+        }
     }
 }

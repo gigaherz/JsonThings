@@ -1,19 +1,19 @@
 package dev.gigaherz.jsonthings.codegen.codetree.expr;
 
 import com.google.common.reflect.TypeToken;
+import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 @SuppressWarnings("UnstableApiUsage")
-public class SingleOpConversion<R, T, B> extends ValueExpression<R,B>
+public class UnaryOperator<R, B> extends ValueExpression<R,B>
 {
-    private final TypeToken<R> targetType;
     private final int opcode;
-    private final ValueExpression<T,B> value;
+    private final ValueExpression<R,B> value;
 
-    public SingleOpConversion(CodeBlock<B,?,?> cb, TypeToken<R> targetType, int opcode, ValueExpression<T,B> value)
+    public UnaryOperator(CodeBlock<B,?,?> cb, int opcode, ValueExpression<R,B> value)
     {
         super(cb);
-        this.targetType = targetType;
         this.opcode = opcode;
         this.value = value;
     }
@@ -21,15 +21,21 @@ public class SingleOpConversion<R, T, B> extends ValueExpression<R,B>
     @Override
     public TypeToken<R> effectiveType()
     {
-        return targetType;
+        return value.effectiveType();
+    }
+
+    @Override
+    public TypeProxy<R> proxyType()
+    {
+        return value.proxyType();
     }
 
     @Override
     public void compile(MethodVisitor mv, boolean needsResult)
     {
+        value.compile(mv, needsResult);
         if (needsResult)
         {
-            value.compile(mv, true);
             mv.visitInsn(opcode);
         }
     }

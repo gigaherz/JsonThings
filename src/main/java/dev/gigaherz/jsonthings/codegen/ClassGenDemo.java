@@ -1,10 +1,11 @@
 package dev.gigaherz.jsonthings.codegen;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ClassGenDemo
 {
     public static class Test {
@@ -57,7 +58,7 @@ public class ClassGenDemo
 
     public static void main(String[] args)
     {
-        var builder = new ClassMaker().begin()
+        var builder = new ClassMaker(Thread.currentThread().getContextClassLoader()).begin()
                 .setPublic().setFinal()
                 .field("x", int.class).setPrivate().setFinal()
                 .field("y", int.class).setPrivate().setFinal()
@@ -83,13 +84,8 @@ public class ClassGenDemo
                         .ifElse(
                                 cb.and(cb.gt(cb.field("x"), cb.field("y")), cb.gt(cb.field("x"), cb.field("z"))),
                                 ct -> ct.returnVal(ct.field("x")),
-                                cf -> cf.ifElse(
-                                        cf.gt(cf.field("y"), cf.field("z")),
-                                        cz -> cz.returnVal(cz.field("y")),
-                                        cz -> cz.returnVal(cz.field("z"))
-                                )
-                        )
-                        .returnVal(cb.field("z")));
+                                cf -> cf.returnVal(cf.iif(cf.gt(cf.field("y"), cf.field("z")), cf.field("y"), cf.field("z")))
+                        ));
 
         try
         {
@@ -101,5 +97,17 @@ public class ClassGenDemo
         }
 
         var ci = builder.make();
+        try
+        {
+            var cn = ci.thisType().getRawType().getConstructor(int.class,int.class,int.class);
+            var instance = cn.newInstance(1,2,3);
+            var m = ci.thisType().getRawType().getMethod("getX");
+            var x = (int)m.invoke(instance);
+            System.out.println("getX() returned " + x);
+        }
+        catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

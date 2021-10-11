@@ -5,5 +5,5 @@ import org.objectweb.asm.MethodVisitor;
 
 public abstract class InstructionSource
 {
-    public abstract boolean compile(MethodVisitor mv, Label jumpEnd);
+    public abstract boolean compile(MethodVisitor mv, Label jumpEnd, boolean needsResult);
 }

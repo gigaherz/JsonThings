@@ -24,7 +24,7 @@ public class ConditionalExpression<T, B> extends ValueExpression<T, B>
     @Override
     public TypeToken<T> effectiveType()
     {
-        return null;
+        return trueBranch.effectiveType();
     }
 
     @Override
@@ -36,6 +36,7 @@ public class ConditionalExpression<T, B> extends ValueExpression<T, B>
         condition.compile(mv, null, jumpFalse);
         trueBranch.compile(mv, !MethodImplementation.isVoid(trueBranch.effectiveType()));
         mv.visitJumpInsn(Opcodes.GOTO, jumpEnd);
+        cb.popStack();
         mv.visitLabel(jumpFalse);
         falseBranch.compile(mv, !MethodImplementation.isVoid(falseBranch.effectiveType()));
         mv.visitLabel(jumpEnd);

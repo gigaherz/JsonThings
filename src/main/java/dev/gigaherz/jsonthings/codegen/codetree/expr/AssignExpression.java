@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.codegen.codetree.expr;
 
 import com.google.common.reflect.TypeToken;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -29,10 +30,19 @@ public class AssignExpression<T, S, B> extends ValueExpression<T, B>
     {
         target.compileBefore(mv);
 
+        int valueSize = MethodImplementation.slotCount(value.effectiveType());
+
+        cb.pushStack(valueSize);
+
         value.compile(mv, true);
 
-        if (needsResult) mv.visitInsn(Opcodes.DUP);
+        if (needsResult) {
+            cb.pushStack(valueSize);
+            mv.visitInsn(valueSize == 2 ? Opcodes.DUP2 : Opcodes.DUP);
+        }
 
         target.compileAfter(mv);
+
+        cb.popStack();
     }
 }

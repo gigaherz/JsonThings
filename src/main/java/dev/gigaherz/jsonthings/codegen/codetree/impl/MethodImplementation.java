@@ -12,6 +12,7 @@ import org.objectweb.asm.Opcodes;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @param <R> The return type of the code block
@@ -22,12 +23,31 @@ public class MethodImplementation<R>
     public final List<LocalVariable<?>> locals = Lists.newArrayList();
     public final List<StackEntry> stack = Lists.newArrayList();
 
+    private final Stack<Integer>  currentStack = new Stack<>();
+    public int maxStack = 0;
+
     private final MethodInfo<R> methodInfo;
     private final CodeBlock<R,Void,R> rootBlock;
 
     public int stackSize = 0;
     public int localsSize = 0;
     private Label firstLabel;
+
+    public void pushStack(TypeToken<?> type)
+    {
+        pushStack(MethodImplementation.slotCount(type));
+    }
+
+    public void pushStack(int slots)
+    {
+        currentStack.push(slots);
+        maxStack = Math.max(maxStack, currentStack.stream().mapToInt(i -> i).sum());
+    }
+
+    public void popStack()
+    {
+        currentStack.pop();
+    }
 
     public Label makeLabel()
     {
@@ -68,6 +88,16 @@ public class MethodImplementation<R>
 
     private int makeLocal(int cLocal, TypeProxy<?> type, TypeProxy<?> effectiveType, @Nullable String name)
     {
+        int slotCount = slotCount(effectiveType);
+        LocalVariable<?> local = new LocalVariable<>(cLocal, type, slotCount);
+        if (name != null)
+            local.name = name;
+        locals.add(local);
+        return slotCount;
+    }
+
+    public static int slotCount(TypeProxy<?> effectiveType)
+    {
         int slotCount = 1;
         if (effectiveType.isPrimitive())
         {
@@ -81,10 +111,24 @@ public class MethodImplementation<R>
                 slotCount = 2;
             }
         }
-        LocalVariable<?> local = new LocalVariable<>(cLocal, type, slotCount);
-        if (name != null)
-            local.name = name;
-        locals.add(local);
+        return slotCount;
+    }
+
+    public static int slotCount(TypeToken<?> effectiveType)
+    {
+        int slotCount = 1;
+        if (effectiveType.isPrimitive())
+        {
+            Class<?> rawType = effectiveType.getRawType();
+            if (rawType == long.class)
+            {
+                slotCount = 2;
+            }
+            else if (rawType == double.class)
+            {
+                slotCount = 2;
+            }
+        }
         return slotCount;
     }
 
@@ -238,22 +282,22 @@ public class MethodImplementation<R>
 
             if (rt == long.class && isInteger)
             {
-                return new SingleOpConversion<>(value.block(), targetType, Opcodes.I2L, value);
+                return new UnaryConversion<>(value.block(), targetType, Opcodes.I2L, value);
             }
 
             if (rt == float.class && isInteger)
             {
-                return new SingleOpConversion<>(value.block(), targetType, Opcodes.I2F, value);
+                return new UnaryConversion<>(value.block(), targetType, Opcodes.I2F, value);
             }
 
             if (rt == double.class && isInteger)
             {
-                return new SingleOpConversion<>(value.block(), targetType, Opcodes.I2D, value);
+                return new UnaryConversion<>(value.block(), targetType, Opcodes.I2D, value);
             }
 
             if (rt == double.class && rs == float.class)
             {
-                return new SingleOpConversion<>(value.block(), targetType, Opcodes.F2D, value);
+                return new UnaryConversion<>(value.block(), targetType, Opcodes.F2D, value);
             }
         }
 
@@ -277,4 +321,5 @@ public class MethodImplementation<R>
     {
         return rootBlock;
     }
+
 }

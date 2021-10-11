@@ -24,7 +24,7 @@ public class IfBlock<T, P, R> extends InstructionSource
     }
 
     @Override
-    public boolean compile(MethodVisitor mv, Label jumpEnd)
+    public boolean compile(MethodVisitor mv, Label jumpEnd, boolean needsResult)
     {
         mv.visitLabel(cb.owner().makeLabel());
 

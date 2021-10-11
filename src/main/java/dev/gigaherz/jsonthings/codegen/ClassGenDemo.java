@@ -73,13 +73,13 @@ public class ClassGenDemo
                         .assign(cb.fieldRef("z"), cb.localVar("z"))
                         .returnVoid())
                 .method("getX", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.field("x")))
+                .setPublic().setInstance().implementation(cb -> cb.returnVal(cb.field("x")))
                 .method("getY", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.thisVar().methodCall("getX")))
+                .setPublic().setInstance().implementation(cb -> cb.returnVal(cb.thisVar().methodCall("getX")))
                 .method("getZ", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb.returnVal(cb.thisVar().field("z")))
+                .setPublic().setInstance().implementation(cb -> cb.returnVal(cb.thisVar().field("z")))
                 .method("maxCoord", int.class)
-                .setPublic().setFinal().setInstance().implementation(cb -> cb
+                .setPublic().setInstance().implementation(cb -> cb
                         .ifElse(
                                 cb.and(cb.gt(cb.field("x"), cb.field("y")), cb.gt(cb.field("x"), cb.field("z"))),
                                 ct -> ct.returnVal(ct.field("x")),

@@ -165,7 +165,7 @@ public class ClassMaker
         @Override
         public DefineMethod<T, Void> constructor()
         {
-            var m = new ConstructorImpl();
+            var m = new ConstructorImpl<>();
             constructors.add(m);
             return m;
         }
@@ -449,7 +449,7 @@ public class ClassMaker
 
             public ConstructorImpl()
             {
-                super("<init>>", TypeToken.of(void.class));
+                super("<init>", TypeToken.of(void.class));
             }
 
             @Override

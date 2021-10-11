@@ -44,16 +44,13 @@ public class CodeBlock<B,P,M>
         return (TypeToken)returnType;
     }
 
-    void setReturnType(TypeToken<B> rt)
-    {
-        this.returnType = rt;
-    }
-
     public boolean compile(MethodVisitor mv, @Nullable Label jumpEnd)
     {
-        for(var insn : instructions)
+        int last = instructions.size() - 1;
+        for (int i = 0; i <= last; i++)
         {
-            if (insn.compile(mv, jumpEnd))
+            InstructionSource insn = instructions.get(i);
+            if (insn.compile(mv, i == last ? jumpEnd : null))
                 return false;
         }
         return true;

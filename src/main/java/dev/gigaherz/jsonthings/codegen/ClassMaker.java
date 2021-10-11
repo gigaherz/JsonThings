@@ -8,9 +8,10 @@ import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
 import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
-import dev.gigaherz.jsonthings.codegen.codetree.MethodImplementation;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.SuperCall;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -472,7 +473,10 @@ public class ClassMaker
 
                 if ((this.modifiers & Opcodes.ACC_ABSTRACT) == 0)
                 {
-                    MethodImplementation<Void> code = MethodImplementation.begin(this);
+                    var startLabel = new Label();
+                    var endLabel = new Label();
+
+                    MethodImplementation<Void> code = MethodImplementation.begin(this, startLabel);
 
                     var codeBlock = code.rootBlock();
 
@@ -480,25 +484,23 @@ public class ClassMaker
 
                     var insns = codeBlock.instructions();
 
-                    Label startLabel = code.startLabel;
-
                     mv.visitCode();
 
                     if ((this.modifiers & Opcodes.ACC_STATIC) == 0)
                     {
                         // super
 
-                        if (insns.size() > 0 && insns.get(0) instanceof MethodImplementation.SuperCall sc)
+                        if (insns.size() > 0 && insns.get(0) instanceof SuperCall sc)
                         {
                             insns.remove(0);
 
-                            sc.compile(mv);
+                            sc.compile(mv, endLabel);
                         }
                         else
                         {
                             // default constructor
 
-                            mv.visitLabel(startLabel = new Label());
+                            mv.visitLabel(startLabel);
                             mv.visitVarInsn(Opcodes.ALOAD,0);
                             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, TypeProxy.of(superClass).getInternalName(), "<init>", "()V", false);
                         }
@@ -522,12 +524,7 @@ public class ClassMaker
                         }
                     }
 
-                    for(var ins : insns)
-                    {
-                        ins.compile(mv);
-                    }
-
-                    var endLabel = new Label();
+                    codeBlock.compile(mv, endLabel);
                     mv.visitLabel(endLabel);
 
                     // locals
@@ -550,7 +547,7 @@ public class ClassMaker
             protected final String name;
             protected final TypeToken<R> returnType;
             protected int modifiers;
-            protected Consumer<CodeBlock<R,?,R>> impl;
+            protected Consumer<CodeBlock<R,Void,R>> impl;
 
 
             public MethodImpl(String name, TypeToken<R> returnType)
@@ -637,7 +634,7 @@ public class ClassMaker
             }
 
             @Override
-            public DefineClass<T> implementation(Consumer<CodeBlock<R,?,R>> code)
+            public DefineClass<T> implementation(Consumer<CodeBlock<R,Void,R>> code)
             {
                 this.impl = code;
                 return this;
@@ -703,24 +700,18 @@ public class ClassMaker
 
                 if ((this.modifiers & Opcodes.ACC_ABSTRACT) == 0)
                 {
-                    MethodImplementation<R> code = MethodImplementation.begin(this);
+                    var startLabel = new Label();
+                    var endLabel = new Label();
+
+                    MethodImplementation<R> code = MethodImplementation.begin(this, startLabel);
 
                     var codeBlock = code.rootBlock();
 
                     this.impl.accept(codeBlock);
 
-                    var insns = codeBlock.instructions();
-
-                    Label startLabel = code.startLabel;
-
                     mv.visitCode();
 
-                    for(var ins : insns)
-                    {
-                        ins.compile(mv);
-                    }
-
-                    var endLabel = new Label();
+                    codeBlock.compile(mv, endLabel);
                     mv.visitLabel(endLabel);
 
                     // locals
@@ -750,7 +741,7 @@ public class ClassMaker
                 }
 
                 @Override
-                public DefineClass<T> implementation(Consumer<CodeBlock<R,?,R>> code)
+                public DefineClass<T> implementation(Consumer<CodeBlock<R,Void,R>> code)
                 {
                     return MethodImpl.this.implementation(code);
                 }

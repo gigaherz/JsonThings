@@ -1,15 +1,16 @@
 package dev.gigaherz.jsonthings.codegen.codetree.expr;
 
 import com.google.common.reflect.TypeToken;
-import dev.gigaherz.jsonthings.codegen.codetree.MethodImplementation;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.LocalStore;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.LocalVariable;
 import org.objectweb.asm.MethodVisitor;
 
 @SuppressWarnings("UnstableApiUsage")
 public class VarRef<T,B> extends LRef<T,B>
 {
-    private final MethodImplementation.LocalVariable<T> localVariable;
+    private final LocalVariable<T> localVariable;
 
-    public VarRef(CodeBlock<B,?,?> cb, MethodImplementation.LocalVariable<T> localVariable)
+    public VarRef(CodeBlock<B,?,?> cb, LocalVariable<T> localVariable)
     {
         super(cb);
 
@@ -31,6 +32,6 @@ public class VarRef<T,B> extends LRef<T,B>
     @Override
     public void compileAfter(MethodVisitor mv)
     {
-        MethodImplementation.LocalStore.compile(localVariable, mv);
+        LocalStore.compile(localVariable, mv);
     }
 }

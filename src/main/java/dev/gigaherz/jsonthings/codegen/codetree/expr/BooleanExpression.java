@@ -22,5 +22,5 @@ public abstract class BooleanExpression<B> extends ValueExpression<Boolean, B>
         return BOOLEAN_TYPE_TOKEN;
     }
 
-    public abstract void compile(MethodVisitor mv, @Nullable Label jumpFalse, @Nullable Label jumpTrue);
+    public abstract void compile(MethodVisitor mv, @Nullable Label jumpTrue, @Nullable Label jumpFalse);
 }

@@ -20,6 +20,21 @@ public class ClassGenDemo
         public int getX() { return x;}
         public int getY() { return getX();}
         public int getZ() { return z;}
+
+        public int maxCoord() {
+            if (x > y && x > z)
+            {
+                return x;
+            }
+            else if (y > z)
+            {
+                return y;
+            }
+            else
+            {
+                return z;
+            }
+        }
     }
 
     public static class Test2 extends Test {
@@ -37,21 +52,6 @@ public class ClassGenDemo
 
         public int getSuperX() {
             return super.x;
-        }
-
-        public int maxCoord() {
-            if (x > y && x > z)
-            {
-                return x;
-            }
-            else if (y > z)
-            {
-                return y;
-            }
-            else
-            {
-                return z;
-            }
         }
     }
 
@@ -83,9 +83,9 @@ public class ClassGenDemo
                         .ifElse(
                                 cb.and(cb.gt(cb.field("x"), cb.field("y")), cb.gt(cb.field("x"), cb.field("z"))),
                                 ct -> ct.returnVal(ct.field("x")),
-                                ct -> ct.ifElse(
-                                        cb.gt(cb.field("y"), cb.field("z")),
-                                        cz -> cz.returnVal(cz.field("u")),
+                                cf -> cf.ifElse(
+                                        cf.gt(cf.field("y"), cf.field("z")),
+                                        cz -> cz.returnVal(cz.field("y")),
                                         cz -> cz.returnVal(cz.field("z"))
                                 )
                         )

@@ -32,7 +32,7 @@ public class NotExpression<B> extends BooleanExpression<B>
     }
 
     @Override
-    public void compile(MethodVisitor mv, @Nullable Label jumpFalse, @Nullable Label jumpTrue)
+    public void compile(MethodVisitor mv, @Nullable Label jumpTrue, @Nullable Label jumpFalse)
     {
         if (jumpFalse == null && jumpTrue == null)
             throw new IllegalStateException("Comparison compile called with both labels null");

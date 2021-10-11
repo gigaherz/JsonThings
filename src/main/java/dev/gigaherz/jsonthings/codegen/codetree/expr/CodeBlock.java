@@ -5,8 +5,9 @@ import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
-import dev.gigaherz.jsonthings.codegen.codetree.MethodImplementation;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.*;
 import dev.gigaherz.jsonthings.codegen.codetree.MethodLookup;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import javax.annotation.Nullable;
@@ -23,7 +24,7 @@ public class CodeBlock<B,P,M>
     private final CodeBlock<P, ?, M> parentBlock;
     private TypeToken<?> returnType;
     private final MethodImplementation<M> owner;
-    private final List<MethodImplementation.InstructionSource> instructions = Lists.newArrayList();
+    private final List<InstructionSource> instructions = Lists.newArrayList();
 
     public CodeBlock(MethodImplementation<M> owner, CodeBlock<P,?,M> parentBlock)
     {
@@ -48,61 +49,71 @@ public class CodeBlock<B,P,M>
         this.returnType = rt;
     }
 
-    public void compile(MethodVisitor mv, boolean needsResult)
+    public boolean compile(MethodVisitor mv, @Nullable Label jumpEnd)
     {
-
+        for(var insn : instructions)
+        {
+            if (insn.compile(mv, jumpEnd))
+                return false;
+        }
+        return true;
     }
 
-    public List<MethodImplementation.InstructionSource> instructions()
+    public boolean isEmpty()
+    {
+        return instructions.size() == 0;
+    }
+
+    public List<InstructionSource> instructions()
     {
         return instructions;
     }
 
     public CodeBlock<B,P,M> getThis()
     {
-        instructions.add(owner.new LocalLoad(0));
+        instructions.add(new LocalLoad(owner, 0));
         return this;
     }
 
     public CodeBlock<B,P,M> getLocal(String localName)
     {
-        instructions.add(owner.new LocalLoad(localName));
+        instructions.add(new LocalLoad(owner, localName));
         return this;
     }
 
     public CodeBlock<B,P,M> setLocal(String localName)
     {
-        instructions.add(owner.new LocalStore(localName));
+        instructions.add(new LocalStore(owner, localName));
         return this;
     }
 
     public CodeBlock<B,P,M> getField(String fieldName)
     {
-        instructions.add(owner.new FieldLoad(null, fieldName));
+        instructions.add(new FieldLoad(owner, null, fieldName));
         return this;
     }
 
     public CodeBlock<B,P,M> setField(String fieldName)
     {
-        instructions.add(owner.new FieldStore(null, fieldName));
+        instructions.add(new FieldStore(owner, null, fieldName));
         return this;
     }
 
     public CodeBlock<B,P,M> returnVoid()
     {
-        instructions.add(owner.new Return(TypeToken.of(void.class)));
+        instructions.add(new Return(this, TypeToken.of(void.class)));
         return this;
     }
 
     public CodeBlock<B,P,M> returnInt()
     {
-        instructions.add(owner.new Return(TypeToken.of(int.class)));
+        instructions.add(new Return(this, TypeToken.of(int.class)));
         return this;
     }
 
     public CodeBlock<B,P,M> returnType(TypeToken<?> type)
     {
-        instructions.add(owner.new Return(type));
+        instructions.add(new Return(this, type));
         return this;
     }
 
@@ -111,7 +122,7 @@ public class CodeBlock<B,P,M>
         value = owner.applyAutomaticCasting(target.targetType(), value);
         if (target.targetType().isSupertypeOf(value.effectiveType()))
         {
-            instructions.add(owner.new Assignment(new AssignExpression<>(this, target, value)));
+            instructions.add(new Assignment(owner, new AssignExpression<>(this, target, value)));
             return this;
         }
         throw new IllegalStateException("Cannot assign field of type " + target.targetType() + " from expression of type " + value.effectiveType());
@@ -137,7 +148,7 @@ public class CodeBlock<B,P,M>
         return field(thisVar(), owner.methodInfo().owner().getField(fieldName));
     }
 
-    public ValueExpression<?, B> field(ValueExpression<?, B> objRef, FieldInfo<?> field)
+    public <T> ValueExpression<T, B> field(ValueExpression<?, B> objRef, FieldInfo<?> field)
     {
         return new FieldExpression<>(this, objRef, field);
     }
@@ -162,25 +173,26 @@ public class CodeBlock<B,P,M>
         return new VarExpression<>(this, owner.getLocalVariable(varName));
     }
 
-    public void returnVal(ValueExpression<?, B> value)
+    public <T> void returnVal(ValueExpression<?, M> value)
     {
+        ValueExpression<?, M> nValue = value;
         if (returnType == null)
         {
-            returnType = value.effectiveType();
+            returnType = nValue.effectiveType();
         }
         else
         {
-            value = owner.applyAutomaticCasting(returnType, value);
+            nValue = owner.applyAutomaticCasting(returnType, nValue);
         }
         if (owner.methodInfo().returnType().isSupertypeOf(value.effectiveType()))
         {
-            instructions.add(owner.new ExprReturn(owner.methodInfo().returnType(), value));
+            instructions.add(new ExprReturn(this, owner.methodInfo().returnType(), nValue));
         }
     }
 
     public CodeBlock<B,P,M> exec(ValueExpression<?, B> value)
     {
-        instructions.add(new MethodImplementation.ExecuteExpression(value));
+        instructions.add(new ExecuteExpression(owner, value));
         return this;
     }
 
@@ -202,7 +214,7 @@ public class CodeBlock<B,P,M>
     {
         if (!method.owner().thisType().actualType().equals(owner.methodInfo().owner().superClass()))
             throw new IllegalStateException("Super call must be a method or constructor of the immediate super class of this class.");
-        instructions.add(new MethodImplementation.SuperCall(methodCall(superVar(), method, values)));
+        instructions.add(new SuperCall(owner, methodCall(superVar(), method, values)));
         return this;
     }
 
@@ -272,7 +284,7 @@ public class CodeBlock<B,P,M>
         return new ConditionalExpression<>(this, condition, trueBranch, falseBranch);
     }
 
-    public <T> ValueExpression<T,B> iif(BooleanExpression<T> condition, Consumer<CodeBlock<T,?,M>> trueBranch, Consumer<CodeBlock<T,?,M>> falseBranch)
+    public <T> ValueExpression<T,B> iif(BooleanExpression<B> condition, Consumer<CodeBlock<T,?,M>> trueBranch, Consumer<CodeBlock<T,?,M>> falseBranch)
     {
         var tb = this.<T>childBlock();
         var fb = this.<T>childBlock();
@@ -283,16 +295,20 @@ public class CodeBlock<B,P,M>
         return new ConditionalExpression<>(this, condition, new CodeBlockExpression<>(this, tb), new CodeBlockExpression<>(this, fb));
     }
 
-    private <X> CodeBlock<X, B, M> childBlock()
+    public <X> CodeBlock<X, B, M> childBlock()
     {
         return new CodeBlock<>(owner, this);
     }
 
-    public CodeBlock<B,P,M> ifElse(BooleanExpression<B> condition, Consumer<CodeBlock<B,?,M>> trueBranch, Consumer<CodeBlock<B,?,M>> falseBranch)
+    public CodeBlock<B,P,M> ifElse(BooleanExpression<?> condition, Consumer<CodeBlock<B,B,M>> trueBranch, Consumer<CodeBlock<B,B,M>> falseBranch)
     {
-        instructions.add(owner.new IfBlock<>(this.iif(condition, trueBranch, falseBranch)));
+        instructions.add(new IfBlock<>(this, condition, trueBranch, falseBranch));
         return this;
     }
 
+    public MethodImplementation<M> owner()
+    {
+        return owner;
+    }
 }
 

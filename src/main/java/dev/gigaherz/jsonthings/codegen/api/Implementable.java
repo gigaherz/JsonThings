@@ -9,5 +9,5 @@ public interface Implementable<C, R> extends FinishToClass<C>
     // make abstract (and finish the method definition)
     DefineClass<C> makeAbstract();
 
-    DefineClass<C> implementation(Consumer<CodeBlock<R,?,R>> code);
+    DefineClass<C> implementation(Consumer<CodeBlock<R,Void,R>> code);
 }

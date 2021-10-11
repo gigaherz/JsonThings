@@ -25,12 +25,12 @@ public abstract class ValueExpression<T, B> extends ExprBase<B>
 
     public LRef<?,B> fieldRef(String fieldName)
     {
-        return cb.fieldRef(this, ClassData.getClassInfo(effectiveType()).getField(fieldName));
+        return cb.fieldRef(this, proxyType().classInfo().getField(fieldName));
     }
 
     public ValueExpression<?,B> field(String fieldName)
     {
-        return cb.field(this, ClassData.getClassInfo(effectiveType()).getField(fieldName));
+        return cb.field(this, proxyType().classInfo().getField(fieldName));
     }
 
     public MethodCallExpression<?,B> methodCall(String name)

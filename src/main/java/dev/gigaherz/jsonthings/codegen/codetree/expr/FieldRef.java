@@ -2,7 +2,7 @@ package dev.gigaherz.jsonthings.codegen.codetree.expr;
 
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
-import dev.gigaherz.jsonthings.codegen.codetree.MethodImplementation;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.FieldStore;
 import org.objectweb.asm.MethodVisitor;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -38,6 +38,6 @@ public class FieldRef<T, B> extends LRef<T, B>
     @Override
     public void compileAfter(MethodVisitor mv)
     {
-        MethodImplementation.FieldStore.compile(field, mv);
+        FieldStore.compile(field, mv);
     }
 }

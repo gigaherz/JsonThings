@@ -1,12 +1,12 @@
 package dev.gigaherz.jsonthings.things;
 
 import com.mojang.serialization.Lifecycle;
-import dev.gigaherz.jsonthings.things.serializers.ItemType;
-import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.properties.PropertyTypes;
 import dev.gigaherz.jsonthings.things.serializers.BlockType;
+import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
+import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;

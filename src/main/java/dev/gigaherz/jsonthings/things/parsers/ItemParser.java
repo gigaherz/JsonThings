@@ -4,10 +4,10 @@ import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
+import dev.gigaherz.jsonthings.util.parse.JParse;
 import joptsimple.internal.Strings;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -51,22 +51,22 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .obj()
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
-                .ifKey("max_stack_size", val -> val.intValue().range(1,128).handle(builder::setMaxStackSize))
+                .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(List.of("group", "creative_menu_stacks"), () -> new RuntimeException("Cannot have group and creative_menu_stacks at the same time."))
                 .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
                 .ifKey("creative_menu_stacks", val -> val
-                        .array().forEach((i,entry) -> entry
+                        .array().forEach((i, entry) -> entry
                                 .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item), parseTabsList(item))))
                 )
                 .ifKey("attribute_modifiers", val -> val.array().raw(arr -> parseAttributeModifiers(arr, builder)))
-                .ifKey("max_damage", val -> val.intValue().range(1,128).handle(builder::setMaxDamage))
+                .ifKey("max_damage", val -> val.intValue().range(1, 128).handle(builder::setMaxDamage))
                 .ifKey("food", val -> val
-                                .ifString(str -> str.map(ResourceLocation::new).handle(builder::setFood))
-                                .ifObj(obj -> obj.raw(food -> builder.setFood(JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food).get())))
-                                .typeError()
+                        .ifString(str -> str.map(ResourceLocation::new).handle(builder::setFood))
+                        .ifObj(obj -> obj.raw(food -> builder.setFood(JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food).get())))
+                        .typeError()
                 )
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
-            .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore));
+                .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore));
 
         return builder;
     }

@@ -13,7 +13,7 @@ public class FieldRef<T, B> extends LRefImpl<T, B>
     private final ValueExpression<?, B> objRef;
     private final FieldInfo<T> field;
 
-    public FieldRef(CodeBlockInternal<B,?,?> cb, ValueExpression<?, B> objRef, FieldInfo<T> field)
+    public FieldRef(CodeBlockInternal<B, ?, ?> cb, ValueExpression<?, B> objRef, FieldInfo<T> field)
     {
         super(cb);
         this.objRef = objRef;

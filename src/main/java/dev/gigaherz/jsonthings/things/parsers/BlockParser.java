@@ -3,16 +3,16 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.gigaherz.jsonthings.things.ThingRegistries;
-import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
-import dev.gigaherz.jsonthings.util.parse.JParse;
-import dev.gigaherz.jsonthings.util.parse.value.Any;
-import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import dev.gigaherz.jsonthings.JsonThings;
+import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
+import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
+import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.value.Any;
+import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -64,19 +64,19 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("material", val -> val.string().map(ResourceLocation::new).handle(builder::setMaterial))
                 .ifKey("map_color", val -> val
                         .ifString(str -> builder.setColor(MaterialColors.get(str.getAsString())))
-                        .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.range(0,64).getAsInt()]))
+                        .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
                         .typeError()
                 )
                 .ifKey("requires_tool_for_drops", val -> val.bool().handle(builder::setRequiresToolForDrops))
                 .ifKey("is_air", val -> val.bool().handle(builder::setIsAir))
                 .ifKey("has_collision", val -> val.bool().handle(builder::setHasCollision))
                 .ifKey("ticks_randomly", val -> val.bool().handle(builder::setTicksRandom))
-                .ifKey("light_emission", val -> val.intValue().range(0,16).handle(builder::setLightEmission))
+                .ifKey("light_emission", val -> val.intValue().range(0, 16).handle(builder::setLightEmission))
                 .ifKey("explosion_resistance", val -> val.intValue().min(0).handle(builder::setExplosionResistance))
                 .ifKey("destroy_time", val -> val.intValue().min(0).handle(builder::setDestroyTime))
-                .ifKey("friction", val -> val.floatValue().range(0,1).handle(builder::setFriction))
-                .ifKey("speed_factor", val -> val.floatValue().range(0,1).handle(builder::setSpeedFactor))
-                .ifKey("jump_factor", val -> val.floatValue().range(0,1).handle(builder::setJumpFactor))
+                .ifKey("friction", val -> val.floatValue().range(0, 1).handle(builder::setFriction))
+                .ifKey("speed_factor", val -> val.floatValue().range(0, 1).handle(builder::setSpeedFactor))
+                .ifKey("jump_factor", val -> val.floatValue().range(0, 1).handle(builder::setJumpFactor))
                 .ifKey("sound_type", val -> val.string().map(ResourceLocation::new).handle(builder::setSoundType))
                 .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
                     propertiesByName.setValue(properties);
@@ -96,13 +96,15 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("not_solid", val -> val.bool().handle(builder::setSeeThrough))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("item", val -> val
-                                .ifBool(v -> v.handle(b -> { if (b) createStockItemBlock(builder);}))
-                                .ifObj(obj -> obj.map((JsonObject item) -> {
-                                    ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), item);
-                                    itemBuilder.setType("block");
-                                    return itemBuilder;
-                                }).handle(builder::withItem) )
-                        );
+                        .ifBool(v -> v.handle(b -> {
+                            if (b) createStockItemBlock(builder);
+                        }))
+                        .ifObj(obj -> obj.map((JsonObject item) -> {
+                            ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), item);
+                            itemBuilder.setType("block");
+                            return itemBuilder;
+                        }).handle(builder::withItem))
+                );
 
         return builder;
     }
@@ -120,8 +122,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
     private Set<String> parseRenderLayers(Any data)
     {
         Set<String> types = Sets.newHashSet();
-        data    .ifString(str -> str.handle(name -> types.add(verifyRenderLayer(name))))
-                .ifArray(arr -> arr.forEach((i,val) -> types.add(verifyRenderLayer(val.string().getAsString()))))
+        data.ifString(str -> str.handle(name -> types.add(verifyRenderLayer(name))))
+                .ifArray(arr -> arr.forEach((i, val) -> types.add(verifyRenderLayer(val.string().getAsString()))))
                 .typeError();
         return types;
     }
@@ -165,7 +167,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         Map<String, Property<?>> map = new HashMap<>();
 
-        props.forEach((name,val) -> val
+        props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
                     var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
                     if (property == null)

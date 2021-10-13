@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class FlexTreeGrower extends AbstractTreeGrower
 {
-    private final ResourceKey<ConfiguredFeature<?,?>> featureKey;
+    private final ResourceKey<ConfiguredFeature<?, ?>> featureKey;
 
     public FlexTreeGrower(ResourceKey<ConfiguredFeature<?, ?>> featureKey)
     {
@@ -32,9 +32,9 @@ public class FlexTreeGrower extends AbstractTreeGrower
         return dirtyCast(feature);
     }
 
-    private <R,T> R dirtyCast(T val)
+    private <R, T> R dirtyCast(T val)
     {
         //noinspection unchecked
-        return (R)val;
+        return (R) val;
     }
 }

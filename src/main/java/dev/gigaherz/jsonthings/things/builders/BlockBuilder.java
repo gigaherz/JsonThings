@@ -2,12 +2,12 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
+import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.serializers.BlockType;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.Utils;
-import dev.gigaherz.jsonthings.JsonThings;
-import dev.gigaherz.jsonthings.things.serializers.BlockType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -92,7 +92,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         this.parentBlock = RegistryObject.of(parentName, ForgeRegistries.BLOCKS);
     }
 
-    public void setProperties(Map<String,Property<?>> properties)
+    public void setProperties(Map<String, Property<?>> properties)
     {
         this.properties = properties.values().stream().toList();
         this.propertiesByName = properties;

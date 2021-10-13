@@ -46,7 +46,7 @@ public class ClassData<T> implements ClassInfo<T>
     @Override
     public TypeProxy<T> thisType()
     {
-        return (TypeProxy<T>)TypeProxy.of(this.thisType);
+        return (TypeProxy<T>) TypeProxy.of(this.thisType);
     }
 
     @Override

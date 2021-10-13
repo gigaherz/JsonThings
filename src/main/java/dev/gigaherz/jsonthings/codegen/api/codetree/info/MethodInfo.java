@@ -11,9 +11,13 @@ import java.util.List;
 public interface MethodInfo<R>
 {
     List<? extends ParamInfo<?>> params();
+
     TypeToken<R> returnType();
+
     ClassInfo<?> owner();
+
     String name();
+
     int modifiers();
 
     default String getDescriptor()
@@ -22,7 +26,7 @@ public interface MethodInfo<R>
 
         sb.append("(");
 
-        for(var param : params())
+        for (var param : params())
         {
             sb.append(param.paramType().getDescriptor());
         }

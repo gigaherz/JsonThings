@@ -55,7 +55,8 @@ public class MethodLookup<R>
         if (name.equals("<init>"))
             list = owner.constructors();
         else list = owner.methods();
-        outer: for(var method : list)
+        outer:
+        for (var method : list)
         {
             if (!name.equals(method.name()))
                 continue;
@@ -63,7 +64,7 @@ public class MethodLookup<R>
             if (params.size() != this.params.size())
                 continue;
             int distance = 0;
-            for(int i=0;i<params.size();i++)
+            for (int i = 0; i < params.size(); i++)
             {
                 var rt = params.get(i).paramType().actualType();
                 var rs = MethodImplementation.applyAutomaticCasting(rt, this.params.get(i));
@@ -93,9 +94,9 @@ public class MethodLookup<R>
         if (bestMatch == null)
         {
             if (name.equals("<init>"))
-                throw new IllegalStateException("Could not find a constructor of "+owner.thisType()+" matching params " + params);
+                throw new IllegalStateException("Could not find a constructor of " + owner.thisType() + " matching params " + params);
             else
-                throw new IllegalStateException("Could not find a method in "+owner.thisType()+" with name " + name + " and params " + params);
+                throw new IllegalStateException("Could not find a method in " + owner.thisType() + " with name " + name + " and params " + params);
         }
         return bestMatch;
     }

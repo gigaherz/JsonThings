@@ -10,10 +10,13 @@ import java.util.Optional;
 public interface ClassInfo<T>
 {
     TypeToken<? super T> superClass();
+
     TypeProxy<T> thisType();
 
     List<? extends MethodInfo<?>> constructors();
+
     List<? extends MethodInfo<?>> methods();
+
     List<? extends FieldInfo<?>> fields();
 
     ClassInfo<? super T> superClassInfo();

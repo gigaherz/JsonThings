@@ -4,9 +4,6 @@ import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.BooleanExpression;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.BooleanExpressionImpl;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -19,7 +16,7 @@ public class ConditionalExpression<T, B> extends ValueExpressionImpl<T, B>
     private final ValueExpression<T, B> trueBranch;
     private final ValueExpression<T, B> falseBranch;
 
-    public ConditionalExpression(CodeBlockInternal<B,?,?> cb, BooleanExpression<B> condition, ValueExpression<T, B> trueBranch, ValueExpression<T, B> falseBranch)
+    public ConditionalExpression(CodeBlockInternal<B, ?, ?> cb, BooleanExpression<B> condition, ValueExpression<T, B> trueBranch, ValueExpression<T, B> falseBranch)
     {
         super(cb);
         this.condition = condition;

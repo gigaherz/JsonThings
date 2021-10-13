@@ -14,7 +14,7 @@ public class AssignExpression<T, S, B> extends ValueExpressionImpl<T, B>
     LRef<T> target;
     ValueExpression<S, B> value;
 
-    public AssignExpression(CodeBlockInternal<B,?,?> cb, LRef<T> target, ValueExpression<S, B> value)
+    public AssignExpression(CodeBlockInternal<B, ?, ?> cb, LRef<T> target, ValueExpression<S, B> value)
     {
         super(cb);
         this.target = target;
@@ -39,7 +39,8 @@ public class AssignExpression<T, S, B> extends ValueExpressionImpl<T, B>
 
         value.compile(mv, true);
 
-        if (needsResult) {
+        if (needsResult)
+        {
             cb.pushStack(valueSize);
             mv.visitInsn(valueSize == 2 ? Opcodes.DUP2 : Opcodes.DUP);
         }

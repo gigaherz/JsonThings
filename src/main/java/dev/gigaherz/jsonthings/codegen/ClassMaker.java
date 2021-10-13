@@ -35,7 +35,7 @@ public class ClassMaker
     public ClassMaker(ClassLoader contextClassLoader)
     {
         this.parentClassLoader = contextClassLoader;
-        this.dynamicClassLoader= new RuntimeClassLoader(parentClassLoader);
+        this.dynamicClassLoader = new RuntimeClassLoader(parentClassLoader);
     }
 
     public BasicClass begin()
@@ -198,7 +198,7 @@ public class ClassMaker
                     cw.visitAnnotation(ann.annotationType())
                 }*/
 
-            for(var fi : fields)
+            for (var fi : fields)
             {
                 var fname = fi.name;
 
@@ -217,12 +217,12 @@ public class ClassMaker
             }
 
 
-            for(var mi : constructors)
+            for (var mi : constructors)
             {
                 mi.makeMethod(cw);
             }
 
-            for(var mi : methods)
+            for (var mi : methods)
             {
                 mi.makeMethod(cw);
             }
@@ -234,7 +234,7 @@ public class ClassMaker
         @Override
         public ClassData<T> make()
         {
-            return ClassData.getClassInfo((Class<T>)dynamicClassLoader.defineClass(fullName, makeClass()));
+            return ClassData.getClassInfo((Class<T>) dynamicClassLoader.defineClass(fullName, makeClass()));
         }
 
         @Override
@@ -252,7 +252,7 @@ public class ClassMaker
         @Override
         public String getInternalName()
         {
-            return fullName.replace(".","/");
+            return fullName.replace(".", "/");
         }
 
         @Override
@@ -352,7 +352,7 @@ public class ClassMaker
             protected final List<Annotation> annotations = Lists.newArrayList();
             protected final TypeToken<F> fieldType;
             protected int modifiers;
-            protected ValueExpression<F,?> init;
+            protected ValueExpression<F, ?> init;
             protected String name;
 
             private FieldImpl(String name, TypeToken<F> fieldType)
@@ -413,7 +413,7 @@ public class ClassMaker
             }
 
             @Override
-            public DefineField<T, F> initializer(ValueExpression<F,?> expr)
+            public DefineField<T, F> initializer(ValueExpression<F, ?> expr)
             {
                 init = expr;
                 return this;
@@ -511,7 +511,7 @@ public class ClassMaker
                             // default constructor
 
                             mv.visitLabel(startLabel);
-                            mv.visitVarInsn(Opcodes.ALOAD,0);
+                            mv.visitVarInsn(Opcodes.ALOAD, 0);
                             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, TypeProxy.of(superClass).getInternalName(), "<init>", "()V", false);
                         }
                     }
@@ -526,7 +526,7 @@ public class ClassMaker
                         {
                             mv.visitLabel(new Label());
 
-                            mv.visitVarInsn(Opcodes.ALOAD,0); // this
+                            mv.visitVarInsn(Opcodes.ALOAD, 0); // this
 
                             fi.init.compile(mv, true);
 
@@ -538,7 +538,7 @@ public class ClassMaker
                     mv.visitLabel(endLabel);
 
                     // locals
-                    for(var local : code.locals)
+                    for (var local : code.locals)
                     {
                         var n = local.name == null ? "this" : local.name;
                         mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
@@ -557,7 +557,7 @@ public class ClassMaker
             protected final String name;
             protected final TypeToken<R> returnType;
             protected int modifiers;
-            protected Consumer<CodeBlockInternal<R,Void,R>> impl;
+            protected Consumer<CodeBlockInternal<R, Void, R>> impl;
 
 
             public MethodImpl(String name, TypeToken<R> returnType)
@@ -725,7 +725,7 @@ public class ClassMaker
                     mv.visitLabel(endLabel);
 
                     // locals
-                    for(var local : code.locals)
+                    for (var local : code.locals)
                     {
                         var n = local.name == null ? "this" : local.name;
                         mv.visitLocalVariable(n, local.variableType.getDescriptor(), local.variableType.getSignature(), startLabel, endLabel, local.index);
@@ -757,7 +757,8 @@ public class ClassMaker
                 }
             }
 
-            private class ImplWithParam<P, Z extends DefineParam<T, R, P, Z>> extends Impl implements DefineParam<T, R, P, Z>
+            private class ImplWithParam<P, Z extends DefineParam<T, R, P, Z>> extends Impl
+                    implements DefineParam<T, R, P, Z>
             {
                 protected final ParamDefinition<P> param;
 
@@ -950,7 +951,8 @@ public class ClassMaker
             super(parent);
         }
 
-        public Class<?> defineClass(String name, byte[] classBytes) {
+        public Class<?> defineClass(String name, byte[] classBytes)
+        {
             return this.defineClass(name, classBytes, 0, classBytes.length);
         }
     }

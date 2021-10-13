@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.codegen.codetree.impl;
 
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 

@@ -1,6 +1,5 @@
 package dev.gigaherz.jsonthings.codegen.codetree;
 
-import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 

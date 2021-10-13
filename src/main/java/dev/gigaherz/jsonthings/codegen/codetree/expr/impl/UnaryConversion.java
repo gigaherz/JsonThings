@@ -3,18 +3,16 @@ package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import org.objectweb.asm.MethodVisitor;
 
 @SuppressWarnings("UnstableApiUsage")
-public class UnaryConversion<R, T, B> extends ValueExpressionImpl<R,B>
+public class UnaryConversion<R, T, B> extends ValueExpressionImpl<R, B>
 {
     private final TypeToken<R> targetType;
     private final int opcode;
-    private final ValueExpression<T,B> value;
+    private final ValueExpression<T, B> value;
 
-    public UnaryConversion(CodeBlockInternal<B,?,?> cb, TypeToken<R> targetType, int opcode, ValueExpression<T,B> value)
+    public UnaryConversion(CodeBlockInternal<B, ?, ?> cb, TypeToken<R> targetType, int opcode, ValueExpression<T, B> value)
     {
         super(cb);
         this.targetType = targetType;

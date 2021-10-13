@@ -1,28 +1,42 @@
 package dev.gigaherz.jsonthings.codegen;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ClassGenDemo
 {
-    public static class Test {
+    public static class Test
+    {
         protected final int x;
         protected final int y;
         protected final int z;
+
         public Test(int x, int y, int z)
         {
-            this.x=x;
-            this.y=y;
-            this.z=z;
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
-        public int getX() { return x;}
-        public int getY() { return getX();}
-        public int getZ() { return z;}
 
-        public int maxCoord() {
+        public int getX()
+        {
+            return x;
+        }
+
+        public int getY()
+        {
+            return getX();
+        }
+
+        public int getZ()
+        {
+            return z;
+        }
+
+        public int maxCoord()
+        {
             if (x > y && x > z)
             {
                 return x;
@@ -38,7 +52,8 @@ public class ClassGenDemo
         }
     }
 
-    public static class Test2 extends Test {
+    public static class Test2 extends Test
+    {
         public int x;
 
         public Test2(int x, int y, int z)
@@ -47,11 +62,13 @@ public class ClassGenDemo
             this.x = x;
         }
 
-        public int getX() {
+        public int getX()
+        {
             return x;
         }
 
-        public int getSuperX() {
+        public int getSuperX()
+        {
             return super.x;
         }
     }
@@ -99,10 +116,10 @@ public class ClassGenDemo
         var ci = builder.make();
         try
         {
-            var cn = ci.thisType().getRawType().getConstructor(int.class,int.class,int.class);
-            var instance = cn.newInstance(1,2,3);
+            var cn = ci.thisType().getRawType().getConstructor(int.class, int.class, int.class);
+            var instance = cn.newInstance(1, 2, 3);
             var m = ci.thisType().getRawType().getMethod("getX");
-            var x = (int)m.invoke(instance);
+            var x = (int) m.invoke(instance);
             System.out.println("getX() returned " + x);
         }
         catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)

@@ -2,10 +2,10 @@ package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableFloat;

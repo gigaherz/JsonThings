@@ -2,7 +2,6 @@ package dev.gigaherz.jsonthings.codegen.api;
 
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ClassInfo;
-import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
 
 @SuppressWarnings("UnstableApiUsage")
 public interface FinishToClass<T> extends Finishable<ClassDef<T>>, DefineClass<T>

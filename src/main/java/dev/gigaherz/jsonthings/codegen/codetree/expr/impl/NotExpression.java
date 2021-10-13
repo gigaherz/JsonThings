@@ -2,9 +2,6 @@ package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.BooleanExpressionImpl;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -13,9 +10,9 @@ import javax.annotation.Nullable;
 
 public class NotExpression<B> extends BooleanExpressionImpl<B>
 {
-    private final ValueExpression<?,B> first;
+    private final ValueExpression<?, B> first;
 
-    public NotExpression(CodeBlockInternal<B,?,?> cb, ValueExpression<?,B> first)
+    public NotExpression(CodeBlockInternal<B, ?, ?> cb, ValueExpression<?, B> first)
     {
         super(cb);
         this.first = first;

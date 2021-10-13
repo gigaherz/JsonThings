@@ -15,7 +15,7 @@ public class FieldData<T> implements FieldInfo<T>
     public FieldData(ClassInfo<?> owner, String name, TypeToken<?> type, int modifiers)
     {
         this.owner = owner;
-        this.name= name;
+        this.name = name;
         this.type = type;
         this.modifiers = modifiers;
     }

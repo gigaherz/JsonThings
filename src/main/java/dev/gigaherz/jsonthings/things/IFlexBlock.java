@@ -1,7 +1,7 @@
 package dev.gigaherz.jsonthings.things;
 
-import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
+import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.Block;
 

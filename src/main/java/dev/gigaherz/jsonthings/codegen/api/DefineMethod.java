@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.codegen.api;
 
 import com.google.common.reflect.TypeToken;
-import dev.gigaherz.jsonthings.codegen.codetree.MethodData;
 
 @SuppressWarnings("UnstableApiUsage")
 public interface DefineMethod<C, R> extends Implementable<C, R>, Annotatable<DefineMethod<C, R>>

@@ -10,7 +10,6 @@ import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.NoopConversion;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.UnaryConversion;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -28,11 +27,11 @@ public class MethodImplementation<R>
     public final List<LocalVariable<?>> locals = Lists.newArrayList();
     public final List<StackEntry> stack = Lists.newArrayList();
 
-    private final Stack<Integer>  currentStack = new Stack<>();
+    private final Stack<Integer> currentStack = new Stack<>();
     public int maxStack = 0;
 
     private final MethodInfo<R> methodInfo;
-    private final CodeBlockInternal<R,Void,R> rootBlock;
+    private final CodeBlockInternal<R, Void, R> rootBlock;
 
     public int stackSize = 0;
     public int localsSize = 0;
@@ -269,7 +268,7 @@ public class MethodImplementation<R>
         return tt.getRawType() == void.class;
     }
 
-    public <S,B> ValueExpression<?,B> applyAutomaticCasting(TypeToken<?> targetType, ValueExpression<S,B> value)
+    public <S, B> ValueExpression<?, B> applyAutomaticCasting(TypeToken<?> targetType, ValueExpression<S, B> value)
     {
         var rt = targetType.getRawType();
         var rs = value.effectiveType().getRawType();
@@ -322,9 +321,8 @@ public class MethodImplementation<R>
         return value;
     }
 
-    public CodeBlockInternal<R,Void,R> rootBlock()
+    public CodeBlockInternal<R, Void, R> rootBlock()
     {
         return rootBlock;
     }
-
 }

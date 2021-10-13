@@ -1,10 +1,8 @@
 package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ComparisonType;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.BooleanExpressionImpl;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -15,10 +13,10 @@ import javax.annotation.Nullable;
 public class LogicExpression<B> extends BooleanExpressionImpl<B>
 {
     private final ComparisonType comparisonType;
-    private final ValueExpression<?,B> first;
-    private final ValueExpression<?,B> second;
+    private final ValueExpression<?, B> first;
+    private final ValueExpression<?, B> second;
 
-    public LogicExpression(CodeBlockInternal<B,?,?> cb, ComparisonType comparisonType, ValueExpression<?,B> first, ValueExpression<?,B> second)
+    public LogicExpression(CodeBlockInternal<B, ?, ?> cb, ComparisonType comparisonType, ValueExpression<?, B> first, ValueExpression<?, B> second)
     {
         super(cb);
         this.comparisonType = comparisonType;
@@ -45,9 +43,9 @@ public class LogicExpression<B> extends BooleanExpressionImpl<B>
         if (jumpFalse == null && jumpTrue == null)
             throw new IllegalStateException("Comparison compile called with both labels null");
 
-        if(first instanceof BooleanExpressionImpl b1 && second instanceof BooleanExpressionImpl b2)
+        if (first instanceof BooleanExpressionImpl b1 && second instanceof BooleanExpressionImpl b2)
         {
-            switch(comparisonType)
+            switch (comparisonType)
             {
                 case AND -> {
                     boolean b = jumpFalse == null;
@@ -66,9 +64,9 @@ public class LogicExpression<B> extends BooleanExpressionImpl<B>
                 default -> throw new IllegalStateException("Cannot use GT/LT/GE/LE with non-numeric data types.");
             }
         }
-        else if(MethodImplementation.isBoolean(first.effectiveType()))
+        else if (MethodImplementation.isBoolean(first.effectiveType()))
         {
-            switch(comparisonType)
+            switch (comparisonType)
             {
                 case AND -> {
                     boolean b = jumpFalse == null;
@@ -80,7 +78,7 @@ public class LogicExpression<B> extends BooleanExpressionImpl<B>
                     second.compile(mv, true);
                     mv.visitJumpInsn(Opcodes.IFEQ, jumpFalse);
 
-                    if (jumpTrue != null)  mv.visitJumpInsn(Opcodes.GOTO, jumpTrue);
+                    if (jumpTrue != null) mv.visitJumpInsn(Opcodes.GOTO, jumpTrue);
 
                     if (b) mv.visitLabel(jumpFalse);
                 }
@@ -269,18 +267,6 @@ public class LogicExpression<B> extends BooleanExpressionImpl<B>
                 }
             }
         }
-    }
-
-    public enum ComparisonType
-    {
-        GT,
-        GE,
-        LT,
-        LE,
-        EQ,
-        NE,
-        AND,
-        OR
     }
 }
 

@@ -3,7 +3,6 @@ package dev.gigaherz.jsonthings.codegen.codetree.expr;
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.LogicExpression;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -20,7 +19,7 @@ public interface CodeBlockInternal<B, P, M> extends CodeBlock<B, P, M>
 
     <R> ValueExpression<R, B> methodCall(ValueExpression<?, B> objRef, MethodInfo<R> method, ValueExpression<?, B>... values);
 
-    void emitComparison(MethodVisitor mv, LogicExpression.ComparisonType comparisonType, ValueExpression<?, B> first, ValueExpression<?, B> second, Runnable emitTrueBranch, Runnable emitFalseBranch);
+    void emitComparison(MethodVisitor mv, ComparisonType comparisonType, ValueExpression<?, B> first, ValueExpression<?, B> second, Runnable emitTrueBranch, Runnable emitFalseBranch);
 
     void emitConditional(MethodVisitor mv, ValueExpression<?, B> first, Runnable trueBranch, Runnable falseBranch);
 
@@ -34,7 +33,7 @@ public interface CodeBlockInternal<B, P, M> extends CodeBlock<B, P, M>
 
     void pushStack(TypeToken<?> returnType);
 
-    <T> CodeBlockInternal<T,B,M> childBlock();
+    <T> CodeBlockInternal<T, B, M> childBlock();
 
     boolean isEmpty();
 }

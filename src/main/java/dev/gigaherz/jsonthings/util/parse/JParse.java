@@ -4,10 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.util.parse.function.IntObjBiConsumer;
-import dev.gigaherz.jsonthings.util.parse.value.*;
 import dev.gigaherz.jsonthings.util.parse.function.JsonArrayConsumer;
 import dev.gigaherz.jsonthings.util.parse.function.JsonElementConsumer;
 import dev.gigaherz.jsonthings.util.parse.function.JsonObjectConsumer;
+import dev.gigaherz.jsonthings.util.parse.value.*;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.util.GsonHelper;
@@ -371,7 +371,7 @@ public class JParse
     public void forEach(StringAnyConsumer visitor)
     {
         var obj = getAsJsonObject();
-        for(Map.Entry<String, JsonElement> entry : obj.entrySet())
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet())
         {
             var keyName = entry.getKey();
             var keyPath = path + wrapName(keyName);

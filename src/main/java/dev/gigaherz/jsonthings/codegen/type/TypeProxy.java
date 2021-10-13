@@ -15,10 +15,12 @@ public interface TypeProxy<T>
     {
         return new Token<>(TypeToken.of(type));
     }
+
     static <P> Token<P> of(Class<P> type)
     {
         return new Token<>(TypeToken.of(type));
     }
+
     static <P> Token<P> of(TypeToken<P> type)
     {
         return new Token<>(type);
@@ -37,34 +39,57 @@ public interface TypeProxy<T>
     default String getDescriptor()
     {
         var rt = getRawType();
-        if (isPrimitive()) {
-            if (rt == int.class) {
+        if (isPrimitive())
+        {
+            if (rt == int.class)
+            {
                 return "I";
-            } else if (rt == boolean.class) {
+            }
+            else if (rt == boolean.class)
+            {
                 return "Z";
-            } else if (rt == byte.class) {
+            }
+            else if (rt == byte.class)
+            {
                 return "B";
-            } else if (rt == char.class) {
+            }
+            else if (rt == char.class)
+            {
                 return "C";
-            } else if (rt == short.class) {
+            }
+            else if (rt == short.class)
+            {
                 return "S";
-            } else if (rt == long.class) {
+            }
+            else if (rt == long.class)
+            {
                 return "J";
-            } else if (rt == float.class) {
+            }
+            else if (rt == float.class)
+            {
                 return "F";
-            } else if (rt == double.class) {
+            }
+            else if (rt == double.class)
+            {
                 return "D";
-            } else if (rt == void.class) {
+            }
+            else if (rt == void.class)
+            {
                 return "V";
-            } else {
+            }
+            else
+            {
                 throw new Error("unrecognized primitive type: " + rt);
             }
-        } else if (isArray()) {
+        }
+        else if (isArray())
+        {
             return Objects.requireNonNull(rt).getCanonicalName().replace('.', '/');
-        } else {
+        }
+        else
+        {
             return "L" + getInternalName() + ";";
         }
-
     }
 
     @Nullable
@@ -121,7 +146,7 @@ public interface TypeProxy<T>
         @Override
         public String getInternalName()
         {
-            return getCanonicalName().replace(".","/");
+            return getCanonicalName().replace(".", "/");
         }
 
         @Override

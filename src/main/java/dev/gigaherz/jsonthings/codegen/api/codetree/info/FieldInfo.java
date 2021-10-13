@@ -6,7 +6,10 @@ import com.google.common.reflect.TypeToken;
 public interface FieldInfo<T>
 {
     String name();
+
     int modifiers();
+
     TypeToken<T> type();
+
     ClassInfo<?> owner();
 }

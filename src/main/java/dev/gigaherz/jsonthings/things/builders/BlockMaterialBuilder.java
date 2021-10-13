@@ -78,7 +78,8 @@ public class BlockMaterialBuilder implements Supplier<Material>
         this.solidBlocking = solidBlocking;
     }
 
-    private Material build() {
+    private Material build()
+    {
         return builtMaterial = new Material(this.color, this.liquid, this.solid, this.blocksMotion, this.solidBlocking, this.flammable, this.replaceable, this.pushReaction);
     }
 

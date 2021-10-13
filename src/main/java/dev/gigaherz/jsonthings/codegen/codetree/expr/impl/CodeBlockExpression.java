@@ -1,15 +1,15 @@
-package dev.gigaherz.jsonthings.codegen.codetree.expr;
+package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
 import com.google.common.reflect.TypeToken;
-import org.apache.commons.lang3.NotImplementedException;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
 import org.objectweb.asm.MethodVisitor;
 
 @SuppressWarnings("UnstableApiUsage")
-public class CodeBlockExpression<B, P> extends ValueExpression<B, P>
+public class CodeBlockExpression<B, P> extends ValueExpressionImpl<B, P>
 {
-    private final CodeBlock<B, P, ?> thisBlock;
+    private final CodeBlockInternal<B, P, ?> thisBlock;
 
-    public CodeBlockExpression(CodeBlock<P, ?, ?> cb, CodeBlock<B, P, ?> childCb)
+    public CodeBlockExpression(CodeBlockInternal<P, ?, ?> cb, CodeBlockInternal<B, P, ?> childCb)
     {
         super(cb);
         this.thisBlock = childCb;

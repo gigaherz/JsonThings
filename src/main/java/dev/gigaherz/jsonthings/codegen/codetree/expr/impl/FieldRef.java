@@ -1,18 +1,19 @@
-package dev.gigaherz.jsonthings.codegen.codetree.expr;
+package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.FieldStore;
-import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import org.objectweb.asm.MethodVisitor;
 
 @SuppressWarnings("UnstableApiUsage")
-public class FieldRef<T, B> extends LRef<T, B>
+public class FieldRef<T, B> extends LRefImpl<T, B>
 {
     private final ValueExpression<?, B> objRef;
     private final FieldInfo<T> field;
 
-    public FieldRef(CodeBlock<B,?,?> cb, ValueExpression<?, B> objRef, FieldInfo<T> field)
+    public FieldRef(CodeBlockInternal<B,?,?> cb, ValueExpression<?, B> objRef, FieldInfo<T> field)
     {
         super(cb);
         this.objRef = objRef;

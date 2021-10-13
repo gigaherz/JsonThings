@@ -1,5 +1,10 @@
-package dev.gigaherz.jsonthings.codegen.codetree.expr;
+package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.BooleanExpressionImpl;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -7,13 +12,13 @@ import org.objectweb.asm.Opcodes;
 
 import javax.annotation.Nullable;
 
-public class LogicExpression<B> extends BooleanExpression<B>
+public class LogicExpression<B> extends BooleanExpressionImpl<B>
 {
     private final ComparisonType comparisonType;
     private final ValueExpression<?,B> first;
     private final ValueExpression<?,B> second;
 
-    public LogicExpression(CodeBlock<B,?,?> cb, ComparisonType comparisonType, ValueExpression<?,B> first, ValueExpression<?,B> second)
+    public LogicExpression(CodeBlockInternal<B,?,?> cb, ComparisonType comparisonType, ValueExpression<?,B> first, ValueExpression<?,B> second)
     {
         super(cb);
         this.comparisonType = comparisonType;
@@ -40,7 +45,7 @@ public class LogicExpression<B> extends BooleanExpression<B>
         if (jumpFalse == null && jumpTrue == null)
             throw new IllegalStateException("Comparison compile called with both labels null");
 
-        if(first instanceof BooleanExpression b1 && second instanceof BooleanExpression b2)
+        if(first instanceof BooleanExpressionImpl b1 && second instanceof BooleanExpressionImpl b2)
         {
             switch(comparisonType)
             {

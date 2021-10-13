@@ -1,6 +1,6 @@
 package dev.gigaherz.jsonthings.codegen.codetree.impl;
 
-import dev.gigaherz.jsonthings.codegen.codetree.expr.AssignExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.AssignExpression;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 

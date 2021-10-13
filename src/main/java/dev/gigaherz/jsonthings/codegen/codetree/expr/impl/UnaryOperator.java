@@ -1,17 +1,20 @@
-package dev.gigaherz.jsonthings.codegen.codetree.expr;
+package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
 import com.google.common.reflect.TypeToken;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 @SuppressWarnings("UnstableApiUsage")
-public class UnaryOperator<R, B> extends ValueExpression<R,B>
+public class UnaryOperator<R, B> extends ValueExpressionImpl<R,B>
 {
     private final int opcode;
     private final ValueExpression<R,B> value;
 
-    public UnaryOperator(CodeBlock<B,?,?> cb, int opcode, ValueExpression<R,B> value)
+    public UnaryOperator(CodeBlockInternal<B,?,?> cb, int opcode, ValueExpression<R,B> value)
     {
         super(cb);
         this.opcode = opcode;

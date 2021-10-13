@@ -1,17 +1,20 @@
-package dev.gigaherz.jsonthings.codegen.codetree.expr;
+package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
 import com.google.common.reflect.TypeToken;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.LRef;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 @SuppressWarnings("UnstableApiUsage")
-public class AssignExpression<T, S, B> extends ValueExpression<T, B>
+public class AssignExpression<T, S, B> extends ValueExpressionImpl<T, B>
 {
-    LRef<T, B> target;
+    LRef<T> target;
     ValueExpression<S, B> value;
 
-    public AssignExpression(CodeBlock<B,?,?> cb, LRef<T, B> target, ValueExpression<S, B> value)
+    public AssignExpression(CodeBlockInternal<B,?,?> cb, LRef<T> target, ValueExpression<S, B> value)
     {
         super(cb);
         this.target = target;

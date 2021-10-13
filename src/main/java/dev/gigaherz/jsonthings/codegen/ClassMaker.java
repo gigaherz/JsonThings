@@ -8,9 +8,9 @@ import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
 import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
-import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.SuperCall;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 import org.objectweb.asm.ClassWriter;
@@ -557,7 +557,7 @@ public class ClassMaker
             protected final String name;
             protected final TypeToken<R> returnType;
             protected int modifiers;
-            protected Consumer<CodeBlock<R,Void,R>> impl;
+            protected Consumer<CodeBlockInternal<R,Void,R>> impl;
 
 
             public MethodImpl(String name, TypeToken<R> returnType)
@@ -644,7 +644,7 @@ public class ClassMaker
             }
 
             @Override
-            public DefineClass<T> implementation(Consumer<CodeBlock<R,Void,R>> code)
+            public DefineClass<T> implementation(Consumer<CodeBlockInternal<R, Void, R>> code)
             {
                 this.impl = code;
                 return this;
@@ -751,7 +751,7 @@ public class ClassMaker
                 }
 
                 @Override
-                public DefineClass<T> implementation(Consumer<CodeBlock<R,Void,R>> code)
+                public DefineClass<T> implementation(Consumer<CodeBlockInternal<R, Void, R>> code)
                 {
                     return MethodImpl.this.implementation(code);
                 }

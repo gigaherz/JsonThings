@@ -1,7 +1,11 @@
-package dev.gigaherz.jsonthings.codegen.codetree.expr;
+package dev.gigaherz.jsonthings.codegen.codetree.expr.impl;
 
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.ValueExpressionImpl;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -10,14 +14,14 @@ import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings("UnstableApiUsage")
-public class MethodCallExpression<R,B> extends ValueExpression<R,B>
+public class MethodCallExpression<R,B> extends ValueExpressionImpl<R,B>
 {
     @Nullable
     private final ValueExpression<?,B> objRef;
     private final MethodInfo<R> method;
     private final List<ValueExpression<?,B>> lValues;
 
-    public MethodCallExpression(CodeBlock<B,?,?> cb, @Nullable ValueExpression<?,B> objRef, MethodInfo<R> method, List<ValueExpression<?,B>> lValues)
+    public MethodCallExpression(CodeBlockInternal<B,?,?> cb, @Nullable ValueExpression<?,B> objRef, MethodInfo<R> method, List<ValueExpression<?,B>> lValues)
     {
         super(cb);
         this.objRef = objRef;

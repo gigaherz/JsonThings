@@ -1,7 +1,10 @@
 package dev.gigaherz.jsonthings.codegen.codetree.impl;
 
 import dev.gigaherz.jsonthings.codegen.codetree.expr.BooleanExpression;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.BooleanExpressionImpl;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -10,12 +13,12 @@ import java.util.function.Consumer;
 
 public class IfBlock<T, P, R> extends InstructionSource
 {
-    private final CodeBlock<P, ?, R> cb;
+    private final CodeBlockInternal<P, ?, R> cb;
     private final BooleanExpression<?> condition;
     private final Consumer<CodeBlock<T, P, R>> trueBranch;
     private final Consumer<CodeBlock<T, P, R>> falseBranch;
 
-    public IfBlock(CodeBlock<P, ?, R> cb, BooleanExpression<?> condition, Consumer<CodeBlock<T, P, R>> trueBranch, Consumer<CodeBlock<T, P, R>> falseBranch)
+    public IfBlock(CodeBlockInternal<P, ?, R> cb, BooleanExpression<?> condition, Consumer<CodeBlock<T, P, R>> trueBranch, Consumer<CodeBlock<T, P, R>> falseBranch)
     {
         this.cb = cb;
         this.condition = condition;

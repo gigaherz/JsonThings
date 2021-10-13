@@ -4,17 +4,11 @@ import com.google.common.reflect.TypeToken;
 import org.objectweb.asm.MethodVisitor;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class LRef<T, B> extends ExprBase<B>
+public interface LRef<T>
 {
-    public LRef(CodeBlock<B,?,?> cb)
-    {
-        super(cb);
-    }
+    TypeToken<T> targetType();
 
-    public abstract TypeToken<T> targetType();
+    void compileBefore(MethodVisitor mv);
 
-    public abstract void compileBefore(MethodVisitor mv);
-
-    public abstract void compileAfter(MethodVisitor mv);
+    void compileAfter(MethodVisitor mv);
 }
-

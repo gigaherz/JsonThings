@@ -1,7 +1,8 @@
 package dev.gigaherz.jsonthings.codegen.codetree.impl;
 
 import com.google.common.reflect.TypeToken;
-import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -10,9 +11,9 @@ import org.objectweb.asm.Opcodes;
 public class Return extends InstructionSource
 {
     private final TypeToken<?> returnType;
-    private final CodeBlock<?, ?, ?> cb;
+    private final CodeBlockInternal<?, ?, ?> cb;
 
-    public Return(CodeBlock<?, ?, ?> cb, TypeToken<?> returnType)
+    public Return(CodeBlockInternal<?, ?, ?> cb, TypeToken<?> returnType)
     {
         this.cb = cb;
         this.returnType = returnType;

@@ -47,7 +47,7 @@ public class MethodLookup<R>
         return this;
     }
 
-    public MethodInfo<?> result()
+    public <R> MethodInfo<R> result()
     {
         int bestDistance = Integer.MAX_VALUE;
         MethodInfo<?> bestMatch = null;
@@ -98,6 +98,6 @@ public class MethodLookup<R>
             else
                 throw new IllegalStateException("Could not find a method in " + owner.thisType() + " with name " + name + " and params " + params);
         }
-        return bestMatch;
+        return (MethodInfo<R>) bestMatch;
     }
 }

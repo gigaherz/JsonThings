@@ -5,9 +5,12 @@ import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
+import dev.gigaherz.jsonthings.codegen.codetree.MethodLookup;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.CodeBlockImpl;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.MethodCallExpression;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.NoopConversion;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.impl.UnaryConversion;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
@@ -200,13 +203,89 @@ public class MethodImplementation<R>
         // boxing
         if (rs.isPrimitive() && !rt.isPrimitive())
         {
-            // TODO: requires method calls
+            if (rs == boolean.class && rt == Boolean.class)
+            {
+                return targetType;
+            }
+
+            if (rs == byte.class && rt == Byte.class)
+            {
+                return targetType;
+            }
+
+            if (rs == int.class && rt == Integer.class)
+            {
+                return targetType;
+            }
+
+            if (rs == short.class && rt == Short.class)
+            {
+                return targetType;
+            }
+
+            if (rs == long.class && rt == Long.class)
+            {
+                return targetType;
+            }
+
+            if (rs == float.class && rt == Float.class)
+            {
+                return targetType;
+            }
+
+            if (rs == double.class && rt == Double.class)
+            {
+                return targetType;
+            }
+
+            if (rs == char.class && rt == Character.class)
+            {
+                return targetType;
+            }
         }
 
         // unboxing
         if (rt.isPrimitive() && !rs.isPrimitive())
         {
-            // TODO: requires method calls
+            if (rt == boolean.class && rs == Boolean.class)
+            {
+                return targetType;
+            }
+
+            if (rt == byte.class && rs == Byte.class)
+            {
+                return targetType;
+            }
+
+            if (rt == int.class && rs == Integer.class)
+            {
+                return targetType;
+            }
+
+            if (rt == short.class && rs == Short.class)
+            {
+                return targetType;
+            }
+
+            if (rt == long.class && rs == Long.class)
+            {
+                return targetType;
+            }
+
+            if (rt == float.class && rs == Float.class)
+            {
+                return targetType;
+            }
+
+            if (rt == double.class && rs == Double.class)
+            {
+                return targetType;
+            }
+
+            if (rt == char.class && rs == Character.class)
+            {
+                return targetType;
+            }
         }
 
         // no conversion found, return original.
@@ -308,17 +387,103 @@ public class MethodImplementation<R>
         // boxing
         if (rs.isPrimitive() && !rt.isPrimitive())
         {
-            // TODO: requires method calls
+            if (rs == boolean.class && rt == Boolean.class)
+            {
+                return makeBoxingConversion(Boolean.class, boolean.class, value);
+            }
+
+            if (rs == byte.class && rt == Byte.class)
+            {
+                return makeBoxingConversion(Byte.class, byte.class, value);
+            }
+
+            if (rs == int.class && rt == Integer.class)
+            {
+                return makeBoxingConversion(Integer.class, int.class, value);
+            }
+
+            if (rs == short.class && rt == Short.class)
+            {
+                return makeBoxingConversion(Short.class, short.class, value);
+            }
+
+            if (rs == long.class && rt == Long.class)
+            {
+                return makeBoxingConversion(Long.class, long.class, value);
+            }
+
+            if (rs == float.class && rt == Float.class)
+            {
+                return makeBoxingConversion(Float.class, float.class, value);
+            }
+
+            if (rs == double.class && rt == Double.class)
+            {
+                return makeBoxingConversion(Double.class, double.class, value);
+            }
+
+            if (rs == char.class && rt == Character.class)
+            {
+                return makeBoxingConversion(Character.class, char.class, value);
+            }
         }
 
         // unboxing
         if (rt.isPrimitive() && !rs.isPrimitive())
         {
-            // TODO: requires method calls
+            if (rt == boolean.class && rs == Boolean.class)
+            {
+                return makeUnboxingConversion(Boolean.class, value, "booleanValue");
+            }
+
+            if (rt == byte.class && rs == Byte.class)
+            {
+                return makeUnboxingConversion(Byte.class, value, "byteValue");
+            }
+
+            if (rt == int.class && rs == Integer.class)
+            {
+                return makeUnboxingConversion(Integer.class, value, "intValue");
+            }
+
+            if (rt == short.class && rs == Short.class)
+            {
+                return makeUnboxingConversion(Short.class, value, "shortValue");
+            }
+
+            if (rt == long.class && rs == Long.class)
+            {
+                return makeUnboxingConversion(Long.class, value, "longValue");
+            }
+
+            if (rt == float.class && rs == Float.class)
+            {
+                return makeUnboxingConversion(Float.class, value, "floatValue");
+            }
+
+            if (rt == double.class && rs == Double.class)
+            {
+                return makeUnboxingConversion(Double.class, value, "doubleValue");
+            }
+
+            if (rt == char.class && rs == Character.class)
+            {
+                return makeUnboxingConversion(Character.class, value, "charValue");
+            }
         }
 
         // no conversion found, return original.
         return value;
+    }
+
+    private <S, B> MethodCallExpression<?, B> makeUnboxingConversion(Class<S> source, ValueExpression<?, B> value, String name)
+    {
+        return new MethodCallExpression<>(value.block(), value, new MethodLookup<>(ClassData.getClassInfo(source), name).withParam(source).result(), List.of(value));
+    }
+
+    private <S, T, B> MethodCallExpression<T, B> makeBoxingConversion(Class<T> target, Class<S> source, ValueExpression<?, B> value)
+    {
+        return new MethodCallExpression<>(value.block(), null, new MethodLookup<>(ClassData.getClassInfo(target), "valueOf").withParam(source).result(), List.of(value));
     }
 
     public CodeBlockInternal<R, Void, R> rootBlock()

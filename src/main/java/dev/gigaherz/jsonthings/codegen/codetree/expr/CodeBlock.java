@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.codegen.codetree.expr;
 
 import com.google.common.reflect.TypeToken;
+import dev.gigaherz.jsonthings.codegen.api.VarToken;
 import dev.gigaherz.jsonthings.codegen.codetree.MethodLookup;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.InstructionSource;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
@@ -10,11 +11,23 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
-public interface CodeBlock<B, P, M>
+public interface CodeBlock<B, P, M> extends ExpressionBuilder<B, M>
 {
     TypeToken<B> returnType();
 
     List<InstructionSource> instructions();
+
+    CodeBlock<B, P, M> local(String name, TypeToken<?> varType);
+
+    default <T> CodeBlock<B, P, M> local(VarToken<T> varToken)
+    {
+        return local(varToken.name(), varToken.type());
+    }
+
+    default CodeBlock<B, P, M> local(String name, Class<?> varType)
+    {
+        return local(name, TypeToken.of(varType));
+    }
 
     void returnVoid();
 
@@ -32,55 +45,101 @@ public interface CodeBlock<B, P, M>
 
     LRef<?> fieldRef(ValueExpression<?, B> objRef, String fieldName);
 
-    <T> ValueExpression<T, B> field(String fieldName);
-
-    ValueExpression<?, B> fieldOf(ValueExpression<?, B> objRef, String fieldName);
-
-    ValueExpression<?, B> thisVar();
-
-    ValueExpression<?, B> superVar();
-
-    ValueExpression<?, B> localVar(String varName);
+    LRef<?> localRef(String localName);
 
     CodeBlock<B, P, M> exec(ValueExpression<?, B> value);
 
-    CodeBlock<B, P, M> superCall();
+    CodeBlock<B, P, M> autoSuperCall();
+
+    default CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup)
+    {
+        return superCall(methodLookup, List.of());
+    }
+
+    default CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B> val0)
+    {
+        return superCall(methodLookup, List.of(val0));
+    }
+
+    default CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B> val0, ValueExpression<?, B> val1)
+    {
+        return superCall(methodLookup, List.of(val0, val1));
+    }
+
+    default CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B> val0, ValueExpression<?, B> val1, ValueExpression<?, B> val2)
+    {
+        return superCall(methodLookup, List.of(val0, val1, val2));
+    }
+
+    default CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B> val0, ValueExpression<?, B> val1, ValueExpression<?, B> val2, ValueExpression<?, B> val3)
+    {
+        return superCall(methodLookup, List.of(val0, val1, val2, val3));
+    }
 
     @SuppressWarnings("unchecked")
-    CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B>... values);
+    CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, List<ValueExpression<?, B>> values);
+
+    default CodeBlock<B, P, M> superCall()
+    {
+        return superCall(List.of());
+    }
+
+    default CodeBlock<B, P, M> superCall(ValueExpression<?, B> val0)
+    {
+        return superCall(List.of(val0));
+    }
+
+    default CodeBlock<B, P, M> superCall(ValueExpression<?, B> val0, ValueExpression<?, B> val1)
+    {
+        return superCall(List.of(val0, val1));
+    }
+
+    default CodeBlock<B, P, M> superCall(ValueExpression<?, B> val0, ValueExpression<?, B> val1, ValueExpression<?, B> val2)
+    {
+        return superCall(List.of(val0, val1, val2));
+    }
+
+    default CodeBlock<B, P, M> superCall(ValueExpression<?, B> val0, ValueExpression<?, B> val1, ValueExpression<?, B> val2, ValueExpression<?, B> val3)
+    {
+        return superCall(List.of(val0, val1, val2, val3));
+    }
+
+    @SuppressWarnings("unchecked")
+    CodeBlock<B, P, M> superCall(List<ValueExpression<?, B>> values);
 
     @SuppressWarnings("UnusedReturnValue")
     CodeBlock<B, P, M> ifElse(BooleanExpression<?> condition, Consumer<CodeBlock<B, B, M>> trueBranch, Consumer<CodeBlock<B, B, M>> falseBranch);
 
-    @SuppressWarnings("unchecked")
-    ValueExpression<?, B> methodCall(ValueExpression<?, B> objRef, String methodName, Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B>... values);
+    CodeBlock<B, P, M> forLoop(String localName, TypeToken<?> varType, BooleanExpression<?> condition, ValueExpression<?, B> step, Consumer<CodeBlock<B, B, M>> body);
 
-    @SuppressWarnings("unchecked")
-    ValueExpression<?, B> methodCall(ValueExpression<?, B> objRef, String methodName, ValueExpression<?, B>... values);
+    default CodeBlock<B, P, M> forLoop(String localName, Class<?> varType, BooleanExpression<?> condition, ValueExpression<?, B> step, Consumer<CodeBlock<B, B, M>> body)
+    {
+        return forLoop(localName, TypeToken.of(varType), condition, step, body);
+    }
+
+    default CodeBlock<B, P, M> forLoop(VarToken<?> varType, BooleanExpression<?> condition, ValueExpression<?, B> step, Consumer<CodeBlock<B, B, M>> body)
+    {
+        return forLoop(varType.name(), varType.type(), condition, step, body);
+    }
+
+    <V, S extends V> CodeBlock<B, P, M> forEach(String localName, TypeToken<V> varType, ValueExpression<S, B> collection, Consumer<CodeBlock<B, B, M>> body);
+
+    default <V, S extends V> CodeBlock<B, P, M> forEach(String localName, Class<V> varType, ValueExpression<S, B> collection, Consumer<CodeBlock<B, B, M>> body)
+    {
+        return forEach(localName, TypeToken.of(varType), collection, body);
+    }
+
+    default <V, S extends V> CodeBlock<B, P, M> forEach(VarToken<V> varToken, ValueExpression<S, B> collection, Consumer<CodeBlock<B, B, M>> body)
+    {
+        return forEach(varToken.name(), varToken.type(), collection, body);
+    }
+
+    <V, S extends V> CodeBlock<B, P, M> whileLoop(BooleanExpression<?> condition, Consumer<CodeBlock<B, B, M>> body);
+
+    <V, S extends V> CodeBlock<B, P, M> doWhile(Consumer<CodeBlock<B, B, M>> body, BooleanExpression<?> condition);
+
 
     MethodLookup<?> method(String name);
-
-    <C> ValueExpression<C, B> iif(BooleanExpression<B> condition, ValueExpression<C, B> trueBranch, ValueExpression<C, B> falseBranch);
-
-    <T> ValueExpression<T, B> iif(BooleanExpression<B> condition, Consumer<CodeBlock<T, ?, M>> trueBranch, Consumer<CodeBlock<T, ?, M>> falseBranch);
-
-    BooleanExpression<B> gt(ValueExpression<?, B> x, ValueExpression<?, B> y);
-
-    BooleanExpression<B> ge(ValueExpression<?, B> x, ValueExpression<?, B> y);
-
-    BooleanExpression<B> lt(ValueExpression<?, B> x, ValueExpression<?, B> y);
-
-    BooleanExpression<B> le(ValueExpression<?, B> x, ValueExpression<?, B> y);
-
-    BooleanExpression<B> eq(ValueExpression<?, B> x, ValueExpression<?, B> y);
-
-    BooleanExpression<B> ne(ValueExpression<?, B> x, ValueExpression<?, B> y);
-
-    BooleanExpression<B> and(ValueExpression<?, B> a, ValueExpression<?, B> b);
-
-    BooleanExpression<B> or(ValueExpression<?, B> a, ValueExpression<?, B> b);
-
-    BooleanExpression<B> not(ValueExpression<?, B> a);
 
     MethodImplementation<M> owner();
 }

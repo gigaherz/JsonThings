@@ -6,6 +6,7 @@ import dev.gigaherz.jsonthings.codegen.codetree.expr.LRef;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 import dev.gigaherz.jsonthings.codegen.type.TypeProxy;
 
+import java.util.List;
 import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -35,13 +36,7 @@ public abstract class ValueExpressionImpl<T, B> extends ExprBase<B> implements V
     }
 
     @Override
-    public ValueExpression<?, B> methodCall(String name)
-    {
-        return methodCall(name, ml -> ml);
-    }
-
-    @Override
-    public ValueExpression<?, B> methodCall(String name, ValueExpression<?, B>... values)
+    public <R> ValueExpression<R, B> methodCall(String name, List<ValueExpression<?, B>> values)
     {
         return methodCall(name, ml -> {
             for (var val : values)
@@ -53,7 +48,7 @@ public abstract class ValueExpressionImpl<T, B> extends ExprBase<B> implements V
     }
 
     @Override
-    public ValueExpression<?, B> methodCall(String name, Function<MethodLookup<T>, MethodLookup<T>> lookup, ValueExpression<?, B>... values)
+    public <R> ValueExpression<R, B> methodCall(String name, Function<MethodLookup<T>, MethodLookup<T>> lookup, List<ValueExpression<?, B>> values)
     {
         var ml = new MethodLookup<>(proxyType().classInfo(), name);
         ml = lookup.apply(ml);

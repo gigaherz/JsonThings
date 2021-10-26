@@ -12,6 +12,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -259,14 +260,22 @@ public class CodeBlockImpl<B, P, M> implements CodeBlockInternal<B, P, M>
     }
 
     @Override
-    public CodeBlock<B, P, M> superCall()
+    public CodeBlock<B, P, M> autoSuperCall()
     {
-        return superCall(ml -> ml);
+        List<ValueExpression<?, B>> locals = owner().methodInfo().params().stream()
+                .map(p -> localVar(p.name()))
+                .collect(Collectors.toList()); // doesn't work if you replace collect with toList()
+        return superCall(locals);
     }
 
     @Override
-    @SafeVarargs
-    public final CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B>... values)
+    public CodeBlock<B, P, M> superCall(List<ValueExpression<?, B>> values)
+    {
+        return superCall(ml -> ml, values);
+    }
+
+    @Override
+    public final CodeBlock<B, P, M> superCall(Function<MethodLookup<?>, MethodLookup<?>> methodLookup, List<ValueExpression<?, B>> values)
     {
         var ml = new MethodLookup<>(owner.methodInfo().owner().superClass(), "<init>");
         ml = methodLookup.apply(ml);
@@ -274,8 +283,7 @@ public class CodeBlockImpl<B, P, M> implements CodeBlockInternal<B, P, M>
     }
 
     @Override
-    @SafeVarargs
-    public final CodeBlock<B, P, M> superCall(MethodInfo<?> method, ValueExpression<?, B>... values)
+    public final CodeBlock<B, P, M> superCall(MethodInfo<?> method, List<ValueExpression<?, B>> values)
     {
         if (!method.owner().thisType().actualType().equals(owner.methodInfo().owner().superClass()))
             throw new IllegalStateException("Super call must be a method or constructor of the immediate super class of this class.");
@@ -284,8 +292,7 @@ public class CodeBlockImpl<B, P, M> implements CodeBlockInternal<B, P, M>
     }
 
     @Override
-    @SafeVarargs
-    public final ValueExpression<?, B> methodCall(ValueExpression<?, B> objRef, String methodName, Function<MethodLookup<?>, MethodLookup<?>> methodLookup, ValueExpression<?, B>... values)
+    public final <R, T> ValueExpression<R, B> methodCall(ValueExpression<T, B> objRef, String methodName, Function<MethodLookup<T>, MethodLookup<T>> methodLookup, List<ValueExpression<?, B>> values)
     {
         var ml = new MethodLookup<>(objRef.effectiveType(), methodName);
         ml = methodLookup.apply(ml);
@@ -293,8 +300,13 @@ public class CodeBlockImpl<B, P, M> implements CodeBlockInternal<B, P, M>
     }
 
     @Override
-    @SafeVarargs
-    public final ValueExpression<?, B> methodCall(ValueExpression<?, B> objRef, String methodName, ValueExpression<?, B>... values)
+    public <R> ValueExpression<R, B> staticCall(TypeToken<?> classToken, String methodName, List<ValueExpression<?, B>> values)
+    {
+        return null;
+    }
+
+    @Override
+    public final <R, T> ValueExpression<R, B> methodCall(ValueExpression<T, B> objRef, String methodName, List<ValueExpression<?, B>> values)
     {
         var ml = new MethodLookup<>(objRef.effectiveType(), methodName);
         for (var expr : values)
@@ -303,12 +315,19 @@ public class CodeBlockImpl<B, P, M> implements CodeBlockInternal<B, P, M>
     }
 
     @Override
-    @SafeVarargs
-    public final <R> ValueExpression<R, B> methodCall(ValueExpression<?, B> objRef, MethodInfo<R> method, ValueExpression<?, B>... values)
+    public <R, T> ValueExpression<R, B> staticCall(TypeToken<T> classToken, String methodName, Function<MethodLookup<T>, MethodLookup<T>> methodLookup, List<ValueExpression<?, B>> values)
+    {
+        var ml = new MethodLookup<>(classToken, methodName);
+        ml = methodLookup.apply(ml);
+        return methodCall(null, ml.result(), values);
+    }
+
+    @Override
+    public final <R> ValueExpression<R, B> methodCall(@Nullable ValueExpression<?, B> objRef, MethodInfo<R> method, List<ValueExpression<?, B>> values)
     {
         List<? extends ParamInfo<?>> params = method.params();
-        var lValues = Arrays.stream(values).collect(Collectors.toList());
-        if (params.size() != values.length)
+        var lValues = new ArrayList<>(values);
+        if (params.size() != lValues.size())
             throw new IllegalStateException("Mismatched set of values. Expected: " + params.stream().map(ParamInfo::paramType).toList()
                     + "; Received: " + lValues.stream().map(ValueExpression::effectiveType).toList());
         for (int i = 0; i < params.size(); i++)

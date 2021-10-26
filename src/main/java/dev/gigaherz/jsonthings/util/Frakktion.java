@@ -4,7 +4,7 @@ public final record Frakktion(int numerator, int denominator)
 {
     public Frakktion
     {
-        if (denominator <= 0) throw new IllegalArgumentException("Numerator must be positive");
+        if (denominator <= 0) throw new IllegalArgumentException("Denominator must be positive");
     }
 
     public Frakktion makeDivisible(int other)

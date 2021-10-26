@@ -88,6 +88,11 @@ public class MethodImplementation<R>
         return methodInfo;
     }
 
+    public void defineLocal(String name, TypeProxy<?> type)
+    {
+        localsSize += makeLocal(localsSize, type, name);
+    }
+
     private int makeLocal(int cLocal, TypeProxy<?> type, @Nullable String name)
     {
         return makeLocal(cLocal, type, type, name);

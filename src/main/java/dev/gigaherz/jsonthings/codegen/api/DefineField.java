@@ -1,6 +1,10 @@
 package dev.gigaherz.jsonthings.codegen.api;
 
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ExpressionBuilder;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
+
+import java.util.function.Function;
 
 public interface DefineField<C, F> extends FinishToClass<C>, Annotatable<DefineField<C, F>>
 {
@@ -18,5 +22,5 @@ public interface DefineField<C, F> extends FinishToClass<C>, Annotatable<DefineF
     DefineField<C, F> setFinal();
 
     // default no initializer
-    DefineField<C, F> initializer(ValueExpression<F, ?> expr);
+    DefineField<C, F> initializer(Function<ExpressionBuilder<?,?>, ValueExpression<F, ?>> expr);
 }

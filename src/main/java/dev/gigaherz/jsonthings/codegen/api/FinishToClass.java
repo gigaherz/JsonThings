@@ -2,6 +2,12 @@ package dev.gigaherz.jsonthings.codegen.api;
 
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ClassInfo;
+import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @SuppressWarnings("UnstableApiUsage")
 public interface FinishToClass<T> extends Finishable<ClassDef<T>>, DefineClass<T>
@@ -40,5 +46,17 @@ public interface FinishToClass<T> extends Finishable<ClassDef<T>>, DefineClass<T
     default byte[] makeClass()
     {
         return finish().makeClass();
+    }
+
+    @Override
+    default DefineClass<T> replicateParentConstructors(Consumer<CodeBlock<Void,?,T>> cb)
+    {
+        return finish().replicateParentConstructors(cb);
+    }
+
+    @Override
+    default DefineClass<T> replicateParentConstructors(Predicate<MethodInfo<Void>> filter, Consumer<CodeBlock<Void,?,T>> cb)
+    {
+        return finish().replicateParentConstructors(filter, cb);
     }
 }

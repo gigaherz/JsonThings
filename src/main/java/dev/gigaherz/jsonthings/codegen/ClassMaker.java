@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.codegen;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import dev.gigaherz.jsonthings.codegen.api.*;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ClassInfo;
@@ -8,7 +9,9 @@ import dev.gigaherz.jsonthings.codegen.api.codetree.info.FieldInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.MethodInfo;
 import dev.gigaherz.jsonthings.codegen.api.codetree.info.ParamInfo;
 import dev.gigaherz.jsonthings.codegen.codetree.ClassData;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlock;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.CodeBlockInternal;
+import dev.gigaherz.jsonthings.codegen.codetree.expr.ExpressionBuilder;
 import dev.gigaherz.jsonthings.codegen.codetree.expr.ValueExpression;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.MethodImplementation;
 import dev.gigaherz.jsonthings.codegen.codetree.impl.SuperCall;
@@ -23,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ClassMaker
@@ -41,6 +45,54 @@ public class ClassMaker
     public BasicClass begin()
     {
         return new BasicClassImpl();
+    }
+
+    public static <T> FieldToken<T> fieldToken(String name, Class<T> type)
+    {
+        final TypeToken<T> typeToken = TypeToken.of(type);
+        return fieldToken(name, typeToken);
+    }
+
+    private static <T> FieldToken<T> fieldToken(String name, TypeToken<T> typeToken)
+    {
+        return new FieldToken<T>()
+        {
+            @Override
+            public String name()
+            {
+                return name;
+            }
+
+            @Override
+            public TypeToken<T> type()
+            {
+                return typeToken;
+            }
+        };
+    }
+
+    public static <T> VarToken<T> varToken(String name, Class<T> type)
+    {
+        final TypeToken<T> typeToken = TypeToken.of(type);
+        return varToken(name, typeToken);
+    }
+
+    private static <T> VarToken<T> varToken(String name, TypeToken<T> typeToken)
+    {
+        return new VarToken<T>()
+        {
+            @Override
+            public String name()
+            {
+                return name;
+            }
+
+            @Override
+            public TypeToken<T> type()
+            {
+                return typeToken;
+            }
+        };
     }
 
     public class BasicClassImpl extends ClassImpl<Object, Object> implements BasicClass
@@ -352,7 +404,7 @@ public class ClassMaker
             protected final List<Annotation> annotations = Lists.newArrayList();
             protected final TypeToken<F> fieldType;
             protected int modifiers;
-            protected ValueExpression<F, ?> init;
+            protected Function<ExpressionBuilder<?, ?>, ValueExpression<F, ?>> init;
             protected String name;
 
             private FieldImpl(String name, TypeToken<F> fieldType)
@@ -413,7 +465,7 @@ public class ClassMaker
             }
 
             @Override
-            public DefineField<T, F> initializer(ValueExpression<F, ?> expr)
+            public DefineField<T, F> initializer(Function<ExpressionBuilder<?, ?>, ValueExpression<F, ?>> expr)
             {
                 init = expr;
                 return this;
@@ -528,7 +580,11 @@ public class ClassMaker
 
                             mv.visitVarInsn(Opcodes.ALOAD, 0); // this
 
-                            fi.init.compile(mv, true);
+                            var cb = codeBlock.childBlock();
+
+                            var val = fi.init.apply(cb);
+
+                            val.compile(mv, true);
 
                             mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner().thisType().getInternalName(), fname, TypeProxy.getTypeDescriptor(fi.fieldType));
                         }

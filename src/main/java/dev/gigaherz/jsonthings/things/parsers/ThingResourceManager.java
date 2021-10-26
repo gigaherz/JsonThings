@@ -78,7 +78,10 @@ public class ThingResourceManager
 
     public File getThingPacksLocation()
     {
-        return FMLPaths.GAMEDIR.get().resolve("thingpacks").toFile();
+        File thingpacks = FMLPaths.GAMEDIR.get().resolve("thingpacks").toFile();
+        if (!thingpacks.exists() && !thingpacks.mkdirs())
+            throw new RuntimeException("Could not create thingspacks directory! Please create the directory yourself, or make sure the name is not taken by a file and you have permission to create directories.");
+        return thingpacks;
     }
 
     /**

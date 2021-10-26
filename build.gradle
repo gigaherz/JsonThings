@@ -98,7 +98,7 @@ minecraft.runs.all {
     }
 }
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.81'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.103'
 
     library 'com.google.guava:guava:21.0'
 

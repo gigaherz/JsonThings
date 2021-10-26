@@ -1,20 +1,19 @@
 modLoader="javafml"
 loaderVersion="[37,)"
-#updateJSONURL="http://myurl.me/"
-issueTrackerURL="https://github.com/gigaherz/HudCompass/issues"
-displayURL="https://github.com/gigaherz/HudCompass"
-logoFile="logo.png"
-credits="Thanks for this example mod goes to Java"
-authors="gigaherz"
 license="BSD (3 Clause)"
 
 [[mods]]
 modId="jsonthings"
 version="${file.jarVersion}"
 displayName="Json Things"
+logoFile="jsonthings-logo.png"
 description='''
 Things, in JSON sauce.
 '''
+authors="gigaherz"
+#credit="Thanks for this example mod goes to Java"
+issueTrackerURL="https://github.com/gigaherz/JsonThings/issues"
+displayURL="https://github.com/gigaherz/JsonThings"
 
 [[dependencies.jsonthings]]
    modId="forge"

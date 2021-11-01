@@ -1,37 +1,38 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url = 'https://sizableshrimp.me/maven' }
+        maven { url = 'https://maven.parchmentmc.org' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
     dependencies {
-        //classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
-        classpath group: 'me.sizableshrimp.gradle', name: 'ForgeGradle', version: '4.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
+        classpath 'org.parchmentmc:librarian:1.+'
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'maven-publish'
 
-version = "0.0.1"
-group= "gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "JsonThings-UNKNOWN"
+version = "0.1.0"
+group= "dev.gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "JsonThings-1.17.1"
 
-project.afterEvaluate {
-    archivesBaseName = "JsonThings-${project.MC_VERSION}"
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+
+repositories {
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
 }
-
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 mixin {
     add sourceSets.main, "jsonthings.refmap.json"
 }
 
 minecraft {
-    mappings channel: 'official_snapshot', version: '20210309-1.16.5'
+    mappings channel: 'parchment', version: '2021.08.29-1.17.1'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -87,12 +88,23 @@ minecraft {
     }
 }
 
+configurations {
+    library
+    implementation.extendsFrom library
+}
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
+}
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.0'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.103'
 
-    implementation 'net.bytebuddy:byte-buddy:1.11.2'
+    library 'com.google.guava:guava:21.0'
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
+    if (System.getProperty("idea.sync.active") != "true") {
+        annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+    }
 }
 
 jar {
@@ -111,17 +123,5 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "MixinConfigs": "jsonthings.mixins.json"
         ])
-    }
-}
-
-////////////////
-// IntelliJ Project Import
-// The Mixin annotation process does not have an obfuscation source when running through the IntelliJ compiler,
-// thus we have to prevent it from being activated as part of importing this Gradle project into IntelliJ.
-if (System.getProperty("idea.sync.active") == "true") {
-    afterEvaluate {
-        tasks.withType(JavaCompile).all {
-            it.options.annotationProcessorPath = files()
-        }
     }
 }

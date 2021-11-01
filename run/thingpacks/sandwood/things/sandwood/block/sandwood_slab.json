@@ -1,0 +1,7 @@
+{
+  "type": "slab",
+  "parent": "sandwood:sandwood_planks",
+  "item": {
+    "group": "sandwood:sandwood"
+  }
+}

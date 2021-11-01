@@ -1,0 +1,15 @@
+{
+  "block.sandwood.sandwood_log": "Sandwood Log",
+  "block.sandwood.sandwood_wood": "Sandwood Wood",
+  "block.sandwood.sandwood_leaves": "Sandwood Leaves",
+  "block.sandwood.sandwood_planks": "Sandwood Planks",
+  "block.sandwood.sandwood_slab": "Sandwood Slab",
+  "block.sandwood.sandwood_stairs": "Sandwood Stairs",
+  "block.sandwood.sandwood_fence": "Sandwood Fence",
+  "block.sandwood.sandwood_fence_gate": "Sandwood Fence Gate",
+  "block.sandwood.sandwood_door": "Sandwood Door",
+  "block.sandwood.sandwood_trapdoor": "Sandwood Trapdoor",
+  "block.sandwood.sandwood_sapling": "Sandwood Sapling",
+  "item.sandwood.sandpaper": "Sandpaper",
+  "itemGroup.sandwood.sandwood": "Sandwood Items"
+}

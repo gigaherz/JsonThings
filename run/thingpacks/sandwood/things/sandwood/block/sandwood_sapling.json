@@ -1,0 +1,15 @@
+{
+  "type": "sapling",
+  "tree_feature": "sandwood:sandwood_tree",
+  "material": "plant",
+  "render_layer": "cutout",
+  "shape": [2,0,2,14,12,14],
+  "has_collision": false,
+  "sound_type": "grass",
+  "item": {
+    "group": "sandwood:sandwood",
+    "lore": [
+      {"text": "WARNING: Not implemented. It will NOT grow into a tree!", "italic": true, "color": "gray" }
+    ]
+  }
+}

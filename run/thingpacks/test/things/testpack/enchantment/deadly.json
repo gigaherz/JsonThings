@@ -1,0 +1,6 @@
+{
+  "max_level": 3,
+  "disallow_enchants": [
+    "minecraft:smite", "minecraft:bane_of_arthropods"
+  ]
+}

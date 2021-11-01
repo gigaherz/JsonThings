@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "sandwood:block/sandwood_log_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "sandwood:block/sandwood_log"
+    },
+    "axis=z": {
+      "model": "sandwood:block/sandwood_log_horizontal",
+      "x": 90
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "type": "axe",
+  "tier": "iron",
+  "damage": 1,
+  "speed": 1,
+
+  "max_stack_size": 64,
+
+  "creative_menu_stacks": [
+    {
+      "nbt": { "tmp": 0 },
+      "tabs": [ "tools" ]
+    }
+  ],
+
+  "durability": {
+    "max_damage": 1536
+  },
+
+  "delayed_use": {
+    "time": 120,
+    "on_complete": "use_item"
+  },
+
+  "fluid_container": {
+    "contains": "water",
+    "empty_item": "empty_bucket"
+  },
+
+  "attribute_modifiers": [
+    { "name": "test", "amount": 2, "operation": "addition" }
+  ],
+
+  "events": {
+    "onItemUse": "regsitered_event_handler_name"
+  }
+}

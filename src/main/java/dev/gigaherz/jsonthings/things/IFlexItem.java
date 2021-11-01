@@ -1,29 +1,29 @@
 package dev.gigaherz.jsonthings.things;
 
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.UseAction;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public interface IFlexItem extends IEventRunner<InteractionResultHolder<ItemStack>>
+public interface IFlexItem extends IEventRunner<ActionResult<ItemStack>>
 {
     default Item self()
     {
         return (Item) this;
     }
 
-    void setUseAction(UseAnim useAction);
+    void setUseAction(UseAction useAction);
 
-    UseAnim getUseAction();
+    UseAction getUseAction();
 
     void setUseTime(int useTicks);
 
@@ -33,9 +33,9 @@ public interface IFlexItem extends IEventRunner<InteractionResultHolder<ItemStac
 
     CompletionMode getUseFinishMode();
 
-    void addCreativeStack(StackContext stack, Iterable<CreativeModeTab> tabs);
+    void addCreativeStack(StackContext stack, Iterable<ItemGroup> tabs);
 
-    void addAttributeModifier(@Nullable EquipmentSlot slot, Attribute attribute, AttributeModifier modifier);
+    void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier);
 
-    void setLore(List<MutableComponent> lore);
+    void setLore(List<IFormattableTextComponent> lore);
 }

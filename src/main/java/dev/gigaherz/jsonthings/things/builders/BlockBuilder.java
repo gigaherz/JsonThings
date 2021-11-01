@@ -1,19 +1,22 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.serializers.BlockType;
+import dev.gigaherz.jsonthings.things.serializers.IBlockFactory;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.state.Property;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -94,7 +97,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
     public void setProperties(Map<String, Property<?>> properties)
     {
-        this.properties = properties.values().stream().toList();
+        this.properties = new ArrayList<>(properties.values());
         this.propertiesByName = properties;
     }
 
@@ -212,15 +215,14 @@ public class BlockBuilder implements Supplier<IFlexBlock>
                 Block.Properties.of(material, blockMaterialColor) :
                 Block.Properties.of(material);
 
-        var blockType = getBlockType();
+        BlockType<?> blockType = getBlockType();
         if (Utils.orElse(isSeeThrough(), blockType.isDefaultSeeThrough())) props.noOcclusion();
         if (Utils.orElse(requiresToolForDrops(), false)) props.requiresCorrectToolForDrops();
         if (Utils.orElse(isAir(), false)) props.air();
         if (!Utils.orElse(hasCollision(), true)) props.noCollission();
         if (Utils.orElse(hasRandomTicks(), false)) props.randomTicks();
         if (Utils.orElse(getLightEmission(), 0) > 0) props.lightLevel(state -> getLightEmission());
-        if (Utils.orElse(getExplosionResistance(), 0) > 0) props.explosionResistance(getExplosionResistance());
-        if (Utils.orElse(getDestroyTime(), 0) > 0) props.destroyTime(getDestroyTime());
+        if (Utils.orElse(getDestroyTime(), 0) > 0 || Utils.orElse(getExplosionResistance(), 0) > 0) props.strength(getDestroyTime(), getExplosionResistance());
         if (Utils.orElse(getFriction(), 0.6f) != 0.6f) props.friction(getFriction());
         if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
         if (Utils.orElse(getJumpFactor(), 1.0f) != 1) props.jumpFactor(getSpeedFactor());
@@ -243,7 +245,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
             throw new IllegalStateException("The block of type " + blockType + " cannot define non-duplicate properties with clashing names: " + badProperties.stream().map(Property::getName).collect(Collectors.joining(" ")));
         }
 
-        var factory = Utils.orElse(getBlockType(), BlockType.PLAIN).getFactory(jsonSource);
+        IBlockFactory<?> factory = Utils.orElse(getBlockType(), BlockType.PLAIN).getFactory(jsonSource);
         jsonSource = null;
 
         IFlexBlock flexBlock = factory.construct(props, this);
@@ -348,8 +350,8 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
     public Material getBlockMaterial()
     {
-        var matName = getBlockMaterialRaw();
-        var mat = matName != null ? ThingRegistries.BLOCK_MATERIALS.get(matName) : null;
+        ResourceLocation matName = getBlockMaterialRaw();
+        Material mat = matName != null ? ThingRegistries.BLOCK_MATERIALS.get(matName) : null;
         return Utils.orElse(mat, getBlockType().getDefaultMaterial());
     }
 
@@ -384,7 +386,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
     public List<Property<?>> getProperties()
     {
-        return Utils.orElse(getPropertiesRaw(), List::of);
+        return Utils.orElse(getPropertiesRaw(), Lists::newArrayList);
     }
 
     @Nullable
@@ -397,11 +399,11 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     {
         if (propertyDefaultValuesMap == null)
         {
-            var raw = getPropertyDefaultValuesRaw();
-            propertyDefaultValuesMap = raw == null ? Map.of() : raw.entrySet().stream()
+            Map<String, String> raw = getPropertyDefaultValuesRaw();
+            propertyDefaultValuesMap = raw == null ? Collections.emptyMap() : raw.entrySet().stream()
                     .map(e -> {
-                        var key = propertiesByName.get(e.getKey());
-                        var value = Utils.getPropertyValue(key, e.getValue());
+                        Property<?> key = propertiesByName.get(e.getKey());
+                        Comparable<?> value = Utils.getPropertyValue(key, e.getValue());
                         return Pair.of(key, value);
                     })
                     .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));

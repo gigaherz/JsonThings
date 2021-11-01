@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,11 +10,11 @@ import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import joptsimple.internal.Strings;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.Item;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.TextComponent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -52,7 +53,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
-                .mutex(List.of("group", "creative_menu_stacks"), () -> new RuntimeException("Cannot have group and creative_menu_stacks at the same time."))
+                .mutex(Lists.newArrayList("group", "creative_menu_stacks"), () -> new RuntimeException("Cannot have group and creative_menu_stacks at the same time."))
                 .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
                 .ifKey("creative_menu_stacks", val -> val
                         .array().forEach((i, entry) -> entry
@@ -71,12 +72,12 @@ public class ItemParser extends ThingParser<ItemBuilder>
         return builder;
     }
 
-    private List<MutableComponent> parseLore(JsonArray lines)
+    private List<IFormattableTextComponent> parseLore(JsonArray lines)
     {
-        var lore = new ArrayList<MutableComponent>();
+        List<IFormattableTextComponent> lore = new ArrayList<IFormattableTextComponent>();
         for (JsonElement e : lines)
         {
-            lore.add(Component.Serializer.fromJson(e));
+            lore.add(TextComponent.Serializer.fromJson(e));
         }
         return lore;
     }

@@ -5,9 +5,10 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.ArmorMaterialBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
+import dev.gigaherz.jsonthings.util.parse.value.IntValue;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,20 +44,20 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
         return builder;
     }
 
-    private Map<EquipmentSlot, Integer> parseEquipmentSlotMap(Any data)
+    private Map<EquipmentSlotType, Integer> parseEquipmentSlotMap(Any data)
     {
-        Map<EquipmentSlot, Integer> map = new HashMap<>();
+        Map<EquipmentSlotType, Integer> map = new HashMap<>();
 
         data
                 .ifObj(obj -> {
-                    for (EquipmentSlot slot : EquipmentSlot.values())
+                    for (EquipmentSlotType slot : EquipmentSlotType.values())
                     {
                         obj.ifKey(slot.getName(), val -> val.intValue().handle(num -> map.put(slot, num)));
                     }
                 })
                 .ifInteger(val -> {
-                    var num = val.getAsInt();
-                    for (EquipmentSlot slot : EquipmentSlot.values())
+                    int num = val.getAsInt();
+                    for (EquipmentSlotType slot : EquipmentSlotType.values())
                     {
                         map.put(slot, num);
                     }

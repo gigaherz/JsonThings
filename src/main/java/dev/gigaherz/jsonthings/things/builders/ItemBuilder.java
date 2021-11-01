@@ -8,15 +8,16 @@ import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.item.Food;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.UseAction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -44,14 +45,14 @@ public class ItemBuilder implements Supplier<IFlexItem>
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
 
-    private FoodProperties foodInfo = null;
+    private Food foodInfo = null;
 
     private DelayedUse delayedUse = null;
     private ContainerInfo containerInfo = null;
 
     private String colorHandler = null;
 
-    private List<MutableComponent> lore = List.of();
+    private List<IFormattableTextComponent> lore = Collections.emptyList();
 
     private ItemBuilder(ResourceLocation registryName, JsonObject data)
     {
@@ -108,13 +109,13 @@ public class ItemBuilder implements Supplier<IFlexItem>
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
         if (!ThingRegistries.FOODS.containsKey(foodName))
             throw new RuntimeException("No known food definition with name '" + foodName + "'");
-        FoodProperties foodInfo = ThingRegistries.FOODS.get(foodName);
+        Food foodInfo = ThingRegistries.FOODS.get(foodName);
         if (foodInfo == null)
             throw new IllegalStateException("Property with name " + foodName + " not found in ThingRegistries.FOODS");
         this.foodInfo = foodInfo;
     }
 
-    public void setFood(FoodProperties food)
+    public void setFood(Food food)
     {
         if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
         this.foodInfo = food;
@@ -137,7 +138,7 @@ public class ItemBuilder implements Supplier<IFlexItem>
         this.colorHandler = colorHandler;
     }
 
-    public void setLore(List<MutableComponent> lore)
+    public void setLore(List<IFormattableTextComponent> lore)
     {
         this.lore = lore;
     }
@@ -146,31 +147,31 @@ public class ItemBuilder implements Supplier<IFlexItem>
     {
         Item.Properties properties = new Item.Properties();
 
-        var md = getMaxDamage();
+        Integer md = getMaxDamage();
         if (md != null)
         {
             properties = properties.durability(md);
         }
 
-        var ci = getContainerInfo();
+        ContainerInfo ci = getContainerInfo();
         if (ci != null)
         {
             properties = properties.craftRemainder(Utils.getItemOrCrash(ci.emptyItem));
         }
 
-        var fi = getFoodInfo();
+        Food fi = getFoodInfo();
         if (fi != null)
         {
             properties = properties.food(fi);
         }
 
-        var factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);
+        IItemFactory<?> factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);
 
         jsonSource = null;
 
         IFlexItem flexItem = factory.construct(properties, this);
 
-        var du = getDelayedUse();
+        DelayedUse du = getDelayedUse();
         if (du != null)
         {
             flexItem.setUseAction(delayedUse.useAction);
@@ -180,7 +181,7 @@ public class ItemBuilder implements Supplier<IFlexItem>
 
         flexItem.setLore(lore);
 
-        var stacks = getCreativeMenuStacks();
+        List<Pair<StackContext, String[]>> stacks = getCreativeMenuStacks();
         if (stacks.size() > 0)
         {
             for (Pair<StackContext, String[]> tabEntries : stacks)
@@ -188,7 +189,7 @@ public class ItemBuilder implements Supplier<IFlexItem>
                 StackContext ctx = tabEntries.getFirst();
                 String[] tabs = tabEntries.getSecond();
 
-                Set<CreativeModeTab> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).filter(Objects::nonNull).collect(Collectors.toSet());
+                Set<ItemGroup> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).filter(Objects::nonNull).collect(Collectors.toSet());
                 flexItem.addCreativeStack(ctx, tabsIterable);
             }
         }
@@ -205,15 +206,15 @@ public class ItemBuilder implements Supplier<IFlexItem>
     }
 
     @Nullable
-    private CreativeModeTab findCreativeTab(String label)
+    private ItemGroup findCreativeTab(String label)
     {
-        var rl = new ResourceLocation(label);
+        ResourceLocation rl = new ResourceLocation(label);
         for (CreativeModeTabBuilder builder : JsonThings.creativeModeTabParser.getBuilders())
         {
             if (builder.getRegistryName().equals(rl))
                 return builder.get();
         }
-        for (CreativeModeTab tab : CreativeModeTab.TABS)
+        for (ItemGroup tab : ItemGroup.TABS)
         {
             if (tab.getRecipeFolderName().equals(label))
                 return tab;
@@ -270,7 +271,7 @@ public class ItemBuilder implements Supplier<IFlexItem>
     }
 
     @Nullable
-    public FoodProperties getFoodInfo()
+    public Food getFoodInfo()
     {
         return getValueWithParent(foodInfo, ItemBuilder::getFoodInfo);
     }
@@ -314,13 +315,13 @@ public class ItemBuilder implements Supplier<IFlexItem>
     static class DelayedUse
     {
         public int useTicks;
-        public UseAnim useAction;
+        public UseAction useAction;
         public CompletionMode onComplete;
 
         public DelayedUse(int useTicks, String useAction, String completeAction)
         {
             this.useTicks = useTicks;
-            this.useAction = UseAnim.valueOf(useAction.toUpperCase());
+            this.useAction = UseAction.valueOf(useAction.toUpperCase());
             this.onComplete = CompletionMode.valueOf(completeAction.toUpperCase());
         }
     }

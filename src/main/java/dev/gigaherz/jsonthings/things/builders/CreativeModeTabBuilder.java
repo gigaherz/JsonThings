@@ -2,7 +2,7 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.function.Supplier;
 

@@ -2,6 +2,6 @@
 @ParametersAreNonnullByDefault
 package dev.gigaherz.jsonthings.util;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
+import mcp.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

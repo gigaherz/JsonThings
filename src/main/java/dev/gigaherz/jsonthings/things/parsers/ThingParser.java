@@ -7,18 +7,18 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.StackContext;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.client.resources.JsonReloadListener;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadListener
+public abstract class ThingParser<TBuilder> extends JsonReloadListener
 {
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -35,7 +35,7 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn)
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, IResourceManager resourceManagerIn, IProfiler profilerIn)
     {
         objectIn.forEach(this::parseFromElement);
     }
@@ -82,11 +82,11 @@ public abstract class ThingParser<TBuilder> extends SimpleJsonResourceReloadList
             try
             {
                 JsonElement element = item.get("nbt");
-                CompoundTag nbt;
+                CompoundNBT nbt;
                 if (element.isJsonObject())
-                    nbt = TagParser.parseTag(GSON.toJson(element));
+                    nbt = JsonToNBT.parseTag(GSON.toJson(element));
                 else
-                    nbt = TagParser.parseTag(element.getAsString());
+                    nbt = JsonToNBT.parseTag(element.getAsString());
                 ctx = ctx.withTag(nbt);
             }
             catch (Exception e)

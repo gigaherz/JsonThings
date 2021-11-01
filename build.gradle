@@ -21,7 +21,7 @@ version = "0.1.0"
 group= "dev.gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "JsonThings-1.17.1"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 repositories {
     maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
@@ -32,7 +32,8 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'parchment', version: '2021.08.29-1.17.1'
+    //mappings channel: 'parchment', version: '2021.10.24-1.16.5'
+    mappings channel: 'official', version: '1.16.5'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -98,7 +99,7 @@ minecraft.runs.all {
     }
 }
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.103'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.8'
 
     library 'com.google.guava:guava:21.0'
 

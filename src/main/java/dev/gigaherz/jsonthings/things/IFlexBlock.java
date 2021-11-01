@@ -2,12 +2,12 @@ package dev.gigaherz.jsonthings.things;
 
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
+import net.minecraft.util.ActionResultType;
 
 import javax.annotation.Nullable;
 
-public interface IFlexBlock extends IEventRunner<InteractionResult>
+public interface IFlexBlock extends IEventRunner<ActionResultType>
 {
     default Block self()
     {

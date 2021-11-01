@@ -1,8 +1,8 @@
 package dev.gigaherz.jsonthings.things.properties;
 
 import dev.gigaherz.jsonthings.things.ThingRegistries;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.state.IntegerProperty;
+import net.minecraft.util.registry.Registry;
 
 public class PropertyTypes
 {

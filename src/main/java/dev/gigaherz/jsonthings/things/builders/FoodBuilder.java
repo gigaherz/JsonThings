@@ -1,16 +1,16 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.food.FoodProperties;
+import net.minecraft.item.Food;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class FoodBuilder implements Supplier<FoodProperties>
+public class FoodBuilder implements Supplier<Food>
 {
-    private FoodProperties builtFood = null;
+    private Food builtFood = null;
 
     private final ResourceLocation registryName;
     private final List<Pair<MobEffectInstanceBuilder, Float>> effects = new ArrayList<>();
@@ -61,9 +61,9 @@ public class FoodBuilder implements Supplier<FoodProperties>
         effects.add(Pair.of(effect, probability));
     }
 
-    private FoodProperties build()
+    private Food build()
     {
-        var foodBuilder = new FoodProperties.Builder();
+        Food.Builder foodBuilder = new Food.Builder();
         foodBuilder.nutrition(nutrition);
         foodBuilder.saturationMod(saturation);
         if (isMeat) foodBuilder.meat();
@@ -75,7 +75,7 @@ public class FoodBuilder implements Supplier<FoodProperties>
         return builtFood = foodBuilder.build();
     }
 
-    public FoodProperties get()
+    public Food get()
     {
         if (builtFood == null)
             return build();

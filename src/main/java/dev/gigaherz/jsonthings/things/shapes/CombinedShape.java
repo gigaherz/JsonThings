@@ -7,12 +7,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.jsonthings.util.CodecExtras;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.state.Property;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,28 +22,28 @@ import java.util.stream.Collectors;
 
 public class CombinedShape implements IShapeProvider
 {
-    public static final BiMap<String, BooleanOp> BOOLEAN_OPERATORS = ImmutableBiMap.<String, BooleanOp>builder()
-            .put("false", BooleanOp.FALSE)
-            .put("not_or", BooleanOp.NOT_OR)
-            .put("only_second", BooleanOp.ONLY_SECOND)
-            .put("not_first", BooleanOp.NOT_FIRST)
-            .put("only_first", BooleanOp.ONLY_FIRST)
-            .put("not_second", BooleanOp.NOT_SECOND)
-            .put("not_same", BooleanOp.NOT_SAME)
-            .put("not_and", BooleanOp.NOT_AND)
-            .put("and", BooleanOp.AND)
-            .put("same", BooleanOp.SAME)
-            .put("second", BooleanOp.SECOND)
-            .put("causes", BooleanOp.CAUSES)
-            .put("first", BooleanOp.FIRST)
-            .put("caused_by", BooleanOp.CAUSED_BY)
-            .put("or", BooleanOp.OR)
-            .put("true", BooleanOp.TRUE)
+    public static final BiMap<String, IBooleanFunction> BOOLEAN_OPERATORS = ImmutableBiMap.<String, IBooleanFunction>builder()
+            .put("false", IBooleanFunction.FALSE)
+            .put("not_or", IBooleanFunction.NOT_OR)
+            .put("only_second", IBooleanFunction.ONLY_SECOND)
+            .put("not_first", IBooleanFunction.NOT_FIRST)
+            .put("only_first", IBooleanFunction.ONLY_FIRST)
+            .put("not_second", IBooleanFunction.NOT_SECOND)
+            .put("not_same", IBooleanFunction.NOT_SAME)
+            .put("not_and", IBooleanFunction.NOT_AND)
+            .put("and", IBooleanFunction.AND)
+            .put("same", IBooleanFunction.SAME)
+            .put("second", IBooleanFunction.SECOND)
+            .put("causes", IBooleanFunction.CAUSES)
+            .put("first", IBooleanFunction.FIRST)
+            .put("caused_by", IBooleanFunction.CAUSED_BY)
+            .put("or", IBooleanFunction.OR)
+            .put("true", IBooleanFunction.TRUE)
             .build();
-    public static final Codec<BooleanOp> BOOLEAN_OP_CODEC = CodecExtras.mappingCodec(Codec.STRING, BOOLEAN_OPERATORS::get, BOOLEAN_OPERATORS.inverse()::get);
+    public static final Codec<IBooleanFunction> BOOLEAN_OP_CODEC = CodecExtras.mappingCodec(Codec.STRING, BOOLEAN_OPERATORS::get, BOOLEAN_OPERATORS.inverse()::get);
     public static final Codec<CombinedShape> LIST_CODEC = CodecExtras.lazy(DynamicShape::shapeCodec).listOf().flatComapMap(
-            list -> new CombinedShape(BooleanOp.OR, list),
-            shape -> shape.operator == BooleanOp.OR
+            list -> new CombinedShape(IBooleanFunction.OR, list),
+            shape -> shape.operator == IBooleanFunction.OR
                     ? DataResult.success(shape.boxes)
                     : DataResult.error("Cannot use CombinedShape.LIST_CODEC to encode a CombinedShape whose boolean function is not OR")
     );
@@ -53,10 +53,10 @@ public class CombinedShape implements IShapeProvider
     ).apply(instance, CombinedShape::new));
     public static final Codec<CombinedShape> CODEC = CodecExtras.makeChoiceCodec(LIST_CODEC, OBJECT_CODEC);
 
-    public final BooleanOp operator;
+    public final IBooleanFunction operator;
     public final List<IShapeProvider> boxes = Lists.newArrayList();
 
-    public CombinedShape(BooleanOp operator, Collection<IShapeProvider> boxes)
+    public CombinedShape(IBooleanFunction operator, Collection<IShapeProvider> boxes)
     {
         this.operator = operator;
         this.boxes.addAll(boxes);
@@ -67,7 +67,7 @@ public class CombinedShape implements IShapeProvider
     {
         return boxes.stream()
                 .map(shape -> shape.getShape(state, facing))
-                .reduce(Optional.empty(), (a, b) -> a.map(aa -> b.map(bb -> Shapes.joinUnoptimized(aa, bb, operator))).orElse(b))
+                .reduce(Optional.empty(), (a, b) -> a.map(aa -> b.map(bb -> VoxelShapes.joinUnoptimized(aa, bb, operator))).orElse(b))
                 .map(VoxelShape::optimize);
     }
 

@@ -1,9 +1,9 @@
 package dev.gigaherz.jsonthings.things;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 public class StackContext
 {
     public final ResourceLocation item;
-    public CompoundTag tag = null;
+    public CompoundNBT tag = null;
     public int count = 1;
 
     private Item theItem;
@@ -21,7 +21,7 @@ public class StackContext
         this.item = item;
     }
 
-    public StackContext withTag(CompoundTag tag)
+    public StackContext withTag(CompoundNBT tag)
     {
         this.tag = tag;
         return this;

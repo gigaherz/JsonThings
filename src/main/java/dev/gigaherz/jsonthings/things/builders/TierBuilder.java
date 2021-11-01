@@ -1,17 +1,18 @@
 package dev.gigaherz.jsonthings.things.builders;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.ForgeTier;
+import dev.gigaherz.jsonthings.things.FlexTier;
+import net.minecraft.block.Block;
+import net.minecraft.item.IItemTier;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.tags.ITag;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TierBuilder implements Supplier<ForgeTier>
+public class TierBuilder implements Supplier<IItemTier>
 {
-    private ForgeTier builtTier = null;
+    private IItemTier builtTier = null;
 
     private final ResourceLocation registryName;
 
@@ -20,7 +21,6 @@ public class TierBuilder implements Supplier<ForgeTier>
     private float speed;
     private float attackDamageBonus;
     private int enchantmentValue;
-    private Tag<Block> tag;
     private Supplier<Ingredient> repairIngredient;
     private List<Object> sortAfter;
     private List<Object> sortBefore;
@@ -60,11 +60,6 @@ public class TierBuilder implements Supplier<ForgeTier>
         this.enchantmentValue = enchantmentValue;
     }
 
-    public void setTag(Tag<Block> tag)
-    {
-        this.tag = tag;
-    }
-
     public void setRepairIngredient(Supplier<Ingredient> repairIngredient)
     {
         this.repairIngredient = repairIngredient;
@@ -80,12 +75,12 @@ public class TierBuilder implements Supplier<ForgeTier>
         this.sortBefore = sortBefore;
     }
 
-    private ForgeTier build()
+    private IItemTier build()
     {
-        return builtTier = new ForgeTier(level, uses, speed, attackDamageBonus, enchantmentValue, tag, repairIngredient);
+        return builtTier = new FlexTier(level, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
     }
 
-    public ForgeTier get()
+    public IItemTier get()
     {
         if (builtTier == null)
             return build();

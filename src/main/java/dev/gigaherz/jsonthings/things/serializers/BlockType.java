@@ -5,16 +5,16 @@ import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.blocks.*;
 import dev.gigaherz.jsonthings.things.misc.FlexTreeGrower;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Material;
-import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraft.block.*;
+import net.minecraft.block.material.Material;
+import net.minecraft.state.Property;
+import net.minecraft.state.StateContainer;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraftforge.fml.RegistryObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +29,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -40,13 +40,13 @@ public class BlockType<T extends Block & IFlexBlock>
     public static final BlockType<FlexSaplingBlock> SAPLING = register("sapling", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        var featureId = new ResourceLocation(GsonHelper.getAsString(data, "tree_feature"));
-        var featureKey = ResourceKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, featureId);
-        var treeGrower = new FlexTreeGrower(featureKey);
+        ResourceLocation featureId = new ResourceLocation(JSONUtils.getAsString(data, "tree_feature"));
+        RegistryKey<ConfiguredFeature<?,?>> featureKey = RegistryKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, featureId);
+        FlexTreeGrower treeGrower = new FlexTreeGrower(featureKey);
         return new FlexSaplingBlock(treeGrower, props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -60,7 +60,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexDirectionalBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -74,13 +74,13 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexHorizontalDirectionalBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, Material.STONE, HorizontalDirectionalBlock.FACING);
+    }, "solid", false, Material.STONE, HorizontalBlock.FACING);
 
     public static final BlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -88,7 +88,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexRotatedPillarBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -102,7 +102,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexSlabBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -119,13 +119,13 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexStairsBlock(props, propertyDefaultValues, () -> parentBlock.get().defaultBlockState())
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, Material.STONE, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
+    }, "solid", false, Material.STONE, StairsBlock.FACING, StairsBlock.HALF, StairsBlock.SHAPE, StairsBlock.WATERLOGGED);
 
     public static final BlockType<FlexWallBlock> WALL = register("wall", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -133,7 +133,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexWallBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -147,7 +147,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexFenceBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -161,7 +161,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexFenceGateBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -175,7 +175,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexLeavesBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -189,7 +189,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexDoorBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);
@@ -203,7 +203,7 @@ public class BlockType<T extends Block & IFlexBlock>
         return new FlexTrapdoorBlock(props, propertyDefaultValues)
         {
             @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+            protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder1)
             {
                 super.createBlockStateDefinition(builder1);
                 _properties.forEach(builder1::add);

@@ -6,18 +6,16 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.items.*;
 import dev.gigaherz.jsonthings.util.Utils;
 import joptsimple.internal.Strings;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.block.Block;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ArmorMaterial;
+import net.minecraft.item.IItemTier;
+import net.minecraft.item.Item;
+import net.minecraft.item.TieredItem;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorMaterials;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.TieredItem;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.TierSortingRegistry;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 import java.util.Objects;
 
@@ -27,9 +25,9 @@ public class ItemType<T extends Item & IFlexItem>
     public static final ItemType<FlexItem> PLAIN = register("plain", (data) -> (props, builder) -> new FlexItem(props));
 
     public static final ItemType<FlexBlockItem> BLOCK = register("block", data -> {
-        String name = GsonHelper.getAsString(data, "places", null);
+        String name = JSONUtils.getAsString(data, "places", null);
         ResourceLocation blockName = name != null ? new ResourceLocation(name) : null;
-        boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
+        boolean useBlockName = JSONUtils.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> new FlexBlockItem(Utils.getBlockOrCrash(blockName != null ? blockName : builder.getRegistryName()), useBlockName, props);
     });
 
@@ -71,8 +69,8 @@ public class ItemType<T extends Item & IFlexItem>
             throw new RuntimeException("Armor info must have a non-empty 'material' string.");
         }
 
-        final EquipmentSlot slot = EquipmentSlot.byName(slotName);
-        final ArmorMaterials material = ArmorMaterials.valueOf(materialName.toUpperCase());
+        final EquipmentSlotType slot = EquipmentSlotType.byName(slotName);
+        final ArmorMaterial material = ArmorMaterial.valueOf(materialName.toUpperCase());
 
         return (props, builder) -> new FlexArmorItem(material, slot, props);
     });
@@ -87,14 +85,10 @@ public class ItemType<T extends Item & IFlexItem>
 
         String tier = parseTier(data);
 
-        String tagName = GsonHelper.getAsString(data, "mineable");
+        float damage = JSONUtils.getAsInt(data, "damage");
+        float speed = JSONUtils.getAsFloat(data, "speed");
 
-        Tag<Block> tag = BlockTags.bind(tagName);
-
-        float damage = GsonHelper.getAsInt(data, "damage");
-        float speed = GsonHelper.getAsFloat(data, "speed");
-
-        return (props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, tag, props);
+        return (props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, props);
     });
 
     private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
@@ -103,8 +97,8 @@ public class ItemType<T extends Item & IFlexItem>
 
             String tier = parseTier(data);
 
-            float damage = GsonHelper.getAsFloat(data, "damage");
-            float speed = GsonHelper.getAsFloat(data, "speed");
+            float damage = JSONUtils.getAsFloat(data, "damage");
+            float speed = JSONUtils.getAsFloat(data, "speed");
 
             return (props, builder) -> factory.create(getTier(tier), damage, speed, props);
         };
@@ -116,8 +110,8 @@ public class ItemType<T extends Item & IFlexItem>
 
             String tier = parseTier(data);
 
-            int damage = GsonHelper.getAsInt(data, "damage");
-            float speed = GsonHelper.getAsFloat(data, "speed");
+            int damage = JSONUtils.getAsInt(data, "damage");
+            float speed = JSONUtils.getAsFloat(data, "speed");
 
             return (props, builder) -> factory.create(getTier(tier), damage, speed, props);
         };
@@ -136,24 +130,24 @@ public class ItemType<T extends Item & IFlexItem>
     @FunctionalInterface
     public interface DiggerFactory<T extends TieredItem & IFlexItem>
     {
-        T create(Tier tier, float damage, float speed, Item.Properties properties);
+        T create(IItemTier tier, float damage, float speed, Item.Properties properties);
     }
 
     @FunctionalInterface
     public interface DiggerFactory2<T extends TieredItem & IFlexItem>
     {
-        T create(Tier tier, int damage, float speed, Item.Properties properties);
+        T create(IItemTier tier, int damage, float speed, Item.Properties properties);
     }
 
     @FunctionalInterface
     public interface TieredFactory<T extends TieredItem & IFlexItem>
     {
-        T create(Tier tier, Item.Properties properties);
+        T create(IItemTier tier, Item.Properties properties);
     }
 
-    private static Tier getTier(String tierName)
+    private static IItemTier getTier(String tierName)
     {
-        return Objects.requireNonNull(TierSortingRegistry.byName(new ResourceLocation(tierName)), "The specified tier has not been found in the tier sorting registry");
+        return Utils.getOrCrash(ThingRegistries.ITEM_TIERS, new ResourceLocation(tierName));
     }
 
     private static String parseTier(JsonObject data)

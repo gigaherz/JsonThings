@@ -7,18 +7,15 @@ import dev.gigaherz.jsonthings.things.serializers.BlockType;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.core.MappedRegistry;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.food.Foods;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.*;
+import net.minecraft.state.Property;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.SimpleRegistry;
 
 public class ThingRegistries
 {
@@ -27,20 +24,22 @@ public class ThingRegistries
         /* do nothing */
     }
 
-    public static final ResourceKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
-    public static final ResourceKey<Registry<ArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
-    public static final ResourceKey<Registry<FoodProperties>> FOOD_REGISTRY = createKey("jsonthings:food");
-    public static final ResourceKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
-    public static final ResourceKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
-    public static final ResourceKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
-    public static final ResourceKey<Registry<BlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
-    public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
-    public static final ResourceKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
-    public static final ResourceKey<Registry<SoundType>> SOUND_TYPE_REGISTRY = createKey("jsonthings:sound_types");
+    public static final RegistryKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
+    public static final RegistryKey<Registry<IItemTier>> ITEM_TIER_REGISTRY = createKey("jsonthings:item_tier");
+    public static final RegistryKey<Registry<IArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
+    public static final RegistryKey<Registry<Food>> FOOD_REGISTRY = createKey("jsonthings:food");
+    public static final RegistryKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
+    public static final RegistryKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
+    public static final RegistryKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
+    public static final RegistryKey<Registry<BlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
+    public static final RegistryKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
+    public static final RegistryKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
+    public static final RegistryKey<Registry<SoundType>> SOUND_TYPE_REGISTRY = createKey("jsonthings:sound_types");
 
-    public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
-    public static final Registry<ArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
-    public static final Registry<FoodProperties> FOODS = makeRegistry(FOOD_REGISTRY);
+    public static final Registry<Registry<?>> THING_REGISTRIES = new SimpleRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental());
+    public static final Registry<IItemTier> ITEM_TIERS = makeRegistry(ITEM_TIER_REGISTRY);
+    public static final Registry<IArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
+    public static final Registry<Food> FOODS = makeRegistry(FOOD_REGISTRY);
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
     public static final Registry<DynamicShape> DYNAMIC_SHAPES = makeRegistry(DYNAMIC_SHAPE_REGISTRY);
@@ -51,6 +50,8 @@ public class ThingRegistries
 
     static
     {
+        registerItemTiers();
+
         registerArmorMaterials();
 
         registerFoods();
@@ -72,15 +73,25 @@ public class ThingRegistries
         MaterialColors.init();
     }
 
-    private static <T> ResourceKey<Registry<T>> createKey(String name)
+    private static <T> RegistryKey<Registry<T>> createKey(String name)
     {
-        return ResourceKey.createRegistryKey(new ResourceLocation(name));
+        return RegistryKey.createRegistryKey(new ResourceLocation(name));
     }
 
-    private static <T> Registry<T> makeRegistry(ResourceKey<Registry<T>> key)
+    private static <T> Registry<T> makeRegistry(RegistryKey<Registry<T>> key)
     {
-        MappedRegistry<T> registry = new MappedRegistry<T>(key, Lifecycle.experimental());
+        SimpleRegistry<T> registry = new SimpleRegistry<T>(key, Lifecycle.experimental());
         return Registry.register(THING_REGISTRIES, key.location().toString(), registry);
+    }
+
+    private static void registerItemTiers()
+    {
+        // no "name" field in item tiers
+        Registry.register(ITEM_TIERS, "wood", ItemTier.WOOD);
+        Registry.register(ITEM_TIERS, "stone", ItemTier.STONE);
+        Registry.register(ITEM_TIERS, "gold", ItemTier.GOLD);
+        Registry.register(ITEM_TIERS, "iron", ItemTier.IRON);
+        Registry.register(ITEM_TIERS, "diamond", ItemTier.DIAMOND);
     }
 
     private static void registerDynamicShapes()
@@ -228,7 +239,7 @@ public class ThingRegistries
 
     private static void registerArmorMaterials()
     {
-        for (ArmorMaterials mat : ArmorMaterials.values())
+        for (ArmorMaterial mat : ArmorMaterial.values())
         {
             Registry.register(ARMOR_MATERIALS, mat.getName(), mat);
         }
@@ -276,13 +287,9 @@ public class ThingRegistries
         Registry.register(BLOCK_MATERIALS, "heavy_metal", Material.HEAVY_METAL);
         Registry.register(BLOCK_MATERIALS, "barrier", Material.BARRIER);
         Registry.register(BLOCK_MATERIALS, "piston", Material.PISTON);
-        Registry.register(BLOCK_MATERIALS, "moss", Material.MOSS);
         Registry.register(BLOCK_MATERIALS, "vegetable", Material.VEGETABLE);
         Registry.register(BLOCK_MATERIALS, "egg", Material.EGG);
         Registry.register(BLOCK_MATERIALS, "cake", Material.CAKE);
-        Registry.register(BLOCK_MATERIALS, "sculk", Material.SCULK);
-        Registry.register(BLOCK_MATERIALS, "amethyst", Material.AMETHYST);
-        Registry.register(BLOCK_MATERIALS, "powder_snow", Material.POWDER_SNOW);
     }
 
     private static void registerSoundTypes()
@@ -297,7 +304,6 @@ public class ThingRegistries
         Registry.register(SOUND_TYPES, "wool", SoundType.WOOL);
         Registry.register(SOUND_TYPES, "sand", SoundType.SAND);
         Registry.register(SOUND_TYPES, "snow", SoundType.SNOW);
-        Registry.register(SOUND_TYPES, "powder_snow", SoundType.POWDER_SNOW);
         Registry.register(SOUND_TYPES, "ladder", SoundType.LADDER);
         Registry.register(SOUND_TYPES, "anvil", SoundType.ANVIL);
         Registry.register(SOUND_TYPES, "slime_block", SoundType.SLIME_BLOCK);
@@ -335,33 +341,5 @@ public class ThingRegistries
         Registry.register(SOUND_TYPES, "chain", SoundType.CHAIN);
         Registry.register(SOUND_TYPES, "nether_gold_ore", SoundType.NETHER_GOLD_ORE);
         Registry.register(SOUND_TYPES, "gilded_blackstone", SoundType.GILDED_BLACKSTONE);
-        Registry.register(SOUND_TYPES, "candle", SoundType.CANDLE);
-        Registry.register(SOUND_TYPES, "amethyst", SoundType.AMETHYST);
-        Registry.register(SOUND_TYPES, "amethyst_cluster", SoundType.AMETHYST_CLUSTER);
-        Registry.register(SOUND_TYPES, "small_amethyst_bud", SoundType.SMALL_AMETHYST_BUD);
-        Registry.register(SOUND_TYPES, "medium_amethyst_bud", SoundType.MEDIUM_AMETHYST_BUD);
-        Registry.register(SOUND_TYPES, "large_amethyst_bud", SoundType.LARGE_AMETHYST_BUD);
-        Registry.register(SOUND_TYPES, "tuff", SoundType.TUFF);
-        Registry.register(SOUND_TYPES, "calcite", SoundType.CALCITE);
-        Registry.register(SOUND_TYPES, "dripstone_block", SoundType.DRIPSTONE_BLOCK);
-        Registry.register(SOUND_TYPES, "pointed_dripstone", SoundType.POINTED_DRIPSTONE);
-        Registry.register(SOUND_TYPES, "copper", SoundType.COPPER);
-        Registry.register(SOUND_TYPES, "cave_vines", SoundType.CAVE_VINES);
-        Registry.register(SOUND_TYPES, "spore_blossom", SoundType.SPORE_BLOSSOM);
-        Registry.register(SOUND_TYPES, "azalea", SoundType.AZALEA);
-        Registry.register(SOUND_TYPES, "flowering_azalea", SoundType.FLOWERING_AZALEA);
-        Registry.register(SOUND_TYPES, "moss_carpet", SoundType.MOSS_CARPET);
-        Registry.register(SOUND_TYPES, "moss", SoundType.MOSS);
-        Registry.register(SOUND_TYPES, "big_dripleaf", SoundType.BIG_DRIPLEAF);
-        Registry.register(SOUND_TYPES, "small_dripleaf", SoundType.SMALL_DRIPLEAF);
-        Registry.register(SOUND_TYPES, "rooted_dirt", SoundType.ROOTED_DIRT);
-        Registry.register(SOUND_TYPES, "hanging_roots", SoundType.HANGING_ROOTS);
-        Registry.register(SOUND_TYPES, "azalea_leaves", SoundType.AZALEA_LEAVES);
-        Registry.register(SOUND_TYPES, "sculk_sensor", SoundType.SCULK_SENSOR);
-        Registry.register(SOUND_TYPES, "glow_lichen", SoundType.GLOW_LICHEN);
-        Registry.register(SOUND_TYPES, "deepslate", SoundType.DEEPSLATE);
-        Registry.register(SOUND_TYPES, "deepslate_bricks", SoundType.DEEPSLATE_BRICKS);
-        Registry.register(SOUND_TYPES, "deepslate_tiles", SoundType.DEEPSLATE_TILES);
-        Registry.register(SOUND_TYPES, "polished_deepslate", SoundType.POLISHED_DEEPSLATE);
     }
 }

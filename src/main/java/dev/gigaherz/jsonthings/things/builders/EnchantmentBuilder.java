@@ -2,17 +2,18 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
 import dev.gigaherz.jsonthings.things.misc.FlexEnchantment;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
-import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentType;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class EnchantmentBuilder implements Supplier<FlexEnchantment>
 {
@@ -21,8 +22,8 @@ public class EnchantmentBuilder implements Supplier<FlexEnchantment>
     private final ResourceLocation registryName;
 
     private Enchantment.Rarity rarity = Enchantment.Rarity.COMMON;
-    private EnchantmentCategory type = EnchantmentCategory.BREAKABLE;
-    private EquipmentSlot[] slots = EquipmentSlot.values();
+    private EnchantmentType type = EnchantmentType.BREAKABLE;
+    private EquipmentSlotType[] slots = EquipmentSlotType.values();
     private int minLevel = 1;
     private int maxLevel = 1;
     private int baseCost = 1;
@@ -51,7 +52,7 @@ public class EnchantmentBuilder implements Supplier<FlexEnchantment>
         this.rarity = rarity;
     }
 
-    public void setEnchantmentType(EnchantmentCategory type)
+    public void setEnchantmentType(EnchantmentType type)
     {
         this.type = type;
     }
@@ -127,9 +128,9 @@ public class EnchantmentBuilder implements Supplier<FlexEnchantment>
         flexEnchantment.setDiscoverable(isDiscoverable);
         flexEnchantment.setAllowedOnBooks(isAllowedOnBooks);
         flexEnchantment.setBlackList(blackList.stream().map(loc -> {
-            var ro = RegistryObject.of(loc, ForgeRegistries.ENCHANTMENTS);
+            RegistryObject<?> ro = RegistryObject.of(loc, ForgeRegistries.ENCHANTMENTS);
             return (Predicate<Enchantment>) ((enchantment) -> ro.filter(en -> en == enchantment).isPresent());
-        }).toList());
+        }).collect(Collectors.toList()));
 
         builtEnchantment = flexEnchantment;
         return flexEnchantment;

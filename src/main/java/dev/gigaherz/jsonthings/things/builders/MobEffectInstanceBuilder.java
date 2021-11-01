@@ -1,13 +1,13 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
-public class MobEffectInstanceBuilder implements Supplier<MobEffectInstance>
+public class MobEffectInstanceBuilder implements Supplier<EffectInstance>
 {
     private ResourceLocation effect;
     private int duration;
@@ -16,7 +16,7 @@ public class MobEffectInstanceBuilder implements Supplier<MobEffectInstance>
     private boolean visible;
     private boolean showParticles;
     private boolean showIcon;
-    private MobEffectInstance builtEffectInstance;
+    private EffectInstance builtEffectInstance;
 
     public ResourceLocation getEffect()
     {
@@ -58,12 +58,12 @@ public class MobEffectInstanceBuilder implements Supplier<MobEffectInstance>
         this.showIcon = showIcon;
     }
 
-    private MobEffectInstance build()
+    private EffectInstance build()
     {
-        return builtEffectInstance = new MobEffectInstance(Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
+        return builtEffectInstance = new EffectInstance(Utils.getOrCrash(ForgeRegistries.POTIONS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
     }
 
-    public MobEffectInstance get()
+    public EffectInstance get()
     {
         if (builtEffectInstance == null)
             return build();

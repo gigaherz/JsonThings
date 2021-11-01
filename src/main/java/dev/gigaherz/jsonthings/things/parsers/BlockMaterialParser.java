@@ -5,10 +5,10 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.BlockMaterialBuilder;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.block.material.PushReaction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
 {
@@ -48,14 +48,20 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
 
     private static PushReaction parsePushReaction(String s)
     {
-        return switch (s)
-                {
-                    case "block" -> PushReaction.BLOCK;
-                    case "destroy" -> PushReaction.DESTROY;
-                    case "ignore" -> PushReaction.IGNORE;
-                    case "push_only" -> PushReaction.PUSH_ONLY;
-                    case "normal" -> PushReaction.NORMAL;
-                    default -> throw new IllegalStateException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
-                };
+        switch (s)
+        {
+            case "block":
+                return PushReaction.BLOCK;
+            case "destroy":
+                return PushReaction.DESTROY;
+            case "ignore":
+                return PushReaction.IGNORE;
+            case "push_only":
+                return PushReaction.PUSH_ONLY;
+            case "normal":
+                return PushReaction.NORMAL;
+            default:
+                throw new IllegalStateException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
+        }
     }
 }

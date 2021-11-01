@@ -4,32 +4,31 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.color.item.ItemColor;
-import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.gui.screen.PackScreen;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.world.item.Item;
+import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.color.BlockColors;
+import net.minecraft.client.renderer.color.IBlockColor;
+import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.item.Item;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.model.MultiLayerModel;
-import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fmlclient.ConfigGuiHandler;
-import net.minecraftforge.fmllegacy.packs.ResourcePackLoader;
+import net.minecraftforge.fml.packs.ResourcePackLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,9 +62,9 @@ public class JsonThings
 
     public JsonThings()
     {
-        var bus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        var manager = ThingResourceManager.initialize(bus);
+        ThingResourceManager manager = ThingResourceManager.initialize(bus);
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));
@@ -99,15 +98,6 @@ public class JsonThings
     }
 
     @SubscribeEvent
-    public static void packFinder(AddPackFindersEvent event)
-    {
-        if (event.getPackType() == PackType.SERVER_DATA)
-        {
-            event.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder());
-        }
-    }
-
-    @SubscribeEvent
     public static void finishLoading(RegistryEvent.NewRegistry event)
     {
         try
@@ -132,12 +122,12 @@ public class JsonThings
         @SubscribeEvent
         public static void constructMod(FMLConstructModEvent event)
         {
-            ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> {
-                var thingPackManager = ThingResourceManager.instance();
-                return new PackSelectionScreen(screen, thingPackManager.getRepository(),
+            ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, screen) -> {
+                ThingResourceManager thingPackManager = ThingResourceManager.instance();
+                return new PackScreen(screen, thingPackManager.getRepository(),
                         rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
-                        new TextComponent("Thing Packs"));
-            }));
+                        new StringTextComponent("Thing Packs"));
+            });
         }
 
         @SubscribeEvent
@@ -148,7 +138,7 @@ public class JsonThings
                 if (layers.size() != 1 || !layers.contains("solid"))
                 {
                     Set<RenderType> renderTypes = layers.stream().map(MultiLayerModel.Loader.BLOCK_LAYERS::get).collect(Collectors.toSet());
-                    ItemBlockRenderTypes.setRenderLayer(thing.get().self(), renderTypes::contains);
+                    RenderTypeLookup.setRenderLayer(thing.get().self(), renderTypes::contains);
                 }
             });
         }
@@ -160,7 +150,7 @@ public class JsonThings
                 String handlerName = thing.getColorHandler();
                 if (handlerName != null)
                 {
-                    BlockColor bc = BlockColorHandler.get(handlerName);
+                    IBlockColor bc = BlockColorHandler.get(handlerName);
                     event.getBlockColors().register(bc, thing.get().self());
                 }
             });
@@ -173,8 +163,8 @@ public class JsonThings
                 String handlerName = thing.getColorHandler();
                 if (handlerName != null)
                 {
-                    Function<BlockColors, ItemColor> handler = ItemColorHandler.get(handlerName);
-                    ItemColor ic = handler.apply(event.getBlockColors());
+                    Function<BlockColors, IItemColor> handler = ItemColorHandler.get(handlerName);
+                    IItemColor ic = handler.apply(event.getBlockColors());
                     event.getItemColors().register(ic, ((Item) thing.get()));
                 }
             });

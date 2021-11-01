@@ -4,8 +4,8 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.ShapeBuilder;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 public class ShapeParser extends ThingParser<ShapeBuilder>
 {

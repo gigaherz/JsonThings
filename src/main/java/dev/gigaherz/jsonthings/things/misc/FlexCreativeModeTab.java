@@ -1,12 +1,12 @@
 package dev.gigaherz.jsonthings.things.misc;
 
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 
 import java.util.function.Supplier;
 
-public class FlexCreativeModeTab extends CreativeModeTab
+public class FlexCreativeModeTab extends ItemGroup
 {
     public static FlexCreativeModeTab create(String name, Supplier<Item> icon)
     {

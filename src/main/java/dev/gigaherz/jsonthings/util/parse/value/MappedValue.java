@@ -22,7 +22,25 @@ public interface MappedValue<T>
         return of(mapping.apply(value()));
     }
 
-    record Impl<T>(T value) implements MappedValue<T>
+    class Impl<T> implements MappedValue<T>
     {
+        private final T value;
+
+        public Impl(T value)
+        {
+            this.value = value;
+        }
+
+        @Override
+        public T value()
+        {
+            return value;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "[MappedValue " + value + "]";
+        }
     }
 }

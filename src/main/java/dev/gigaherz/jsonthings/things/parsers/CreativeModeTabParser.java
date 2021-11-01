@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
 {

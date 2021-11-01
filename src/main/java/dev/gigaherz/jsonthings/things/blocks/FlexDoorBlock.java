@@ -5,18 +5,18 @@ import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.state.Property;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
     private DynamicShape collisionShape;
     private DynamicShape raytraceShape;
     private DynamicShape renderShape;
-    private final Map<String, FlexEventHandler<InteractionResult>> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler<ActionResultType>> eventHandlers = Maps.newHashMap();
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
@@ -54,13 +54,13 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler<InteractionResult> eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler<ActionResultType> eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public FlexEventHandler<InteractionResult> getEventHandler(String eventName)
+    public FlexEventHandler<ActionResultType> getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }
@@ -93,7 +93,7 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
     //region Block
     @Deprecated
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context)
+    public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context)
     {
         if (this.generalShape != null)
             return generalShape.getShape(state);
@@ -102,7 +102,7 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
 
     @Deprecated
     @Override
-    public VoxelShape getInteractionShape(BlockState state, BlockGetter worldIn, BlockPos pos)
+    public VoxelShape getInteractionShape(BlockState state, IBlockReader worldIn, BlockPos pos)
     {
         if (this.raytraceShape != null)
             return raytraceShape.getShape(state);
@@ -111,7 +111,7 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
 
     @Deprecated
     @Override
-    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter reader, BlockPos pos)
+    public VoxelShape getBlockSupportShape(BlockState state, IBlockReader reader, BlockPos pos)
     {
         if (this.collisionShape != null)
             return collisionShape.getShape(state);
@@ -120,7 +120,7 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
 
     @Deprecated
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter worldIn, BlockPos pos)
+    public VoxelShape getOcclusionShape(BlockState state, IBlockReader worldIn, BlockPos pos)
     {
         if (this.renderShape != null)
             return renderShape.getShape(state);
@@ -128,11 +128,10 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit)
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit)
     {
         return runEvent("use", FlexEventContext.of(worldIn, pos, state)
-                .with(FlexEventContext.USER, player)
-                .with(FlexEventContext.HAND, handIn)
+                .withHand(player, handIn)
                 .withRayTrace(hit), () -> super.use(state, worldIn, pos, player, handIn, hit));
     }
 

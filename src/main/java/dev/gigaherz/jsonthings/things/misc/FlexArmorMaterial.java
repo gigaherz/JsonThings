@@ -1,26 +1,26 @@
 package dev.gigaherz.jsonthings.things.misc;
 
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.IArmorMaterial;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.SoundEvent;
 
 import java.util.Map;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class FlexArmorMaterial implements ArmorMaterial
+public class FlexArmorMaterial implements IArmorMaterial
 {
     private final String name;
-    private final Map<EquipmentSlot, Integer> durability;
-    private final Map<EquipmentSlot, Integer> defense;
+    private final Map<EquipmentSlotType, Integer> durability;
+    private final Map<EquipmentSlotType, Integer> defense;
     private final float toughness;
     private final float knockbackResistance;
     private final int enchantmentValue;
     private final Supplier<SoundEvent> equipSound;
     private final Supplier<Ingredient> repairIngredient;
 
-    public FlexArmorMaterial(String name, Map<EquipmentSlot, Integer> durability, Map<EquipmentSlot, Integer> defense, float toughness, float knockbackResistance, int enchantmentValue, Supplier<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient)
+    public FlexArmorMaterial(String name, Map<EquipmentSlotType, Integer> durability, Map<EquipmentSlotType, Integer> defense, float toughness, float knockbackResistance, int enchantmentValue, Supplier<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient)
     {
         this.name = name;
         this.durability = durability;
@@ -33,13 +33,13 @@ public class FlexArmorMaterial implements ArmorMaterial
     }
 
     @Override
-    public int getDurabilityForSlot(EquipmentSlot pSlot)
+    public int getDurabilityForSlot(EquipmentSlotType pSlot)
     {
         return durability.getOrDefault(pSlot, 0);
     }
 
     @Override
-    public int getDefenseForSlot(EquipmentSlot pSlot)
+    public int getDefenseForSlot(EquipmentSlotType pSlot)
     {
         return defense.getOrDefault(pSlot, 0);
     }

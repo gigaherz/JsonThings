@@ -1,33 +1,34 @@
 package dev.gigaherz.jsonthings.things.misc;
 
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.block.grower.AbstractTreeGrower;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraft.block.trees.Tree;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.gen.feature.BaseTreeFeatureConfig;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class FlexTreeGrower extends AbstractTreeGrower
+public class FlexTreeGrower extends Tree
 {
-    private final ResourceKey<ConfiguredFeature<?, ?>> featureKey;
+    private final RegistryKey<ConfiguredFeature<?, ?>> featureKey;
 
-    public FlexTreeGrower(ResourceKey<ConfiguredFeature<?, ?>> featureKey)
+    public FlexTreeGrower(RegistryKey<ConfiguredFeature<?, ?>> featureKey)
     {
         this.featureKey = featureKey;
     }
 
     @Nullable
     @Override
-    protected ConfiguredFeature<TreeConfiguration, ?> getConfiguredFeature(Random pRandom, boolean pLargeHive)
+    protected ConfiguredFeature<BaseTreeFeatureConfig, ?> getConfiguredFeature(Random pRandom, boolean pLargeHive)
     {
-        var server = ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server == null)
             return null;
 
-        var feature = server.registryAccess().ownedRegistryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).getOrThrow(featureKey);
+        ConfiguredFeature<?, ?> feature = server.registryAccess().registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY).getOrThrow(featureKey);
 
         return dirtyCast(feature);
     }

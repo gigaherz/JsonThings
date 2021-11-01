@@ -13,11 +13,11 @@ import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.state.Property;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -169,7 +169,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
         props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
-                    var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
+                    Property<?> property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
                     if (property == null)
                         throw new IllegalStateException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
                     if (!property.getName().equals(name))

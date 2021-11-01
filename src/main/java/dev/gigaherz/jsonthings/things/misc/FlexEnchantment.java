@@ -4,28 +4,29 @@ import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentType;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResultType;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class FlexEnchantment extends Enchantment implements IEventRunner<InteractionResult>
+public class FlexEnchantment extends Enchantment implements IEventRunner<ActionResultType>
 {
-    private final Map<String, FlexEventHandler<InteractionResult>> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler<ActionResultType>> eventHandlers = Maps.newHashMap();
     private int minLevel;
     private int maxLevel;
     private int baseCost;
     private int perLevelCost;
     private int randomCost;
-    private List<Predicate<Enchantment>> blackList = List.of();
+    private List<Predicate<Enchantment>> blackList = Collections.emptyList();
     private ItemPredicate itemCompatibility;
     private boolean isTreasure;
     private boolean isCurse;
@@ -33,19 +34,19 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
     private boolean isDiscoverable = true;
     private boolean isAllowedOnBooks = true;
 
-    public FlexEnchantment(Rarity rarity, EnchantmentCategory enchantmentCategory, EquipmentSlot[] slots)
+    public FlexEnchantment(Rarity rarity, EnchantmentType enchantmentCategory, EquipmentSlotType[] slots)
     {
         super(rarity, enchantmentCategory, slots);
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler<InteractionResult> eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler<ActionResultType> eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public FlexEventHandler<InteractionResult> getEventHandler(String eventName)
+    public FlexEventHandler<ActionResultType> getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }
@@ -190,7 +191,7 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
     {
         runEvent("post_attack", FlexEventContext.of(this, level).with(FlexEventContext.ATTACKER, user).with(FlexEventContext.TARGET, target), () -> {
             super.doPostAttack(user, target, level);
-            return InteractionResult.SUCCESS;
+            return ActionResultType.SUCCESS;
         });
     }
 
@@ -199,7 +200,7 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
     {
         runEvent("post_hurt", FlexEventContext.of(this, level).with(FlexEventContext.ATTACKER, attacker).with(FlexEventContext.TARGET, user), () -> {
             super.doPostHurt(user, attacker, level);
-            return InteractionResult.SUCCESS;
+            return ActionResultType.SUCCESS;
         });
     }
 }

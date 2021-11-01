@@ -7,22 +7,22 @@ import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -52,35 +52,35 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     //endregion
 
     //region IFlexItem
-    private final Multimap<CreativeModeTab, StackContext> perTabStacks = ArrayListMultimap.create();
+    private final Multimap<ItemGroup, StackContext> perTabStacks = ArrayListMultimap.create();
     private final List<StackContext> searchTabStacks = Lists.newArrayList();
-    private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
-    private final Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers = Maps.newHashMap();
+    private final Map<EquipmentSlotType, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler<ActionResult<ItemStack>>> eventHandlers = Maps.newHashMap();
 
-    private UseAnim useAction;
+    private UseAction useAction;
     private int useTime;
     private CompletionMode useFinishMode;
-    private InteractionResultHolder<ItemStack> containerResult;
-    private List<MutableComponent> lore;
+    private ActionResult<ItemStack> containerResult;
+    private List<IFormattableTextComponent> lore;
 
     private void initializeFlex()
     {
-        for (EquipmentSlot slot1 : EquipmentSlot.values())
+        for (EquipmentSlotType slot1 : EquipmentSlotType.values())
         {
             Multimap<Attribute, AttributeModifier> multimap = ArrayListMultimap.create();
-            multimap.putAll(super.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
+            multimap.putAll(super.getAttributeModifiers(EquipmentSlotType.CHEST, ItemStack.EMPTY));
             attributeModifiers.put(slot1, multimap);
         }
     }
 
     @Override
-    public void setUseAction(UseAnim useAction)
+    public void setUseAction(UseAction useAction)
     {
         this.useAction = useAction;
     }
 
     @Override
-    public UseAnim getUseAction()
+    public UseAction getUseAction()
     {
         return useAction;
     }
@@ -110,21 +110,21 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler<InteractionResultHolder<ItemStack>> eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler<ActionResult<ItemStack>> eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public FlexEventHandler<InteractionResultHolder<ItemStack>> getEventHandler(String eventName)
+    public FlexEventHandler<ActionResult<ItemStack>> getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }
 
     @Override
-    public void addCreativeStack(StackContext stack, Iterable<CreativeModeTab> tabs)
+    public void addCreativeStack(StackContext stack, Iterable<ItemGroup> tabs)
     {
-        for (CreativeModeTab tab : tabs)
+        for (ItemGroup tab : tabs)
         {
             perTabStacks.put(tab, stack);
         }
@@ -132,7 +132,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public void addAttributeModifier(@Nullable EquipmentSlot slot, Attribute attribute, AttributeModifier modifier)
+    public void addAttributeModifier(@Nullable EquipmentSlotType slot, Attribute attribute, AttributeModifier modifier)
     {
         if (slot != null)
         {
@@ -140,13 +140,13 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
         }
         else
         {
-            for (EquipmentSlot slot1 : EquipmentSlot.values())
+            for (EquipmentSlotType slot1 : EquipmentSlotType.values())
             {attributeModifiers.get(slot1).put(attribute, modifier);}
         }
     }
 
     @Override
-    public void setLore(List<MutableComponent> lore)
+    public void setLore(List<IFormattableTextComponent> lore)
     {
         this.lore = lore;
     }
@@ -155,11 +155,11 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
 
     //region Item
     @Override
-    public InteractionResult useOn(UseOnContext context)
+    public ActionResultType useOn(ItemUseContext context)
     {
         ItemStack heldItem = context.getItemInHand();
 
-        InteractionResultHolder<ItemStack> result = runEvent("use_on_block", FlexEventContext.of(context), () -> new InteractionResultHolder<>(super.useOn(context), heldItem));
+        ActionResult<ItemStack> result = runEvent("use_on_block", FlexEventContext.of(context), () -> new ActionResult<>(super.useOn(context), heldItem));
 
         if (result.getObject() != heldItem)
         {
@@ -170,30 +170,30 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft)
+    public void releaseUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft)
     {
         runEvent("stopped_using",
                 FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft),
                 () -> {
                     super.releaseUsing(stack, worldIn, entityLiving, timeLeft);
-                    return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+                    return new ActionResult<>(ActionResultType.PASS, stack);
                 });
     }
 
     @Override
-    public ItemStack finishUsingItem(ItemStack heldItem, Level worldIn, LivingEntity entityLiving)
+    public ItemStack finishUsingItem(ItemStack heldItem, World worldIn, LivingEntity entityLiving)
     {
-        Supplier<InteractionResultHolder<ItemStack>> resultSupplier = () -> new InteractionResultHolder<>(InteractionResult.SUCCESS, super.finishUsingItem(heldItem, worldIn, entityLiving));
+        Supplier<ActionResult<ItemStack>> resultSupplier = () -> new ActionResult<>(ActionResultType.SUCCESS, super.finishUsingItem(heldItem, worldIn, entityLiving));
 
-        InteractionResultHolder<ItemStack> result = runEvent("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
-        if (result.getResult() != InteractionResult.SUCCESS)
+        ActionResult<ItemStack> result = runEvent("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
+        if (result.getResult() != ActionResultType.SUCCESS)
             return result.getObject();
 
         return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).getObject();
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn)
     {
         ItemStack heldItem = playerIn.getItemInHand(handIn);
         if (useTime > 0)
@@ -203,16 +203,16 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         tooltip.addAll(lore);
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items)
+    public void fillItemCategory(ItemGroup tab, NonNullList<ItemStack> items)
     {
-        if (tab == CreativeModeTab.TAB_SEARCH)
+        if (tab == ItemGroup.TAB_SEARCH)
         {
             items.addAll(searchTabStacks.stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
         }
@@ -223,27 +223,27 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
-        InteractionResultHolder<ItemStack> result = runEvent("update",
+        ActionResult<ItemStack> result = runEvent("update",
                 FlexEventContext.of(worldIn, entityIn, stack).with(FlexEventContext.SLOT, itemSlot).with(FlexEventContext.SELECTED, isSelected),
                 () -> {
                     super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
-                    return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+                    return new ActionResult<>(ActionResultType.PASS, stack);
                 });
         if (result.getObject() != stack)
         {
-            entityIn.getSlot(itemSlot).set(result.getObject());
+            entityIn.setSlot(itemSlot, result.getObject());
         }
     }
 
-    private InteractionResultHolder<ItemStack> doContainerItem(ItemStack stack)
+    private ActionResult<ItemStack> doContainerItem(ItemStack stack)
     {
         return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
-            InteractionResult typeIn = super.hasContainerItem(stack) ? InteractionResult.SUCCESS : InteractionResult.PASS;
-            if (typeIn == InteractionResult.SUCCESS)
-                return new InteractionResultHolder<>(typeIn, super.getContainerItem(stack));
-            return new InteractionResultHolder<>(typeIn, stack);
+            ActionResultType typeIn = super.hasContainerItem(stack) ? ActionResultType.SUCCESS : ActionResultType.PASS;
+            if (typeIn == ActionResultType.SUCCESS)
+                return new ActionResult<>(typeIn, super.getContainerItem(stack));
+            return new ActionResult<>(typeIn, stack);
         });
     }
 
@@ -251,7 +251,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     public boolean hasContainerItem(ItemStack stack)
     {
         containerResult = doContainerItem(stack);
-        return containerResult.getResult() == InteractionResult.SUCCESS;
+        return containerResult.getResult() == ActionResultType.SUCCESS;
     }
 
     @Override
@@ -270,7 +270,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack)
     {
         return Utils.orElse(attributeModifiers.get(slot), HashMultimap::create);
     }

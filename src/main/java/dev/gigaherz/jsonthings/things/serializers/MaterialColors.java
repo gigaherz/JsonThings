@@ -1,7 +1,7 @@
 package dev.gigaherz.jsonthings.things.serializers;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.block.material.MaterialColor;
 
 import java.util.Locale;
 import java.util.Map;

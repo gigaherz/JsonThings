@@ -7,13 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.util.CustomPackType;
-import net.minecraft.server.packs.repository.FolderRepositorySource;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.server.packs.repository.RepositorySource;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
+import net.minecraft.resources.*;
 import net.minecraft.util.Unit;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -43,9 +37,9 @@ public class ThingResourceManager
 
     private static final Set<String> disabledPacks = Sets.newHashSet();
 
-    private final ReloadableResourceManager resourceManager;
-    private final RepositorySource folderPackFinder;
-    private final PackRepository packList;
+    private final SimpleReloadableResourceManager resourceManager;
+    private final IPackFinder folderPackFinder;
+    private final ResourcePackList packList;
 
     private final List<ThingParser<?>> thingParsers = Lists.newArrayList();
     private final Map<String, ThingParser<?>> parsersMap = Maps.newHashMap();
@@ -53,8 +47,8 @@ public class ThingResourceManager
     private ThingResourceManager()
     {
         resourceManager = new SimpleReloadableResourceManager(CustomPackType.THINGS);
-        folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), PackSource.DEFAULT);
-        packList = new PackRepository(CustomPackType.THINGS, folderPackFinder);
+        folderPackFinder = new FolderPackFinder(getThingPacksLocation(), IPackNameDecorator.DEFAULT);
+        packList = new ResourcePackList(folderPackFinder);
     }
 
     public <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
@@ -67,13 +61,13 @@ public class ThingResourceManager
         return parser;
     }
 
-    public RepositorySource getWrappedPackFinder()
+    public IPackFinder getWrappedPackFinder()
     {
         return (infoConsumer, infoFactory) -> folderPackFinder.loadPacks(info -> {
             if (!disabledPacks.contains(info.getId()))
                 infoConsumer.accept(info);
-        }, (a, n, b, c, d, e, f, g) ->
-                infoFactory.create("thingpack:" + a, n, true, c, d, e, f, g));
+        }, (a, n, b, c, d, e, f) ->
+                infoFactory.create("thingpack:" + a, n, ()->c, c, d, e, f));
     }
 
     public File getThingPacksLocation()
@@ -87,7 +81,7 @@ public class ThingResourceManager
     /**
      * Call during mod construction **without enqueueWork**!
      */
-    public synchronized void addPackFinder(RepositorySource finder)
+    public synchronized void addPackFinder(IPackFinder finder)
     {
         packList.addPackFinder(finder);
     }
@@ -95,7 +89,7 @@ public class ThingResourceManager
     /**
      * Call during mod construction **without enqueueWork**!
      */
-    public synchronized void addResourceReloadListener(PreparableReloadListener listener)
+    public synchronized void addResourceReloadListener(IFutureReloadListener listener)
     {
         resourceManager.registerReloadListener(listener);
     }
@@ -123,7 +117,7 @@ public class ThingResourceManager
         thingParsers.forEach(ThingParser::finishLoading);
     }
 
-    public PackRepository getRepository()
+    public ResourcePackList getRepository()
     {
         return packList;
     }

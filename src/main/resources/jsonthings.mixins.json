@@ -5,9 +5,14 @@
   "compatibilityLevel": "JAVA_16",
   "refmap": "jsonthings.refmap.json",
   "mixins": [
-    "ResourcePackTypeExtender"
+    "ResourcePackTypeExtender",
+    "ServerMainMixin"
   ],
-  "client": [],
+  "client": [
+    "MinecraftMixin",
+    "CreateWorldScreenMixin",
+    "WorldOptionsScreenMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1

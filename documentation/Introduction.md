@@ -22,3 +22,9 @@ A Thing Pack supports a set of file types for defining different things.
 * [Item Stacks](./formats/ItemStack.md)
 * [Effect Instances](./formats/EffectInstances.md)
 * [Attribute Modifiers](./formats/AttributeModifiers.md)
+
+### Version
+
+This documentation is for the 1.17.1 version of the mod.
+
+For the 1.16.5 documentation see the [1.16 branch](https://github.com/gigaherz/JsonThings/blob/1.16/documentation/Introduction.md).

@@ -43,20 +43,6 @@ Used to define a custom tool type.
 This item type has the same parameters as the tools above, and one additional:
 * `"mineable"`: A resource location of a block tag containing the list of blocks this tool is able to mine faster than an empty hand. If the block has the "requires_tool_for_drops" flag set, an empty hand or a tool that doesn't have the block in its tag would not be able to get loot.
 
-    public static final ItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
-
-        String tier = parseTier(data);
-
-        String tagName = GsonHelper.getAsString(data, "mineable");
-
-        Tag<Block> tag = BlockTags.bind(tagName);
-
-        float damage = GsonHelper.getAsInt(data, "damage");
-        float speed = GsonHelper.getAsFloat(data, "speed");
-
-        return (props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, tag, props);
-    });
-
 ## "tiered"
 
 Used for items that have tiers, but are not diggers or weapons.

@@ -23,16 +23,11 @@ import java.util.concurrent.Executor;
 
 public class ThingResourceManager
 {
-    private static ThingResourceManager instance;
+    private static ThingResourceManager instance = new ThingResourceManager();
 
     public static ThingResourceManager instance()
     {
         return instance;
-    }
-
-    public static ThingResourceManager initialize(IEventBus modBusEvent)
-    {
-        return instance = new ThingResourceManager();
     }
 
     private static final Set<String> disabledPacks = Sets.newHashSet();
@@ -66,8 +61,7 @@ public class ThingResourceManager
         return (infoConsumer, infoFactory) -> folderPackFinder.loadPacks(info -> {
             if (!disabledPacks.contains(info.getId()))
                 infoConsumer.accept(info);
-        }, (a, n, b, c, d, e, f) ->
-                infoFactory.create("thingpack:" + a, n, ()->c, c, d, e, f));
+        }, (a, n, b, c, d, e, f) -> infoFactory.create("thingpack:" + a, true, b, c, d, e, f));
     }
 
     public File getThingPacksLocation()

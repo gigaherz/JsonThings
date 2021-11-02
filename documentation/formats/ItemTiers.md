@@ -17,7 +17,6 @@ E.g.
   "speed": 1.0,
   "attack_damage_bonus": 1,
   "enchantment_value": 1,
-  "tag": "forge:requires_gold_tool",
   "repair_ingredient": {
     "item": "string"
   },
@@ -58,15 +57,6 @@ Defines how enchantable the tool is. Higher values will allow more enchantments 
 Required.
 
 Must be a positive integer or zero.
-
-## "tag"
-
-Defines the set of blocks this tool can break faster than an empty hand.
-
-Required.
-
-Must be a resource location string like `"requires_stone_tool"`, or `"minecraft:requires_gold_tool"`. Like on model jsons and 
-other vanilla files, if the namespace (the part before the colon) is missing "minecraft" is implied.
 
 ## "repair_ingredient"
 

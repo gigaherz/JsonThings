@@ -27,7 +27,7 @@ Parameters:
   * Required.
 * `"material"`: The name of an armor material.
 
-## "sword", "shovel", "axe", "pickaxe", "hoe"
+## "sword", "shovel", "axe", "pickaxe", "hoe", "digger"
 
 Tool items are good for digging things, and some also have advantages when used to attack.
 
@@ -35,27 +35,6 @@ They all share a common set of parameters:
 * `"tier"`: The name of an item tier.
 * `"damage"`: A number added on top of the tier's base damage, used to adjust it. Can be negative.
 * `"speed"`: A number added on top of the tier's base speed, used to adjust it. Can be negative.
-
-## "digger"
-
-Used to define a custom tool type.
-
-This item type has the same parameters as the tools above, and one additional:
-* `"mineable"`: A resource location of a block tag containing the list of blocks this tool is able to mine faster than an empty hand. If the block has the "requires_tool_for_drops" flag set, an empty hand or a tool that doesn't have the block in its tag would not be able to get loot.
-
-    public static final ItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
-
-        String tier = parseTier(data);
-
-        String tagName = GsonHelper.getAsString(data, "mineable");
-
-        Tag<Block> tag = BlockTags.bind(tagName);
-
-        float damage = GsonHelper.getAsInt(data, "damage");
-        float speed = GsonHelper.getAsFloat(data, "speed");
-
-        return (props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, tag, props);
-    });
 
 ## "tiered"
 

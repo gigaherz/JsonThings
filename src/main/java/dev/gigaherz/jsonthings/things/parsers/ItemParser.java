@@ -5,10 +5,13 @@ import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.value.Any;
+import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.item.Item;
@@ -18,6 +21,9 @@ import net.minecraft.util.text.TextComponent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.IForgeRegistry;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,6 +58,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .obj()
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
+                .ifKey("tool", val -> val.map(this::parseToolTypes).handle(pairs -> builder.setToolTypes(pairs)))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(Lists.newArrayList("group", "creative_menu_stacks"), () -> new RuntimeException("Cannot have group and creative_menu_stacks at the same time."))
                 .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
@@ -70,6 +77,26 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore));
 
         return builder;
+    }
+
+    private List<Pair<String, Integer>> parseToolTypes(Any any)
+    {
+        List<Pair<String, Integer>> list = new ArrayList<>();
+        any
+                .ifObj(val -> val.map(this::parseToolType).handle(list::add))
+                .ifArray(val -> val.forEach((i,val2) -> val2.obj().map(this::parseToolType).handle(list::add)))
+                .typeError();
+        return list;
+    }
+
+    private Pair<String, Integer> parseToolType(ObjValue objValue)
+    {
+        Mutable<String> toolType = new MutableObject<>();
+        MutableInt level = new MutableInt(0);
+        objValue
+                .key("type", val -> val.string().handle(toolType::setValue))
+                .ifKey("level", val -> val.intValue().handle(level::setValue));
+        return Pair.of(toolType.getValue(), level.getValue());
     }
 
     private List<IFormattableTextComponent> parseLore(JsonArray lines)

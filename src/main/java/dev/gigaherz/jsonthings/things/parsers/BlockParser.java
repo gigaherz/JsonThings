@@ -68,6 +68,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
                         .typeError()
                 )
                 .ifKey("requires_tool_for_drops", val -> val.bool().handle(builder::setRequiresToolForDrops))
+                .ifKey("harvest_tool", val -> val.string().handle(builder::setHarvestTool))
+                .ifKey("harvest_level", val -> val.intValue().handle(builder::setHarvestLevel))
                 .ifKey("is_air", val -> val.bool().handle(builder::setIsAir))
                 .ifKey("has_collision", val -> val.bool().handle(builder::setHasCollision))
                 .ifKey("ticks_randomly", val -> val.bool().handle(builder::setTicksRandom))

@@ -18,6 +18,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -53,6 +54,8 @@ public class ItemBuilder implements Supplier<IFlexItem>
     private String colorHandler = null;
 
     private List<IFormattableTextComponent> lore = Collections.emptyList();
+
+    private List<Pair<String, Integer>> toolTypes;
 
     private ItemBuilder(ResourceLocation registryName, JsonObject data)
     {
@@ -143,6 +146,11 @@ public class ItemBuilder implements Supplier<IFlexItem>
         this.lore = lore;
     }
 
+    public void setToolTypes(List<Pair<String, Integer>> pairs)
+    {
+        this.toolTypes = pairs;
+    }
+
     private IFlexItem build()
     {
         Item.Properties properties = new Item.Properties();
@@ -163,6 +171,14 @@ public class ItemBuilder implements Supplier<IFlexItem>
         if (fi != null)
         {
             properties = properties.food(fi);
+        }
+
+        if (toolTypes != null)
+        {
+            for(Pair<String, Integer> p : toolTypes)
+            {
+                properties = properties.addToolType(ToolType.get(p.getFirst()), p.getSecond());
+            }
         }
 
         IItemFactory<?> factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);

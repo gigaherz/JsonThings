@@ -16,6 +16,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -62,6 +63,8 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     private Float speedFactor;
     private Float jumpFactor;
     private ResourceLocation soundType;
+    private String harvestTool;
+    private Integer harvestLevel;
 
     private BlockBuilder(ResourceLocation registryName, JsonObject data)
     {
@@ -207,6 +210,16 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         this.soundType = loc;
     }
 
+    public void setHarvestTool(String toolType)
+    {
+        this.harvestTool = toolType;
+    }
+
+    public void setHarvestLevel(int harvestLevel)
+    {
+        this.harvestLevel = harvestLevel;
+    }
+
     private IFlexBlock build()
     {
         Material material = getBlockMaterial();
@@ -226,6 +239,9 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         if (Utils.orElse(getFriction(), 0.6f) != 0.6f) props.friction(getFriction());
         if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
         if (Utils.orElse(getJumpFactor(), 1.0f) != 1) props.jumpFactor(getSpeedFactor());
+
+        if (getHarvestTool() != null) props.harvestTool(ToolType.get(getHarvestTool()));
+        if (getHarvestLevel() != null) props.harvestLevel(getHarvestLevel());
 
         if (getSoundType() != null) props.sound(Utils.getOrCrash(ThingRegistries.SOUND_TYPES, getSoundType()));
 
@@ -487,6 +503,18 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     public ResourceLocation getSoundType()
     {
         return getValueWithParent(soundType, BlockBuilder::getSoundType);
+    }
+
+    @Nullable
+    public String getHarvestTool()
+    {
+        return getValueWithParent(harvestTool, BlockBuilder::getHarvestTool);
+    }
+
+    @Nullable
+    public Integer getHarvestLevel()
+    {
+        return getValueWithParent(harvestLevel, BlockBuilder::getHarvestLevel);
     }
 
     public ResourceLocation getRegistryName()

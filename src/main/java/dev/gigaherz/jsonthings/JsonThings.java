@@ -64,7 +64,7 @@ public class JsonThings
     {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        ThingResourceManager manager = ThingResourceManager.initialize(bus);
+        ThingResourceManager manager = ThingResourceManager.instance();
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));
@@ -90,7 +90,6 @@ public class JsonThings
 
             if (FMLEnvironment.dist == Dist.CLIENT)
             {
-                ClientHandlers.addClientPackFinder();
                 BlockColorHandler.init();
                 ItemColorHandler.init();
             }
@@ -114,11 +113,6 @@ public class JsonThings
     @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientHandlers
     {
-        public static void addClientPackFinder()
-        {
-            Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.instance().getWrappedPackFinder());
-        }
-
         @SubscribeEvent
         public static void constructMod(FMLConstructModEvent event)
         {

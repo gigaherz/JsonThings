@@ -18,6 +18,8 @@ E.g.
   "type": "plain",
   "material": "dirt",
   "map_color": "dirt",
+  "harvest_tool": "axe",
+  "harvest_level": 3,
   "properties": {
     "facing": "horizontal_facing",
     "powered": { "type": "boolean" },
@@ -75,6 +77,30 @@ Optional if using "parent". Default: the parent's material.
 
 Must be a resource location string like `"clay"`, or `"minecraft:dirt"`. Like on tag jsons and other vanilla files,
 if the namespace (the part before the colon) is missing "minecraft" is implied.
+
+## "map_color"
+
+Defines the color displayed in a map, from the choices available in the map color palette.
+
+Required.
+
+Must be either a string, or a positive integer between 0 and 63 (inclusive).
+
+## "harvest_tool"
+
+Defines the tool used to mine this block fast and get drops.
+
+Optional. Default: no tool needed.
+
+Must be a string.
+
+## "harvest_level"
+
+Defines the tool level (tier) needed to get drops.
+
+Optional. Default: -1 (any tier works).
+
+Must be a string.
 
 ## "map_color"
 

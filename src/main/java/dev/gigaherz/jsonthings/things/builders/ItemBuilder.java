@@ -9,6 +9,7 @@ import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
+import dev.gigaherz.jsonthings.things.serializers.ItemFactory;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -173,15 +174,27 @@ public class ItemBuilder implements Supplier<IFlexItem>
             properties = properties.food(fi);
         }
 
-        if (toolTypes != null)
+        ItemFactory<?> factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);
+
+        List<Pair<String, Integer>> _toolTypes = getToolTypes();
+        if (_toolTypes != null)
         {
-            for(Pair<String, Integer> p : toolTypes)
+            for(Pair<String, Integer> p : _toolTypes)
             {
-                properties = properties.addToolType(ToolType.get(p.getFirst()), p.getSecond());
+                Integer level = p.getSecond();
+                properties = properties.addToolType(ToolType.get(p.getFirst()), level != null ? level : 0);
+            }
+        }
+        else
+        {
+            Pair<ToolType, Integer> tool = factory.getDefaultTool();
+            if (tool != null)
+            {
+                Integer level = tool.getSecond();
+                properties = properties.addToolType(tool.getFirst(), level != null ? level : 0);
             }
         }
 
-        IItemFactory<?> factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);
 
         jsonSource = null;
 
@@ -308,6 +321,12 @@ public class ItemBuilder implements Supplier<IFlexItem>
     public String getColorHandler()
     {
         return getValueWithParent(colorHandler, ItemBuilder::getColorHandler);
+    }
+
+    @Nullable
+    public List<Pair<String, Integer>> getToolTypes()
+    {
+        return getValueWithParent(toolTypes, ItemBuilder::getToolTypes);
     }
 
     public ResourceLocation getRegistryName()

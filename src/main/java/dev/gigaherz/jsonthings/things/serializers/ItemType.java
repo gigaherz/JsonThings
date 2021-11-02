@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.things.serializers;
 
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.items.*;
@@ -8,27 +9,25 @@ import dev.gigaherz.jsonthings.util.Utils;
 import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.Item;
-import net.minecraft.item.TieredItem;
+import net.minecraft.item.*;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.common.ToolType;
 
 import java.util.Objects;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class ItemType<T extends Item & IFlexItem>
 {
-    public static final ItemType<FlexItem> PLAIN = register("plain", (data) -> (props, builder) -> new FlexItem(props));
+    public static final ItemType<FlexItem> PLAIN = register("plain", (data) -> new ItemFactory<>((props, builder) -> new FlexItem(props)));
 
     public static final ItemType<FlexBlockItem> BLOCK = register("block", data -> {
         String name = JSONUtils.getAsString(data, "places", null);
         ResourceLocation blockName = name != null ? new ResourceLocation(name) : null;
         boolean useBlockName = JSONUtils.getAsBoolean(data, "use_block_name", true);
-        return (props, builder) -> new FlexBlockItem(Utils.getBlockOrCrash(blockName != null ? blockName : builder.getRegistryName()), useBlockName, props);
+        return new ItemFactory<>((props, builder) -> new FlexBlockItem(Utils.getBlockOrCrash(blockName != null ? blockName : builder.getRegistryName()), useBlockName, props));
     });
 
     public static final ItemType<FlexArmorItem> ARMOR = register("armor", data -> {
@@ -72,14 +71,14 @@ public class ItemType<T extends Item & IFlexItem>
         final EquipmentSlotType slot = EquipmentSlotType.byName(slotName);
         final ArmorMaterial material = ArmorMaterial.valueOf(materialName.toUpperCase());
 
-        return (props, builder) -> new FlexArmorItem(material, slot, props);
+        return new ItemFactory<>((props, builder) -> new FlexArmorItem(material, slot, props));
     });
 
-    public static final ItemType<FlexSwordItem> SWORD = register("sword", makeToolSerializer2(FlexSwordItem::new));
-    public static final ItemType<FlexShovelItem> SHOVEL = register("shovel", makeToolSerializer(FlexShovelItem::new));
-    public static final ItemType<FlexAxeItem> AXE = register("axe", makeToolSerializer(FlexAxeItem::new));
-    public static final ItemType<FlexPickaxeItem> PICKAXE = register("pickaxe", makeToolSerializer2(FlexPickaxeItem::new));
-    public static final ItemType<FlexHoeItem> HOE = register("hoe", makeToolSerializer2(FlexHoeItem::new));
+    public static final ItemType<FlexSwordItem> SWORD = registerTool2("sword", FlexSwordItem::new, ToolType.get("sword"));
+    public static final ItemType<FlexShovelItem> SHOVEL = registerTool("shovel", FlexShovelItem::new, ToolType.SHOVEL);
+    public static final ItemType<FlexAxeItem> AXE = registerTool("axe", FlexAxeItem::new, ToolType.AXE);
+    public static final ItemType<FlexPickaxeItem> PICKAXE = registerTool2("pickaxe", FlexPickaxeItem::new, ToolType.PICKAXE);
+    public static final ItemType<FlexHoeItem> HOE = registerTool2("hoe", FlexHoeItem::new, ToolType.HOE);
 
     public static final ItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
 
@@ -88,43 +87,50 @@ public class ItemType<T extends Item & IFlexItem>
         float damage = JSONUtils.getAsInt(data, "damage");
         float speed = JSONUtils.getAsFloat(data, "speed");
 
-        return (props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, props);
+        return new ItemFactory<>((props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, props));
     });
 
-    private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
+    private static <T extends ToolItem & IFlexItem> ItemType<T> registerTool(String name, DiggerFactory<T> factory, ToolType defaultToolType)
     {
-        return data -> {
+        return register(name, data -> {
 
-            String tier = parseTier(data);
+            String tierName = parseTier(data);
 
             float damage = JSONUtils.getAsFloat(data, "damage");
             float speed = JSONUtils.getAsFloat(data, "speed");
 
-            return (props, builder) -> factory.create(getTier(tier), damage, speed, props);
-        };
+            IItemTier tier = getTier(tierName);
+            Pair<ToolType, Integer> defaultTool = Pair.of(defaultToolType, tier.getLevel());
+
+            return new ItemFactory<>((props, builder) -> factory.create(tier, damage, speed, props), defaultTool);
+        });
     }
 
-    private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeToolSerializer2(DiggerFactory2<T> factory)
+    private static <T extends TieredItem & IFlexItem> ItemType<T> registerTool2(String name, DiggerFactory2<T> factory, ToolType defaultToolType)
     {
-        return data -> {
+        return register(name, data -> {
 
-            String tier = parseTier(data);
+            String tierName = parseTier(data);
 
             int damage = JSONUtils.getAsInt(data, "damage");
             float speed = JSONUtils.getAsFloat(data, "speed");
 
-            return (props, builder) -> factory.create(getTier(tier), damage, speed, props);
-        };
+            IItemTier tier = getTier(tierName);
+            Pair<ToolType, Integer> defaultTool = Pair.of(defaultToolType, tier.getLevel());
+
+            return new ItemFactory<>((props, builder) -> factory.create(tier, damage, speed, props), defaultTool);
+        });
     }
 
-    private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeTieredSerializer(TieredFactory<T> factory)
+    public static final ItemType<FlexTieredItem> TIERED = registerTiered("tiered", FlexTieredItem::new);
+    private static <T extends TieredItem & IFlexItem> ItemType<T> registerTiered(String name, TieredFactory<T> factory)
     {
-        return data -> {
+        return register(name, data -> {
 
             String tier = parseTier(data);
 
-            return (props, builder) -> factory.create(getTier(tier), props);
-        };
+            return new ItemFactory<>((props, builder) -> factory.create(getTier(tier), props));
+        });
     }
 
     @FunctionalInterface
@@ -190,7 +196,7 @@ public class ItemType<T extends Item & IFlexItem>
         this.factory = factory;
     }
 
-    public IItemFactory<T> getFactory(JsonObject data)
+    public ItemFactory<T> getFactory(JsonObject data)
     {
         return factory.createFactory(data);
     }

@@ -58,7 +58,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .obj()
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
-                .ifKey("tool", val -> val.map(this::parseToolTypes).handle(pairs -> builder.setToolTypes(pairs)))
+                .ifKey("tool", val -> val.map(this::parseToolTypes).handle(builder::setToolTypes))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(Lists.newArrayList("group", "creative_menu_stacks"), () -> new RuntimeException("Cannot have group and creative_menu_stacks at the same time."))
                 .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))

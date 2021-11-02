@@ -21,6 +21,10 @@ E.g.
   "food": {
     "saturation": 5
   },
+  "tool": {
+    "type": "axe",
+    "level": 2
+  },
   "group": "decorations",
   "creative_menu_stacks": [
     {
@@ -78,7 +82,6 @@ Optional. Default: 0 (no durability bar), except for item types like tools and a
 
 Must be a positive integer or zero. Zero means the item will not be damageable.
 
-
 ## "group"
 
 Defines which creative tab to have the item in.
@@ -113,6 +116,27 @@ The `"tabs"` key is required and must be a json array (`[]`) containing strings.
 The rest of the object are values defining the item stack.
 
 For details on the definition of item stacks in json, see the [ItemStack Definitions](./ItemStack.md) page.
+
+## "tool"
+
+Defines the tool types and levels this item has.
+
+Optional. Default: defined by the item type.
+
+Must be either a json object (`{}`) or a json array (`[]`) containing json objects (`{}`).
+
+Each json object corresponds to a tool type and level:
+
+```json
+    {
+      "type": "shovel",
+      "level": 0
+    }
+```
+
+The `"type"` key is required and must be a string.
+
+The `"level"` key is optional. It must be an integer and defaults to 0.
 
 ## "food"
 

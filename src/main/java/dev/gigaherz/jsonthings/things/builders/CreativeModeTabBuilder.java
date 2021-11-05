@@ -4,18 +4,19 @@ import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Supplier;
-
-public class CreativeModeTabBuilder implements Supplier<FlexCreativeModeTab>
+public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab>
 {
-    private FlexCreativeModeTab builtTab = null;
-
-    private final ResourceLocation registryName;
     private ResourceLocation iconItem;
 
     private CreativeModeTabBuilder(ResourceLocation registryName)
     {
-        this.registryName = registryName;
+        super(registryName);
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Creative Mode Tab";
     }
 
     public static CreativeModeTabBuilder begin(ResourceLocation registryName)
@@ -28,20 +29,10 @@ public class CreativeModeTabBuilder implements Supplier<FlexCreativeModeTab>
         this.iconItem = iconItem;
     }
 
-    private FlexCreativeModeTab build()
+    @Override
+    protected FlexCreativeModeTab buildInternal()
     {
-        return builtTab = new FlexCreativeModeTab(registryName.getNamespace() + "." + registryName.getPath().replace("/", "."), () -> Utils.getItemOrCrash(iconItem));
-    }
-
-    public FlexCreativeModeTab get()
-    {
-        if (builtTab == null)
-            return build();
-        return builtTab;
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
+        ResourceLocation registryName = getRegistryName();
+        return new FlexCreativeModeTab(registryName.getNamespace() + "." + registryName.getPath().replace("/", "."), () -> Utils.getItemOrCrash(iconItem));
     }
 }

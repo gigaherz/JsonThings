@@ -1,14 +1,15 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.function.Supplier;
-
-public class MobEffectInstanceBuilder implements Supplier<MobEffectInstance>
+public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance>
 {
+    private final BaseBuilder<?> owner;
     private ResourceLocation effect;
     private int duration;
     private int amplifier;
@@ -16,7 +17,26 @@ public class MobEffectInstanceBuilder implements Supplier<MobEffectInstance>
     private boolean visible;
     private boolean showParticles;
     private boolean showIcon;
-    private MobEffectInstance builtEffectInstance;
+
+    public MobEffectInstanceBuilder(BaseBuilder<?> owner)
+    {
+        super(owner.getRegistryName());
+        this.owner = owner;
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Mob Effect Instance";
+    }
+
+    @Override
+    protected CrashReportCategory fillReport(CrashReport crashReport)
+    {
+        CrashReportCategory reportCategory = super.fillReport(crashReport);
+        reportCategory.setDetail("Contained in", owner.getThingTypeDisplayName());
+        return reportCategory;
+    }
 
     public ResourceLocation getEffect()
     {
@@ -58,15 +78,9 @@ public class MobEffectInstanceBuilder implements Supplier<MobEffectInstance>
         this.showIcon = showIcon;
     }
 
-    private MobEffectInstance build()
+    @Override
+    protected MobEffectInstance buildInternal()
     {
-        return builtEffectInstance = new MobEffectInstance(Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
-    }
-
-    public MobEffectInstance get()
-    {
-        if (builtEffectInstance == null)
-            return build();
-        return builtEffectInstance;
+        return new MobEffectInstance(Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
     }
 }

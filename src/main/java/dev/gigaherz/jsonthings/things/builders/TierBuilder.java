@@ -9,12 +9,8 @@ import net.minecraftforge.common.ForgeTier;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TierBuilder implements Supplier<ForgeTier>
+public class TierBuilder extends BaseBuilder<ForgeTier>
 {
-    private ForgeTier builtTier = null;
-
-    private final ResourceLocation registryName;
-
     private int level = 0;
     private int uses;
     private float speed;
@@ -27,7 +23,13 @@ public class TierBuilder implements Supplier<ForgeTier>
 
     private TierBuilder(ResourceLocation registryName)
     {
-        this.registryName = registryName;
+        super(registryName);
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Item Tier";
     }
 
     public static TierBuilder begin(ResourceLocation registryName)
@@ -80,21 +82,10 @@ public class TierBuilder implements Supplier<ForgeTier>
         this.sortBefore = sortBefore;
     }
 
-    private ForgeTier build()
+    @Override
+    protected ForgeTier buildInternal()
     {
-        return builtTier = new ForgeTier(level, uses, speed, attackDamageBonus, enchantmentValue, tag, repairIngredient);
-    }
-
-    public ForgeTier get()
-    {
-        if (builtTier == null)
-            return build();
-        return builtTier;
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
+        return new ForgeTier(level, uses, speed, attackDamageBonus, enchantmentValue, tag, repairIngredient);
     }
 
     public List<Object> getSortAfter()

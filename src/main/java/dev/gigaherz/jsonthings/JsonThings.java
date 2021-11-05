@@ -4,6 +4,8 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
+import net.minecraft.CrashReport;
+import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
@@ -115,9 +117,14 @@ public class JsonThings
             loaderFuture.get().finishLoading();
             loaderFuture = null;
         }
-        catch (InterruptedException | ExecutionException e)
+        catch (InterruptedException e)
         {
-            throw new RuntimeException("Error loading thingpacks", e);
+            LOGGER.error("Thingpack loader future interrupted!");
+        }
+        catch (ExecutionException e)
+        {
+            Throwable pCause = e.getCause();
+            throw new ReportedException(CrashReport.forThrowable(pCause, "Error loading thingpacks"));
         }
     }
 

@@ -38,16 +38,16 @@ public class FoodParser extends ThingParser<FoodBuilder>
                 .ifKey("effects", val -> val.array().forEach((i, entry) -> {
                     var probability = new MutableFloat(1.0f);
                     var ei = parseEffectInstance(entry.obj()
-                            .ifKey("probability", v3 -> v3.floatValue().range(0, 1).handle(probability::setValue)));
+                            .ifKey("probability", v3 -> v3.floatValue().range(0, 1).handle(probability::setValue)), builder);
                     builder.effect(ei, probability.getValue());
                 }));
 
         return builder;
     }
 
-    private MobEffectInstanceBuilder parseEffectInstance(ObjValue obj)
+    private MobEffectInstanceBuilder parseEffectInstance(ObjValue obj, FoodBuilder parentBuilder)
     {
-        var builder = new MobEffectInstanceBuilder();
+        var builder = new MobEffectInstanceBuilder(parentBuilder);
         obj
                 .key("effect", val -> val.string().handle(str -> builder.setEffect(new ResourceLocation(str))))
                 .key("duration", val -> val.intValue().min(0).handle(builder::setDuration))

@@ -12,14 +12,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
-public class EnchantmentBuilder implements Supplier<FlexEnchantment>
+public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
 {
-    private FlexEnchantment builtEnchantment = null;
-
-    private final ResourceLocation registryName;
-
     private Enchantment.Rarity rarity = Enchantment.Rarity.COMMON;
     private EnchantmentCategory type = EnchantmentCategory.BREAKABLE;
     private EquipmentSlot[] slots = EquipmentSlot.values();
@@ -38,7 +33,13 @@ public class EnchantmentBuilder implements Supplier<FlexEnchantment>
 
     private EnchantmentBuilder(ResourceLocation registryName)
     {
-        this.registryName = registryName;
+        super(registryName);
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Enchantment";
     }
 
     public static EnchantmentBuilder begin(ResourceLocation registryName)
@@ -111,7 +112,8 @@ public class EnchantmentBuilder implements Supplier<FlexEnchantment>
         this.blackList = blacklist;
     }
 
-    private FlexEnchantment build()
+    @Override
+    protected FlexEnchantment buildInternal()
     {
         FlexEnchantment flexEnchantment = new FlexEnchantment(rarity, type, slots);
 
@@ -131,20 +133,7 @@ public class EnchantmentBuilder implements Supplier<FlexEnchantment>
             return (Predicate<Enchantment>) ((enchantment) -> ro.filter(en -> en == enchantment).isPresent());
         }).toList());
 
-        builtEnchantment = flexEnchantment;
         return flexEnchantment;
-    }
-
-    public FlexEnchantment get()
-    {
-        if (builtEnchantment == null)
-            return build();
-        return builtEnchantment;
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
     }
 
     public EnchantmentBuilder setIsAllowedOnBooks(boolean allow_on_books)

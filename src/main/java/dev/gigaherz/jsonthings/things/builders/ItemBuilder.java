@@ -17,20 +17,16 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ItemBuilder implements Supplier<IFlexItem>
+public class ItemBuilder extends BaseBuilder<IFlexItem>
 {
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
-
-    private IFlexItem builtItem = null;
-
-    private final ResourceLocation registryName;
 
     private JsonObject jsonSource;
 
@@ -44,7 +40,7 @@ public class ItemBuilder implements Supplier<IFlexItem>
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
 
-    private FoodProperties foodInfo = null;
+    private NonNullSupplier<FoodProperties> foodDefinition = null;
 
     private DelayedUse delayedUse = null;
     private ContainerInfo containerInfo = null;
@@ -55,8 +51,14 @@ public class ItemBuilder implements Supplier<IFlexItem>
 
     private ItemBuilder(ResourceLocation registryName, JsonObject data)
     {
-        this.registryName = registryName;
+        super(registryName);
         this.jsonSource = data;
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Item";
     }
 
     public static ItemBuilder begin(ResourceLocation registryName, JsonObject data)
@@ -105,19 +107,16 @@ public class ItemBuilder implements Supplier<IFlexItem>
 
     public void setFood(ResourceLocation foodName)
     {
-        if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
-        if (!ThingRegistries.FOODS.containsKey(foodName))
-            throw new RuntimeException("No known food definition with name '" + foodName + "'");
-        FoodProperties foodInfo = ThingRegistries.FOODS.get(foodName);
-        if (foodInfo == null)
-            throw new IllegalStateException("Property with name " + foodName + " not found in ThingRegistries.FOODS");
-        this.foodInfo = foodInfo;
+        if (this.foodDefinition != null) throw new RuntimeException("Food info already set.");
+        this.foodDefinition = () -> ThingRegistries.FOODS
+                .getOptional(foodName)
+                .orElseGet(() -> JsonThings.foodParser.getOrCrash(foodName).get());
     }
 
     public void setFood(FoodProperties food)
     {
-        if (this.foodInfo != null) throw new RuntimeException("Food info already set.");
-        this.foodInfo = food;
+        if (this.foodDefinition != null) throw new RuntimeException("Food info already set.");
+        this.foodDefinition = () -> food;
     }
 
     public void makeDelayedUse(int useTicks, String useType, String completeAction)
@@ -129,7 +128,7 @@ public class ItemBuilder implements Supplier<IFlexItem>
     public void makeContainer(String emptyItem)
     {
         if (this.containerInfo != null) throw new RuntimeException("Delayed use already set.");
-        this.containerInfo = new ContainerInfo(registryName, emptyItem);
+        this.containerInfo = new ContainerInfo(getRegistryName(), emptyItem);
     }
 
     public void setColorHandler(String colorHandler)
@@ -142,9 +141,16 @@ public class ItemBuilder implements Supplier<IFlexItem>
         this.lore = lore;
     }
 
-    private IFlexItem build()
+    @Override
+    protected IFlexItem buildInternal()
     {
         Item.Properties properties = new Item.Properties();
+
+        var ms = getMaxStackSize();
+        if (ms != null)
+        {
+            properties = properties.stacksTo(ms);
+        }
 
         var md = getMaxDamage();
         if (md != null)
@@ -158,10 +164,10 @@ public class ItemBuilder implements Supplier<IFlexItem>
             properties = properties.craftRemainder(Utils.getItemOrCrash(ci.emptyItem));
         }
 
-        var fi = getFoodInfo();
-        if (fi != null)
+        NonNullSupplier<FoodProperties> foodDefinition = getFoodDefinition();
+        if (foodDefinition != null)
         {
-            properties = properties.food(fi);
+            properties = properties.food(foodDefinition.get());
         }
 
         var factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);
@@ -193,15 +199,7 @@ public class ItemBuilder implements Supplier<IFlexItem>
             }
         }
 
-        builtItem = flexItem;
         return flexItem;
-    }
-
-    public IFlexItem get()
-    {
-        if (builtItem == null)
-            return build();
-        return builtItem;
     }
 
     @Nullable
@@ -224,13 +222,13 @@ public class ItemBuilder implements Supplier<IFlexItem>
     public ItemBuilder getParentBuilder()
     {
         if (parentBuilder == null)
-            throw new IllegalStateException("Parent builder not set");
+            throw new IllegalStateException("The item requires a parent to be assigned, but no \"parent\" key is present.");
         if (parentBuilderObj == null)
         {
             parentBuilderObj = JsonThings.itemParser.getBuildersMap().get(parentBuilder);
         }
         if (parentBuilderObj == null)
-            throw new IllegalStateException("Parent builder not found");
+            throw new IllegalStateException("The item specifies a parent "+parentBuilder+", but no such parent was found.");
         return parentBuilderObj;
     }
 
@@ -264,15 +262,21 @@ public class ItemBuilder implements Supplier<IFlexItem>
     }
 
     @Nullable
+    public Integer getMaxStackSize()
+    {
+        return getValueWithParent(maxStackSize, ItemBuilder::getMaxStackSize);
+    }
+
+    @Nullable
     public ContainerInfo getContainerInfo()
     {
         return getValueWithParent(containerInfo, ItemBuilder::getContainerInfo);
     }
 
     @Nullable
-    public FoodProperties getFoodInfo()
+    public NonNullSupplier<FoodProperties> getFoodDefinition()
     {
-        return getValueWithParent(foodInfo, ItemBuilder::getFoodInfo);
+        return getValueWithParent(foodDefinition, ItemBuilder::getFoodDefinition);
     }
 
     @Nullable
@@ -291,11 +295,6 @@ public class ItemBuilder implements Supplier<IFlexItem>
     public String getColorHandler()
     {
         return getValueWithParent(colorHandler, ItemBuilder::getColorHandler);
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
     }
 
     static class ContainerInfo

@@ -3,17 +3,13 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Supplier;
-
-@SuppressWarnings("ClassCanBeRecord")
-public class ShapeBuilder implements Supplier<DynamicShape>
+public class ShapeBuilder extends BaseBuilder<DynamicShape>
 {
-    private final ResourceLocation registryName;
     private final DynamicShape dynamicShape;
 
     private ShapeBuilder(ResourceLocation registryName, DynamicShape dynamicShape)
     {
-        this.registryName = registryName;
+        super(registryName);
         this.dynamicShape = dynamicShape;
     }
 
@@ -22,12 +18,14 @@ public class ShapeBuilder implements Supplier<DynamicShape>
         return new ShapeBuilder(registryName, dynamicShape);
     }
 
-    public ResourceLocation getRegistryName()
+    @Override
+    protected String getThingTypeDisplayName()
     {
-        return registryName;
+        return "Voxel Shape";
     }
 
-    public DynamicShape get()
+    @Override
+    protected DynamicShape buildInternal()
     {
         return dynamicShape;
     }

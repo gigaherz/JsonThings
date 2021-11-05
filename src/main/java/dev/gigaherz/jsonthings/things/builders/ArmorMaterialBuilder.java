@@ -11,12 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ArmorMaterialBuilder implements Supplier<FlexArmorMaterial>
+public class ArmorMaterialBuilder extends BaseBuilder<FlexArmorMaterial>
 {
-    private FlexArmorMaterial builtMaterial = null;
-
-    private final ResourceLocation registryName;
-
     private final Map<EquipmentSlot, Integer> durability = new HashMap<>();
     private final Map<EquipmentSlot, Integer> defense = new HashMap<>();
     private float toughness;
@@ -27,7 +23,13 @@ public class ArmorMaterialBuilder implements Supplier<FlexArmorMaterial>
 
     private ArmorMaterialBuilder(ResourceLocation registryName)
     {
-        this.registryName = registryName;
+        super(registryName);
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Armor Material";
     }
 
     public static ArmorMaterialBuilder begin(ResourceLocation registryName)
@@ -70,21 +72,10 @@ public class ArmorMaterialBuilder implements Supplier<FlexArmorMaterial>
         this.repairIngredient = repairIngredient;
     }
 
-    private FlexArmorMaterial build()
+    @Override
+    protected FlexArmorMaterial buildInternal()
     {
         var se = RegistryObject.of(equipSound, ForgeRegistries.SOUND_EVENTS);
-        return builtMaterial = new FlexArmorMaterial(registryName.toString(), durability, defense, toughness, knockbackResistance, enchantmentValue, se, repairIngredient);
-    }
-
-    public FlexArmorMaterial get()
-    {
-        if (builtMaterial == null)
-            return build();
-        return builtMaterial;
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
+        return new FlexArmorMaterial(getRegistryName().toString(), durability, defense, toughness, knockbackResistance, enchantmentValue, se, repairIngredient);
     }
 }

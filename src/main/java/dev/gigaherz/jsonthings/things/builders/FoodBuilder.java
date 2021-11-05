@@ -6,13 +6,9 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class FoodBuilder implements Supplier<Food>
+public class FoodBuilder extends BaseBuilder<Food>
 {
-    private Food builtFood = null;
-
-    private final ResourceLocation registryName;
     private final List<Pair<MobEffectInstanceBuilder, Float>> effects = new ArrayList<>();
     private int nutrition;
     private float saturation;
@@ -20,10 +16,15 @@ public class FoodBuilder implements Supplier<Food>
     private boolean alwaysEat;
     private boolean fast;
 
-
     private FoodBuilder(ResourceLocation registryName)
     {
-        this.registryName = registryName;
+        super(registryName);
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Food Definition";
     }
 
     public static FoodBuilder begin(ResourceLocation registryName)
@@ -61,7 +62,8 @@ public class FoodBuilder implements Supplier<Food>
         effects.add(Pair.of(effect, probability));
     }
 
-    private Food build()
+    @Override
+    protected Food buildInternal()
     {
         Food.Builder foodBuilder = new Food.Builder();
         foodBuilder.nutrition(nutrition);
@@ -72,18 +74,6 @@ public class FoodBuilder implements Supplier<Food>
         effects.forEach(pair -> {
             foodBuilder.effect(pair.getFirst()::get, pair.getSecond());
         });
-        return builtFood = foodBuilder.build();
-    }
-
-    public Food get()
-    {
-        if (builtFood == null)
-            return build();
-        return builtFood;
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
+        return foodBuilder.build();
     }
 }

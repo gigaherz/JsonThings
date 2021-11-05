@@ -7,7 +7,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.StackContext;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import net.minecraft.client.resources.JsonReloadListener;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
+import net.minecraft.crash.ReportedException;
+import net.minecraft.item.Food;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.profiler.IProfiler;
@@ -18,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ThingParser<TBuilder> extends JsonReloadListener
+public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends JsonReloadListener
 {
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -53,7 +58,12 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Error parsing " + key, e);
+            CrashReport crashReport = CrashReport.forThrowable(e, "Error while parsing " + thingType + " from " + key);
+
+            CrashReportCategory reportCategory = crashReport.addCategory("Thing", 1);
+            reportCategory.setDetail("Resource name", key);
+
+            throw new ReportedException(crashReport);
         }
     }
 
@@ -112,5 +122,13 @@ public abstract class ThingParser<TBuilder> extends JsonReloadListener
     public String getThingType()
     {
         return thingType;
+    }
+
+    public TBuilder getOrCrash(ResourceLocation name)
+    {
+        TBuilder b = buildersByName.get(name);
+        if (b == null)
+            throw new RuntimeException("There is no known " + thingType + " with name " + name);
+        return b;
     }
 }

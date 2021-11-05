@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.ReportedException;
 import net.minecraft.item.Item;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
@@ -104,9 +106,14 @@ public class JsonThings
             loaderFuture.get().finishLoading();
             loaderFuture = null;
         }
-        catch (InterruptedException | ExecutionException e)
+        catch (InterruptedException e)
         {
-            throw new RuntimeException("Error loading thingpacks", e);
+            LOGGER.error("Thingpack loader future interrupted!");
+        }
+        catch (ExecutionException e)
+        {
+            Throwable pCause = e.getCause();
+            throw new ReportedException(CrashReport.forThrowable(pCause, "Error loading thingpacks"));
         }
     }
 

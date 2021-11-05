@@ -2,5 +2,16 @@
   "nutrition": 1,
   "saturation": 0,
   "fast": true,
-  "always_eat": true
+  "always_eat": true,
+  "effects1":[
+    {
+      "effect": "non:existant",
+      "duration": 1,
+      "amplifier": 0,
+      "ambient": true,
+      "visible": false,
+      "show_particles": false,
+      "show_icon": false
+    }
+  ]
 }

@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
@@ -23,15 +22,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class BlockBuilder implements Supplier<IFlexBlock>
+public class BlockBuilder extends BaseBuilder<IFlexBlock>
 {
     private JsonObject jsonSource;
-    private IFlexBlock builtBlock = null;
-
-    private final ResourceLocation registryName;
 
     private List<Property<?>> properties;
     private Map<String, Property<?>> propertiesByName;
@@ -68,8 +63,14 @@ public class BlockBuilder implements Supplier<IFlexBlock>
 
     private BlockBuilder(ResourceLocation registryName, JsonObject data)
     {
-        this.registryName = registryName;
+        super(registryName);
         this.jsonSource = data;
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Block";
     }
 
     public static BlockBuilder begin(ResourceLocation registryName, JsonObject data)
@@ -220,7 +221,8 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         this.harvestLevel = harvestLevel;
     }
 
-    private IFlexBlock build()
+    @Override
+    protected IFlexBlock buildInternal()
     {
         Material material = getBlockMaterial();
         MaterialColor blockMaterialColor = getBlockMaterialColor();
@@ -271,15 +273,7 @@ public class BlockBuilder implements Supplier<IFlexBlock>
         flexBlock.setRaytraceShape(getRaytraceShape());
         flexBlock.setRenderShape(getRenderShape());
 
-        builtBlock = flexBlock;
         return flexBlock;
-    }
-
-    public IFlexBlock get()
-    {
-        if (builtBlock == null)
-            return build();
-        return builtBlock;
     }
 
     public BlockBuilder getParentBuilderName()
@@ -515,11 +509,6 @@ public class BlockBuilder implements Supplier<IFlexBlock>
     public Integer getHarvestLevel()
     {
         return getValueWithParent(harvestLevel, BlockBuilder::getHarvestLevel);
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
     }
 
     public Map<String, Property<?>> getPropertiesByName()

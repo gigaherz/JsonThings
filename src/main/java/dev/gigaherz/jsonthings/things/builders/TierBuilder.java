@@ -1,21 +1,15 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.FlexTier;
-import net.minecraft.block.Block;
 import net.minecraft.item.IItemTier;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TierBuilder implements Supplier<IItemTier>
+public class TierBuilder extends BaseBuilder<IItemTier>
 {
-    private IItemTier builtTier = null;
-
-    private final ResourceLocation registryName;
-
     private int level = 0;
     private int uses;
     private float speed;
@@ -27,7 +21,13 @@ public class TierBuilder implements Supplier<IItemTier>
 
     private TierBuilder(ResourceLocation registryName)
     {
-        this.registryName = registryName;
+        super(registryName);
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Item Tier";
     }
 
     public static TierBuilder begin(ResourceLocation registryName)
@@ -75,21 +75,10 @@ public class TierBuilder implements Supplier<IItemTier>
         this.sortBefore = sortBefore;
     }
 
-    private IItemTier build()
+    @Override
+    protected IItemTier buildInternal()
     {
-        return builtTier = new FlexTier(level, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
-    }
-
-    public IItemTier get()
-    {
-        if (builtTier == null)
-            return build();
-        return builtTier;
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
+        return new FlexTier(level, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
     }
 
     public List<Object> getSortAfter()

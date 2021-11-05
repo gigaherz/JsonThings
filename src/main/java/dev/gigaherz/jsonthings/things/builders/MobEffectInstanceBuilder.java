@@ -1,14 +1,15 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.function.Supplier;
-
-public class MobEffectInstanceBuilder implements Supplier<EffectInstance>
+public class MobEffectInstanceBuilder extends BaseBuilder<EffectInstance>
 {
+    private final BaseBuilder<?> owner;
     private ResourceLocation effect;
     private int duration;
     private int amplifier;
@@ -16,7 +17,26 @@ public class MobEffectInstanceBuilder implements Supplier<EffectInstance>
     private boolean visible;
     private boolean showParticles;
     private boolean showIcon;
-    private EffectInstance builtEffectInstance;
+
+    public MobEffectInstanceBuilder(BaseBuilder<?> owner)
+    {
+        super(owner.getRegistryName());
+        this.owner = owner;
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Mob Effect Instance";
+    }
+
+    @Override
+    protected CrashReportCategory fillReport(CrashReport crashReport)
+    {
+        CrashReportCategory reportCategory = super.fillReport(crashReport);
+        reportCategory.setDetail("Contained in", owner.getThingTypeDisplayName());
+        return reportCategory;
+    }
 
     public ResourceLocation getEffect()
     {
@@ -58,15 +78,9 @@ public class MobEffectInstanceBuilder implements Supplier<EffectInstance>
         this.showIcon = showIcon;
     }
 
-    private EffectInstance build()
+    @Override
+    protected EffectInstance buildInternal()
     {
-        return builtEffectInstance = new EffectInstance(Utils.getOrCrash(ForgeRegistries.POTIONS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
-    }
-
-    public EffectInstance get()
-    {
-        if (builtEffectInstance == null)
-            return build();
-        return builtEffectInstance;
+        return new EffectInstance(Utils.getOrCrash(ForgeRegistries.POTIONS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
     }
 }

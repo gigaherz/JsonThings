@@ -5,14 +5,8 @@ import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.function.Supplier;
-
-public class BlockMaterialBuilder implements Supplier<Material>
+public class BlockMaterialBuilder extends BaseBuilder<Material>
 {
-    private Material builtMaterial = null;
-
-    private final ResourceLocation registryName;
-
     private PushReaction pushReaction = PushReaction.NORMAL;
 
     private MaterialColor color;
@@ -25,17 +19,18 @@ public class BlockMaterialBuilder implements Supplier<Material>
 
     private BlockMaterialBuilder(ResourceLocation registryName)
     {
-        this.registryName = registryName;
+        super(registryName);
+    }
+
+    @Override
+    protected String getThingTypeDisplayName()
+    {
+        return "Block Material";
     }
 
     public static BlockMaterialBuilder begin(ResourceLocation registryName)
     {
         return new BlockMaterialBuilder(registryName);
-    }
-
-    public void setBuiltMaterial(Material builtMaterial)
-    {
-        this.builtMaterial = builtMaterial;
     }
 
     public void setPushReaction(PushReaction pushReaction)
@@ -78,20 +73,9 @@ public class BlockMaterialBuilder implements Supplier<Material>
         this.solidBlocking = solidBlocking;
     }
 
-    private Material build()
+    @Override
+    protected Material buildInternal()
     {
-        return builtMaterial = new Material(this.color, this.liquid, this.solid, this.blocksMotion, this.solidBlocking, this.flammable, this.replaceable, this.pushReaction);
-    }
-
-    public Material get()
-    {
-        if (builtMaterial == null)
-            return build();
-        return builtMaterial;
-    }
-
-    public ResourceLocation getRegistryName()
-    {
-        return registryName;
+        return new Material(this.color, this.liquid, this.solid, this.blocksMotion, this.solidBlocking, this.flammable, this.replaceable, this.pushReaction);
     }
 }

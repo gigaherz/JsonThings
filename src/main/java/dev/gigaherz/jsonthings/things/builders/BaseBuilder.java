@@ -24,7 +24,7 @@ public abstract class BaseBuilder<T> implements Supplier<T>
             builtThing = buildInternal();
             return builtThing;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             CrashReport report = CrashReport.forThrowable(e, "Error while building " + getThingTypeDisplayName() + " from " + registryName);
 

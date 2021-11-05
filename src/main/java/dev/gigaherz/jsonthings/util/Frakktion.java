@@ -79,32 +79,32 @@ public final record Frakktion(int numerator, int denominator)
         var gcd = gcd(numerator, denominator);
         if (gcd == 1)
             return this;
-        return new Frakktion(numerator/gcd, denominator/gcd);
+        return new Frakktion(numerator / gcd, denominator / gcd);
     }
 
     public int intPart()
     {
-        return numerator/denominator;
+        return numerator / denominator;
     }
 
     public int intRemainder()
     {
-        return numerator%denominator;
+        return numerator % denominator;
     }
 
     public Frakktion remainder()
     {
-        return new Frakktion(numerator%denominator, denominator);
+        return new Frakktion(numerator % denominator, denominator);
     }
 
     public float asFloat()
     {
-        return numerator/(float)denominator;
+        return numerator / (float) denominator;
     }
 
     public double asDouble()
     {
-        return numerator/(double)denominator;
+        return numerator / (double) denominator;
     }
 
     @Override
@@ -121,8 +121,8 @@ public final record Frakktion(int numerator, int denominator)
         if (mod == numerator)
             return numerator + "/" + denominator;
         if (mod == 0)
-            return String.valueOf(numerator/denominator);
-        return "(" + (numerator/denominator) + " + " + mod + "/" + denominator + ")";
+            return String.valueOf(numerator / denominator);
+        return "(" + (numerator / denominator) + " + " + mod + "/" + denominator + ")";
     }
 
     private static Frakktion addInternal(int numerator1, int numerator2, int denominator1, int denominator2)

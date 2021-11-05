@@ -124,6 +124,7 @@ public class ItemType<T extends Item & IFlexItem>
     }
 
     public static final ItemType<FlexTieredItem> TIERED = register("tiered", makeTieredSerializer(FlexTieredItem::new));
+
     private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeTieredSerializer(TieredFactory<T> factory)
     {
         return data -> {

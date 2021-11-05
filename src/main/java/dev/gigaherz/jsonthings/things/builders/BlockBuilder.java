@@ -1,6 +1,5 @@
 package dev.gigaherz.jsonthings.things.builders;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;

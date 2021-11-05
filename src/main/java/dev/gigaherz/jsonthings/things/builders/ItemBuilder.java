@@ -24,7 +24,6 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ItemBuilder extends BaseBuilder<IFlexItem>
@@ -258,7 +257,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
             parentBuilderObj = JsonThings.itemParser.getBuildersMap().get(parentBuilder);
         }
         if (parentBuilderObj == null)
-            throw new IllegalStateException("The item specifies a parent "+parentBuilder+", but no such parent was found.");
+            throw new IllegalStateException("The item specifies a parent " + parentBuilder + ", but no such parent was found.");
         return parentBuilderObj;
     }
 

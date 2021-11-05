@@ -7,16 +7,12 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.items.*;
 import dev.gigaherz.jsonthings.util.Utils;
 import joptsimple.internal.Strings;
-import net.minecraft.block.Block;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.ToolType;
-
-import java.util.Objects;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class ItemType<T extends Item & IFlexItem>
@@ -123,6 +119,7 @@ public class ItemType<T extends Item & IFlexItem>
     }
 
     public static final ItemType<FlexTieredItem> TIERED = registerTiered("tiered", FlexTieredItem::new);
+
     private static <T extends TieredItem & IFlexItem> ItemType<T> registerTiered(String name, TieredFactory<T> factory)
     {
         return register(name, data -> {

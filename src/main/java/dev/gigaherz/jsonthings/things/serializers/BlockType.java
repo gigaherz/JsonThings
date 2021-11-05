@@ -41,7 +41,7 @@ public class BlockType<T extends Block & IFlexBlock>
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         ResourceLocation featureId = new ResourceLocation(JSONUtils.getAsString(data, "tree_feature"));
-        RegistryKey<ConfiguredFeature<?,?>> featureKey = RegistryKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, featureId);
+        RegistryKey<ConfiguredFeature<?, ?>> featureKey = RegistryKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, featureId);
         FlexTreeGrower treeGrower = new FlexTreeGrower(featureKey);
         return new FlexSaplingBlock(treeGrower, props, propertyDefaultValues)
         {

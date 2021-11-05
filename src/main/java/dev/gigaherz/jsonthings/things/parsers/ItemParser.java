@@ -84,7 +84,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         List<Pair<String, Integer>> list = new ArrayList<>();
         any
                 .ifObj(val -> val.map(this::parseToolType).handle(list::add))
-                .ifArray(val -> val.forEach((i,val2) -> val2.obj().map(this::parseToolType).handle(list::add)))
+                .ifArray(val -> val.forEach((i, val2) -> val2.obj().map(this::parseToolType).handle(list::add)))
                 .typeError();
         return list;
     }

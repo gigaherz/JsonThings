@@ -4,7 +4,6 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.PackScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;

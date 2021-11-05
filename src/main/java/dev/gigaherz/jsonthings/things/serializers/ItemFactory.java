@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import net.minecraft.item.Item;
-import net.minecraft.item.ToolItem;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;

@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.resources.*;
 import net.minecraft.util.Unit;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.*;

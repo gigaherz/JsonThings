@@ -12,7 +12,6 @@ import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
-import net.minecraft.item.Food;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.profiler.IProfiler;

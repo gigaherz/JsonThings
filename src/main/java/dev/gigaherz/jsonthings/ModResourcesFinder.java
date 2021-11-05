@@ -1,6 +1,5 @@
 package dev.gigaherz.jsonthings;
 
-import net.minecraft.resources.IPackFinder;
 import net.minecraft.resources.IPackNameDecorator;
 import net.minecraft.resources.ResourcePackInfo;
 import net.minecraftforge.fml.ModLoader;
@@ -10,7 +9,6 @@ import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import net.minecraftforge.fml.packs.ModFileResourcePack;
 import net.minecraftforge.fml.packs.ResourcePackLoader;
 import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.forgespi.locating.IModFile;
 
 import java.util.Map;
 import java.util.Objects;

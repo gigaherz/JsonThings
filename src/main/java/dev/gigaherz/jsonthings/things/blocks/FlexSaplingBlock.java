@@ -7,10 +7,6 @@ import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SaplingBlock;
-
-import javax.annotation.Nullable;
-import java.util.Map;
-
 import net.minecraft.block.trees.Tree;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.Property;
@@ -22,6 +18,9 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.Map;
 
 public class FlexSaplingBlock extends SaplingBlock implements IFlexBlock
 {

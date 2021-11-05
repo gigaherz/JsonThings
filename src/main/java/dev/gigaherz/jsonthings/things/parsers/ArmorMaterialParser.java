@@ -5,7 +5,6 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.ArmorMaterialBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
-import dev.gigaherz.jsonthings.util.parse.value.IntValue;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;

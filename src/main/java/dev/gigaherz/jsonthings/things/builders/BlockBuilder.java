@@ -237,7 +237,8 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         if (!Utils.orElse(hasCollision(), true)) props.noCollission();
         if (Utils.orElse(hasRandomTicks(), false)) props.randomTicks();
         if (Utils.orElse(getLightEmission(), 0) > 0) props.lightLevel(state -> getLightEmission());
-        if (Utils.orElse(getDestroyTime(), 0) > 0 || Utils.orElse(getExplosionResistance(), 0) > 0) props.strength(getDestroyTime(), getExplosionResistance());
+        if (Utils.orElse(getDestroyTime(), 0) > 0 || Utils.orElse(getExplosionResistance(), 0) > 0)
+            props.strength(getDestroyTime(), getExplosionResistance());
         if (Utils.orElse(getFriction(), 0.6f) != 0.6f) props.friction(getFriction());
         if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
         if (Utils.orElse(getJumpFactor(), 1.0f) != 1) props.jumpFactor(getSpeedFactor());

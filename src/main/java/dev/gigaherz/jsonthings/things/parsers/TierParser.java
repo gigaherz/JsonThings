@@ -8,7 +8,6 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Lazy;

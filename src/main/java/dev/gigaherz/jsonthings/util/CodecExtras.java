@@ -3,18 +3,17 @@ package dev.gigaherz.jsonthings.util;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -49,7 +48,7 @@ public class CodecExtras
         return Codec.either(codec.listOf(), codec).xmap(
                 either -> either.map(
                         left -> left,
-                        right -> Collections.singletonList(right)
+                        Collections::singletonList
                 ),
                 list -> list.size() == 1 ? Either.right(list.get(0)) : Either.left(list)
         );

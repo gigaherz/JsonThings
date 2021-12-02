@@ -30,8 +30,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fmlclient.ConfigGuiHandler;
-import net.minecraftforge.fmllegacy.packs.ResourcePackLoader;
+import net.minecraftforge.client.ConfigGuiHandler;
+import net.minecraftforge.resource.ResourcePackLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

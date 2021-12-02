@@ -120,6 +120,7 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "unstable", BlockStateProperties.UNSTABLE);
         Registry.register(PROPERTIES, "waterlogged", BlockStateProperties.WATERLOGGED);
         Registry.register(PROPERTIES, "vine_end", BlockStateProperties.VINE_END);
+        Registry.register(PROPERTIES, "berries", BlockStateProperties.BERRIES);
         Registry.register(PROPERTIES, "horizontal_axis", BlockStateProperties.HORIZONTAL_AXIS);
         Registry.register(PROPERTIES, "axis", BlockStateProperties.AXIS);
         Registry.register(PROPERTIES, "up", BlockStateProperties.UP);
@@ -154,6 +155,7 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "age_0_15", BlockStateProperties.AGE_15);
         Registry.register(PROPERTIES, "age_0_25", BlockStateProperties.AGE_25);
         Registry.register(PROPERTIES, "bites_0_6", BlockStateProperties.BITES);
+        Registry.register(PROPERTIES, "candles", BlockStateProperties.CANDLES);
         Registry.register(PROPERTIES, "delay_1_4", BlockStateProperties.DELAY);
         Registry.register(PROPERTIES, "distance_1_7", BlockStateProperties.DISTANCE);
         Registry.register(PROPERTIES, "eggs_1_4", BlockStateProperties.EGGS);
@@ -182,6 +184,10 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "stairs_shape", BlockStateProperties.STAIRS_SHAPE);
         Registry.register(PROPERTIES, "structure_block_mode", BlockStateProperties.STRUCTUREBLOCK_MODE);
         Registry.register(PROPERTIES, "bamboo_leaves", BlockStateProperties.BAMBOO_LEAVES);
+        Registry.register(PROPERTIES, "tilt", BlockStateProperties.TILT);
+        Registry.register(PROPERTIES, "vertical_direction", BlockStateProperties.VERTICAL_DIRECTION);
+        Registry.register(PROPERTIES, "dripstone_thickness", BlockStateProperties.DRIPSTONE_THICKNESS);
+        Registry.register(PROPERTIES, "sculk_sensor_phase", BlockStateProperties.SCULK_SENSOR_PHASE);
     }
 
     private static void registerFoods()
@@ -208,6 +214,7 @@ public class ThingRegistries
         Registry.register(FOODS, "enchanted_golden_apple", Foods.ENCHANTED_GOLDEN_APPLE);
         Registry.register(FOODS, "golden_apple", Foods.GOLDEN_APPLE);
         Registry.register(FOODS, "golden_carrot", Foods.GOLDEN_CARROT);
+        Registry.register(FOODS, "honey_bottle", Foods.HONEY_BOTTLE);
         Registry.register(FOODS, "melon_slice", Foods.MELON_SLICE);
         Registry.register(FOODS, "mushroom_stew", Foods.MUSHROOM_STEW);
         Registry.register(FOODS, "mutton", Foods.MUTTON);
@@ -223,6 +230,7 @@ public class ThingRegistries
         Registry.register(FOODS, "spider_eye", Foods.SPIDER_EYE);
         Registry.register(FOODS, "suspicious_stew", Foods.SUSPICIOUS_STEW);
         Registry.register(FOODS, "sweet_berries", Foods.SWEET_BERRIES);
+        Registry.register(FOODS, "glow_berries", Foods.GLOW_BERRIES);
         Registry.register(FOODS, "tropical_fish", Foods.TROPICAL_FISH);
     }
 
@@ -252,6 +260,7 @@ public class ThingRegistries
         Registry.register(BLOCK_MATERIALS, "fire", Material.FIRE);
         Registry.register(BLOCK_MATERIALS, "decoration", Material.DECORATION);
         Registry.register(BLOCK_MATERIALS, "web", Material.WEB);
+        Registry.register(BLOCK_MATERIALS, "sculk", Material.SCULK);
         Registry.register(BLOCK_MATERIALS, "buildable_glass", Material.BUILDABLE_GLASS);
         Registry.register(BLOCK_MATERIALS, "clay", Material.CLAY);
         Registry.register(BLOCK_MATERIALS, "dirt", Material.DIRT);
@@ -280,7 +289,6 @@ public class ThingRegistries
         Registry.register(BLOCK_MATERIALS, "vegetable", Material.VEGETABLE);
         Registry.register(BLOCK_MATERIALS, "egg", Material.EGG);
         Registry.register(BLOCK_MATERIALS, "cake", Material.CAKE);
-        Registry.register(BLOCK_MATERIALS, "sculk", Material.SCULK);
         Registry.register(BLOCK_MATERIALS, "amethyst", Material.AMETHYST);
         Registry.register(BLOCK_MATERIALS, "powder_snow", Material.POWDER_SNOW);
     }

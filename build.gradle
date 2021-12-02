@@ -17,11 +17,15 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'maven-publish'
 
-version = "0.1.2"
+version = "0.2.1"
 group= "dev.gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "JsonThings-1.17.1"
+archivesBaseName = "JsonThings-UNKNOWN"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+project.afterEvaluate {
+    archivesBaseName = "JsonThings-${project.MC_VERSION}"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
     maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
@@ -32,7 +36,8 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'parchment', version: '2021.08.29-1.17.1'
+    mappings channel: 'official', version: '1.18'
+    //mappings channel: 'parchment', version: '2021.08.29-1.17.1'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -88,7 +93,7 @@ minecraft {
     }
 }
 
-configurations {
+/*configurations {
     library
     implementation.extendsFrom library
 }
@@ -96,15 +101,13 @@ minecraft.runs.all {
     lazyToken('minecraft_classpath') {
         configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
     }
-}
+}*/
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.103'
+    minecraft 'net.minecraftforge:forge:1.18-38.0.10'
 
-    library 'com.google.guava:guava:21.0'
+    //library 'com.google.guava:guava:21.0'
 
-    if (System.getProperty("idea.sync.active") != "true") {
-        annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
-    }
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 jar {

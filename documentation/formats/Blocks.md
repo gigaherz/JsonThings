@@ -240,17 +240,17 @@ Must be an integer between 0 and 15 (inclusive.
 
 Defines the amount explosion power required to break the block.
 
-Optional. Default: 0.
+Optional. Default: 0.0.
 
-Must be a positive integer or zero.
+Must be a positive number or zero.
 
 ## "destroy_time"
 
 Defines the amount time needed to mine the block without a tool.
 
-Optional. Default: 0.
+Optional. Default: 0.0.
 
-Must be a positive integer or zero.
+Must be a positive number or zero.
 
 ## "friction"
 

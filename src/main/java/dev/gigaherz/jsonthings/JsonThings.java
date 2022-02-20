@@ -18,6 +18,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.model.MultiLayerModel;
 import net.minecraftforge.event.AddPackFindersEvent;
@@ -29,8 +30,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.resource.ResourcePackLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,13 +89,6 @@ public class JsonThings
             ResourcePackLoader.loadResourcePacks(instance.getRepository(), ModResourcesFinder::buildPackFinder);
 
             loaderFuture = instance.beginLoading(Util.backgroundExecutor(), Runnable::run);
-
-            if (FMLEnvironment.dist == Dist.CLIENT)
-            {
-                ClientHandlers.addClientPackFinder();
-                BlockColorHandler.init();
-                ItemColorHandler.init();
-            }
         });
     }
 
@@ -139,6 +131,12 @@ public class JsonThings
         @SubscribeEvent
         public static void constructMod(FMLConstructModEvent event)
         {
+            event.enqueueWork(() -> {
+                ClientHandlers.addClientPackFinder();
+                BlockColorHandler.init();
+                ItemColorHandler.init();
+            });
+
             ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> {
                 var thingPackManager = ThingResourceManager.instance();
                 return new PackSelectionScreen(screen, thingPackManager.getRepository(),

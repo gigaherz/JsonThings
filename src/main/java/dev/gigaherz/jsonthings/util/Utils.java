@@ -10,6 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -22,6 +23,7 @@ public class Utils
         return propValue.orElseThrow(() -> new IllegalStateException("Value " + value + " for property " + prop.getName() + " not found in the allowed values."));
     }
 
+    @Nonnull
     public static <T> T orElse(@Nullable T val, T def)
     {
         return val != null ? val : def;

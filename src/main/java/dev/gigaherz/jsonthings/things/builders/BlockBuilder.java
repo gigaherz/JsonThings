@@ -52,8 +52,8 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
     private Boolean hasCollision;
     private Boolean randomTicks;
     private Integer lightEmission;
-    private Integer explosionResistance;
-    private Integer destroyTime;
+    private Float explosionResistance;
+    private Float destroyTime;
     private Float friction;
     private Float speedFactor;
     private Float jumpFactor;
@@ -181,12 +181,12 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         this.lightEmission = lightEmission;
     }
 
-    public void setExplosionResistance(int explosionResistance)
+    public void setExplosionResistance(float explosionResistance)
     {
         this.explosionResistance = explosionResistance;
     }
 
-    public void setDestroyTime(int destroyTime)
+    public void setDestroyTime(float destroyTime)
     {
         this.destroyTime = destroyTime;
     }
@@ -237,7 +237,8 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         if (!Utils.orElse(hasCollision(), true)) props.noCollission();
         if (Utils.orElse(hasRandomTicks(), false)) props.randomTicks();
         if (Utils.orElse(getLightEmission(), 0) > 0) props.lightLevel(state -> getLightEmission());
-        if (Utils.orElse(getDestroyTime(), 0) > 0 || Utils.orElse(getExplosionResistance(), 0) > 0)
+        if (Utils.orElse(getDestroyTime(), 0.0f) > 0 || Utils.orElse(getExplosionResistance(), 0.0f) > 0)
+            //noinspection ConstantConditions
             props.strength(getDestroyTime(), getExplosionResistance());
         if (Utils.orElse(getFriction(), 0.6f) != 0.6f) props.friction(getFriction());
         if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
@@ -465,13 +466,13 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
     }
 
     @Nullable
-    public Integer getExplosionResistance()
+    public Float getExplosionResistance()
     {
         return getValueWithParent(explosionResistance, BlockBuilder::getExplosionResistance);
     }
 
     @Nullable
-    public Integer getDestroyTime()
+    public Float getDestroyTime()
     {
         return getValueWithParent(destroyTime, BlockBuilder::getDestroyTime);
     }

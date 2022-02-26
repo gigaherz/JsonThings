@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
+import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -19,6 +20,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +95,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
                 JsonElement element = item.get("nbt");
                 CompoundTag nbt;
                 if (element.isJsonObject())
-                    nbt = TagParser.parseTag(GSON.toJson(element));
+                    nbt = TagParser.parseTag(gson.toJson(element));
                 else
                     nbt = TagParser.parseTag(element.getAsString());
                 ctx = ctx.withTag(nbt);
@@ -105,6 +107,21 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
         }
 
         return ctx;
+    }
+
+    protected Map<String, List<ResourceLocation>> parseEvents(ObjValue objValue)
+    {
+        var map = new HashMap<String, List<ResourceLocation>>();
+
+        objValue.forEach((str, any) -> {
+            any
+                    .ifString(val -> map.put(str, List.of(new ResourceLocation(val.getAsString()))))
+                    .ifArray(arr -> map.put(str, arr.flatMap(f -> f.map(val -> new ResourceLocation(val.string().getAsString())).toList())))
+                    .typeError();
+
+        });
+
+        return map;
     }
 
     protected ResourceLocation makeResourceLocation(ResourceLocation key, String name)

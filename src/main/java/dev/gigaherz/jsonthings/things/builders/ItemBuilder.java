@@ -8,6 +8,7 @@ import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,6 +22,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -199,6 +201,13 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
             }
         }
 
+        forEachEvent((key, list) -> {
+            for(var ev : list)
+            {
+                flexItem.addEventHandler(key, ScriptParser.instance().getEvent(ev));
+            }
+        });
+
         return flexItem;
     }
 
@@ -295,6 +304,17 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
     public String getColorHandler()
     {
         return getValueWithParent(colorHandler, ItemBuilder::getColorHandler);
+    }
+
+    private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
+    {
+        var ev = getEventMap();
+        if (ev != null)
+            ev.forEach(consumer);
+        if (parentBuilderObj != null)
+        {
+            parentBuilderObj.forEachEvent(consumer);
+        }
     }
 
     static class ContainerInfo

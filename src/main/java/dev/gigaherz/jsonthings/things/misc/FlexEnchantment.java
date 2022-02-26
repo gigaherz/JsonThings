@@ -3,9 +3,9 @@ package dev.gigaherz.jsonthings.things.misc;
 import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
+import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class FlexEnchantment extends Enchantment implements IEventRunner<InteractionResult>
+public class FlexEnchantment extends Enchantment implements IEventRunner
 {
-    private final Map<String, FlexEventHandler<InteractionResult>> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
     private int minLevel;
     private int maxLevel;
     private int baseCost;
@@ -39,13 +39,13 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler<InteractionResult> eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public FlexEventHandler<InteractionResult> getEventHandler(String eventName)
+    public FlexEventHandler getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }
@@ -190,7 +190,7 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
     {
         runEvent("post_attack", FlexEventContext.of(this, level).with(FlexEventContext.ATTACKER, user).with(FlexEventContext.TARGET, target), () -> {
             super.doPostAttack(user, target, level);
-            return InteractionResult.SUCCESS;
+            return FlexEventResult.success();
         });
     }
 
@@ -199,7 +199,7 @@ public class FlexEnchantment extends Enchantment implements IEventRunner<Interac
     {
         runEvent("post_hurt", FlexEventContext.of(this, level).with(FlexEventContext.ATTACKER, attacker).with(FlexEventContext.TARGET, user), () -> {
             super.doPostHurt(user, attacker, level);
-            return InteractionResult.SUCCESS;
+            return FlexEventResult.success();
         });
     }
 }

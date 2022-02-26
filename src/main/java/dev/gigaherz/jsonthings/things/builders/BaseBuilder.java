@@ -5,12 +5,16 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public abstract class BaseBuilder<T> implements Supplier<T>
 {
     private final ResourceLocation registryName;
     private T builtThing;
+    private Map<String, List<ResourceLocation>> eventMap;
 
     protected BaseBuilder(ResourceLocation registryName)
     {
@@ -55,5 +59,16 @@ public abstract class BaseBuilder<T> implements Supplier<T>
     public final ResourceLocation getRegistryName()
     {
         return registryName;
+    }
+
+    @Nullable
+    protected final Map<String, List<ResourceLocation>> getEventMap()
+    {
+        return eventMap;
+    }
+
+    public void setEventMap(Map<String, List<ResourceLocation>> eventMap)
+    {
+        this.eventMap = eventMap;
     }
 }

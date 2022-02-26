@@ -6,6 +6,7 @@ import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
+import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -29,7 +30,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class FlexDiggerItem extends DiggerItem implements IFlexItem
 {
@@ -43,7 +43,7 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     private final Multimap<CreativeModeTab, StackContext> perTabStacks = ArrayListMultimap.create();
     private final List<StackContext> searchTabStacks = Lists.newArrayList();
     private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
-    private final Map<String, FlexEventHandler<InteractionResultHolder<ItemStack>>> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
     private UseAnim useAction;
     private int useTime;
@@ -98,13 +98,13 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler<InteractionResultHolder<ItemStack>> eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public FlexEventHandler<InteractionResultHolder<ItemStack>> getEventHandler(String eventName)
+    public FlexEventHandler getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }
@@ -147,14 +147,14 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     {
         ItemStack heldItem = context.getItemInHand();
 
-        InteractionResultHolder<ItemStack> result = runEvent("use_on_block", FlexEventContext.of(context), () -> new InteractionResultHolder<>(super.useOn(context), heldItem));
+        FlexEventResult result = runEvent("use_on_block", FlexEventContext.of(context), () -> new FlexEventResult(super.useOn(context), heldItem));
 
-        if (result.getObject() != heldItem)
+        if (result.stack() != heldItem)
         {
-            context.getPlayer().setItemInHand(context.getHand(), result.getObject());
+            context.getPlayer().setItemInHand(context.getHand(), result.stack());
         }
 
-        return result.getResult();
+        return result.result();
     }
 
     @Override
@@ -164,20 +164,20 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
                 FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft),
                 () -> {
                     super.releaseUsing(stack, worldIn, entityLiving, timeLeft);
-                    return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+                    return FlexEventResult.pass(stack);
                 });
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack heldItem, Level worldIn, LivingEntity entityLiving)
     {
-        Supplier<InteractionResultHolder<ItemStack>> resultSupplier = () -> new InteractionResultHolder<>(InteractionResult.SUCCESS, super.finishUsingItem(heldItem, worldIn, entityLiving));
+        Supplier<FlexEventResult> resultSupplier = () -> FlexEventResult.success(super.finishUsingItem(heldItem, worldIn, entityLiving));
 
-        InteractionResultHolder<ItemStack> result = runEvent("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
-        if (result.getResult() != InteractionResult.SUCCESS)
-            return result.getObject();
+        FlexEventResult result = runEvent("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
+        if (result.result() != InteractionResult.SUCCESS)
+            return result.stack();
 
-        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).getObject();
+        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).stack();
     }
 
     @Override
@@ -185,9 +185,9 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     {
         ItemStack heldItem = playerIn.getItemInHand(handIn);
         if (useTime > 0)
-            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> super.use(worldIn, playerIn, handIn));
+            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
         else
-            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> super.use(worldIn, playerIn, handIn));
+            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
     }
 
     @Override
@@ -202,26 +202,26 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     {
         if (tab == CreativeModeTab.TAB_SEARCH)
         {
-            items.addAll(searchTabStacks.stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
+            searchTabStacks.stream().map(s -> s.toStack(this)).forEach(items::add);
         }
         else if (perTabStacks.containsKey(tab))
         {
-            items.addAll(perTabStacks.get(tab).stream().map(s -> s.toStack(this)).collect(Collectors.toList()));
+            perTabStacks.get(tab).stream().map(s -> s.toStack(this)).forEach(items::add);
         }
     }
 
     @Override
     public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
-        InteractionResultHolder<ItemStack> result = runEvent("update",
+        FlexEventResult result = runEvent("update",
                 FlexEventContext.of(worldIn, entityIn, stack).with(FlexEventContext.SLOT, itemSlot).with(FlexEventContext.SELECTED, isSelected),
                 () -> {
                     super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
-                    return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+                    return FlexEventResult.pass(stack);
                 });
-        if (result.getObject() != stack)
+        if (result.stack() != stack)
         {
-            entityIn.getSlot(itemSlot).set(result.getObject());
+            entityIn.getSlot(itemSlot).set(result.stack());
         }
     }
 
@@ -230,9 +230,9 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
         return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
             InteractionResult typeIn = super.hasContainerItem(stack) ? InteractionResult.SUCCESS : InteractionResult.PASS;
             if (typeIn == InteractionResult.SUCCESS)
-                return new InteractionResultHolder<>(typeIn, super.getContainerItem(stack));
-            return new InteractionResultHolder<>(typeIn, stack);
-        });
+                return new FlexEventResult(typeIn, super.getContainerItem(stack));
+            return new FlexEventResult(typeIn, stack);
+        }).holder();
     }
 
     @Override

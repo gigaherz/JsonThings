@@ -33,7 +33,7 @@ public class FlexEventContext
     public static final ContextValue<Entity> HIT_ENTITY = ContextValue.create("hitEntity", Entity.class);
     public static final ContextValue<Integer> SLOT = ContextValue.create("slot", Integer.class);
     public static final ContextValue<Boolean> SELECTED = ContextValue.create("selected", Boolean.class);
-    public static final ContextValue<Entity> OTHER_USER = ContextValue.create("user", Entity.class);
+    public static final ContextValue<Entity> OTHER_USER = ContextValue.create("other_user", Entity.class);
     public static final ContextValue<Integer> TIME_LEFT = ContextValue.create("timeLeft", Integer.class);
     public static final ContextValue<BlockPos> BLOCK_POS = ContextValue.create("blockPos", BlockPos.class);
     public static final ContextValue<BlockState> BLOCK_STATE = ContextValue.create("blockState", BlockState.class);

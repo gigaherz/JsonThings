@@ -16,6 +16,6 @@
   ],
 
   "events": {
-    "onItemUse": "regsitered_event_handler_name"
+    "use_on_block": "testpack:test"
   }
 }

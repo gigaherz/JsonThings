@@ -34,6 +34,6 @@
   ],
 
   "events": {
-    "onItemUse": "regsitered_event_handler_name"
+    "onItemUse": "testpack:test"
   }
 }

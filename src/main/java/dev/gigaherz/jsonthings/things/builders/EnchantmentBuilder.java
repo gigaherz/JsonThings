@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
 import dev.gigaherz.jsonthings.things.misc.FlexEnchantment;
+import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -11,6 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
@@ -133,6 +135,13 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
             return (Predicate<Enchantment>) ((enchantment) -> ro.filter(en -> en == enchantment).isPresent());
         }).toList());
 
+        forEachEvent((key, list) -> {
+            for(var ev : list)
+            {
+                flexEnchantment.addEventHandler(key, ScriptParser.instance().getEvent(ev));
+            }
+        });
+
         return flexEnchantment;
     }
 
@@ -140,5 +149,12 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
     {
         this.isAllowedOnBooks = allow_on_books;
         return this;
+    }
+
+    private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
+    {
+        var ev = getEventMap();
+        if (ev != null)
+            ev.forEach(consumer);
     }
 }

@@ -4,6 +4,7 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
+import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
@@ -67,6 +68,7 @@ public class JsonThings
         var bus = FMLJavaModLoadingContext.get().getModEventBus();
 
         var manager = ThingResourceManager.initialize(bus);
+        manager.addResourceReloadListener(ScriptParser.instance());
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));

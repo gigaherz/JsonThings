@@ -104,7 +104,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
                             itemBuilder.setType("block");
                             return itemBuilder;
                         }).handle(builder::withItem))
-                );
+                )
+                .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
         return builder;
     }

@@ -29,6 +29,12 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
     maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 mixin {
@@ -36,8 +42,8 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18'
-    //mappings channel: 'parchment', version: '2021.08.29-1.17.1'
+    //mappings channel: 'official', version: '1.18'
+    mappings channel: 'parchment', version: '2022.02.13-1.18.1'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -103,9 +109,11 @@ minecraft.runs.all {
     }
 }*/
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18-38.0.10'
+    minecraft 'net.minecraftforge:forge:1.18.1-39.0.79'
 
     //library 'com.google.guava:guava:21.0'
+
+    implementation fg.deobf("curse.maven:rhino-416294:3647781")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

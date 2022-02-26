@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import dev.gigaherz.jsonthings.things.serializers.BlockType;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.Utils;
@@ -13,11 +14,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -255,6 +257,13 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         flexBlock.setCollisionShape(getCollisionShape());
         flexBlock.setRaytraceShape(getRaytraceShape());
         flexBlock.setRenderShape(getRenderShape());
+
+        forEachEvent((key, list) -> {
+            for(var ev : list)
+            {
+                flexBlock.addEventHandler(key, ScriptParser.instance().getEvent(ev));
+            }
+        });
 
         return flexBlock;
     }
@@ -497,5 +506,17 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
     public RegistryObject<Block> getParentBlock()
     {
         return parentBlock;
+    }
+
+    private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
+    {
+        var ev = getEventMap();
+        if (ev != null)
+            ev.forEach(consumer);
+        var parent = getParent();
+        if (parent != null)
+        {
+            parent.forEachEvent(consumer);
+        }
     }
 }

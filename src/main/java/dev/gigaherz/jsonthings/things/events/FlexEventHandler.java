@@ -2,8 +2,8 @@ package dev.gigaherz.jsonthings.things.events;
 
 import java.util.function.BiFunction;
 
-public interface FlexEventHandler<T> extends BiFunction<String, FlexEventContext, T>
+public interface FlexEventHandler extends BiFunction<String, FlexEventContext, FlexEventResult>
 {
     @Override
-    T apply(String eventName, FlexEventContext context);
+    FlexEventResult apply(String eventName, FlexEventContext context);
 }

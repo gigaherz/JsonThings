@@ -66,7 +66,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
                         .typeError()
                 )
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
-                .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore));
+                .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore))
+                .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
         return builder;
     }

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
+import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -34,7 +35,7 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
     private DynamicShape collisionShape;
     private DynamicShape raytraceShape;
     private DynamicShape renderShape;
-    private final Map<String, FlexEventHandler<InteractionResult>> eventHandlers = Maps.newHashMap();
+    private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
@@ -54,13 +55,13 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler<InteractionResult> eventHandler)
+    public void addEventHandler(String eventName, FlexEventHandler eventHandler)
     {
         eventHandlers.put(eventName, eventHandler);
     }
 
     @Override
-    public FlexEventHandler<InteractionResult> getEventHandler(String eventName)
+    public FlexEventHandler getEventHandler(String eventName)
     {
         return eventHandlers.get(eventName);
     }
@@ -132,7 +133,7 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
     {
         return runEvent("use", FlexEventContext.of(worldIn, pos, state)
                 .withHand(player, handIn)
-                .withRayTrace(hit), () -> super.use(state, worldIn, pos, player, handIn, hit));
+                .withRayTrace(hit), () -> FlexEventResult.of(super.use(state, worldIn, pos, player, handIn, hit))).result();
     }
 
     //endregion

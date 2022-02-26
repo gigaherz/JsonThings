@@ -4,24 +4,24 @@ import javax.annotation.Nullable;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-public interface IEventRunner<TEventResult>
+public interface IEventRunner
 {
-    void addEventHandler(String eventName, FlexEventHandler<TEventResult> eventHandler);
+    void addEventHandler(String eventName, FlexEventHandler eventHandler);
 
     @Nullable
-    FlexEventHandler<TEventResult> getEventHandler(String eventName);
+    FlexEventHandler getEventHandler(String eventName);
 
-    default TEventResult runEvent(String eventName, FlexEventContext context, Supplier<TEventResult> defaultValue)
+    default FlexEventResult runEvent(String eventName, FlexEventContext context, Supplier<FlexEventResult> defaultValue)
     {
-        FlexEventHandler<TEventResult> handler = getEventHandler(eventName);
+        FlexEventHandler handler = getEventHandler(eventName);
         if (handler != null)
             return handler.apply(eventName, context);
         return defaultValue.get();
     }
 
-    default TEventResult runEventThrowing(String eventName, FlexEventContext context, Callable<TEventResult> defaultValue) throws Exception
+    default FlexEventResult runEventThrowing(String eventName, FlexEventContext context, Callable<FlexEventResult> defaultValue) throws Exception
     {
-        FlexEventHandler<TEventResult> handler = getEventHandler(eventName);
+        FlexEventHandler handler = getEventHandler(eventName);
         if (handler != null)
             return handler.apply(eventName, context);
         return defaultValue.call();

@@ -1,5 +1,7 @@
-var MobEffectInstance = Java.type("net.minecraft.world.effect.MobEffectInstance");
-var MobEffects = Java.type("net.minecraft.world.effect.MobEffects");
+import("net.minecraft.world.effect.MobEffectInstance");
+import("net.minecraft.world.effect.MobEffects");
+import("net.minecraft.world.item.ItemStack");
+import("net.minecraft.world.item.Items");
 
 function apply(eventName, args)
 {
@@ -11,5 +13,5 @@ function apply(eventName, args)
         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200))
     }
 
-    return FlexEventResult.pass(args.stack);
+    return FlexEventResult.success(new ItemStack(Items.STICK));
 }

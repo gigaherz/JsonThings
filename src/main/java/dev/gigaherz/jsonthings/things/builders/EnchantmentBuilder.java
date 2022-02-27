@@ -135,12 +135,15 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
             return (Predicate<Enchantment>) ((enchantment) -> ro.filter(en -> en == enchantment).isPresent());
         }).toList());
 
-        forEachEvent((key, list) -> {
-            for(var ev : list)
-            {
-                flexEnchantment.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-            }
-        });
+        if (ScriptParser.isEnabled())
+        {
+            forEachEvent((key, list) -> {
+                for (var ev : list)
+                {
+                    flexEnchantment.addEventHandler(key, ScriptParser.instance().getEvent(ev));
+                }
+            });
+        }
 
         return flexEnchantment;
     }

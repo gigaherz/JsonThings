@@ -10,12 +10,10 @@ import dev.latvian.mods.rhino.ScriptableObject;
 public class FlexEventScriptable extends NativeJavaObject
 {
     private final FlexEventContext ctx;
-    private final Scriptable scope;
 
     public FlexEventScriptable(Scriptable scope, FlexEventContext ctx)
     {
         super(scope, ctx, FlexEventContext.class);
-        this.scope = scope;
         this.ctx = ctx;
     }
 

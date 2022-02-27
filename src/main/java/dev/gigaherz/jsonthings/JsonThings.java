@@ -71,7 +71,7 @@ public class JsonThings
         var manager = ThingResourceManager.initialize(bus);
         if (ModList.get().isLoaded("rhino"))
         {
-            manager.addResourceReloadListener(ScriptParser.instance());
+            ScriptParser.enable(manager);
         }
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));

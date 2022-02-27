@@ -258,12 +258,15 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         flexBlock.setRaytraceShape(getRaytraceShape());
         flexBlock.setRenderShape(getRenderShape());
 
-        forEachEvent((key, list) -> {
-            for(var ev : list)
-            {
-                flexBlock.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-            }
-        });
+        if (ScriptParser.isEnabled())
+        {
+            forEachEvent((key, list) -> {
+                for (var ev : list)
+                {
+                    flexBlock.addEventHandler(key, ScriptParser.instance().getEvent(ev));
+                }
+            });
+        }
 
         return flexBlock;
     }

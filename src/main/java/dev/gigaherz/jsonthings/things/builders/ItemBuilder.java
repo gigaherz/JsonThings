@@ -201,12 +201,15 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
             }
         }
 
-        forEachEvent((key, list) -> {
-            for(var ev : list)
-            {
-                flexItem.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-            }
-        });
+        if (ScriptParser.isEnabled())
+        {
+            forEachEvent((key, list) -> {
+                for (var ev : list)
+                {
+                    flexItem.addEventHandler(key, ScriptParser.instance().getEvent(ev));
+                }
+            });
+        }
 
         return flexItem;
     }

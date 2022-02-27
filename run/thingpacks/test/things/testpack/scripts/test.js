@@ -1,8 +1,15 @@
+var MobEffectInstance = Java.type("net.minecraft.world.effect.MobEffectInstance");
+var MobEffects = Java.type("net.minecraft.world.effect.MobEffects");
+
 function apply(eventName, args)
 {
-    var mc = Packages.net.minecraft.Minecraft.getInstance();
+    Log.info("Test");
 
-    LOGGER.info("Test");
+    let player = args.user;
+    if (player != null)
+    {
+        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200))
+    }
 
     return FlexEventResult.pass(args.stack);
 }

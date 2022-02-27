@@ -18,6 +18,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
+import java.util.Set;
 
 public class FlexEventContext
 {
@@ -102,6 +103,11 @@ public class FlexEventContext
     public <T> T get(ContextValue<T> key)
     {
         return (T) parameters.get(key);
+    }
+
+    public Set<ContextValue<?>> keySet()
+    {
+        return parameters.keySet();
     }
 
     public static FlexEventContext of(UseOnContext ctx)

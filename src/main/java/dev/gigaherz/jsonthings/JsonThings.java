@@ -26,6 +26,7 @@ import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -68,7 +69,10 @@ public class JsonThings
         var bus = FMLJavaModLoadingContext.get().getModEventBus();
 
         var manager = ThingResourceManager.initialize(bus);
-        manager.addResourceReloadListener(ScriptParser.instance());
+        if (ModList.get().isLoaded("rhino"))
+        {
+            manager.addResourceReloadListener(ScriptParser.instance());
+        }
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));

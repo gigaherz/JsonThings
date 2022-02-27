@@ -1,4 +1,4 @@
-package dev.gigaherz.jsonthings.things.scripting;
+package dev.gigaherz.jsonthings.things.scripting.rhino;
 
 import dev.gigaherz.jsonthings.things.events.ContextValue;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;

@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.things.scripting;
 
+import dev.gigaherz.jsonthings.things.scripting.rhino.RhinoThingScript;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLocation, ThingScript>>
+public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLocation, RhinoThingScript>>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -28,14 +29,14 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
         return instance;
     }
 
-    private Map<ResourceLocation, ThingScript> scripts;
+    private Map<ResourceLocation, RhinoThingScript> scripts;
 
     @Override
-    protected Map<ResourceLocation, ThingScript> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler)
+    protected Map<ResourceLocation, RhinoThingScript> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler)
     {
         var resources = pResourceManager.listResources(SCRIPTS_FOLDER, t -> t.endsWith(JS_EXTENSION));
 
-        var map = new HashMap<ResourceLocation, ThingScript>();
+        var map = new HashMap<ResourceLocation, RhinoThingScript>();
         for(var res : resources)
         {
             var path = res.getPath();
@@ -43,7 +44,7 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
             var id = new ResourceLocation(res.getNamespace(), cleanPath);
             try
             {
-                map.put(id, ThingScript.fromResource(pResourceManager.getResource(res)));
+                map.put(id, RhinoThingScript.fromResource(pResourceManager.getResource(res)));
             }
             catch (IOException | ScriptException e)
             {
@@ -55,13 +56,13 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ThingScript> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler)
+    protected void apply(Map<ResourceLocation, RhinoThingScript> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler)
     {
         scripts = pObject;
     }
 
     @Nonnull
-    public ThingScript getEvent(ResourceLocation id)
+    public RhinoThingScript getEvent(ResourceLocation id)
     {
         if (!scripts.containsKey(id))
             throw new RuntimeException("Script with id " + id + " not found.");

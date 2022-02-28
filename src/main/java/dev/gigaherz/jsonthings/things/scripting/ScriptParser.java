@@ -34,7 +34,11 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
 
     public static void enable(ThingResourceManager manager)
     {
-        manager.addResourceReloadListener(instance());
+        if (!enabled)
+        {
+            manager.addResourceReloadListener(instance());
+            enabled = true;
+        }
     }
 
     public static boolean isEnabled()

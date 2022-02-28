@@ -1,7 +1,6 @@
-import("net.minecraft.world.effect.MobEffectInstance");
-import("net.minecraft.world.effect.MobEffects");
-import("net.minecraft.world.item.ItemStack");
-import("net.minecraft.world.item.Items");
+useClass("net.minecraft.world.effect.MobEffectInstance",
+       "net.minecraft.world.effect.MobEffects");
+use("nbt", "items");
 
 function apply(eventName, args)
 {
@@ -13,5 +12,11 @@ function apply(eventName, args)
         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200))
     }
 
-    return FlexEventResult.success(new ItemStack(Items.STICK));
+    let tag = NBT.compound({
+        "Enchantments":[
+            {"id":"minecraft:sharpness","lvl":5}
+        ]
+    });
+
+    return FlexEventResult.success(stack(item("stick"),1,tag));
 }

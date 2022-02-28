@@ -4,11 +4,9 @@ import com.google.common.collect.Sets;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.things.scripting.ThingScript;
+import dev.gigaherz.jsonthings.things.scripting.rhino.dsl.*;
 import dev.latvian.mods.rhino.*;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -93,51 +91,46 @@ public class RhinoThingScript extends ThingScript
         scope.put("FlexEventResult", scope, new NativeJavaClass(scope, FlexEventResult.class));
         scope.put("Log", scope, new NativeJavaObject(scope, logger, Logger.class));
         scope.put("Java", scope, new NativeJavaObject(scope, new JavaTypeAdapter(scope), JavaTypeAdapter.class));
-        scope.put("import", scope, new BaseFunction(){
+        scope.put("useClass", scope, new BaseFunction(){
             final JavaTypeAdapter adapter = new JavaTypeAdapter(scope);
 
             @Override
-            public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+            public Object call(Context cx, Scriptable _scope, Scriptable thisObj, Object[] args)
             {
-                adapter.doImport((String)args[0]);
+                for (Object arg : args)
+                {
+                    adapter.doImport((String) arg);
+                }
 
                 return Undefined.instance;
             }
         });
-        scope.put("stack", scope, new LambdaBaseFunction((cx, _scope, thisObj, args) -> {
-            var stack = new ItemStack((Item)args[0]);
-            if (args.length >= 2)
+        scope.put("use", scope, new BaseFunction(){
+            @Override
+            public Object call(Context cx, Scriptable _scope, Scriptable thisObj, Object[] args)
             {
-                stack.setCount((int)args[1]);
+                for (Object arg : args)
+                {
+                    switch ((String)arg)
+                    {
+                        case "nbt" -> NbtDSL.use(cx, scope);
+                        case "items" -> ItemsDSL.use(cx, scope);
+                        case "blocks" -> BlocksDSL.use(cx, scope);
+                        case "entities" -> EntitiesDSL.use(cx, scope);
+                        case "effects" -> EffectsDSL.use(cx, scope);
+                        case "attributes" -> AttributesDSL.use(cx, scope);
+                        case "enchantments" -> EnchantmentsDSL.use(cx, scope);
+                    }
+                }
+                return Undefined.instance;
             }
-            if (args.length >= 3)
-            {
-                stack.setTag((CompoundTag)args[2]);
-            }
-            return new NativeJavaObject(_scope, stack, ItemStack.class);
-        }));
+        });
     }
 
     @FunctionalInterface
     public interface LambdaFunction
     {
         Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args);
-    }
-
-    public static class LambdaBaseFunction extends BaseFunction
-    {
-        private final LambdaFunction impl;
-
-        public LambdaBaseFunction(LambdaFunction impl)
-        {
-            this.impl = impl;
-        }
-
-        @Override
-        public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
-        {
-            return impl.call(cx, scope, thisObj, args);
-        }
     }
 
     @SuppressWarnings("ClassCanBeRecord")

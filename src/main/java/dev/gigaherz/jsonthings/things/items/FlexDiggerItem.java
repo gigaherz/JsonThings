@@ -11,7 +11,7 @@ import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 
 public class FlexDiggerItem extends DiggerItem implements IFlexItem
 {
-    public FlexDiggerItem(Tier material, float damage, float speed, Tag<Block> breakable, Properties properties)
+    public FlexDiggerItem(Tier material, float damage, float speed, TagKey<Block> breakable, Properties properties)
     {
         super(damage, speed, material, breakable, properties);
         initializeFlex();

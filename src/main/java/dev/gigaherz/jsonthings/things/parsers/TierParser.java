@@ -7,8 +7,6 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.TierSortingRegistry;
 import net.minecraftforge.common.util.Lazy;
@@ -41,7 +39,7 @@ public class TierParser extends ThingParser<TierBuilder>
                 .key("speed", val -> val.floatValue().min(1).handle(builder::setSpeed))
                 .key("attack_damage_bonus", val -> val.floatValue().min(1).handle(builder::setAttackDamageBonus))
                 .key("enchantment_value", val -> val.intValue().min(1).handle(builder::setEnchantmentValue))
-                .key("tag", val -> val.string().map(BlockTags::bind).handle(builder::setTag))
+                .key("tag", val -> val.string().map(Utils::blockTag).handle(builder::setTag))
                 .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient))
                 .key("sort_after", val -> val.array().map(TierParser::parseDependencyList).handle(builder::setAfterDependencies))
                 .key("sort_before", val -> val.array().map(TierParser::parseDependencyList).handle(builder::setBeforeDependencies));
@@ -56,7 +54,7 @@ public class TierParser extends ThingParser<TierBuilder>
         any.obj()
                 .noKey("type", () -> new IllegalStateException("Custom ingredients not supported yet. Please use an 'item' or 'tag' ingredient."))
                 .mutex(List.of("item", "tag"), () -> new IllegalStateException("Cannot have both 'tag' and 'item' in the ingredient at the same time."))
-                .ifKey("tag", val -> val.string().map(ItemTags::bind).handle(tag -> out.setValue(Lazy.of(() -> Ingredient.of(tag)))))
+                .ifKey("tag", val -> val.string().map(Utils::itemTag).handle(tag -> out.setValue(Lazy.of(() -> Ingredient.of(tag)))))
                 .ifKey("tag", val -> val.string().map(ResourceLocation::new).handle(item -> out.setValue(Lazy.of(() -> Ingredient.of(Utils.getItemOrCrash(item))))));
 
         return out.getValue();

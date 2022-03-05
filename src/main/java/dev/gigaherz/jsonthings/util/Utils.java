@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.util;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -17,6 +18,14 @@ import java.util.function.Supplier;
 
 public class Utils
 {
+    public static TagKey<Item> itemTag(String p_203855_) {
+        return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(p_203855_));
+    }
+
+    public static TagKey<Block> blockTag(String p_203847_) {
+        return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(p_203847_));
+    }
+
     public static <T extends Comparable<T>> T getPropertyValue(Property<T> prop, String value)
     {
         Optional<T> propValue = prop.getValue(value);

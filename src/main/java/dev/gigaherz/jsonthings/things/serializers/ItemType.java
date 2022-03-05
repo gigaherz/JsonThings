@@ -8,8 +8,7 @@ import dev.gigaherz.jsonthings.util.Utils;
 import joptsimple.internal.Strings;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorMaterials;
@@ -89,7 +88,7 @@ public class ItemType<T extends Item & IFlexItem>
 
         String tagName = GsonHelper.getAsString(data, "mineable");
 
-        Tag<Block> tag = BlockTags.bind(tagName);
+        TagKey<Block> tag = Utils.blockTag(tagName);
 
         float damage = GsonHelper.getAsInt(data, "damage");
         float speed = GsonHelper.getAsFloat(data, "speed");

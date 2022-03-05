@@ -13,7 +13,6 @@ import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.Unit;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -52,7 +51,7 @@ public class ThingResourceManager
 
     private ThingResourceManager()
     {
-        resourceManager = new SimpleReloadableResourceManager(CustomPackType.THINGS);
+        resourceManager = new ReloadableResourceManager(CustomPackType.THINGS);
         folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), PackSource.DEFAULT);
         packList = new PackRepository(CustomPackType.THINGS, folderPackFinder);
     }
@@ -108,8 +107,8 @@ public class ThingResourceManager
         loadConfig();
 
         return resourceManager
-                .reload(backgroundExecutor, gameExecutor, packList.openAllSelected(), CompletableFuture.completedFuture(Unit.INSTANCE))
-                .whenComplete((unit, throwable) -> {
+                .createReload(backgroundExecutor, gameExecutor, CompletableFuture.completedFuture(Unit.INSTANCE), packList.openAllSelected())
+                .done().whenComplete((unit, throwable) -> {
                     if (throwable != null)
                     {
                         resourceManager.close();

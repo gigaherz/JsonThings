@@ -17,7 +17,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'maven-publish'
 
-version = "0.3.0"
+version = "0.3.5"
 group= "dev.gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "JsonThings-UNKNOWN"
 
@@ -42,8 +42,8 @@ mixin {
 }
 
 minecraft {
-    //mappings channel: 'official', version: '1.18'
-    mappings channel: 'parchment', version: '2022.02.13-1.18.1'
+    mappings channel: 'official', version: '1.18.2'
+    //mappings channel: 'parchment', version: '2022.02.13-1.18.1'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -109,7 +109,7 @@ minecraft.runs.all {
     }
 }*/
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.1-39.0.79'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.3'
 
     //library 'com.google.guava:guava:21.0'
 

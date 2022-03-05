@@ -15,6 +15,7 @@ E.g.
 {
   "toughness": 1.0,
   "knockback_resistance": 1.0,
+  "enchantment_value": 5,
   "equip_sound": "minecraft:item.armor.equip_chain",
   "repair_ingredient": {
     "item": "clay_ball"

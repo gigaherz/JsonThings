@@ -1,6 +1,6 @@
 useClass("net.minecraft.world.effect.MobEffectInstance",
        "net.minecraft.world.effect.MobEffects");
-use("nbt", "items");
+use("nbt", "items", "effects");
 
 function apply(eventName, args)
 {
@@ -9,14 +9,14 @@ function apply(eventName, args)
     let player = args.user;
     if (player != null)
     {
-        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 200))
+        player.addEffect(effectInstance(effect("regeneration"), 200))
     }
 
     let tag = NBT.compound({
-        "Enchantments":[
-            {"id":"minecraft:sharpness","lvl":5}
+        Enchantments:[
+            {id:"minecraft:sharpness",lvl:5}
         ]
     });
 
-    return FlexEventResult.success(stack(item("stick"),1,tag));
+    return success(stack(item("stick"),1,tag));
 }

@@ -36,7 +36,7 @@ public class RhinoThingScript extends ThingScript
 
                 var logger = LogManager.getLogger("ThingScript/" + resource.getLocation());
 
-                initDSL(scope, logger);
+                scope = initDSL(scope, logger);
 
                 script.exec(cx, scope);
 
@@ -86,9 +86,9 @@ public class RhinoThingScript extends ThingScript
         }
     }
 
-    private static void initDSL(Scriptable scope, Logger logger)
+    private static Scriptable initDSL(Scriptable _scope, Logger logger)
     {
-        scope.put("FlexEventResult", scope, new NativeJavaClass(scope, FlexEventResult.class));
+        final var scope = new NativeJavaClass(_scope, FlexEventResult.class);
         scope.put("Log", scope, new NativeJavaObject(scope, logger, Logger.class));
         scope.put("Java", scope, new NativeJavaObject(scope, new JavaTypeAdapter(scope), JavaTypeAdapter.class));
         scope.put("useClass", scope, new BaseFunction(){
@@ -105,10 +105,7 @@ public class RhinoThingScript extends ThingScript
                 return Undefined.instance;
             }
         });
-        scope.put("use", scope, new BaseFunction(){
-            @Override
-            public Object call(Context cx, Scriptable _scope, Scriptable thisObj, Object[] args)
-            {
+        scope.put("use", scope, new LambdaBaseFunction((cx, __scope, thisObj, args) -> {
                 for (Object arg : args)
                 {
                     switch ((String)arg)
@@ -123,8 +120,8 @@ public class RhinoThingScript extends ThingScript
                     }
                 }
                 return Undefined.instance;
-            }
-        });
+        }));
+        return scope;
     }
 
     @FunctionalInterface

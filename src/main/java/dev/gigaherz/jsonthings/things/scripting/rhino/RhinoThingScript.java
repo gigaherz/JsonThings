@@ -88,7 +88,14 @@ public class RhinoThingScript extends ThingScript
 
     private static Scriptable initDSL(Scriptable _scope, Logger logger)
     {
-        final var scope = new NativeJavaClass(_scope, FlexEventResult.class);
+        final var scope = _scope;
+        final var flex = new NativeJavaClass(_scope, FlexEventResult.class);
+        scope.put("FlexEventResult", scope, flex);
+        for(var flexMethod : flex.getIds())
+        {
+            String name = (String)flexMethod;
+            scope.put(name, scope, flex.get(name, flex));
+        }
         scope.put("Log", scope, new NativeJavaObject(scope, logger, Logger.class));
         scope.put("Java", scope, new NativeJavaObject(scope, new JavaTypeAdapter(scope), JavaTypeAdapter.class));
         scope.put("useClass", scope, new BaseFunction(){
@@ -113,6 +120,7 @@ public class RhinoThingScript extends ThingScript
                         case "nbt" -> NbtDSL.use(cx, scope);
                         case "items" -> ItemsDSL.use(cx, scope);
                         case "blocks" -> BlocksDSL.use(cx, scope);
+                        case "levels" -> LevelsDSL.use(cx, scope);
                         case "entities" -> EntitiesDSL.use(cx, scope);
                         case "effects" -> EffectsDSL.use(cx, scope);
                         case "attributes" -> AttributesDSL.use(cx, scope);

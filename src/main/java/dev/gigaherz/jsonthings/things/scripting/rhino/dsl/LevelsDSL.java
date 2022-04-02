@@ -3,13 +3,13 @@ package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 import dev.latvian.mods.rhino.Context;
 import dev.latvian.mods.rhino.Scriptable;
 
-public class AttributesDSL
+public class LevelsDSL
 {
     public static void use(Context cx, Scriptable scope)
     {
-        if (scope.has(".use_attributes", scope))
+        if (scope.has(".use_levels", scope))
             return;
 
-        scope.put(".use_attributes", scope, true);
+        scope.put(".use_levels", scope, true);
     }
 }

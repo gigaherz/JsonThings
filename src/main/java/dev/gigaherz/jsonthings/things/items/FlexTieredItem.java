@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class FlexTieredItem extends TieredItem implements IFlexItem
 {
     public FlexTieredItem(Tier material, Properties properties)

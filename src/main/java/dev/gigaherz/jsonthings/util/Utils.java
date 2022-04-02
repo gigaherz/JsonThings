@@ -18,12 +18,12 @@ import java.util.function.Supplier;
 
 public class Utils
 {
-    public static TagKey<Item> itemTag(String p_203855_) {
-        return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(p_203855_));
+    public static TagKey<Item> itemTag(String pName) {
+        return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(pName));
     }
 
-    public static TagKey<Block> blockTag(String p_203847_) {
-        return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(p_203847_));
+    public static TagKey<Block> blockTag(String pName) {
+        return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(pName));
     }
 
     public static <T extends Comparable<T>> T getPropertyValue(Property<T> prop, String value)

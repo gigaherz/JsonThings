@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class FlexDiggerItem extends DiggerItem implements IFlexItem
 {
     public FlexDiggerItem(Tier material, float damage, float speed, TagKey<Block> breakable, Properties properties)

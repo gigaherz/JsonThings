@@ -1,9 +1,7 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.NativeJavaObject;
 import dev.latvian.mods.rhino.Scriptable;
-import dev.latvian.mods.rhino.ScriptableObject;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,19 +20,16 @@ public class ItemsDSL
         scope.put(".use_items", scope, true);
     }
 
-    private static Object findItem(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    private static Object findItem(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        return new NativeJavaObject(
-                ScriptableObject.getTopLevelScope(scope),
-                DSLHelpers.find(ForgeRegistries.ITEMS, (String)args[0]),
-                Item.class);
+        var item = DSLHelpers.find(ForgeRegistries.ITEMS, (String) args[0]);
+        return DSLHelpers.wrap(scope, item, Item.class);
     }
 
-    private static Object makeItemStack(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    private static Object makeItemStack(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var item = args[0] instanceof String str
-                ? DSLHelpers.find(ForgeRegistries.ITEMS, str)
-                : (Item)((NativeJavaObject)args[0]).unwrap();
+        var item = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.ITEMS);
+
         var stack = new ItemStack(item);
         if (args.length >= 2)
         {
@@ -45,6 +40,7 @@ public class ItemsDSL
             var tag = (CompoundTag)NbtDSL.wrapVanillaInternal(args[2]);
             stack.setTag(tag);
         }
-        return new NativeJavaObject(ScriptableObject.getTopLevelScope(scope), stack, ItemStack.class);
+
+        return DSLHelpers.wrap(scope, stack, ItemStack.class);
     }
 }

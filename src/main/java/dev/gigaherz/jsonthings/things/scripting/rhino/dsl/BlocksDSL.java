@@ -1,8 +1,11 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
-import dev.latvian.mods.rhino.*;
-import net.minecraft.world.item.ItemStack;
+import dev.latvian.mods.rhino.Context;
+import dev.latvian.mods.rhino.NativeJavaObject;
+import dev.latvian.mods.rhino.NativeObject;
+import dev.latvian.mods.rhino.Scriptable;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -19,20 +22,16 @@ public class BlocksDSL
         scope.put(".use_blocks", scope, true);
     }
 
-    private static Object findBlock(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    private static Object findBlock(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        return new NativeJavaObject(
-                ScriptableObject.getTopLevelScope(scope),
-                DSLHelpers.find(ForgeRegistries.BLOCKS, (String)args[0]),
-                Block.class);
+        var block = DSLHelpers.find(ForgeRegistries.BLOCKS, (String)args[0]);
+        return DSLHelpers.wrap(scope, block, Block.class);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static Object makeBlockState(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    private static Object makeBlockState(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var block = args[0] instanceof String str
-                ? DSLHelpers.find(ForgeRegistries.BLOCKS, str)
-                : (Block)((NativeJavaObject)args[0]).unwrap();
+        var block = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.BLOCKS);
 
         var baseState = block.defaultBlockState();
         if (args.length > 1)
@@ -50,6 +49,6 @@ public class BlocksDSL
             }
         }
 
-        return new NativeJavaObject(ScriptableObject.getTopLevelScope(scope), baseState, ItemStack.class);
+        return DSLHelpers.wrap(scope, baseState, BlockState.class);
     }
 }

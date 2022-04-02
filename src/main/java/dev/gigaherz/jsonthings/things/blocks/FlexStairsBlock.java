@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+
 public class FlexStairsBlock extends StairBlock implements IFlexBlock
 {
     public FlexStairsBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues, Supplier<BlockState> parentBlockStateSupplier)

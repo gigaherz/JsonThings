@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class FlexBlockItem extends BlockItem implements IFlexItem
 {
     public FlexBlockItem(Block block, boolean useBlockName, Properties properties)

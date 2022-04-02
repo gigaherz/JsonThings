@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import net.minecraft.world.item.enchantment.Enchantment.Rarity;
+
 public class FlexEnchantment extends Enchantment implements IEventRunner
 {
     private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();

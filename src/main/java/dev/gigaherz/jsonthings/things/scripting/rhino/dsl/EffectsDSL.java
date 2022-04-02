@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.NativeJavaObject;
 import dev.latvian.mods.rhino.Scriptable;
 import dev.latvian.mods.rhino.ScriptableObject;
 import net.minecraft.world.effect.MobEffect;
@@ -23,18 +22,14 @@ public class EffectsDSL
 
     private static Object findEffect(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        return new NativeJavaObject(
-                ScriptableObject.getTopLevelScope(scope),
-                DSLHelpers.find(ForgeRegistries.MOB_EFFECTS, (String)args[0]),
-                MobEffect.class);
+        var effect = DSLHelpers.find(ForgeRegistries.MOB_EFFECTS, (String) args[0]);
+        return DSLHelpers.wrap(ScriptableObject.getTopLevelScope(scope), effect, MobEffect.class);
     }
 
-    private static Object makeEffectInstance(Context _cx, Scriptable _scope, Scriptable thisObj, Object[] args)
+    private static Object makeEffectInstance(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var effect = args[0] instanceof String str
-                ? DSLHelpers.find(ForgeRegistries.MOB_EFFECTS, str)
-                : (MobEffect)((NativeJavaObject)args[0]).unwrap();
-        var duration = ((Number) args[1]).intValue();
+        var effect = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.MOB_EFFECTS);
+        var duration = DSLHelpers.getInt(args[1]);
         var amplifier = 0;
         var ambient = false;
         var visible = true;
@@ -50,6 +45,9 @@ public class EffectsDSL
         {
             visible = (boolean)args[4];
         }
-        return new NativeJavaObject(_scope, new MobEffectInstance(effect, duration, amplifier, ambient, visible), MobEffectInstance.class);
+
+        var mobEffectInstance = new MobEffectInstance(effect, duration, amplifier, ambient, visible);
+
+        return DSLHelpers.wrap(scope, mobEffectInstance, MobEffectInstance.class);
     }
 }

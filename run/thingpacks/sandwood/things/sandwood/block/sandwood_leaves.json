@@ -1,6 +1,6 @@
 {
   "type": "leaves",
-  "__render_layer": "cutout_mipped",
+  "render_layer": "cutout_mipped",
   "color_handler": "foliage",
   "sound_type": "grass",
   "explosion_resistance": 0.2,

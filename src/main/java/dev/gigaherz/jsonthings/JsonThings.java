@@ -5,6 +5,7 @@ import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
+import dev.gigaherz.jsonthings.things.scripting.rhino.dsl.DSLHelpers;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
@@ -23,7 +24,6 @@ import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.model.MultiLayerModel;
 import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -32,6 +32,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.resource.ResourcePackLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -108,10 +109,12 @@ public class JsonThings
     }
 
     @SubscribeEvent
-    public static void finishLoading(RegistryEvent.NewRegistry event)
+    public static void finishLoading(NewRegistryEvent event)
     {
         try
         {
+            DSLHelpers.debugDumpBindings();
+
             loaderFuture.get().finishLoading();
             loaderFuture = null;
         }

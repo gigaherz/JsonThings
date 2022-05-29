@@ -1,7 +1,6 @@
 # Block Definitions
 
-This format applies to effect instances as defined in other json files. There is no names definitions for effect instances
-at this point.
+Blocks define things that can exist in the world terrain grid.
 
 Block definitions go in the `block` directory in the thing pack.
 

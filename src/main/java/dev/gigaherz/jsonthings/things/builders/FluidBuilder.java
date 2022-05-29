@@ -44,7 +44,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     private ResourceLocation stillTexture;
     private ResourceLocation flowingTexture;
     private ResourceLocation sideTexture;
-    private Rarity rarity;
+    private Rarity rarity = Rarity.COMMON;
     private Integer color;
     private Integer density;
     private Integer luminosity;

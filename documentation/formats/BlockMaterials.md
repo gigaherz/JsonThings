@@ -1,8 +1,8 @@
 # Armor Materials
 
-Armor Materials define the tier and material properties of armor items.
+Block Materials define the map color and some basic properties of blocks.
 
-Named item armor materials go in the `armor_material` directory in the thing pack.
+Named block materials go in the `block_material` directory in the thing pack.
 
 E.g.
 ```

@@ -1,4 +1,4 @@
-# JsonThing TODO List
+# JsonThing Feature List
 
 ## DONE (working, every intended feature implemented... I think)
 
@@ -17,21 +17,24 @@
 * Blocks
   * Ore 
   * Maybe I missed some types of block
+* Fluids
+  * Basic
+  * Flowing (no swimming or such)
+* Documentation
 
 ## WIP (work but incomplete)
 
-[ nothing here right now ]
+* Scripting
 
 ## TODO (need to be done before release)
 
-* Documentation
+[ nothing here right now ]
 
 ## FUTURE (to be implemented after release)
 
 * Screen layouts
 * Container types
 * Datagen
-* Scripting
 
 ## MAYBE (to be considered)
 
@@ -40,5 +43,5 @@
 
 ## REJECTED
 
-* 1.17 Entity Models
+* 1.17+ Entity Models
   * Reason: Already done. https://www.curseforge.com/minecraft/mc-mods/entity-model-json

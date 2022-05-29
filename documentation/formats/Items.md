@@ -1,7 +1,6 @@
 # Item Definitions
 
-This format applies to effect instances as defined in other json files. There is no names definitions for effect instances
-at this point.
+Items define things that can be in your inventory, and in your hands. 
 
 Item definitions go in the `item` directory in the thing pack.
 

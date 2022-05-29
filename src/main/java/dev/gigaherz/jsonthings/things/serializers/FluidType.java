@@ -82,10 +82,10 @@ public class FluidType<T extends Fluid & IFlexFluid>
             var block = new MutableObject<BlockBuilder>();
 
             JParse.begin(data)
-                    .ifKey("slope_distance", any -> any.intValue().handle(slopeDistance::setValue))
-                    .ifKey("dropoff", any -> any.intValue().handle(dropOff::setValue))
+                    .ifKey("slope_distance", any -> any.intValue().min(1).handle(slopeDistance::setValue))
+                    .ifKey("dropoff", any -> any.intValue().range(1,8).handle(dropOff::setValue))
                     .ifKey("can_convert_to_source", any -> any.bool().handle(canConvertToSource::setValue))
-                    .ifKey("tick_delay", any -> any.intValue().handle(tickDelay::setValue))
+                    .ifKey("tick_delay", any -> any.intValue().min(0).handle(tickDelay::setValue))
                     .ifKey("explosion_resistance", any -> any.floatValue().handle(explosionResistance::setValue))
                     .ifKey("block", any -> parseLiquidBlock(name, any, block::setValue));
 

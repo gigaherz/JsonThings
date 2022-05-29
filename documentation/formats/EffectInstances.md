@@ -1,6 +1,6 @@
 # Effect Instance Definitions
 
-This format applies to effect instances as defined in other json files. There is no names definitions for effect instances
+This format applies to effect instances as defined in other json files. There is no named definitions for effect instances
 at this point.
 
 See [Food](./Food.md) for an example of where this is used.

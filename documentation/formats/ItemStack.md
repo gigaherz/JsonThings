@@ -1,5 +1,7 @@
 # Item Stack Definition
 
+Item Stacks link an item with a count and optional tags, they are the essential object through which Items are used.
+
 Item Stack definitions are not named, but rather contained within other json files.
 
 See [Items](./Items.md#creative_menu_stacks) for an example of where this is used.

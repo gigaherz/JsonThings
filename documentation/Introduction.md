@@ -8,6 +8,7 @@ A Thing Pack supports a set of file types for defining different things.
 
 * [Items](./formats/Items.md)
 * [Blocks](./formats/Blocks.md)
+* [Fluids](./formats/Fluids.md)
 * [Item Tiers](./formats/ItemTiers.md)
 * [Enchantments](./formats/Enchantments.md)
 * [Armor Materials](./formats/ArmorMaterials.md)

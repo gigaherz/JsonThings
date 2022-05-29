@@ -1,12 +1,12 @@
 package dev.gigaherz.jsonthings.things.builders;
 
-import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import dev.gigaherz.jsonthings.things.serializers.BlockType;
+import dev.gigaherz.jsonthings.things.serializers.IBlockFactory;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 
 public class BlockBuilder extends BaseBuilder<IFlexBlock>
 {
-    private JsonObject jsonSource;
-
     private List<Property<?>> properties;
     private Map<String, Property<?>> propertiesByName;
     private Map<String, String> propertyDefaultValues;
@@ -58,10 +56,11 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
     private Float jumpFactor;
     private ResourceLocation soundType;
 
-    private BlockBuilder(ResourceLocation registryName, JsonObject data)
+    private IBlockFactory<? extends Block> factory;
+
+    private BlockBuilder(ResourceLocation registryName)
     {
         super(registryName);
-        this.jsonSource = data;
     }
 
     @Override
@@ -70,9 +69,9 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         return "Block";
     }
 
-    public static BlockBuilder begin(ResourceLocation registryName, JsonObject data)
+    public static BlockBuilder begin(ResourceLocation registryName)
     {
-        return new BlockBuilder(registryName, data);
+        return new BlockBuilder(registryName);
     }
 
     public void setBlockType(ResourceLocation typeName)
@@ -81,6 +80,13 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         if (blockType == null)
             throw new IllegalStateException("No known block type with name " + typeName);
         this.blockType = blockType;
+    }
+
+    public void setBlockType(BlockType<?> type)
+    {
+        if (ThingRegistries.BLOCK_TYPES.getKey(type) == null)
+            throw new IllegalStateException("Block type not registered!");
+        this.blockType = type;
     }
 
     public void withItem(ItemBuilder itemBuilder)
@@ -93,7 +99,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         if (this.parentBlock != null)
             throw new IllegalStateException("Parent block already set");
         this.parentBuilderName = parentName; // maybe
-        this.parentBlock = RegistryObject.of(parentName, ForgeRegistries.BLOCKS);
+        this.parentBlock = RegistryObject.create(parentName, ForgeRegistries.BLOCKS);
     }
 
     public void setProperties(Map<String, Property<?>> properties)
@@ -248,9 +254,6 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
             throw new IllegalStateException("The block of type " + blockType + " cannot define non-duplicate properties with clashing names: " + badProperties.stream().map(Property::getName).collect(Collectors.joining(" ")));
         }
 
-        var factory = Utils.orElse(getBlockType(), BlockType.PLAIN).getFactory(jsonSource);
-        jsonSource = null;
-
         IFlexBlock flexBlock = factory.construct(props, this);
 
         flexBlock.setGeneralShape(getGeneralShape());
@@ -321,6 +324,11 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
     public BlockType<?> getBlockType()
     {
         return Utils.orElse(getBlockTypeRaw(), () -> BlockType.PLAIN);
+    }
+
+    public boolean hasBlockType()
+    {
+        return getBlockTypeRaw() != null;
     }
 
     @Nullable
@@ -521,5 +529,10 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
         {
             parent.forEachEvent(consumer);
         }
+    }
+
+    public void setFactory(IBlockFactory<?> factory)
+    {
+        this.factory = factory;
     }
 }

@@ -75,7 +75,7 @@ public class ArmorMaterialBuilder extends BaseBuilder<FlexArmorMaterial>
     @Override
     protected FlexArmorMaterial buildInternal()
     {
-        var se = RegistryObject.of(equipSound, ForgeRegistries.SOUND_EVENTS);
+        var se = RegistryObject.create(equipSound, ForgeRegistries.SOUND_EVENTS);
         return new FlexArmorMaterial(getRegistryName().toString(), durability, defense, toughness, knockbackResistance, enchantmentValue, se, repairIngredient);
     }
 }

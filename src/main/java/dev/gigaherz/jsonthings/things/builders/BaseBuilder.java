@@ -21,7 +21,7 @@ public abstract class BaseBuilder<T> implements Supplier<T>
         this.registryName = registryName;
     }
 
-    private T build()
+    public T build()
     {
         try
         {

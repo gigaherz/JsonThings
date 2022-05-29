@@ -9,6 +9,7 @@ import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
+import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.MutableComponent;
@@ -51,10 +52,11 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
 
     private List<MutableComponent> lore = List.of();
 
-    private ItemBuilder(ResourceLocation registryName, JsonObject data)
+    private IItemFactory<? extends Item> factory;
+
+    private ItemBuilder(ResourceLocation registryName)
     {
         super(registryName);
-        this.jsonSource = data;
     }
 
     @Override
@@ -63,9 +65,9 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
         return "Item";
     }
 
-    public static ItemBuilder begin(ResourceLocation registryName, JsonObject data)
+    public static ItemBuilder begin(ResourceLocation registryName)
     {
-        return new ItemBuilder(registryName, data);
+        return new ItemBuilder(registryName);
     }
 
     public void setParent(ResourceLocation parentBuilder)
@@ -80,6 +82,13 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
         if (itemType == null)
             throw new IllegalStateException("No known block type with name " + typeName);
         this.itemType = itemType;
+    }
+
+    public void setType(ItemType<?> type)
+    {
+        if (ThingRegistries.ITEM_TYPES.getKey(type) == null)
+            throw new IllegalStateException("Item type not registered!");
+        this.itemType = type;
     }
 
     public void setMaxStackSize(int maxStackSize)
@@ -171,10 +180,6 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
         {
             properties = properties.food(foodDefinition.get());
         }
-
-        var factory = Utils.orElse(getItemType(), ItemType.PLAIN).getFactory(jsonSource);
-
-        jsonSource = null;
 
         IFlexItem flexItem = factory.construct(properties, this);
 
@@ -292,9 +297,19 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
     }
 
     @Nullable
-    public ItemType<?> getItemType()
+    public ItemType<?> getTypeRaw()
     {
-        return getValueWithParent(itemType, ItemBuilder::getItemType);
+        return getValueWithParent(itemType, ItemBuilder::getTypeRaw);
+    }
+
+    public ItemType<?> getType()
+    {
+        return Utils.orElse(getTypeRaw(), ItemType.PLAIN);
+    }
+
+    public boolean hasType()
+    {
+        return getValueWithParent(itemType != null, ItemBuilder::hasType);
     }
 
     @Nullable
@@ -318,6 +333,11 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
         {
             parentBuilderObj.forEachEvent(consumer);
         }
+    }
+
+    public void setFactory(IItemFactory<?> factory)
+    {
+        this.factory = factory;
     }
 
     static class ContainerInfo

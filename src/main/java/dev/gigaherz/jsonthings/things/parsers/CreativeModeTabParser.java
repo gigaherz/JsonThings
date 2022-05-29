@@ -5,6 +5,8 @@ import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.Consumer;
+
 public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
 {
     public CreativeModeTabParser()
@@ -13,19 +15,20 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
     }
 
     @Override
-    public void finishLoading()
+    protected void finishLoadingInternal()
     {
         getBuilders().forEach(CreativeModeTabBuilder::get);
     }
 
     @Override
-    protected CreativeModeTabBuilder processThing(ResourceLocation key, JsonObject data)
+    protected CreativeModeTabBuilder processThing(ResourceLocation key, JsonObject data, Consumer<CreativeModeTabBuilder> builderModification)
     {
         final CreativeModeTabBuilder builder = CreativeModeTabBuilder.begin(key);
 
         JParse.begin(data)
-                .obj()
                 .key("icon", val -> val.string().map(ResourceLocation::new).handle(builder::setIcon));
+
+        builderModification.accept(builder);
 
         return builder;
     }

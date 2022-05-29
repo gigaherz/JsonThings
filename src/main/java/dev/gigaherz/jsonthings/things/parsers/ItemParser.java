@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class ItemParser extends ThingParser<ItemBuilder>
 {
@@ -43,12 +44,11 @@ public class ItemParser extends ThingParser<ItemBuilder>
     }
 
     @Override
-    public ItemBuilder processThing(ResourceLocation key, JsonObject data)
+    public ItemBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ItemBuilder> builderModification)
     {
-        final ItemBuilder builder = ItemBuilder.begin(key, data);
+        final ItemBuilder builder = ItemBuilder.begin(key);
 
         JParse.begin(data)
-                .obj()
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
@@ -68,6 +68,10 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
+
+        builderModification.accept(builder);
+
+        builder.setFactory(builder.getType().getFactory(data));
 
         return builder;
     }

@@ -39,6 +39,16 @@ public class JParse
         return new JParse("$", data);
     }
 
+    public static ObjValue begin(JsonObject data)
+    {
+        return new JParse("$", data).obj();
+    }
+
+    public static ArrayValue begin(JsonArray data)
+    {
+        return new JParse("$", data).array();
+    }
+
     private String formatAltTypes(String and)
     {
         if (altTypes.size() > 0)

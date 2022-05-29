@@ -1,6 +1,7 @@
 modLoader="javafml"
 loaderVersion="[38,)"
 license="BSD (3 Clause)"
+issueTrackerURL="https://github.com/gigaherz/JsonThings/issues"
 
 [[mods]]
 modId="jsonthings"
@@ -11,8 +12,6 @@ description='''
 Things, in JSON sauce.
 '''
 authors="gigaherz"
-#credit="Thanks for this example mod goes to Java"
-issueTrackerURL="https://github.com/gigaherz/JsonThings/issues"
 displayURL="https://github.com/gigaherz/JsonThings"
 
 [[dependencies.jsonthings]]

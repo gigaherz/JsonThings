@@ -11,6 +11,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
 {
@@ -20,18 +21,17 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
     }
 
     @Override
-    public void finishLoading()
+    protected void finishLoadingInternal()
     {
         getBuilders().forEach(thing -> Registry.register(ThingRegistries.ARMOR_MATERIALS, thing.getRegistryName(), thing.get()));
     }
 
     @Override
-    public ArmorMaterialBuilder processThing(ResourceLocation key, JsonObject data)
+    public ArmorMaterialBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ArmorMaterialBuilder> builderModification)
     {
         final ArmorMaterialBuilder builder = ArmorMaterialBuilder.begin(key);
 
         JParse.begin(data)
-                .obj()
                 .key("toughness", val -> val.floatValue().min(0).handle(builder::setToughness))
                 .key("knockback_resistance", val -> val.floatValue().min(0).handle(builder::withKnockbackResistance))
                 .key("enchantment_value", val -> val.intValue().min(0).handle(builder::withEnchantmentValue))
@@ -39,6 +39,8 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
                 .key("equip_sound", val -> val.string().map(ResourceLocation::new).handle(builder::withEquipSound))
                 .key("durability", val -> val.map(this::parseEquipmentSlotMap).handle(builder::withDurability))
                 .key("armor", val -> val.map(this::parseEquipmentSlotMap).handle(builder::withDefense));
+
+        builderModification.accept(builder);
 
         return builder;
     }

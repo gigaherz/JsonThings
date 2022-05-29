@@ -131,7 +131,7 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
         flexEnchantment.setDiscoverable(isDiscoverable);
         flexEnchantment.setAllowedOnBooks(isAllowedOnBooks);
         flexEnchantment.setBlackList(blackList.stream().map(loc -> {
-            var ro = RegistryObject.of(loc, ForgeRegistries.ENCHANTMENTS);
+            var ro = RegistryObject.create(loc, ForgeRegistries.ENCHANTMENTS);
             return (Predicate<Enchantment>) ((enchantment) -> ro.filter(en -> en == enchantment).isPresent());
         }).toList());
 

@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
 {
@@ -40,15 +41,14 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     }
 
     @Override
-    public EnchantmentBuilder processThing(ResourceLocation key, JsonObject data)
+    public EnchantmentBuilder processThing(ResourceLocation key, JsonObject data, Consumer<EnchantmentBuilder> builderModification)
     {
         final EnchantmentBuilder builder = EnchantmentBuilder.begin(key);
 
         MutableInt minLevel = new MutableInt(1);
 
         JParse.begin(data)
-                .obj()
-                .ifKey("rarity", val -> val.string().map(this::parseRarity).handle(builder::setRarity))
+                .ifKey("rarity", val -> val.string().map(this::parseEnchantmentRarity).handle(builder::setRarity))
                 .ifKey("type", val -> val.string().map(this::parseEnchantmentType).handle(builder::setEnchantmentType))
                 .ifKey("min_level", val -> val.intValue().min(1).handle(num -> {
                     minLevel.setValue(num);
@@ -67,6 +67,8 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
                 .ifKey("disallow_enchants", val -> val.array().map(this::parseBlacklist).handle(builder::setBlacklist))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
+        builderModification.accept(builder);
+
         return builder;
     }
 
@@ -82,7 +84,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         return type;
     }
 
-    private Enchantment.Rarity parseRarity(String str)
+    private Enchantment.Rarity parseEnchantmentRarity(String str)
     {
         Enchantment.Rarity rarity = rarities.get(str);
         if (rarity == null) throw new IllegalStateException("No enchantment rarity known with name " + str);

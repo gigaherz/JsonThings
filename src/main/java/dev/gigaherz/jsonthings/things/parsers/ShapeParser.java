@@ -7,6 +7,8 @@ import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.Consumer;
+
 public class ShapeParser extends ThingParser<ShapeBuilder>
 {
     public ShapeParser()
@@ -15,14 +17,18 @@ public class ShapeParser extends ThingParser<ShapeBuilder>
     }
 
     @Override
-    public void finishLoading()
+    protected void finishLoadingInternal()
     {
         getBuilders().forEach(thing -> Registry.register(ThingRegistries.DYNAMIC_SHAPES, thing.getRegistryName(), thing.get()));
     }
 
     @Override
-    protected ShapeBuilder processThing(ResourceLocation key, JsonObject data)
+    protected ShapeBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ShapeBuilder> builderModification)
     {
-        return ShapeBuilder.begin(key, DynamicShape.fromJson(data, null, name -> ThingRegistries.PROPERTIES.get(new ResourceLocation(name))));
+        ShapeBuilder builder = ShapeBuilder.begin(key, DynamicShape.fromJson(data, null, name -> ThingRegistries.PROPERTIES.get(new ResourceLocation(name))));
+
+        builderModification.accept(builder);
+
+        return builder;
     }
 }

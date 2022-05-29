@@ -4,6 +4,7 @@ import com.mojang.serialization.Lifecycle;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.properties.PropertyTypes;
 import dev.gigaherz.jsonthings.things.serializers.BlockType;
+import dev.gigaherz.jsonthings.things.serializers.FluidType;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
@@ -37,6 +38,7 @@ public class ThingRegistries
     public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
     public static final ResourceKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
     public static final ResourceKey<Registry<SoundType>> SOUND_TYPE_REGISTRY = createKey("jsonthings:sound_types");
+    public static final ResourceKey<Registry<FluidType<?>>> FLUID_TYPE_REGISTRY = createKey("jsonthings:fluid_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental(), null);
     public static final Registry<ArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
@@ -48,6 +50,7 @@ public class ThingRegistries
     public static final Registry<BlockType<?>> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
     public static final Registry<Material> BLOCK_MATERIALS = makeRegistry(BLOCK_MATERIAL_REGISTRY);
     public static final Registry<SoundType> SOUND_TYPES = makeRegistry(SOUND_TYPE_REGISTRY);
+    public static final Registry<FluidType<?>> FLUID_TYPES = makeRegistry(FLUID_TYPE_REGISTRY);
 
     static
     {
@@ -70,6 +73,8 @@ public class ThingRegistries
         ItemType.init();
 
         MaterialColors.init();
+
+        FluidType.init();
     }
 
     private static <T> ResourceKey<Registry<T>> createKey(String name)

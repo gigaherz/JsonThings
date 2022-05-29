@@ -17,6 +17,8 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.TierSortingRegistry;
+import net.minecraftforge.common.util.Lazy;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 
@@ -30,6 +32,26 @@ public class ItemType<T extends Item & IFlexItem>
         ResourceLocation blockName = name != null ? new ResourceLocation(name) : null;
         boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> new FlexBlockItem(Utils.getBlockOrCrash(blockName != null ? blockName : builder.getRegistryName()), useBlockName, props);
+    });
+
+    public static final ItemType<FlexBucketItem> BUCKET = register("bucket", data -> {
+        String name = GsonHelper.getAsString(data, "fluid", null);
+        return (props, builder) ->
+        {
+            ResourceLocation fluidName;
+            if (name != null)
+            {
+                fluidName = new ResourceLocation(name);
+            }
+            else
+            {
+                var thisName = builder.getRegistryName();
+                var path = thisName.getPath();
+                if (path.endsWith("_bucket")) path = path.substring(0,path.length() - "_bucket".length());
+                fluidName = new ResourceLocation(thisName.getNamespace(), path);
+            }
+            return new FlexBucketItem(Lazy.of(() -> Utils.getOrCrash(ForgeRegistries.FLUIDS, fluidName)), props);
+        };
     });
 
     public static final ItemType<FlexArmorItem> ARMOR = register("armor", data -> {

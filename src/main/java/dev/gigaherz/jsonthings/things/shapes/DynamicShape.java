@@ -4,8 +4,10 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.util.CodecExtras;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -42,6 +44,22 @@ public class DynamicShape
     public static Codec<IShapeProvider> shapeCodec()
     {
         return SHAPE_CODEC;
+    }
+
+    public static DynamicShape parseShape(JsonElement element, @Nullable Property<Direction> facingProperty, Map<String, Property<?>> propertiesByName)
+    {
+        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString())
+        {
+            String name = element.getAsString();
+            DynamicShape shape = ThingRegistries.DYNAMIC_SHAPES.get(new ResourceLocation(name));
+            if (shape == null)
+                throw new IllegalStateException("No shape known with name " + name);
+            return shape;
+        }
+        else
+        {
+            return fromJson(element, facingProperty, propertiesByName::get);
+        }
     }
 
     private final Map<BlockState, VoxelShape> shapeCache = new IdentityHashMap<>();

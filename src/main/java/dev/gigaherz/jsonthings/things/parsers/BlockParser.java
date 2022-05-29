@@ -6,8 +6,8 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
-import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
+import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -25,10 +25,10 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class BlockParser extends ThingParser<BlockBuilder>
 {
@@ -50,15 +50,14 @@ public class BlockParser extends ThingParser<BlockBuilder>
     }
 
     @Override
-    public BlockBuilder processThing(ResourceLocation key, JsonObject data)
+    public BlockBuilder processThing(ResourceLocation key, JsonObject data, Consumer<BlockBuilder> builderModification)
     {
-        final BlockBuilder builder = BlockBuilder.begin(key, data);
+        final BlockBuilder builder = BlockBuilder.begin(key);
 
         MutableObject<Map<String, Property<?>>> propertiesByName = new MutableObject<>(new HashMap<>());
         MutableObject<Property<Direction>> facingProperty = new MutableObject<>();
 
         JParse.begin(data)
-                .obj()
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParentBlock))
                 .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setBlockType))
                 .ifKey("material", val -> val.string().map(ResourceLocation::new).handle(builder::setMaterial))
@@ -88,24 +87,19 @@ public class BlockParser extends ThingParser<BlockBuilder>
                     //noinspection unchecked
                     facingProperty.setValue((Property<Direction>) prop);
                 }))
-                .ifKey("shape", val -> val.raw(obj -> builder.setGeneralShape(parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("collision_shape", val -> val.raw(obj -> builder.setCollisionShape(parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("raytrace_shape", val -> val.raw(obj -> builder.setRaytraceShape(parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
+                .ifKey("shape", val -> val.raw(obj -> builder.setGeneralShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
+                .ifKey("collision_shape", val -> val.raw(obj -> builder.setCollisionShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
+                .ifKey("raytrace_shape", val -> val.raw(obj -> builder.setRaytraceShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
+                .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("render_layer", val -> val.map(this::parseRenderLayers).handle(builder::setRenderLayers))
                 .ifKey("not_solid", val -> val.bool().handle(builder::setSeeThrough))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
-                .ifKey("item", val -> val
-                        .ifBool(v -> v.handle(b -> {
-                            if (b) createStockItemBlock(builder);
-                        }))
-                        .ifObj(obj -> obj.map((JsonObject item) -> {
-                            ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), item);
-                            itemBuilder.setType("block");
-                            return itemBuilder;
-                        }).handle(builder::withItem))
-                )
+                .ifKey("item", val -> parseItemBlock(builder, val))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
+
+        builderModification.accept(builder);
+
+        builder.setFactory(builder.getBlockType().getFactory(data));
 
         return builder;
     }
@@ -138,22 +132,6 @@ public class BlockParser extends ThingParser<BlockBuilder>
         return layerName;
     }
 
-    private DynamicShape parseShape(JsonElement element, @Nullable Property<Direction> facingProperty, Map<String, Property<?>> propertiesByName)
-    {
-        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString())
-        {
-            String name = element.getAsString();
-            DynamicShape shape = ThingRegistries.DYNAMIC_SHAPES.get(new ResourceLocation(name));
-            if (shape == null)
-                throw new IllegalStateException("No shape known with name " + name);
-            return shape;
-        }
-        else
-        {
-            return DynamicShape.fromJson(element, facingProperty, propertiesByName::get);
-        }
-    }
-
     private void parseBlockState(JsonObject props, BlockBuilder builder)
     {
         for (Map.Entry<String, JsonElement> entry : props.entrySet())
@@ -182,10 +160,23 @@ public class BlockParser extends ThingParser<BlockBuilder>
         return map;
     }
 
-    private void createStockItemBlock(BlockBuilder builder)
+    public static void parseItemBlock(BlockBuilder builder, Any val)
     {
-        ItemBuilder itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), new JsonObject());
-        itemBuilder.setType("block");
-        builder.withItem(itemBuilder);
+        val
+                .ifBool(v -> v.handle(b -> {
+                    if (b) createItemBlock(builder, new JsonObject());
+                }))
+                .ifObj(obj -> obj.raw((JsonObject item) -> {
+                    createItemBlock(builder, item);
+                }))
+                .typeError();
+    }
+
+    private static void createItemBlock(BlockBuilder builder, JsonObject obj)
+    {
+        builder.withItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
+            if (!b.hasType())
+                b.setType(ItemType.BLOCK);
+        }));
     }
 }

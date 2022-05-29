@@ -5,7 +5,6 @@ import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
-import dev.gigaherz.jsonthings.things.scripting.rhino.dsl.DSLHelpers;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
@@ -57,6 +56,7 @@ public class JsonThings
 
     public static BlockParser blockParser;
     public static ItemParser itemParser;
+    public static FluidParser fluidParser;
     public static EnchantmentParser enchantmentParser;
     public static FoodParser foodParser;
     public static ShapeParser shapeParser;
@@ -76,6 +76,7 @@ public class JsonThings
         }
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));
+        fluidParser = manager.registerParser(new FluidParser(bus));
         enchantmentParser = manager.registerParser(new EnchantmentParser(bus));
         foodParser = manager.registerParser(new FoodParser());
         shapeParser = manager.registerParser(new ShapeParser());
@@ -113,7 +114,7 @@ public class JsonThings
     {
         try
         {
-            DSLHelpers.debugDumpBindings();
+            //DSLHelpers.debugDumpBindings();
 
             loaderFuture.get().finishLoading();
             loaderFuture = null;

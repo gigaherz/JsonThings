@@ -5,6 +5,8 @@ import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.blocks.*;
 import dev.gigaherz.jsonthings.things.misc.FlexTreeGrower;
+import dev.gigaherz.jsonthings.util.Utils;
+import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -13,8 +15,12 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Material;
+import net.minecraftforge.common.util.Lazy;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -210,6 +216,32 @@ public class BlockType<T extends Block & IFlexBlock>
             }
         };
     }, "cutout", true, Material.STONE, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
+
+    public static final BlockType<FlexLiquidBlock> LIQUID = register("liquid", data -> {
+        var extras = JParse.begin(data);
+        var fluid = new MutableObject<ResourceLocation>();
+        extras.key("fluid", any -> any.string().map(ResourceLocation::new).handle(fluid::setValue));
+        return (props, builder) -> {
+            List<Property<?>> _properties = builder.getProperties();
+            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+            var fluidName = fluid.getValue() != null ? fluid.getValue() : builder.getRegistryName();
+            var fluidSupplier = Lazy.<FlowingFluid>of(() -> {
+                var fluidObj = Utils.getOrCrash(ForgeRegistries.FLUIDS, fluidName);
+                if (!(fluidObj instanceof FlowingFluid flowing))
+                    throw new RuntimeException("LiquidBlock requires a flowing fluid");
+                return flowing;
+            });
+            return new FlexLiquidBlock(props, propertyDefaultValues, fluidSupplier)
+            {
+                @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+                {
+                    super.createBlockStateDefinition(builder1);
+                    _properties.forEach(builder1::add);
+                }
+            };
+        };
+    }, "translucent", true, Material.WATER);
 
     public static void init()
     {

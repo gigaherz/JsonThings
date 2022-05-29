@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 
+import java.util.function.Consumer;
+
 public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
 {
     public BlockMaterialParser()
@@ -18,18 +20,17 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
     }
 
     @Override
-    public void finishLoading()
+    protected void finishLoadingInternal()
     {
         getBuilders().forEach(thing -> Registry.register(ThingRegistries.BLOCK_MATERIALS, thing.getRegistryName(), thing.get()));
     }
 
     @Override
-    public BlockMaterialBuilder processThing(ResourceLocation key, JsonObject data)
+    public BlockMaterialBuilder processThing(ResourceLocation key, JsonObject data, Consumer<BlockMaterialBuilder> builderModification)
     {
         final BlockMaterialBuilder builder = BlockMaterialBuilder.begin(key);
 
         JParse.begin(data)
-                .obj()
                 .key("map_color", val -> val
                         .ifString(str -> builder.setColor(MaterialColors.get(str.getAsString())))
                         .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
@@ -42,6 +43,8 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
                 .ifKey("blocks_motion", val -> val.bool().handle(builder::setBlocksMotion))
                 .ifKey("solid_blocking", val -> val.bool().handle(builder::setSolidBlocking))
                 .ifKey("push_reaction", val -> val.string().map(BlockMaterialParser::parsePushReaction).handle(builder::setPushReaction));
+
+        builderModification.accept(builder);
 
         return builder;
     }

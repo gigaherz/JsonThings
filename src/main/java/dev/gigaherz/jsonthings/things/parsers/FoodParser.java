@@ -10,6 +10,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
+import java.util.function.Consumer;
+
 public class FoodParser extends ThingParser<FoodBuilder>
 {
     public FoodParser()
@@ -18,18 +20,17 @@ public class FoodParser extends ThingParser<FoodBuilder>
     }
 
     @Override
-    public void finishLoading()
+    protected void finishLoadingInternal()
     {
         getBuilders().forEach(thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.get()));
     }
 
     @Override
-    public FoodBuilder processThing(ResourceLocation key, JsonObject data)
+    public FoodBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FoodBuilder> builderModification)
     {
         final FoodBuilder builder = FoodBuilder.begin(key);
 
         JParse.begin(data)
-                .obj()
                 .key("nutrition", val -> val.intValue().min(1).handle(builder::setNutrition))
                 .key("saturation", val -> val.intValue().min(0).handle(builder::setSaturation))
                 .ifKey("meat", val -> val.bool().handle(builder::setIsMeat))
@@ -41,6 +42,8 @@ public class FoodParser extends ThingParser<FoodBuilder>
                             .ifKey("probability", v3 -> v3.floatValue().range(0, 1).handle(probability::setValue)), builder);
                     builder.effect(ei, probability.getValue());
                 }));
+
+        builderModification.accept(builder);
 
         return builder;
     }

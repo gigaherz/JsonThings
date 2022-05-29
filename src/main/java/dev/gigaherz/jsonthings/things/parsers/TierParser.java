@@ -13,6 +13,7 @@ import net.minecraftforge.common.util.Lazy;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class TierParser extends ThingParser<TierBuilder>
@@ -23,18 +24,17 @@ public class TierParser extends ThingParser<TierBuilder>
     }
 
     @Override
-    public void finishLoading()
+    protected void finishLoadingInternal()
     {
         getBuilders().forEach(thing -> TierSortingRegistry.registerTier(thing.get(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()));
     }
 
     @Override
-    public TierBuilder processThing(ResourceLocation key, JsonObject data)
+    public TierBuilder processThing(ResourceLocation key, JsonObject data, Consumer<TierBuilder> builderModification)
     {
         final TierBuilder builder = TierBuilder.begin(key);
 
         JParse.begin(data)
-                .obj()
                 .key("uses", val -> val.intValue().min(1).handle(builder::setUses))
                 .key("speed", val -> val.floatValue().min(1).handle(builder::setSpeed))
                 .key("attack_damage_bonus", val -> val.floatValue().min(1).handle(builder::setAttackDamageBonus))
@@ -43,6 +43,8 @@ public class TierParser extends ThingParser<TierBuilder>
                 .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient))
                 .key("sort_after", val -> val.array().map(TierParser::parseDependencyList).handle(builder::setAfterDependencies))
                 .key("sort_before", val -> val.array().map(TierParser::parseDependencyList).handle(builder::setBeforeDependencies));
+
+        builderModification.accept(builder);
 
         return builder;
     }

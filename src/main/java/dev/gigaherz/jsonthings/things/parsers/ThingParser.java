@@ -3,12 +3,14 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
+import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.CrashReport;
@@ -224,4 +226,23 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
 
         return (values[0] << 24) | (values[1] << 16) | (values[2] << 8) | (values[3]);
     }
+
+    public static Set<String> parseRenderLayers(Any data)
+    {
+        Set<String> types = Sets.newHashSet();
+        data.ifString(str -> str.handle(name -> types.add(verifyRenderLayer(name))))
+                .ifArray(arr -> arr.forEach((i, val) -> types.add(verifyRenderLayer(val.string().getAsString()))))
+                .typeError();
+        return types;
+    }
+
+    private static final Set<String> VALID_BLOCK_LAYERS = Sets.newHashSet("solid", "cutout_mipped", "cutout", "translucent", "tripwire");
+
+    private static String verifyRenderLayer(String layerName)
+    {
+        if (!VALID_BLOCK_LAYERS.contains(layerName))
+            throw new IllegalStateException("Render layer " + layerName + " is not a valid block chunk layer.");
+        return layerName;
+    }
+
 }

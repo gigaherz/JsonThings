@@ -166,6 +166,17 @@ public class JsonThings
                     ItemBlockRenderTypes.setRenderLayer(thing.get().self(), renderTypes::contains);
                 }
             });
+            JsonThings.fluidParser.getBuilders().forEach(thing -> {
+                Set<String> layers = thing.getRenderLayers();
+                if (layers.size() != 1 || !layers.contains("solid"))
+                {
+                    Set<RenderType> renderTypes = layers.stream().map(MultiLayerModel.Loader.BLOCK_LAYERS::get).collect(Collectors.toSet());
+                    for(var fluid : thing.getAllSiblings())
+                    {
+                        ItemBlockRenderTypes.setRenderLayer(fluid, renderTypes::contains);
+                    }
+                }
+            });
         }
 
         @SubscribeEvent

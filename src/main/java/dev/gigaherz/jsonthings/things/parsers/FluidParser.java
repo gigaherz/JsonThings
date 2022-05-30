@@ -8,6 +8,7 @@ import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
 import dev.gigaherz.jsonthings.util.parse.function.ArrayValueFunction;
 import dev.gigaherz.jsonthings.util.parse.function.ObjValueFunction;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
@@ -23,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class FluidParser extends ThingParser<FluidBuilder>
@@ -88,6 +90,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
                 .ifKey("temperature", val -> val.intValue().handle(builder::setTemperature))
                 .ifKey("viscosity", val -> val.intValue().handle(builder::setViscosity))
                 .ifKey("gaseous", val -> val.bool().handle(builder::setGaseous))
+                .ifKey("render_layer", val -> val.map((AnyFunction<Set<String>>) ThingParser::parseRenderLayers).handle(builder::setRenderLayers))
                 .ifKey("fill_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setFillSound))
                 .ifKey("empty_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setEmptySound))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));

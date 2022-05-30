@@ -20,10 +20,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,6 +51,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     private Boolean isGaseous;
     private ResourceLocation fillSound;
     private ResourceLocation emptySound;
+    private Set<String> renderLayers;
 
     private IFluidFactory<? extends Fluid> factory;
 
@@ -169,6 +167,11 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     public void setEmptySound(ResourceLocation emptySound)
     {
         this.emptySound = emptySound;
+    }
+
+    public void setRenderLayers(Set<String> renderLayers)
+    {
+        this.renderLayers = renderLayers;
     }
 
     @Override
@@ -417,6 +420,17 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         return getValueWithParent(emptySound, FluidBuilder::getEmptySound);
     }
 
+    @Nullable
+    public Set<String> getRenderLayersRaw()
+    {
+        return getValueWithParent(renderLayers, FluidBuilder::getRenderLayersRaw);
+    }
+
+    public Set<String> getRenderLayers()
+    {
+        return Utils.orElse(getRenderLayersRaw(), () -> Collections.singleton(getFluidType().getDefaultLayer()));
+    }
+
     private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
     {
         var ev = getEventMap();
@@ -438,5 +452,10 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     public void setFactory(IFluidFactory<?> factory)
     {
         this.factory = factory;
+    }
+
+    public Iterable<Fluid> getAllSiblings()
+    {
+        return factory.getAllSiblings(this);
     }
 }

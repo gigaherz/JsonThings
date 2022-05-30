@@ -5,6 +5,7 @@ import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 
+import java.util.Collections;
 import java.util.function.BiConsumer;
 
 public interface IFluidFactory<T extends Fluid & IFlexFluid>
@@ -14,5 +15,10 @@ public interface IFluidFactory<T extends Fluid & IFlexFluid>
     default void register(FluidBuilder builder, BiConsumer<ResourceLocation, Fluid> register)
     {
         register.accept(builder.getRegistryName(), builder.get().self());
+    }
+
+    default Iterable<Fluid> getAllSiblings(FluidBuilder builder)
+    {
+        return Collections.singleton(builder.get().self());
     }
 }

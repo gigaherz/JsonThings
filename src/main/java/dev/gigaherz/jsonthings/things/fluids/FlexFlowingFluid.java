@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -152,7 +153,10 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     }
 
     public BlockState createLegacyBlock(FluidState pState) {
-        return block.get().defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(pState));
+        var b = block.get();
+        if (b == Blocks.AIR)
+            return b.defaultBlockState();
+        return b.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(pState));
     }
 
     @Override

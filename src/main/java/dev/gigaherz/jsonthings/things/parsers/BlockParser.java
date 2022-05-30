@@ -1,6 +1,5 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
-import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
@@ -11,6 +10,7 @@ import dev.gigaherz.jsonthings.things.serializers.ItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Direction;
@@ -91,7 +91,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("collision_shape", val -> val.raw(obj -> builder.setCollisionShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("raytrace_shape", val -> val.raw(obj -> builder.setRaytraceShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("render_layer", val -> val.map(this::parseRenderLayers).handle(builder::setRenderLayers))
+                .ifKey("render_layer", val -> val.map((AnyFunction<Set<String>>) ThingParser::parseRenderLayers).handle(builder::setRenderLayers))
                 .ifKey("not_solid", val -> val.bool().handle(builder::setSeeThrough))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("item", val -> parseItemBlock(builder, val))
@@ -112,24 +112,6 @@ public class BlockParser extends ThingParser<BlockBuilder>
         if (prop.getValueClass() != Direction.class)
             throw new IllegalStateException("The specified shape_rotation property is not a Direction property.");
         return prop;
-    }
-
-    private Set<String> parseRenderLayers(Any data)
-    {
-        Set<String> types = Sets.newHashSet();
-        data.ifString(str -> str.handle(name -> types.add(verifyRenderLayer(name))))
-                .ifArray(arr -> arr.forEach((i, val) -> types.add(verifyRenderLayer(val.string().getAsString()))))
-                .typeError();
-        return types;
-    }
-
-    private static final Set<String> VALID_BLOCK_LAYERS = Sets.newHashSet("solid", "cutout_mipped", "cutout", "translucent", "tripwire");
-
-    private String verifyRenderLayer(String layerName)
-    {
-        if (!VALID_BLOCK_LAYERS.contains(layerName))
-            throw new IllegalStateException("Render layer " + layerName + " is not a valid block chunk layer.");
-        return layerName;
     }
 
     private void parseBlockState(JsonObject props, BlockBuilder builder)

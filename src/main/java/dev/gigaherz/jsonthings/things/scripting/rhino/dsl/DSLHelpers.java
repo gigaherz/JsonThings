@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -32,7 +31,7 @@ public class DSLHelpers
 {
     private static Logger LOGGER = LogUtils.getLogger();
 
-    public static <T extends IForgeRegistryEntry<T>> T find(IForgeRegistry<T> reg, String n)
+    public static <T> T find(IForgeRegistry<T> reg, String n)
     {
         var rl = new ResourceLocation(n);
 
@@ -54,11 +53,11 @@ public class DSLHelpers
         return reg.get(rl);
     }
 
-    public static <T extends IForgeRegistryEntry<T>> T getRegistryEntry(Object arg, IForgeRegistry<T> reg)
+    public static <T> T getRegistryEntry(Object arg, IForgeRegistry<T> reg)
     {
         return arg instanceof String str
                 ? DSLHelpers.find(reg, str)
-                : DSLHelpers.get(arg, reg.getRegistrySuperType());
+                : DSLHelpers.get(arg);
     }
 
     public static <T> T getRegistryEntry(Object arg, Registry<T> reg)

@@ -68,6 +68,9 @@ public class MaterialColors
             .put("WARPED_STEM", MaterialColor.WARPED_STEM)
             .put("WARPED_HYPHAE", MaterialColor.WARPED_HYPHAE)
             .put("WARPED_WART_BLOCK", MaterialColor.WARPED_WART_BLOCK)
+            .put("DEEPSLATE", MaterialColor.DEEPSLATE)
+            .put("RAW_IRON", MaterialColor.RAW_IRON)
+            .put("GLOW_LICHEN", MaterialColor.GLOW_LICHEN)
             .build();
 
     public static void init()

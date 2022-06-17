@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,12 +52,12 @@ public class Utils
         return getOrCrash(ForgeRegistries.BLOCKS, which);
     }
 
-    public static <T extends IForgeRegistryEntry<T>> T getOrCrash(IForgeRegistry<T> reg, ResourceLocation which)
+    public static <T> T getOrCrash(IForgeRegistry<T> reg, ResourceLocation name)
     {
-        if (!reg.containsKey(which))
-            throw new RuntimeException(String.format("Could not find a %s with name %s in the regsitry.", reg.getRegistrySuperType().getSimpleName(), which));
+        if (!reg.containsKey(name))
+            throw new RuntimeException("Could not find an entry with name " + name + " in registry " + reg.getRegistryName());
         //noinspection ConstantConditions
-        return reg.getValue(which);
+        return reg.getValue(name);
     }
 
     public static <T> T getOrCrash(Registry<T> registry, ResourceLocation name)

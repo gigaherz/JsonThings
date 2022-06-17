@@ -5,7 +5,7 @@ import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
-import dev.gigaherz.jsonthings.things.serializers.BlockType;
+import dev.gigaherz.jsonthings.things.serializers.FlexBlockType;
 import dev.gigaherz.jsonthings.things.serializers.IBlockFactory;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.Utils;
@@ -29,7 +29,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
     private Map<String, Property<?>> propertiesByName;
     private Map<String, String> propertyDefaultValues;
     private Map<Property<?>, Comparable<?>> propertyDefaultValuesMap;
-    private BlockType<?> blockType;
+    private FlexBlockType<?> blockType;
     private ResourceLocation blockMaterial;
     private MaterialColor blockMaterialColor;
 
@@ -76,13 +76,13 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
 
     public void setBlockType(ResourceLocation typeName)
     {
-        BlockType<?> blockType = ThingRegistries.BLOCK_TYPES.get(typeName);
+        FlexBlockType<?> blockType = ThingRegistries.BLOCK_TYPES.get(typeName);
         if (blockType == null)
             throw new IllegalStateException("No known block type with name " + typeName);
         this.blockType = blockType;
     }
 
-    public void setBlockType(BlockType<?> type)
+    public void setBlockType(FlexBlockType<?> type)
     {
         if (ThingRegistries.BLOCK_TYPES.getKey(type) == null)
             throw new IllegalStateException("Block type not registered!");
@@ -316,14 +316,14 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock>
     }
 
     @Nullable
-    public BlockType<?> getBlockTypeRaw()
+    public FlexBlockType<?> getBlockTypeRaw()
     {
         return getValueWithParent(blockType, BlockBuilder::getBlockTypeRaw);
     }
 
-    public BlockType<?> getBlockType()
+    public FlexBlockType<?> getBlockType()
     {
-        return Utils.orElse(getBlockTypeRaw(), () -> BlockType.PLAIN);
+        return Utils.orElse(getBlockTypeRaw(), () -> FlexBlockType.PLAIN);
     }
 
     public boolean hasBlockType()

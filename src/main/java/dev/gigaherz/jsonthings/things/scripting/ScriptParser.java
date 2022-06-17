@@ -51,17 +51,19 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
     @Override
     protected Map<ResourceLocation, ThingScript> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler)
     {
-        var resources = pResourceManager.listResources(SCRIPTS_FOLDER, t -> t.endsWith(JS_EXTENSION));
+        var resources = pResourceManager.listResources(SCRIPTS_FOLDER, t -> t.getPath().endsWith(JS_EXTENSION));
 
         var map = new HashMap<ResourceLocation, ThingScript>();
-        for(var res : resources)
+        for(var entry : resources.entrySet())
         {
-            var path = res.getPath();
+            var key = entry.getKey();
+            var res = entry.getValue();
+            var path = key.getPath();
             var cleanPath = path.substring(SCRIPTS_FOLDER_LENGTH +1, path.length() - JS_EXTENSION_LENGTH);
-            var id = new ResourceLocation(res.getNamespace(), cleanPath);
+            var id = new ResourceLocation(key.getNamespace(), cleanPath);
             try
             {
-                map.put(id, RhinoThingScript.fromResource(pResourceManager.getResource(res)));
+                map.put(id, RhinoThingScript.fromResource(res, id.toString()));
             }
             catch (IOException | ScriptException e)
             {

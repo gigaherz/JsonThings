@@ -5,16 +5,13 @@ import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexFluid;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
-import dev.gigaherz.jsonthings.things.serializers.FluidType;
+import dev.gigaherz.jsonthings.things.serializers.FlexFluidType;
 import dev.gigaherz.jsonthings.things.serializers.IFluidFactory;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.common.util.NonNullLazy;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryObject;
@@ -27,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class FluidBuilder extends BaseBuilder<IFlexFluid>
 {
-    private FluidType<?> fluidType;
+    private FlexFluidType<?> fluidType;
     private List<Property<?>> properties;
     private Map<String, Property<?>> propertiesByName;
     private Map<String, String> propertyDefaultValues;
@@ -38,19 +35,8 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     private FluidBuilder parentBuilder;
     private RegistryObject<Fluid> parentFluid;
 
-    private ResourceLocation stillTexture;
-    private ResourceLocation flowingTexture;
-    private ResourceLocation sideTexture;
-    private Rarity rarity = Rarity.COMMON;
-    private Integer color;
-    private Integer density;
-    private Integer luminosity;
-    private Integer temperature;
-    private Integer viscosity;
-    private String translationKey;
-    private Boolean isGaseous;
-    private ResourceLocation fillSound;
-    private ResourceLocation emptySound;
+    private ResourceLocation attributesType;
+
     private Set<String> renderLayers;
 
     private IFluidFactory<? extends Fluid> factory;
@@ -73,7 +59,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
 
     public void setFluidType(ResourceLocation typeName)
     {
-        FluidType<?> FluidType = ThingRegistries.FLUID_TYPES.get(typeName);
+        FlexFluidType<?> FluidType = ThingRegistries.FLUID_TYPES.get(typeName);
         if (FluidType == null)
             throw new IllegalStateException("No known Fluid type with name " + typeName);
         this.fluidType = FluidType;
@@ -104,69 +90,9 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         this.propertyDefaultValues.put(name, value);
     }
 
-    public void setStillTexture(ResourceLocation stillTexture)
+    public void setAttributesType(ResourceLocation attributesType)
     {
-        this.stillTexture = stillTexture;
-    }
-
-    public void setFlowingTexture(ResourceLocation flowingTexture)
-    {
-        this.flowingTexture = flowingTexture;
-    }
-
-    public void setSideTexture(ResourceLocation overlay)
-    {
-        this.sideTexture = overlay;
-    }
-
-    public void setRarity(Rarity rarity)
-    {
-        this.rarity = rarity;
-    }
-
-    public void setColor(Integer color)
-    {
-        this.color = color;
-    }
-
-    public void setDensity(Integer density)
-    {
-        this.density = density;
-    }
-
-    public void setLuminosity(Integer luminosity)
-    {
-        this.luminosity = luminosity;
-    }
-
-    public void setTemperature(Integer temperature)
-    {
-        this.temperature = temperature;
-    }
-
-    public void setViscosity(Integer viscosity)
-    {
-        this.viscosity = viscosity;
-    }
-
-    public void setTranslationKey(String translationKey)
-    {
-        this.translationKey = translationKey;
-    }
-
-    public void setGaseous(Boolean gaseous)
-    {
-        isGaseous = gaseous;
-    }
-
-    public void setFillSound(ResourceLocation fillSound)
-    {
-        this.fillSound = fillSound;
-    }
-
-    public void setEmptySound(ResourceLocation emptySound)
-    {
-        this.emptySound = emptySound;
+        this.attributesType = attributesType;
     }
 
     public void setRenderLayers(Set<String> renderLayers)
@@ -200,26 +126,8 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
 
         IFlexFluid flexFluid = factory.construct(this);
 
-        var attrsBuilder = NonNullLazy.of(() -> {
-            var attrs = FluidAttributes.builder(getStillTexture(), getFlowingTexture());
-            if (getColor() != null) attrs.color(getColor());
-            if (getDensity() != null) attrs.density(getDensity());
-            if (getLuminosity() != null) attrs.luminosity(getLuminosity());
-            if (getSideTexture() != null) attrs.overlay(getSideTexture());
-            if (getRarity() != null) attrs.rarity(getRarity());
-            var fillSound = getFillSound() != null ? Utils.getOrCrash(ForgeRegistries.SOUND_EVENTS, getFillSound()) : null;
-            var emptySound = getEmptySound() != null ? Utils.getOrCrash(ForgeRegistries.SOUND_EVENTS, getEmptySound()) : null;
-            if (getFillSound() != null && getEmptySound() != null) attrs.sound(fillSound, emptySound);
-            if (getTemperature() != null) attrs.temperature(getTemperature());
-            if (getViscosity() != null) attrs.viscosity(getViscosity());
-            if (getTranslationKey() != null) attrs.translationKey(getTranslationKey());
-            if (getIsGaseous() != null && getIsGaseous()) attrs.gaseous();
-            return attrs.build(flexFluid.self());
-        });
-
         if (getBucketBuilder() != null)
             flexFluid.setBucketItem(Lazy.of(() -> getBucketBuilder().get().self()));
-        flexFluid.setAttributesBuilder(attrsBuilder);
 
         if (ScriptParser.isEnabled())
         {
@@ -276,14 +184,14 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     }
 
     @Nullable
-    public FluidType<?> getFluidTypeRaw()
+    public FlexFluidType<?> getFluidTypeRaw()
     {
         return getValueWithParent(fluidType, FluidBuilder::getFluidTypeRaw);
     }
 
-    public FluidType<?> getFluidType()
+    public FlexFluidType<?> getFluidType()
     {
-        return Utils.orElse(getFluidTypeRaw(), () -> FluidType.PLAIN);
+        return Utils.orElse(getFluidTypeRaw(), () -> FlexFluidType.PLAIN);
     }
 
     @Nullable
@@ -342,82 +250,12 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         return parentFluid;
     }
 
-    @Nullable
-    private ResourceLocation getStillTexture()
+    public ResourceLocation getAttributesType()
     {
-        return getValueWithParent(stillTexture, FluidBuilder::getStillTexture);
-    }
-
-    @Nullable
-    private ResourceLocation getFlowingTexture()
-    {
-        return getValueWithParent(flowingTexture, FluidBuilder::getFlowingTexture);
-    }
-
-    @Nullable
-    private Rarity getRarity()
-    {
-        return getValueWithParent(rarity, FluidBuilder::getRarity);
-    }
-
-    @Nullable
-    private ResourceLocation getSideTexture()
-    {
-        return getValueWithParent(sideTexture, FluidBuilder::getSideTexture);
-    }
-
-    @Nullable
-    private Integer getColor()
-    {
-        return getValueWithParent(color, FluidBuilder::getColor);
-    }
-
-    @Nullable
-    private Integer getDensity()
-    {
-        return getValueWithParent(density, FluidBuilder::getDensity);
-    }
-
-    @Nullable
-    private Integer getLuminosity()
-    {
-        return getValueWithParent(luminosity, FluidBuilder::getLuminosity);
-    }
-
-    @Nullable
-    private Integer getTemperature()
-    {
-        return getValueWithParent(temperature, FluidBuilder::getTemperature);
-    }
-
-    @Nullable
-    private Integer getViscosity()
-    {
-        return getValueWithParent(viscosity, FluidBuilder::getViscosity);
-    }
-
-    @Nullable
-    private String getTranslationKey()
-    {
-        return getValueWithParent(translationKey, FluidBuilder::getTranslationKey);
-    }
-
-    @Nullable
-    private Boolean getIsGaseous()
-    {
-        return getValueWithParent(isGaseous, FluidBuilder::getIsGaseous);
-    }
-
-    @Nullable
-    private ResourceLocation getFillSound()
-    {
-        return getValueWithParent(fillSound, FluidBuilder::getFillSound);
-    }
-
-    @Nullable
-    private ResourceLocation getEmptySound()
-    {
-        return getValueWithParent(emptySound, FluidBuilder::getEmptySound);
+        var val = getValueWithParent(attributesType, FluidBuilder::getAttributesType);
+        if (val == null)
+            throw new IllegalStateException("fluid_type not set!");
+        return val;
     }
 
     @Nullable
@@ -446,7 +284,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     public void register(IForgeRegistry<Fluid> registry)
     {
         get();
-        factory.register(this, (name, obj) -> registry.register(obj.setRegistryName(name)));
+        factory.register(this, registry::register);
     }
 
     public void setFactory(IFluidFactory<?> factory)

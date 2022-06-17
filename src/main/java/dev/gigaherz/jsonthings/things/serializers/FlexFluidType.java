@@ -8,6 +8,7 @@ import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.fluids.FlexFlowingFluid;
 import dev.gigaherz.jsonthings.things.fluids.FlexFluid;
+import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
@@ -19,6 +20,8 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.util.Lazy;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Arrays;
@@ -26,18 +29,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class FluidType<T extends Fluid & IFlexFluid>
+public class FlexFluidType<T extends Fluid & IFlexFluid>
 {
-    public static final FluidType<FlexFluid> PLAIN = register("plain", (builder, data) -> new IFluidFactory<FlexFluid>()
+    public static final FlexFluidType<FlexFluid> PLAIN = register("plain", (builder, data) -> new IFluidFactory<FlexFluid>()
     {
         @Override
         public FlexFluid construct(FluidBuilder builder)
         {
+            Supplier<FluidType> fluidType = Lazy.of(() -> Utils.getOrCrash(ForgeRegistries.FLUID_TYPES.get(), builder.getAttributesType()));
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            return new FlexFluid(propertyDefaultValues)
+            return new FlexFluid(fluidType, propertyDefaultValues)
             {
                 @Override
                 protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder1)
@@ -49,7 +54,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
         }
     }, "translucent");
 
-    public static final FluidType<FlexFlowingFluid> FLOWING = register("flowing", new IFluidSerializer<FlexFlowingFluid>()
+    public static final FlexFluidType<FlexFlowingFluid> FLOWING = register("flowing", new IFluidSerializer<FlexFlowingFluid>()
     {
         private static void parseLiquidBlock(ResourceLocation name, Any val, Consumer<BlockBuilder> blockConsumer)
         {
@@ -68,7 +73,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
             obj.addProperty("fluid", name.toString());
             blockConsumer.accept(JsonThings.blockParser.parseFromElement(name, obj, b -> {
                 if (!b.hasBlockType())
-                    b.setBlockType(BlockType.LIQUID);
+                    b.setBlockType(FlexBlockType.LIQUID);
             }));
         }
 
@@ -95,9 +100,10 @@ public class FluidType<T extends Fluid & IFlexFluid>
                 @Override
                 public FlexFlowingFluid construct(FluidBuilder builder)
                 {
+                    Supplier<FluidType> fluidType = Lazy.of(() -> Utils.getOrCrash(ForgeRegistries.FLUID_TYPES.get(), builder.getAttributesType()));
                     List<Property<?>> _properties = builder.getProperties();
                     Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-                    return new FlexFlowingFluid(_properties, propertyDefaultValues, slopeDistance.getValue(), dropOff.getValue(),
+                    return new FlexFlowingFluid(fluidType, _properties, propertyDefaultValues, slopeDistance.getValue(), dropOff.getValue(),
                             canConvertToSource.getValue(), tickDelay.getValue(), explosionResistance.getValue(), Lazy.of(() -> {
                                 var v = block.getValue();
                         return v != null ? v.get().self() : Blocks.AIR;
@@ -135,16 +141,16 @@ public class FluidType<T extends Fluid & IFlexFluid>
         /* do nothing */
     }
 
-    public static <T extends Fluid & IFlexFluid> FluidType<T> register(String name, IFluidSerializer<T> factory, String defaultLayer, Property<?>... stockProperties)
+    public static <T extends Fluid & IFlexFluid> FlexFluidType<T> register(String name, IFluidSerializer<T> factory, String defaultLayer, Property<?>... stockProperties)
     {
-        return Registry.register(ThingRegistries.FLUID_TYPES, name, new FluidType<>(factory, defaultLayer, Arrays.asList(stockProperties)));
+        return Registry.register(ThingRegistries.FLUID_TYPES, name, new FlexFluidType<>(factory, defaultLayer, Arrays.asList(stockProperties)));
     }
 
     private final IFluidSerializer<T> factory;
     private final List<Property<?>> stockProperties;
     private final String defaultLayer;
 
-    private FluidType(IFluidSerializer<T> factory, String defaultLayer, List<Property<?>> stockProperties)
+    private FlexFluidType(IFluidSerializer<T> factory, String defaultLayer, List<Property<?>> stockProperties)
     {
         this.factory = factory;
         this.defaultLayer = defaultLayer;

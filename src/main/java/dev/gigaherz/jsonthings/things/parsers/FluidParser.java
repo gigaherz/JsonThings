@@ -6,18 +6,15 @@ import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
-import dev.gigaherz.jsonthings.things.serializers.ItemType;
+import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
-import dev.gigaherz.jsonthings.util.parse.function.ArrayValueFunction;
-import dev.gigaherz.jsonthings.util.parse.function.ObjValueFunction;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,19 +32,18 @@ public class FluidParser extends ThingParser<FluidBuilder>
     {
         super(GSON, "fluid");
 
-        bus.addGenericListener(Fluid.class, this::registerFluids);
+
+        bus.addListener(this::register);
     }
 
-    public void registerFluids(RegistryEvent.Register<Fluid> event)
+    public void register(RegisterEvent event)
     {
-        LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
-        IForgeRegistry<Fluid> registry = event.getRegistry();
-        getBuilders().forEach(thing -> {
-            thing.register(registry);
+        event.register(Registry.FLUID_REGISTRY, helper -> {
+            LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
+            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
+            LOGGER.info("Done processing thingpack Blocks.");
         });
-        LOGGER.info("Done processing thingpack Blocks.");
     }
-
     @Override
     public FluidBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FluidBuilder> builderModification)
     {
@@ -74,25 +70,8 @@ public class FluidParser extends ThingParser<FluidBuilder>
                                 createStockBucketItem(bucketName, builder, item);
                             }));
                 })
-                .ifKey("translation_key", val -> val.string().handle(builder::setTranslationKey))
-                .key("still_texture", val -> val.string().map(ResourceLocation::new).handle(builder::setStillTexture))
-                .key("flowing_texture", val -> val.string().map(ResourceLocation::new).handle(builder::setFlowingTexture))
-                .ifKey("side_texture", val -> val.string().map(ResourceLocation::new).handle(builder::setSideTexture))
-                .ifKey("rarity", val -> val.string().map(ThingParser::parseRarity).handle(builder::setRarity))
-                .ifKey("color", val -> val
-                        .ifObj(obj -> obj.map((ObjValueFunction<Integer>)ThingParser::parseColor).handle(builder::setColor))
-                        .ifArray(arr -> arr.map((ArrayValueFunction<Integer>)ThingParser::parseColor).handle(builder::setColor))
-                        .ifString(str -> str.map(ThingParser::parseColor).handle(builder::setColor))
-                        .ifInteger(i -> i.handle(builder::setColor))
-                        .typeError())
-                .ifKey("density", val -> val.intValue().handle(builder::setDensity))
-                .ifKey("luminosity", val -> val.intValue().handle(builder::setLuminosity))
-                .ifKey("temperature", val -> val.intValue().handle(builder::setTemperature))
-                .ifKey("viscosity", val -> val.intValue().handle(builder::setViscosity))
-                .ifKey("gaseous", val -> val.bool().handle(builder::setGaseous))
+                .key("attributes", val -> val.string().map(ResourceLocation::new).handle(builder::setAttributesType))
                 .ifKey("render_layer", val -> val.map((AnyFunction<Set<String>>) ThingParser::parseRenderLayers).handle(builder::setRenderLayers))
-                .ifKey("fill_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setFillSound))
-                .ifKey("empty_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setEmptySound))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
         builderModification.accept(builder);
@@ -137,6 +116,6 @@ public class FluidParser extends ThingParser<FluidBuilder>
             throw new RuntimeException("Inline fluid bucket definition cannot contain a fluid entry.");
         }
         jsonObject.addProperty("fluid", builder.getRegistryName().toString());
-        builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(ItemType.BUCKET)));
+        builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(FlexItemType.BUCKET)));
     }
 }

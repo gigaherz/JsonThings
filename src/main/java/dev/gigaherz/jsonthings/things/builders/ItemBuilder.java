@@ -10,7 +10,7 @@ import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
-import dev.gigaherz.jsonthings.things.serializers.ItemType;
+import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +36,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
     private ResourceLocation parentBuilder;
     private ItemBuilder parentBuilderObj;
 
-    private ItemType<?> itemType;
+    private FlexItemType<?> itemType;
 
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
@@ -78,13 +78,13 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
     public void setType(String typeName)
     {
         if (this.itemType != null) throw new RuntimeException("Item type already set.");
-        ItemType<?> itemType = ThingRegistries.ITEM_TYPES.get(new ResourceLocation(typeName));
+        FlexItemType<?> itemType = ThingRegistries.ITEM_TYPES.get(new ResourceLocation(typeName));
         if (itemType == null)
             throw new IllegalStateException("No known block type with name " + typeName);
         this.itemType = itemType;
     }
 
-    public void setType(ItemType<?> type)
+    public void setType(FlexItemType<?> type)
     {
         if (ThingRegistries.ITEM_TYPES.getKey(type) == null)
             throw new IllegalStateException("Item type not registered!");
@@ -297,14 +297,14 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
     }
 
     @Nullable
-    public ItemType<?> getTypeRaw()
+    public FlexItemType<?> getTypeRaw()
     {
         return getValueWithParent(itemType, ItemBuilder::getTypeRaw);
     }
 
-    public ItemType<?> getType()
+    public FlexItemType<?> getType()
     {
-        return Utils.orElse(getTypeRaw(), ItemType.PLAIN);
+        return Utils.orElse(getTypeRaw(), FlexItemType.PLAIN);
     }
 
     public boolean hasType()

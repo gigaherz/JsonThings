@@ -25,8 +25,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.common.util.NonNullLazy;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.common.SoundActions;
+import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -44,10 +44,11 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     private final float explosionResistance;
     private final Supplier<Block> block;
 
-    public FlexFlowingFluid(List<Property<?>> properties, Map<Property<?>, Comparable<?>> propertyDefaultValues,
+    public FlexFlowingFluid(Supplier<FluidType> fluidType, List<Property<?>> properties, Map<Property<?>, Comparable<?>> propertyDefaultValues,
                             int slopeDistance, int dropOff, boolean canConvertToSource, int tickDelay, float explosionResistance,
                             Supplier<Block> block)
     {
+        this.fluidType = fluidType;
         this.slopeDistance = slopeDistance;
         this.dropOff = dropOff;
         this.canConvertToSource = canConvertToSource;
@@ -71,7 +72,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
     private Supplier<Item> bucketItem = () -> Items.AIR;
-    private NonNullLazy<FluidAttributes> attributesBuilder;
+    private Supplier<FluidType> fluidType;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
@@ -108,19 +109,13 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         this.bucketItem = bucketItem;
     }
 
-    @Override
-    public void setAttributesBuilder(NonNullLazy<FluidAttributes> attrsBuilder)
-    {
-        attributesBuilder = attrsBuilder;
-    }
-
     //endregion
 
     //region Fluid
     @Override
-    protected FluidAttributes createAttributes()
+    public FluidType getFluidType()
     {
-        return attributesBuilder.get();
+        return this.fluidType.get();
     }
 
     @Override
@@ -220,7 +215,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     @Override
     public Optional<SoundEvent> getPickupSound()
     {
-        return Optional.ofNullable(getAttributes().getFillSound());
+        return Optional.ofNullable(getFluidType().getSound(SoundActions.BUCKET_FILL));
     }
 
     //endregion
@@ -270,9 +265,9 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         }
 
         @Override
-        protected FluidAttributes createAttributes()
+        public FluidType getFluidType()
         {
-            return parent.createAttributes();
+            return parent.getFluidType();
         }
 
         @Override

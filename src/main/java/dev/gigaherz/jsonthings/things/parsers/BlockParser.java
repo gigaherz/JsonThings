@@ -6,7 +6,7 @@ import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
-import dev.gigaherz.jsonthings.things.serializers.ItemType;
+import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -14,13 +14,12 @@ import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,15 +37,16 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         super(GSON, "block");
 
-        bus.addGenericListener(Block.class, this::registerBlocks);
+        bus.addListener(this::register);
     }
 
-    public void registerBlocks(RegistryEvent.Register<Block> event)
+    public void register(RegisterEvent event)
     {
-        LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
-        IForgeRegistry<Block> registry = event.getRegistry();
-        getBuilders().forEach(thing -> registry.register(thing.get().self().setRegistryName(thing.getRegistryName())));
-        LOGGER.info("Done processing thingpack Blocks.");
+        event.register(Registry.BLOCK_REGISTRY, helper -> {
+            LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
+            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
+            LOGGER.info("Done processing thingpack Blocks.");
+        });
     }
 
     @Override
@@ -158,7 +158,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         builder.withItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
             if (!b.hasType())
-                b.setType(ItemType.BLOCK);
+                b.setType(FlexItemType.BLOCK);
         }));
     }
 }

@@ -23,18 +23,18 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Objects;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class ItemType<T extends Item & IFlexItem>
+public class FlexItemType<T extends Item & IFlexItem>
 {
-    public static final ItemType<FlexItem> PLAIN = register("plain", (data) -> (props, builder) -> new FlexItem(props));
+    public static final FlexItemType<FlexItem> PLAIN = register("plain", (data) -> (props, builder) -> new FlexItem(props));
 
-    public static final ItemType<FlexBlockItem> BLOCK = register("block", data -> {
+    public static final FlexItemType<FlexBlockItem> BLOCK = register("block", data -> {
         String name = GsonHelper.getAsString(data, "places", null);
         ResourceLocation blockName = name != null ? new ResourceLocation(name) : null;
         boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> new FlexBlockItem(Utils.getBlockOrCrash(blockName != null ? blockName : builder.getRegistryName()), useBlockName, props);
     });
 
-    public static final ItemType<FlexBucketItem> BUCKET = register("bucket", data -> {
+    public static final FlexItemType<FlexBucketItem> BUCKET = register("bucket", data -> {
         String name = GsonHelper.getAsString(data, "fluid", null);
         return (props, builder) ->
         {
@@ -54,7 +54,7 @@ public class ItemType<T extends Item & IFlexItem>
         };
     });
 
-    public static final ItemType<FlexArmorItem> ARMOR = register("armor", data -> {
+    public static final FlexItemType<FlexArmorItem> ARMOR = register("armor", data -> {
 
         String slotName;
         if (data.has("equipment_slot"))
@@ -98,13 +98,13 @@ public class ItemType<T extends Item & IFlexItem>
         return (props, builder) -> new FlexArmorItem(material, slot, props);
     });
 
-    public static final ItemType<FlexSwordItem> SWORD = register("sword", makeToolSerializer2(FlexSwordItem::new));
-    public static final ItemType<FlexShovelItem> SHOVEL = register("shovel", makeToolSerializer(FlexShovelItem::new));
-    public static final ItemType<FlexAxeItem> AXE = register("axe", makeToolSerializer(FlexAxeItem::new));
-    public static final ItemType<FlexPickaxeItem> PICKAXE = register("pickaxe", makeToolSerializer2(FlexPickaxeItem::new));
-    public static final ItemType<FlexHoeItem> HOE = register("hoe", makeToolSerializer2(FlexHoeItem::new));
+    public static final FlexItemType<FlexSwordItem> SWORD = register("sword", makeToolSerializer2(FlexSwordItem::new));
+    public static final FlexItemType<FlexShovelItem> SHOVEL = register("shovel", makeToolSerializer(FlexShovelItem::new));
+    public static final FlexItemType<FlexAxeItem> AXE = register("axe", makeToolSerializer(FlexAxeItem::new));
+    public static final FlexItemType<FlexPickaxeItem> PICKAXE = register("pickaxe", makeToolSerializer2(FlexPickaxeItem::new));
+    public static final FlexItemType<FlexHoeItem> HOE = register("hoe", makeToolSerializer2(FlexHoeItem::new));
 
-    public static final ItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
+    public static final FlexItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
 
         String tier = parseTier(data);
 
@@ -144,7 +144,7 @@ public class ItemType<T extends Item & IFlexItem>
         };
     }
 
-    public static final ItemType<FlexTieredItem> TIERED = register("tiered", makeTieredSerializer(FlexTieredItem::new));
+    public static final FlexItemType<FlexTieredItem> TIERED = register("tiered", makeTieredSerializer(FlexTieredItem::new));
 
     private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeTieredSerializer(TieredFactory<T> factory)
     {
@@ -207,14 +207,14 @@ public class ItemType<T extends Item & IFlexItem>
         /* do nothing */
     }
 
-    public static <T extends Item & IFlexItem> ItemType<T> register(String name, IItemSerializer<T> factory)
+    public static <T extends Item & IFlexItem> FlexItemType<T> register(String name, IItemSerializer<T> factory)
     {
-        return Registry.register(ThingRegistries.ITEM_TYPES, name, new ItemType<>(factory));
+        return Registry.register(ThingRegistries.ITEM_TYPES, name, new FlexItemType<>(factory));
     }
 
     private final IItemSerializer<T> factory;
 
-    private ItemType(IItemSerializer<T> factory)
+    private FlexItemType(IItemSerializer<T> factory)
     {
         this.factory = factory;
     }

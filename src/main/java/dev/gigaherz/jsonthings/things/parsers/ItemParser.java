@@ -9,14 +9,13 @@ import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import joptsimple.internal.Strings;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,15 +31,17 @@ public class ItemParser extends ThingParser<ItemBuilder>
     public ItemParser(IEventBus bus)
     {
         super(GSON, "item");
-        bus.addGenericListener(Item.class, this::registerItems);
+
+        bus.addListener(this::register);
     }
 
-    public void registerItems(RegistryEvent.Register<Item> event)
+    public void register(RegisterEvent event)
     {
-        LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
-        IForgeRegistry<Item> registry = event.getRegistry();
-        getBuilders().forEach(thing -> registry.register((thing.get().self()).setRegistryName(thing.getRegistryName())));
-        LOGGER.info("Done processing thingpack Items.");
+        event.register(Registry.ITEM_REGISTRY, helper -> {
+            LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
+            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
+            LOGGER.info("Done processing thingpack Blocks.");
+        });
     }
 
     @Override

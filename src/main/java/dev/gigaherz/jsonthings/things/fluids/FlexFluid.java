@@ -6,6 +6,7 @@ import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
@@ -16,24 +17,24 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullLazy;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidType;
 
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class FlexFluid extends Fluid implements IFlexFluid
 {
-    public FlexFluid(Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexFluid(Supplier<FluidType> fluidType, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
+        this.fluidType = fluidType;
         initializeFlex(propertyDefaultValues);
     }
 
     //region IFlexFluid
     private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
-    private Supplier<Item> bucketItem;
-    private NonNullLazy<FluidAttributes> attributesBuilder;
+    private Supplier<Item> bucketItem = () -> Items.AIR;
+    private Supplier<FluidType> fluidType;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
@@ -70,19 +71,13 @@ public class FlexFluid extends Fluid implements IFlexFluid
         this.bucketItem = bucketItem;
     }
 
-    @Override
-    public void setAttributesBuilder(NonNullLazy<FluidAttributes> attrsBuilder)
-    {
-        attributesBuilder = attrsBuilder;
-    }
-
     //endregion
 
     //region Fluid
     @Override
-    protected FluidAttributes createAttributes()
+    public FluidType getFluidType()
     {
-        return attributesBuilder.get();
+        return this.fluidType.get();
     }
 
     @Override

@@ -15,7 +15,7 @@ import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,6 +61,7 @@ public class JsonThings
     public static FoodParser foodParser;
     public static ShapeParser shapeParser;
     public static TierParser tierParser;
+    public static FluidTypeParser fluidTypeParser;
     public static BlockMaterialParser blockMaterialParser;
     public static ArmorMaterialParser armorMaterialParser;
     public static CreativeModeTabParser creativeModeTabParser;
@@ -81,6 +82,7 @@ public class JsonThings
         foodParser = manager.registerParser(new FoodParser());
         shapeParser = manager.registerParser(new ShapeParser());
         tierParser = manager.registerParser(new TierParser());
+        fluidTypeParser = manager.registerParser(new FluidTypeParser(bus));
         blockMaterialParser = manager.registerParser(new BlockMaterialParser());
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
@@ -151,7 +153,7 @@ public class JsonThings
                 var thingPackManager = ThingResourceManager.instance();
                 return new PackSelectionScreen(screen, thingPackManager.getRepository(),
                         rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
-                        new TextComponent("Thing Packs"));
+                        Component.literal("Thing Packs"));
             }));
         }
 

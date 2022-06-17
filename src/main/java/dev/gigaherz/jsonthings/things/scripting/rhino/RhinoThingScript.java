@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.WillClose;
 import javax.script.ScriptException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
@@ -21,20 +20,18 @@ public class RhinoThingScript extends ThingScript
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public static RhinoThingScript fromResource(@WillClose Resource resource) throws IOException, ScriptException
+    public static RhinoThingScript fromResource(@WillClose Resource resource, String name) throws IOException, ScriptException
     {
         Context cx = Context.enter();
         try
         {
-            try(resource;
-                var stream = resource.getInputStream();
-                var reader = new InputStreamReader(stream))
+            try(var reader = resource.openAsReader())
             {
                 Scriptable scope = cx.initStandardObjects();
 
-                Script script = cx.compileReader(reader, resource.getLocation().toString(), 0, null);
+                Script script = cx.compileReader(reader, name, 0, null);
 
-                var logger = LogManager.getLogger("ThingScript/" + resource.getLocation());
+                var logger = LogManager.getLogger("ThingScript/" + name);
 
                 scope = initDSL(scope, logger);
 
@@ -47,7 +44,7 @@ public class RhinoThingScript extends ThingScript
                 }
                 else
                 {
-                    throw new ScriptException("Error evaluating script " + resource.getLocation() + ": Function 'apply' not found or not a function.");
+                    throw new ScriptException("Error evaluating script " + name + ": Function 'apply' not found or not a function.");
                 }
             }
             catch(EcmaError e)

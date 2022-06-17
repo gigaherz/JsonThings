@@ -47,7 +47,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
     @Override
     public ItemBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ItemBuilder> builderModification)
     {
-        final ItemBuilder builder = ItemBuilder.begin(key);
+        final ItemBuilder builder = ItemBuilder.begin(this, key);
 
         JParse.begin(data)
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))

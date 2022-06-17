@@ -28,7 +28,7 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
     @Override
     public BlockMaterialBuilder processThing(ResourceLocation key, JsonObject data, Consumer<BlockMaterialBuilder> builderModification)
     {
-        final BlockMaterialBuilder builder = BlockMaterialBuilder.begin(key);
+        final BlockMaterialBuilder builder = BlockMaterialBuilder.begin(this, key);
 
         JParse.begin(data)
                 .key("map_color", val -> val

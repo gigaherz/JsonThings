@@ -8,7 +8,6 @@ import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.fluids.FlexFlowingFluid;
 import dev.gigaherz.jsonthings.things.fluids.FlexFluid;
-import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
@@ -21,7 +20,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Arrays;
@@ -39,7 +37,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
         @Override
         public FlexFluid construct(FluidBuilder builder)
         {
-            Supplier<FluidType> fluidType = Lazy.of(() -> Utils.getOrCrash(ForgeRegistries.FLUID_TYPES.get(), builder.getAttributesType()));
+            Supplier<FluidType> fluidType = builder.getAttributesType();
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             return new FlexFluid(fluidType, propertyDefaultValues)
@@ -100,7 +98,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                 @Override
                 public FlexFlowingFluid construct(FluidBuilder builder)
                 {
-                    Supplier<FluidType> fluidType = Lazy.of(() -> Utils.getOrCrash(ForgeRegistries.FLUID_TYPES.get(), builder.getAttributesType()));
+                    Supplier<FluidType> fluidType = builder.getAttributesType();
                     List<Property<?>> _properties = builder.getProperties();
                     Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
                     return new FlexFlowingFluid(fluidType, _properties, propertyDefaultValues, slopeDistance.getValue(), dropOff.getValue(),

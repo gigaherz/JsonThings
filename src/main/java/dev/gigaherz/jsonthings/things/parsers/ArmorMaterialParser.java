@@ -29,16 +29,16 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
     @Override
     public ArmorMaterialBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ArmorMaterialBuilder> builderModification)
     {
-        final ArmorMaterialBuilder builder = ArmorMaterialBuilder.begin(key);
+        final ArmorMaterialBuilder builder = ArmorMaterialBuilder.begin(this, key);
 
         JParse.begin(data)
                 .key("toughness", val -> val.floatValue().min(0).handle(builder::setToughness))
-                .key("knockback_resistance", val -> val.floatValue().min(0).handle(builder::withKnockbackResistance))
-                .key("enchantment_value", val -> val.intValue().min(0).handle(builder::withEnchantmentValue))
-                .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::withRepairIngredient))
-                .key("equip_sound", val -> val.string().map(ResourceLocation::new).handle(builder::withEquipSound))
-                .key("durability", val -> val.map(this::parseEquipmentSlotMap).handle(builder::withDurability))
-                .key("armor", val -> val.map(this::parseEquipmentSlotMap).handle(builder::withDefense));
+                .key("knockback_resistance", val -> val.floatValue().min(0).handle(builder::setKnockbackResistance))
+                .key("enchantment_value", val -> val.intValue().min(0).handle(builder::setEnchantmentValue))
+                .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient))
+                .key("equip_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setEquipSound))
+                .key("durability", val -> val.map(this::parseEquipmentSlotMap).handle(builder::setDurability))
+                .key("armor", val -> val.map(this::parseEquipmentSlotMap).handle(builder::setDefense));
 
         builderModification.accept(builder);
 

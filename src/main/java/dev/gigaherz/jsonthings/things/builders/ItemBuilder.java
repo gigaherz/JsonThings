@@ -1,16 +1,15 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
-import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
-import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
+import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -23,18 +22,16 @@ import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ItemBuilder extends BaseBuilder<IFlexItem>
+public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 {
+    public static ItemBuilder begin(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new ItemBuilder(ownerParser, registryName);
+    }
+
     private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
-
-    private JsonObject jsonSource;
-
-    private ResourceLocation parentBuilder;
-    private ItemBuilder parentBuilderObj;
 
     private FlexItemType<?> itemType;
 
@@ -54,25 +51,15 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
 
     private IItemFactory<? extends Item> factory;
 
-    private ItemBuilder(ResourceLocation registryName)
+    private ItemBuilder(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
     protected String getThingTypeDisplayName()
     {
         return "Item";
-    }
-
-    public static ItemBuilder begin(ResourceLocation registryName)
-    {
-        return new ItemBuilder(registryName);
-    }
-
-    public void setParent(ResourceLocation parentBuilder)
-    {
-        this.parentBuilder = parentBuilder;
     }
 
     public void setType(String typeName)
@@ -206,15 +193,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
             }
         }
 
-        if (ScriptParser.isEnabled())
-        {
-            forEachEvent((key, list) -> {
-                for (var ev : list)
-                {
-                    flexItem.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-                }
-            });
-        }
+        constructEventHandlers(flexItem);
 
         return flexItem;
     }
@@ -236,38 +215,13 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
         return null;
     }
 
-    public ItemBuilder getParentBuilder()
-    {
-        if (parentBuilder == null)
-            throw new IllegalStateException("The item requires a parent to be assigned, but no \"parent\" key is present.");
-        if (parentBuilderObj == null)
-        {
-            parentBuilderObj = JsonThings.itemParser.getBuildersMap().get(parentBuilder);
-        }
-        if (parentBuilderObj == null)
-            throw new IllegalStateException("The item specifies a parent " + parentBuilder + ", but no such parent was found.");
-        return parentBuilderObj;
-    }
-
-    @Nullable
-    private <T> T getValueWithParent(@Nullable T thisValue, Function<ItemBuilder, T> parentGetter)
-    {
-        if (thisValue != null) return thisValue;
-        if (parentBuilder != null)
-        {
-            ItemBuilder parent = getParentBuilder();
-            return parentGetter.apply(parent);
-        }
-        return null;
-    }
-
     public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
     {
         if (creativeMenuStacks.size() > 0)
             return creativeMenuStacks;
 
-        if (parentBuilder != null)
-            return getParentBuilder().getCreativeMenuStacks();
+        if (getParent() != null)
+            return getParent().getCreativeMenuStacks();
 
         return creativeMenuStacks;
     }
@@ -322,17 +276,6 @@ public class ItemBuilder extends BaseBuilder<IFlexItem>
     public String getColorHandler()
     {
         return getValueWithParent(colorHandler, ItemBuilder::getColorHandler);
-    }
-
-    private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
-    {
-        var ev = getEventMap();
-        if (ev != null)
-            ev.forEach(consumer);
-        if (parentBuilderObj != null)
-        {
-            parentBuilderObj.forEachEvent(consumer);
-        }
     }
 
     public void setFactory(IItemFactory<?> factory)

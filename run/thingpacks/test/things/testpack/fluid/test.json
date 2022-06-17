@@ -1,25 +1,27 @@
 {
   "__parent": "other:fluidjson",
   "type": "flowing",
+  "fluid_type": {
+    "can_convert_to_source": true,
+    "__translation_key": "block.modid.fluidname",
+    "still_texture": "minecraft:block/water_still",
+    "flowing_texture": "minecraft:block/water_flow",
+    "side_texture": "minecraft:block/water_overlay",
+    "rarity": "epic",
+    "color": [255,0,255],
+    "density": 100,
+    "luminosity": 15,
+    "temperature": 100,
+    "viscosity": 100,
+    "gaseous": false,
+    "fill_sound": "item.bucket.empty",
+    "empty_sound": "item.bucket.fill"
+  },
   "__properties": {},
   "__default_state": {},
   "bucket": {
     "group": "misc"
   },
   "block": true,
-  "can_convert_to_source": true,
-  "__translation_key": "block.modid.fluidname",
-  "still_texture": "minecraft:block/water_still",
-  "flowing_texture": "minecraft:block/water_flow",
-  "side_texture": "minecraft:block/water_overlay",
-  "rarity": "epic",
-  "color": [255,0,255],
-  "density": 100,
-  "luminosity": 15,
-  "temperature": 100,
-  "viscosity": 100,
-  "gaseous": false,
-  "fill_sound": "item.bucket.empty",
-  "empty_sound": "item.bucket.fill",
   "__events": {}
 }

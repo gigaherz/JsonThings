@@ -9,12 +9,15 @@ import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
+import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,19 +43,20 @@ public class FluidParser extends ThingParser<FluidBuilder>
     {
         event.register(Registry.FLUID_REGISTRY, helper -> {
             LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
+            getBuilders().forEach(thing -> thing.register(helper::register));
             LOGGER.info("Done processing thingpack Blocks.");
         });
     }
     @Override
     public FluidBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FluidBuilder> builderModification)
     {
-        final FluidBuilder builder = FluidBuilder.begin(key);
+        final FluidBuilder builder = FluidBuilder.begin(this, key);
 
         MutableObject<Map<String, Property<?>>> propertiesByName = new MutableObject<>(new HashMap<>());
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParentFluid))
+                .ifKey("fluid_type", val -> parseFluidType(builder, val))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setFluidType))
                 .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
                     propertiesByName.setValue(properties);
@@ -70,7 +74,6 @@ public class FluidParser extends ThingParser<FluidBuilder>
                                 createStockBucketItem(bucketName, builder, item);
                             }));
                 })
-                .key("attributes", val -> val.string().map(ResourceLocation::new).handle(builder::setAttributesType))
                 .ifKey("render_layer", val -> val.map((AnyFunction<Set<String>>) ThingParser::parseRenderLayers).handle(builder::setRenderLayers))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
@@ -79,6 +82,27 @@ public class FluidParser extends ThingParser<FluidBuilder>
         builder.setFactory(builder.getFluidType().getFactory(key, data));
 
         return builder;
+    }
+
+    public static void parseFluidType(FluidBuilder builder, Any val)
+    {
+        val
+                .ifBool(v -> v.handle(b -> {
+                    if (b) createFluidType(builder, new JsonObject());
+                }))
+                .ifString(v -> v.map(ResourceLocation::new).handle(rl -> {
+                    builder.setAttributesType(RegistryObject.create(rl, ForgeRegistries.FLUID_TYPES.get()));
+                }))
+                .ifObj(obj -> obj.raw((JsonObject item) -> {
+                    createFluidType(builder, item);
+                }))
+                .typeError();
+    }
+
+    private static void createFluidType(FluidBuilder builder, JsonObject obj)
+    {
+        var typeBuilder = JsonThings.fluidTypeParser.parseFromElement(builder.getRegistryName(), obj);
+        builder.setAttributesType(typeBuilder::get);
     }
 
     private void parseFluidState(JsonObject props, FluidBuilder builder)

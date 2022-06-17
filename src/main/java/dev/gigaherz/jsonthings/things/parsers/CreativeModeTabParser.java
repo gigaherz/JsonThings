@@ -23,7 +23,7 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
     @Override
     protected CreativeModeTabBuilder processThing(ResourceLocation key, JsonObject data, Consumer<CreativeModeTabBuilder> builderModification)
     {
-        final CreativeModeTabBuilder builder = CreativeModeTabBuilder.begin(key);
+        final CreativeModeTabBuilder builder = CreativeModeTabBuilder.begin(this, key);
 
         JParse.begin(data)
                 .key("icon", val -> val.string().map(ResourceLocation::new).handle(builder::setIcon));

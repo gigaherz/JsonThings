@@ -1,14 +1,20 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import com.mojang.datafixers.util.Pair;
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FoodBuilder extends BaseBuilder<FoodProperties>
+public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
 {
+    public static FoodBuilder begin(ThingParser<FoodBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new FoodBuilder(ownerParser, registryName);
+    }
+
     private final List<Pair<MobEffectInstanceBuilder, Float>> effects = new ArrayList<>();
     private int nutrition;
     private float saturation;
@@ -16,20 +22,15 @@ public class FoodBuilder extends BaseBuilder<FoodProperties>
     private boolean alwaysEat;
     private boolean fast;
 
-    private FoodBuilder(ResourceLocation registryName)
+    private FoodBuilder(ThingParser<FoodBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
     protected String getThingTypeDisplayName()
     {
         return "Food Definition";
-    }
-
-    public static FoodBuilder begin(ResourceLocation registryName)
-    {
-        return new FoodBuilder(registryName);
     }
 
     public void setNutrition(int num)

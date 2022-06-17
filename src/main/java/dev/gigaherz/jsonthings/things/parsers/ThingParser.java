@@ -27,7 +27,7 @@ import net.minecraft.world.item.Rarity;
 import java.util.*;
 import java.util.function.Consumer;
 
-public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends SimpleJsonResourceReloadListener
+public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> extends SimpleJsonResourceReloadListener
 {
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -46,7 +46,10 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn)
     {
-        objectIn.forEach(this::parseFromElement);
+        objectIn.forEach((key, json) -> {
+            var builder = parseFromElement(key, json);
+            buildersByName.put(key, builder);
+        });
     }
 
     protected abstract TBuilder processThing(ResourceLocation key, JsonObject data, Consumer<TBuilder> builderModification);
@@ -61,7 +64,6 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
         try
         {
             TBuilder builder = processThing(key, json.getAsJsonObject(), builderModification);
-            buildersByName.put(key, builder);
             builders.add(builder);
             return builder;
         }
@@ -126,17 +128,9 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
                     .ifString(val -> map.put(str, List.of(new ResourceLocation(val.getAsString()))))
                     .ifArray(arr -> map.put(str, arr.flatMap(f -> f.map(val -> new ResourceLocation(val.string().getAsString())).toList())))
                     .typeError();
-
         });
 
         return map;
-    }
-
-    protected ResourceLocation makeResourceLocation(ResourceLocation key, String name)
-    {
-        if (name.contains(":"))
-            return new ResourceLocation(name);
-        return new ResourceLocation(key.getNamespace(), name);
     }
 
     protected static Rarity parseRarity(String str)

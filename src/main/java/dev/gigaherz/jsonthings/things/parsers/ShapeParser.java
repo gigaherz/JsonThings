@@ -25,7 +25,7 @@ public class ShapeParser extends ThingParser<ShapeBuilder>
     @Override
     protected ShapeBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ShapeBuilder> builderModification)
     {
-        ShapeBuilder builder = ShapeBuilder.begin(key, DynamicShape.fromJson(data, null, name -> ThingRegistries.PROPERTIES.get(new ResourceLocation(name))));
+        ShapeBuilder builder = ShapeBuilder.begin(this, key, DynamicShape.fromJson(data, null, name -> ThingRegistries.PROPERTIES.get(new ResourceLocation(name))));
 
         builderModification.accept(builder);
 

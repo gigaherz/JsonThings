@@ -2,21 +2,25 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.Lists;
 import dev.gigaherz.jsonthings.things.misc.FlexEnchantment;
-import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
-import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
+public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, EnchantmentBuilder>
 {
+    public static EnchantmentBuilder begin(ThingParser<EnchantmentBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new EnchantmentBuilder(ownerParser, registryName);
+    }
+
     private Enchantment.Rarity rarity = Enchantment.Rarity.COMMON;
     private EnchantmentCategory type = EnchantmentCategory.BREAKABLE;
     private EquipmentSlot[] slots = EquipmentSlot.values();
@@ -33,20 +37,15 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
     private boolean isDiscoverable = true;
     private boolean isAllowedOnBooks = true;
 
-    private EnchantmentBuilder(ResourceLocation registryName)
+    private EnchantmentBuilder(ThingParser<EnchantmentBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
     protected String getThingTypeDisplayName()
     {
         return "Enchantment";
-    }
-
-    public static EnchantmentBuilder begin(ResourceLocation registryName)
-    {
-        return new EnchantmentBuilder(registryName);
     }
 
     public void setRarity(Enchantment.Rarity rarity)
@@ -135,15 +134,7 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
             return (Predicate<Enchantment>) ((enchantment) -> ro.filter(en -> en == enchantment).isPresent());
         }).toList());
 
-        if (ScriptParser.isEnabled())
-        {
-            forEachEvent((key, list) -> {
-                for (var ev : list)
-                {
-                    flexEnchantment.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-                }
-            });
-        }
+        constructEventHandlers(flexEnchantment);
 
         return flexEnchantment;
     }
@@ -152,12 +143,5 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment>
     {
         this.isAllowedOnBooks = allow_on_books;
         return this;
-    }
-
-    private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
-    {
-        var ev = getEventMap();
-        if (ev != null)
-            ev.forEach(consumer);
     }
 }

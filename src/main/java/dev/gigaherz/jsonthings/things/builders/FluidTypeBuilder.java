@@ -1,25 +1,23 @@
 package dev.gigaherz.jsonthings.things.builders;
 
-import dev.gigaherz.jsonthings.JsonThings;
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.IFluidTypeRenderProperties;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-public class FluidTypeBuilder extends BaseBuilder<FluidType>
+public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
 {
-    private ResourceLocation parentBuilderName;
-    private FluidTypeBuilder parentBuilder;
-    private RegistryObject<Fluid> parentFluid;
+    public static FluidTypeBuilder begin(ThingParser<FluidTypeBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new FluidTypeBuilder(ownerParser, registryName);
+    }
 
     private ResourceLocation stillTexture;
     private ResourceLocation flowingTexture;
@@ -35,10 +33,20 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
     private ResourceLocation fillSound;
     private ResourceLocation emptySound;
     private ResourceLocation vaporizeSound;
+    private Double motionScale;
+    private Float fallDistanceModifier;
+    private Boolean canPushEntity;
+    private Boolean canSwim;
+    private Boolean canDrown;
+    private Boolean canExtinguish;
+    private Boolean canHydrate;
+    private Boolean canConvertToSource;
+    private Boolean supportsBoating;
 
-    private FluidTypeBuilder(ResourceLocation registryName)
+
+    private FluidTypeBuilder(ThingParser<FluidTypeBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
@@ -47,22 +55,15 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         return "Fluid";
     }
 
-    public static FluidTypeBuilder begin(ResourceLocation registryName)
-    {
-        return new FluidTypeBuilder(registryName);
-    }
-
-    public void setParent(ResourceLocation parentName)
-    {
-        if (this.parentFluid != null)
-            throw new IllegalStateException("Parent Fluid already set");
-        this.parentBuilderName = parentName; // maybe
-        this.parentFluid = RegistryObject.create(parentName, ForgeRegistries.FLUIDS);
-    }
-
     public void setStillTexture(ResourceLocation stillTexture)
     {
         this.stillTexture = stillTexture;
+    }
+
+    @Nullable
+    private ResourceLocation getStillTexture()
+    {
+        return getValueWithParent(stillTexture, FluidTypeBuilder::getStillTexture);
     }
 
     public void setFlowingTexture(ResourceLocation flowingTexture)
@@ -70,9 +71,21 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         this.flowingTexture = flowingTexture;
     }
 
+    @Nullable
+    private ResourceLocation getFlowingTexture()
+    {
+        return getValueWithParent(flowingTexture, FluidTypeBuilder::getFlowingTexture);
+    }
+
     public void setSideTexture(ResourceLocation overlay)
     {
         this.sideTexture = overlay;
+    }
+
+    @Nullable
+    private ResourceLocation getSideTexture()
+    {
+        return getValueWithParent(sideTexture, FluidTypeBuilder::getSideTexture);
     }
 
     public void setRarity(Rarity rarity)
@@ -80,9 +93,21 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         this.rarity = rarity;
     }
 
+    @Nullable
+    private Rarity getRarity()
+    {
+        return getValueWithParent(rarity, FluidTypeBuilder::getRarity);
+    }
+
     public void setColor(Integer color)
     {
         this.color = color;
+    }
+
+    @Nullable
+    private Integer getColor()
+    {
+        return getValueWithParent(color, FluidTypeBuilder::getColor);
     }
 
     public void setDensity(Integer density)
@@ -90,9 +115,21 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         this.density = density;
     }
 
+    @Nullable
+    private Integer getDensity()
+    {
+        return getValueWithParent(density, FluidTypeBuilder::getDensity);
+    }
+
     public void setLightLevel(Integer lightLevel)
     {
         this.lightLevel = lightLevel;
+    }
+
+    @Nullable
+    private Integer getLightLevel()
+    {
+        return getValueWithParent(lightLevel, FluidTypeBuilder::getLightLevel);
     }
 
     public void setTemperature(Integer temperature)
@@ -100,9 +137,21 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         this.temperature = temperature;
     }
 
+    @Nullable
+    private Integer getTemperature()
+    {
+        return getValueWithParent(temperature, FluidTypeBuilder::getTemperature);
+    }
+
     public void setViscosity(Integer viscosity)
     {
         this.viscosity = viscosity;
+    }
+
+    @Nullable
+    private Integer getViscosity()
+    {
+        return getValueWithParent(viscosity, FluidTypeBuilder::getViscosity);
     }
 
     public void setTranslationKey(String translationKey)
@@ -110,9 +159,21 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         this.translationKey = translationKey;
     }
 
+    @Nullable
+    private String getTranslationKey()
+    {
+        return getValueWithParent(translationKey, FluidTypeBuilder::getTranslationKey);
+    }
+
     public void setGaseous(Boolean gaseous)
     {
         isGaseous = gaseous;
+    }
+
+    @Nullable
+    private Boolean getIsGaseous()
+    {
+        return getValueWithParent(isGaseous, FluidTypeBuilder::getIsGaseous);
     }
 
     public void setFillSound(ResourceLocation fillSound)
@@ -120,14 +181,131 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         this.fillSound = fillSound;
     }
 
+    @Nullable
+    private ResourceLocation getFillSound()
+    {
+        return getValueWithParent(fillSound, FluidTypeBuilder::getFillSound);
+    }
+
     public void setEmptySound(ResourceLocation emptySound)
     {
         this.emptySound = emptySound;
     }
 
+    @Nullable
+    private ResourceLocation getEmptySound()
+    {
+        return getValueWithParent(emptySound, FluidTypeBuilder::getEmptySound);
+    }
+
     public void setVaporizeSound(ResourceLocation vaporizeSound)
     {
         this.vaporizeSound = vaporizeSound;
+    }
+
+    @Nullable
+    private ResourceLocation getVaporizeSound()
+    {
+        return getValueWithParent(vaporizeSound, FluidTypeBuilder::getVaporizeSound);
+    }
+
+    public void setMotionScale(double motionScale)
+    {
+        this.motionScale = motionScale;
+    }
+
+    @Nullable
+    public Double getMotionScale()
+    {
+        return getValueWithParent(motionScale, FluidTypeBuilder::getMotionScale);
+    }
+
+    public void setFallDistanceModifier(float fallDistanceModifier)
+    {
+        this.fallDistanceModifier = fallDistanceModifier;
+    }
+
+    @Nullable
+    public Float getFallDistanceModifier()
+    {
+        return getValueWithParent(fallDistanceModifier, FluidTypeBuilder::getFallDistanceModifier);
+    }
+
+    public void setCanPushEntity(boolean canPushEntity)
+    {
+        this.canPushEntity = canPushEntity;
+    }
+
+    @Nullable
+    public Boolean getCanPushEntity()
+    {
+        return getValueWithParent(canPushEntity, FluidTypeBuilder::getCanPushEntity);
+    }
+
+    public void setCanSwim(boolean canSwim)
+    {
+        this.canSwim = canSwim;
+    }
+
+    @Nullable
+    public Boolean getCanSwim()
+    {
+        return getValueWithParent(canSwim, FluidTypeBuilder::getCanSwim);
+    }
+
+    public void setCanDrown(boolean canDrown)
+    {
+        this.canDrown = canDrown;
+    }
+
+    @Nullable
+    public Boolean getCanDrown()
+    {
+        return getValueWithParent(canDrown, FluidTypeBuilder::getCanDrown);
+    }
+
+    public void setCanExtinguish(boolean canExtinguish)
+    {
+        this.canExtinguish = canExtinguish;
+    }
+
+    @Nullable
+    public Boolean getCanExtinguish()
+    {
+        return getValueWithParent(canExtinguish, FluidTypeBuilder::getCanExtinguish);
+    }
+
+    public void setCanHydrate(boolean canHydrate)
+    {
+        this.canHydrate = canHydrate;
+    }
+
+    @Nullable
+    public Boolean getCanHydrate()
+    {
+        return getValueWithParent(canHydrate, FluidTypeBuilder::getCanHydrate);
+    }
+
+    public void setCanConvertToSource(boolean canConvertToSource)
+    {
+        this.canConvertToSource = canConvertToSource;
+    }
+
+    @Nullable
+    public Boolean getCanConvertToSource()
+    {
+        return getValueWithParent(canConvertToSource, FluidTypeBuilder::getCanConvertToSource);
+    }
+
+    public void setSupportsBoating(boolean supportsBoating)
+    {
+        this.supportsBoating = supportsBoating;
+    }
+
+    @Nullable
+    public Boolean getSupportsBoating()
+    {
+        return getValueWithParent(supportsBoating, FluidTypeBuilder::getSupportsBoating);
     }
 
     @Override
@@ -148,25 +326,27 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         if (vaporizeSound != null) props.sound(SoundActions.FLUID_VAPORIZE, emptySound);
         if (getTranslationKey() != null) props.descriptionId(getTranslationKey());
         //if (getIsGaseous() != null && getIsGaseous()) props.gaseous();
-
-        /*
-        public FluidType.Properties motionScale(double motionScale)
-        public FluidType.Properties canPushEntity(boolean canPushEntity)
-        public FluidType.Properties canSwim(boolean canSwim)
-        public FluidType.Properties canDrown(boolean canDrown)
-        public FluidType.Properties fallDistanceModifier(float fallDistanceModifier)
-        public FluidType.Properties canExtinguish(boolean canExtinguish)
-        public FluidType.Properties canConvertToSource(boolean canConvertToSource)
-        public FluidType.Properties supportsBoating(boolean supportsBoating)
-        public FluidType.Properties pathType(@org.jetbrains.annotations.Nullable BlockPathTypes pathType)
-        public FluidType.Properties adjacentPathType(@org.jetbrains.annotations.Nullable BlockPathTypes adjacentPathType)
-        public FluidType.Properties canHydrate(boolean canHydrate)
-         */
+        if (getMotionScale() != null) props.motionScale(getMotionScale());
+        if (getFallDistanceModifier() != null) props.fallDistanceModifier(getFallDistanceModifier());
+        if (getCanPushEntity() != null) props.canPushEntity(getCanPushEntity());
+        if (getCanSwim() != null) props.canSwim(getCanSwim());
+        if (getCanDrown() != null) props.canDrown(getCanDrown());
+        if (getCanExtinguish() != null) props.canExtinguish(getCanExtinguish());
+        if (getCanConvertToSource() != null) props.canConvertToSource(getCanConvertToSource());
+        if (getCanHydrate() != null) props.canHydrate(getCanHydrate());
+        if (getSupportsBoating() != null) props.supportsBoating(getSupportsBoating());
+        //if (getPathType() != null) props.pathType(@org.jetbrains.annotations.Nullable BlockPathTypes pathType)
+        //if (getAdjacentPathType() != null) props.adjacentPathType(@org.jetbrains.annotations.Nullable BlockPathTypes adjacentPathType)
 
         final int color = getColor() != null ? getColor() : 0xFFFFFFFF;
         final ResourceLocation stillTexture = getStillTexture();
         final ResourceLocation flowingTexture = getFlowingTexture();
         final ResourceLocation sideTexture = getSideTexture();
+
+        if (stillTexture == null)
+            throw new IllegalStateException("FluidType requires a still_texture value");
+        if (flowingTexture == null)
+            throw new IllegalStateException("FluidType requires a flowing_texture value");
 
         return new FluidType(props) {
             @Override
@@ -202,140 +382,4 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType>
         };
     }
 
-    public FluidTypeBuilder requireParent()
-    {
-        if (parentBuilder == null)
-        {
-            if (parentBuilderName == null)
-                throw new IllegalStateException("Parent not set");
-            parentBuilder = JsonThings.fluidTypeParser.getBuildersMap().get(parentBuilderName);
-            if (parentBuilder == null)
-                throw new IllegalStateException("The specified parent " + parentBuilderName + " is not a Json Things defined Fluid");
-        }
-        return parentBuilder;
-    }
-
-    @Nullable
-    public FluidTypeBuilder getParent()
-    {
-        if (parentBuilderName == null) return null;
-        if (parentBuilder == null)
-        {
-            parentBuilder = JsonThings.fluidTypeParser.getBuildersMap().get(parentFluid.getId());
-            if (parentBuilder == null)
-            {
-                parentBuilderName = null;
-                return null;
-            }
-        }
-        return parentBuilder;
-    }
-
-    @Nullable
-    private <T> T getValueWithParent(@Nullable T thisValue, Function<FluidTypeBuilder, T> parentGetter)
-    {
-        if (thisValue != null) return thisValue;
-        if (getParent() != null)
-        {
-            FluidTypeBuilder parent = requireParent();
-            return parentGetter.apply(parent);
-        }
-        return null;
-    }
-
-    @Nullable
-    public FluidTypeBuilder getParentBuilder()
-    {
-        return parentBuilder;
-    }
-
-    @Nullable
-    public RegistryObject<Fluid> getParentFluid()
-    {
-        return parentFluid;
-    }
-
-    @Nullable
-    private ResourceLocation getStillTexture()
-    {
-        return getValueWithParent(stillTexture, FluidTypeBuilder::getStillTexture);
-    }
-
-    @Nullable
-    private ResourceLocation getFlowingTexture()
-    {
-        return getValueWithParent(flowingTexture, FluidTypeBuilder::getFlowingTexture);
-    }
-
-    @Nullable
-    private Rarity getRarity()
-    {
-        return getValueWithParent(rarity, FluidTypeBuilder::getRarity);
-    }
-
-    @Nullable
-    private ResourceLocation getSideTexture()
-    {
-        return getValueWithParent(sideTexture, FluidTypeBuilder::getSideTexture);
-    }
-
-    @Nullable
-    private Integer getColor()
-    {
-        return getValueWithParent(color, FluidTypeBuilder::getColor);
-    }
-
-    @Nullable
-    private Integer getDensity()
-    {
-        return getValueWithParent(density, FluidTypeBuilder::getDensity);
-    }
-
-    @Nullable
-    private Integer getLightLevel()
-    {
-        return getValueWithParent(lightLevel, FluidTypeBuilder::getLightLevel);
-    }
-
-    @Nullable
-    private Integer getTemperature()
-    {
-        return getValueWithParent(temperature, FluidTypeBuilder::getTemperature);
-    }
-
-    @Nullable
-    private Integer getViscosity()
-    {
-        return getValueWithParent(viscosity, FluidTypeBuilder::getViscosity);
-    }
-
-    @Nullable
-    private String getTranslationKey()
-    {
-        return getValueWithParent(translationKey, FluidTypeBuilder::getTranslationKey);
-    }
-
-    @Nullable
-    private Boolean getIsGaseous()
-    {
-        return getValueWithParent(isGaseous, FluidTypeBuilder::getIsGaseous);
-    }
-
-    @Nullable
-    private ResourceLocation getFillSound()
-    {
-        return getValueWithParent(fillSound, FluidTypeBuilder::getFillSound);
-    }
-
-    @Nullable
-    private ResourceLocation getEmptySound()
-    {
-        return getValueWithParent(emptySound, FluidTypeBuilder::getEmptySound);
-    }
-
-    @Nullable
-    private ResourceLocation getVaporizeSound()
-    {
-        return getValueWithParent(vaporizeSound, FluidTypeBuilder::getVaporizeSound);
-    }
 }

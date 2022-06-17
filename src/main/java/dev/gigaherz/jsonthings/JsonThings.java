@@ -65,6 +65,7 @@ public class JsonThings
     public static BlockMaterialParser blockMaterialParser;
     public static ArmorMaterialParser armorMaterialParser;
     public static CreativeModeTabParser creativeModeTabParser;
+    public static MobEffectInstanceParser mobEffectInstanceParser;
 
     public JsonThings()
     {
@@ -86,6 +87,7 @@ public class JsonThings
         blockMaterialParser = manager.registerParser(new BlockMaterialParser());
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
+        mobEffectInstanceParser = manager.registerParser(new MobEffectInstanceParser());
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;

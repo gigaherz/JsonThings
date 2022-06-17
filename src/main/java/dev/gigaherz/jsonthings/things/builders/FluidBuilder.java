@@ -1,10 +1,9 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import com.mojang.datafixers.util.Pair;
-import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexFluid;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
-import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexFluidType;
 import dev.gigaherz.jsonthings.things.serializers.IFluidFactory;
 import dev.gigaherz.jsonthings.util.Utils;
@@ -12,18 +11,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class FluidBuilder extends BaseBuilder<IFlexFluid>
+public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 {
+    public static FluidBuilder begin(ThingParser<FluidBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new FluidBuilder(ownerParser, registryName);
+    }
+
     private FlexFluidType<?> fluidType;
     private List<Property<?>> properties;
     private Map<String, Property<?>> propertiesByName;
@@ -31,30 +33,22 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     private Map<Property<?>, Comparable<?>> propertyDefaultValuesMap;
 
     private ItemBuilder itemBuilder;
-    private ResourceLocation parentBuilderName;
-    private FluidBuilder parentBuilder;
-    private RegistryObject<Fluid> parentFluid;
 
-    private ResourceLocation attributesType;
+    private Supplier<FluidType> attributesType;
 
     private Set<String> renderLayers;
 
     private IFluidFactory<? extends Fluid> factory;
 
-    private FluidBuilder(ResourceLocation registryName)
+    private FluidBuilder(ThingParser<FluidBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
     protected String getThingTypeDisplayName()
     {
         return "Fluid";
-    }
-
-    public static FluidBuilder begin(ResourceLocation registryName)
-    {
-        return new FluidBuilder(registryName);
     }
 
     public void setFluidType(ResourceLocation typeName)
@@ -70,14 +64,6 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         this.itemBuilder = itemBuilder;
     }
 
-    public void setParentFluid(ResourceLocation parentName)
-    {
-        if (this.parentFluid != null)
-            throw new IllegalStateException("Parent Fluid already set");
-        this.parentBuilderName = parentName; // maybe
-        this.parentFluid = RegistryObject.create(parentName, ForgeRegistries.FLUIDS);
-    }
-
     public void setProperties(Map<String, Property<?>> properties)
     {
         this.properties = properties.values().stream().toList();
@@ -90,7 +76,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         this.propertyDefaultValues.put(name, value);
     }
 
-    public void setAttributesType(ResourceLocation attributesType)
+    public void setAttributesType(Supplier<FluidType> attributesType)
     {
         this.attributesType = attributesType;
     }
@@ -129,58 +115,9 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         if (getBucketBuilder() != null)
             flexFluid.setBucketItem(Lazy.of(() -> getBucketBuilder().get().self()));
 
-        if (ScriptParser.isEnabled())
-        {
-            forEachEvent((key, list) -> {
-                for (var ev : list)
-                {
-                    flexFluid.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-                }
-            });
-        }
+        constructEventHandlers(flexFluid);
 
         return flexFluid;
-    }
-
-    public FluidBuilder getParentBuilderName()
-    {
-        if (parentBuilder == null)
-        {
-            if (parentBuilderName == null)
-                throw new IllegalStateException("Parent not set");
-            parentBuilder = JsonThings.fluidParser.getBuildersMap().get(parentBuilderName);
-            if (parentBuilder == null)
-                throw new IllegalStateException("The specified parent " + parentBuilderName + " is not a Json Things defined Fluid");
-        }
-        return parentBuilder;
-    }
-
-    @Nullable
-    public FluidBuilder getParent()
-    {
-        if (parentBuilderName == null) return null;
-        if (parentBuilder == null)
-        {
-            parentBuilder = JsonThings.fluidParser.getBuildersMap().get(parentFluid.getId());
-            if (parentBuilder == null)
-            {
-                parentBuilderName = null;
-                return null;
-            }
-        }
-        return parentBuilder;
-    }
-
-    @Nullable
-    private <T> T getValueWithParent(@Nullable T thisValue, Function<FluidBuilder, T> parentGetter)
-    {
-        if (thisValue != null) return thisValue;
-        if (getParent() != null)
-        {
-            FluidBuilder parent = getParentBuilderName();
-            return parentGetter.apply(parent);
-        }
-        return null;
     }
 
     @Nullable
@@ -227,12 +164,6 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         return propertyDefaultValuesMap;
     }
 
-    @Nullable
-    public FluidBuilder getParentBuilder()
-    {
-        return parentBuilder;
-    }
-
     public Map<String, Property<?>> getPropertiesByName()
     {
         return Collections.unmodifiableMap(propertiesByName);
@@ -244,13 +175,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         return itemBuilder;
     }
 
-    @Nullable
-    public RegistryObject<Fluid> getParentFluid()
-    {
-        return parentFluid;
-    }
-
-    public ResourceLocation getAttributesType()
+    public Supplier<FluidType> getAttributesType()
     {
         var val = getValueWithParent(attributesType, FluidBuilder::getAttributesType);
         if (val == null)
@@ -269,22 +194,10 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         return Utils.orElse(getRenderLayersRaw(), () -> Collections.singleton(getFluidType().getDefaultLayer()));
     }
 
-    private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
-    {
-        var ev = getEventMap();
-        if (ev != null)
-            ev.forEach(consumer);
-        FluidBuilder parent = getParent();
-        if (parent != null)
-        {
-            parent.forEachEvent(consumer);
-        }
-    }
-
-    public void register(IForgeRegistry<Fluid> registry)
+    public void register(BiConsumer<ResourceLocation,Fluid> register)
     {
         get();
-        factory.register(this, registry::register);
+        factory.register(this, register);
     }
 
     public void setFactory(IFluidFactory<?> factory)

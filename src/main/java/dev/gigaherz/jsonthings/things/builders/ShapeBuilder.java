@@ -1,21 +1,22 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.resources.ResourceLocation;
 
-public class ShapeBuilder extends BaseBuilder<DynamicShape>
+public class ShapeBuilder extends BaseBuilder<DynamicShape, ShapeBuilder>
 {
-    private final DynamicShape dynamicShape;
-
-    private ShapeBuilder(ResourceLocation registryName, DynamicShape dynamicShape)
+    public static ShapeBuilder begin(ThingParser<ShapeBuilder> ownerParser, ResourceLocation registryName, DynamicShape dynamicShape)
     {
-        super(registryName);
-        this.dynamicShape = dynamicShape;
+        return new ShapeBuilder(ownerParser, registryName, dynamicShape);
     }
 
-    public static ShapeBuilder begin(ResourceLocation registryName, DynamicShape dynamicShape)
+    private final DynamicShape dynamicShape;
+
+    private ShapeBuilder(ThingParser<ShapeBuilder> ownerParser, ResourceLocation registryName, DynamicShape dynamicShape)
     {
-        return new ShapeBuilder(registryName, dynamicShape);
+        super(ownerParser, registryName);
+        this.dynamicShape = dynamicShape;
     }
 
     @Override

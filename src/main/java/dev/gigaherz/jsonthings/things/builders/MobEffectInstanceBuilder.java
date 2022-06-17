@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -7,9 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance>
+public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, MobEffectInstanceBuilder>
 {
-    private final BaseBuilder<?> owner;
     private ResourceLocation effect;
     private int duration;
     private int amplifier;
@@ -17,11 +17,11 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance>
     private boolean visible;
     private boolean showParticles;
     private boolean showIcon;
+    private FoodBuilder owner;
 
-    public MobEffectInstanceBuilder(BaseBuilder<?> owner)
+    public MobEffectInstanceBuilder(ThingParser<MobEffectInstanceBuilder> ownerParser, ResourceLocation name)
     {
-        super(owner.getRegistryName());
-        this.owner = owner;
+        super(ownerParser, name);
     }
 
     @Override
@@ -36,6 +36,16 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance>
         CrashReportCategory reportCategory = super.fillReport(crashReport);
         reportCategory.setDetail("Contained in", owner.getThingTypeDisplayName());
         return reportCategory;
+    }
+
+    public void setOwner(FoodBuilder owner)
+    {
+        this.owner = owner;
+    }
+
+    public FoodBuilder getOwner()
+    {
+        return owner;
     }
 
     public ResourceLocation getEffect()

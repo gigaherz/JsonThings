@@ -45,7 +45,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     @Override
     public EnchantmentBuilder processThing(ResourceLocation key, JsonObject data, Consumer<EnchantmentBuilder> builderModification)
     {
-        final EnchantmentBuilder builder = EnchantmentBuilder.begin(key);
+        final EnchantmentBuilder builder = EnchantmentBuilder.begin(this, key);
 
         MutableInt minLevel = new MutableInt(1);
 

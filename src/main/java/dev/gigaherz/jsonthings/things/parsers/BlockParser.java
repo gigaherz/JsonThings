@@ -52,18 +52,18 @@ public class BlockParser extends ThingParser<BlockBuilder>
     @Override
     public BlockBuilder processThing(ResourceLocation key, JsonObject data, Consumer<BlockBuilder> builderModification)
     {
-        final BlockBuilder builder = BlockBuilder.begin(key);
+        final BlockBuilder builder = BlockBuilder.begin(this, key);
 
         MutableObject<Map<String, Property<?>>> propertiesByName = new MutableObject<>(new HashMap<>());
         MutableObject<Property<Direction>> facingProperty = new MutableObject<>();
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParentBlock))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setBlockType))
                 .ifKey("material", val -> val.string().map(ResourceLocation::new).handle(builder::setMaterial))
                 .ifKey("map_color", val -> val
-                        .ifString(str -> builder.setColor(MaterialColors.get(str.getAsString())))
-                        .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
+                        .ifString(str -> builder.setMaterialColor(MaterialColors.get(str.getAsString())))
+                        .ifInteger(str -> builder.setMaterialColor(MaterialColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
                         .typeError()
                 )
                 .ifKey("requires_tool_for_drops", val -> val.bool().handle(builder::setRequiresToolForDrops))
@@ -120,7 +120,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
         {
             String name = entry.getKey();
             JsonElement value = entry.getValue();
-            builder.withDefaultState(name, value.getAsString());
+            builder.setPropertyDefaultValue(name, value.getAsString());
         }
     }
 
@@ -156,7 +156,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
     private static void createItemBlock(BlockBuilder builder, JsonObject obj)
     {
-        builder.withItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
+        builder.setItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
             if (!b.hasType())
                 b.setType(FlexItemType.BLOCK);
         }));

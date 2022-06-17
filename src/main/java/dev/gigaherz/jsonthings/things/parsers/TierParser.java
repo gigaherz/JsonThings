@@ -32,7 +32,7 @@ public class TierParser extends ThingParser<TierBuilder>
     @Override
     public TierBuilder processThing(ResourceLocation key, JsonObject data, Consumer<TierBuilder> builderModification)
     {
-        final TierBuilder builder = TierBuilder.begin(key);
+        final TierBuilder builder = TierBuilder.begin(this, key);
 
         JParse.begin(data)
                 .key("uses", val -> val.intValue().min(1).handle(builder::setUses))

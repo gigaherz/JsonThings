@@ -116,20 +116,38 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         };
     }, "solid", false, Material.STONE, SlabBlock.TYPE, SlabBlock.WATERLOGGED);
 
-    public static final FlexBlockType<FlexStairsBlock> STAIRS = register("stairs", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        final RegistryObject<Block> parentBlock = builder.getParentBlock();
-        if (parentBlock == null)
-            throw new IllegalStateException("Stairs blocks need a parent block, but none has been declared.");
-        return new FlexStairsBlock(props, propertyDefaultValues, () -> parentBlock.get().defaultBlockState())
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+    public static final FlexBlockType<FlexStairsBlock> STAIRS = register("stairs", data -> {
+
+        MutableObject<ResourceLocation> parent = new MutableObject<>();
+
+        JParse.begin(data)
+                .ifKey("stairs_parent", val -> val.string().map(ResourceLocation::new).handle(parent::setValue));
+
+        return (props, builder) -> {
+
+            var parentName = parent.getValue();
+
+            if (parentName == null)
             {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
+                var parentBuilder = builder.getParent();
+                if (parentBuilder == null)
+                    throw new IllegalStateException("Stairs blocks need a parent block, but none has been declared.");
+                parentName = parentBuilder.getRegistryName();
             }
+
+            var parentBlock = RegistryObject.create(parentName, ForgeRegistries.BLOCKS);
+
+            List<Property<?>> _properties = builder.getProperties();
+            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+            return new FlexStairsBlock(props, propertyDefaultValues, () -> parentBlock.get().defaultBlockState())
+            {
+                @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+                {
+                    super.createBlockStateDefinition(builder1);
+                    _properties.forEach(builder1::add);
+                }
+            };
         };
     }, "solid", false, Material.STONE, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
 

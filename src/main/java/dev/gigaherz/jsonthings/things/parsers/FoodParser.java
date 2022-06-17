@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
@@ -28,7 +29,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
     @Override
     public FoodBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FoodBuilder> builderModification)
     {
-        final FoodBuilder builder = FoodBuilder.begin(key);
+        final FoodBuilder builder = FoodBuilder.begin(this, key);
 
         JParse.begin(data)
                 .key("nutrition", val -> val.intValue().min(1).handle(builder::setNutrition))
@@ -50,15 +51,8 @@ public class FoodParser extends ThingParser<FoodBuilder>
 
     private MobEffectInstanceBuilder parseEffectInstance(ObjValue obj, FoodBuilder parentBuilder)
     {
-        var builder = new MobEffectInstanceBuilder(parentBuilder);
-        obj
-                .key("effect", val -> val.string().handle(str -> builder.setEffect(new ResourceLocation(str))))
-                .key("duration", val -> val.intValue().min(0).handle(builder::setDuration))
-                .key("amplifier", val -> val.intValue().min(0).handle(builder::setAmplifier))
-                .key("ambient", val -> val.bool().handle(builder::setAmbient))
-                .key("visible", val -> val.bool().handle(builder::setVisible))
-                .key("show_particles", val -> val.bool().handle(builder::setShowParticles))
-                .key("show_icon", val -> val.bool().handle(builder::setShowIcon));
+        var builder = JsonThings.mobEffectInstanceParser.parseFromElement(parentBuilder.getRegistryName(), obj.getAsJsonObject());
+        builder.setOwner(parentBuilder);
         return builder;
     }
 }

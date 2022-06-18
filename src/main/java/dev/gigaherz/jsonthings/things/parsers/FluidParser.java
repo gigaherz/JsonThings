@@ -87,9 +87,6 @@ public class FluidParser extends ThingParser<FluidBuilder>
     public static void parseFluidType(FluidBuilder builder, Any val)
     {
         val
-                .ifBool(v -> v.handle(b -> {
-                    if (b) createFluidType(builder, new JsonObject());
-                }))
                 .ifString(v -> v.map(ResourceLocation::new).handle(rl -> {
                     builder.setAttributesType(RegistryObject.create(rl, ForgeRegistries.FLUID_TYPES.get()));
                 }))

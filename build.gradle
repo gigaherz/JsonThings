@@ -99,6 +99,12 @@ minecraft {
     }
 }
 
+repositories {
+    flatDir {
+        dirs project.rootProject.file("./debugmods")
+    }
+}
+
 /*configurations {
     library
     implementation.extendsFrom library
@@ -109,9 +115,12 @@ minecraft.runs.all {
     }
 }*/
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.0.36'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.1.45'
 
     //library 'com.google.guava:guava:21.0'
+    runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
+    runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
+    runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
 
     implementation fg.deobf("curse.maven:rhino-416294:3647781")
 
@@ -135,7 +144,7 @@ jar {
                 "Specification-Vendor": "gigaherz",
                 "Specification-Version": "1", // We are version 1 of ourselves
                 "Implementation-Title": project.name,
-                "Implementation-Version": "${version}",
+                "Implementation-Version": project.version,
                 "Implementation-Vendor" :"gigaherz",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "MixinConfigs": "jsonthings.mixins.json"

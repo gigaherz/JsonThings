@@ -10,7 +10,6 @@ import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Direction;
@@ -26,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class BlockParser extends ThingParser<BlockBuilder>
@@ -91,7 +89,6 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("collision_shape", val -> val.raw(obj -> builder.setCollisionShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("raytrace_shape", val -> val.raw(obj -> builder.setRaytraceShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("render_layer", val -> val.map((AnyFunction<Set<String>>) ThingParser::parseRenderLayers).handle(builder::setRenderLayers))
                 .ifKey("not_solid", val -> val.bool().handle(builder::setSeeThrough))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("item", val -> parseItemBlock(builder, val))

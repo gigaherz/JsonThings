@@ -40,7 +40,6 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     private DynamicShape raytraceShape;
     private DynamicShape renderShape;
     private Boolean seeThrough;
-    private Set<String> renderLayers;
     private String colorHandler;
     private Boolean requiresToolForDrops;
     private Boolean isAir;
@@ -222,20 +221,9 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         return getValueWithParent(renderShape, BlockBuilder::getRenderShape);
     }
 
-    public void setRenderLayers(Set<String> renderLayers)
+    public ResourceLocation getDefaultRenderLayer()
     {
-        this.renderLayers = renderLayers;
-    }
-
-    @Nullable
-    public Set<String> getRenderLayersRaw()
-    {
-        return getValueWithParent(renderLayers, BlockBuilder::getRenderLayersRaw);
-    }
-
-    public Set<String> getRenderLayers()
-    {
-        return Utils.orElse(getRenderLayersRaw(), () -> Collections.singleton(getBlockType().getDefaultLayer()));
+        return new ResourceLocation(getBlockType().getDefaultLayer());
     }
 
     public void setColorHandler(String colorHandler)

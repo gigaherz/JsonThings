@@ -4,7 +4,7 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.client.IFluidTypeRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -350,12 +350,12 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
 
         return new FluidType(props) {
             @Override
-            public void initializeClient(Consumer<IFluidTypeRenderProperties> consumer)
+            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer)
             {
-                consumer.accept(new IFluidTypeRenderProperties()
+                consumer.accept(new IClientFluidTypeExtensions()
                 {
                     @Override
-                    public int getColorTint()
+                    public int getTintColor()
                     {
                         return color;
                     }

@@ -177,15 +177,7 @@ See [Voxel Shapes](./VoxelShapes.md) for details on the syntax.
 
 ## "render_layer"
 
-Defines the render layer of the block, used to decide which kind of transparency is applied when rendering.
-
-Optional. Default: the render layer defined by the block type, which "solid" in most cases.
-
-Must be one of these strings:
-* `"solid"`: The block is fully opaque, transparency in the texture is ignored.
-* `"cutout"`: The block has binary transparency. The texture pixels are either fully opaque or fully transparent.
-* `"cutout_mipped"`: Same as `cutout` except mipmaps are allowed when rendering.
-* `"translucent"`: The block has full transparency including semi-transparent pixels. This render layer needs sorting and incurs on much heavier overhead, because of that it should be avoided unless necessary.
+**REMOVED in 1.19**: Use the "render_type" value in the model json instead.
 
 ## "not_solid"
 

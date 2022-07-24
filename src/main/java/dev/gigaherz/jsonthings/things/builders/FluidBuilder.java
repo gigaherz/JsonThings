@@ -36,8 +36,6 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     private Supplier<FluidType> attributesType;
 
-    private Set<String> renderLayers;
-
     private IFluidFactory<? extends Fluid> factory;
 
     private FluidBuilder(ThingParser<FluidBuilder> ownerParser, ResourceLocation registryName)
@@ -79,11 +77,6 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
     public void setAttributesType(Supplier<FluidType> attributesType)
     {
         this.attributesType = attributesType;
-    }
-
-    public void setRenderLayers(Set<String> renderLayers)
-    {
-        this.renderLayers = renderLayers;
     }
 
     @Override
@@ -183,15 +176,9 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         return val;
     }
 
-    @Nullable
-    public Set<String> getRenderLayersRaw()
+    public ResourceLocation getDefaultRenderLayer()
     {
-        return getValueWithParent(renderLayers, FluidBuilder::getRenderLayersRaw);
-    }
-
-    public Set<String> getRenderLayers()
-    {
-        return Utils.orElse(getRenderLayersRaw(), () -> Collections.singleton(getFluidType().getDefaultLayer()));
+        return new ResourceLocation(getFluidType().getDefaultLayer());
     }
 
     public void register(BiConsumer<ResourceLocation,Fluid> register)

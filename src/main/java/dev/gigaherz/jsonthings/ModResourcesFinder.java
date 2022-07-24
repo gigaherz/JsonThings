@@ -8,7 +8,7 @@ import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
-import net.minecraftforge.resource.PathResourcePack;
+import net.minecraftforge.resource.PathPackResources;
 
 import java.util.Map;
 import java.util.Objects;
@@ -18,14 +18,14 @@ import static net.minecraftforge.fml.Logging.CORE;
 
 class ModResourcesFinder
 {
-    static RepositorySource buildPackFinder(Map<IModFile, ? extends PathResourcePack> modResourcePacks)
+    static RepositorySource buildPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks)
     {
         return (packList, factory) -> serverPackFinder(modResourcePacks, packList, factory);
     }
 
-    private static void serverPackFinder(Map<IModFile, ? extends PathResourcePack> modResourcePacks, Consumer<Pack> consumer, Pack.PackConstructor factory)
+    private static void serverPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks, Consumer<Pack> consumer, Pack.PackConstructor factory)
     {
-        for (Map.Entry<IModFile, ? extends PathResourcePack> e : modResourcePacks.entrySet())
+        for (Map.Entry<IModFile, ? extends PathPackResources> e : modResourcePacks.entrySet())
         {
             IModInfo mod = e.getKey().getModInfos().get(0);
             if (Objects.equals(mod.getModId(), "minecraft")) continue; // skip the minecraft "mod"

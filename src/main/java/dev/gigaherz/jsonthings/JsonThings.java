@@ -14,14 +14,14 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ConfigGuiHandler;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.model.MultiLayerModel;
+import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.client.NamedRenderTypeManager;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -36,11 +36,9 @@ import net.minecraftforge.resource.ResourcePackLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(JsonThings.MODID)
@@ -151,9 +149,9 @@ public class JsonThings
                 ItemColorHandler.init();
             });
 
-            ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((mc, screen) -> {
+            ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory((mc, returnTo) -> {
                 var thingPackManager = ThingResourceManager.instance();
-                return new PackSelectionScreen(screen, thingPackManager.getRepository(),
+                return new PackSelectionScreen(returnTo, thingPackManager.getRepository(),
                         rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
                         Component.literal("Thing Packs"));
             }));
@@ -162,42 +160,41 @@ public class JsonThings
         @SubscribeEvent
         public static void clientSetup(FMLClientSetupEvent event)
         {
+            final ResourceLocation solid = new ResourceLocation("solid");
             JsonThings.blockParser.getBuilders().forEach(thing -> {
-                Set<String> layers = thing.getRenderLayers();
-                if (layers.size() != 1 || !layers.contains("solid"))
+                ResourceLocation layer = thing.getDefaultRenderLayer();
+                if (!layer.equals(solid))
                 {
-                    Set<RenderType> renderTypes = layers.stream().map(MultiLayerModel.Loader.BLOCK_LAYERS::get).collect(Collectors.toSet());
-                    ItemBlockRenderTypes.setRenderLayer(thing.get().self(), renderTypes::contains);
+                    ItemBlockRenderTypes.setRenderLayer(thing.get().self(), NamedRenderTypeManager.get(layer).block());
                 }
             });
             JsonThings.fluidParser.getBuilders().forEach(thing -> {
-                Set<String> layers = thing.getRenderLayers();
-                if (layers.size() != 1 || !layers.contains("solid"))
+                ResourceLocation layer = thing.getDefaultRenderLayer();
+                for(var fluid : thing.getAllSiblings())
                 {
-                    Set<RenderType> renderTypes = layers.stream().map(MultiLayerModel.Loader.BLOCK_LAYERS::get).collect(Collectors.toSet());
-                    for(var fluid : thing.getAllSiblings())
+                    if (!layer.equals(solid))
                     {
-                        ItemBlockRenderTypes.setRenderLayer(fluid, renderTypes::contains);
+                        ItemBlockRenderTypes.setRenderLayer(fluid, NamedRenderTypeManager.get(layer).block());
                     }
                 }
             });
         }
 
         @SubscribeEvent
-        public static void itemColorHandlers(ColorHandlerEvent.Block event)
+        public static void itemColorHandlers(RegisterColorHandlersEvent.Block event)
         {
             JsonThings.blockParser.getBuilders().forEach(thing -> {
                 String handlerName = thing.getColorHandler();
                 if (handlerName != null)
                 {
                     BlockColor bc = BlockColorHandler.get(handlerName);
-                    event.getBlockColors().register(bc, thing.get().self());
+                    event.register(bc, thing.get().self());
                 }
             });
         }
 
         @SubscribeEvent
-        public static void itemColorHandlers(ColorHandlerEvent.Item event)
+        public static void itemColorHandlers(RegisterColorHandlersEvent.Item event)
         {
             JsonThings.itemParser.getBuilders().forEach(thing -> {
                 String handlerName = thing.getColorHandler();
@@ -205,7 +202,7 @@ public class JsonThings
                 {
                     Function<BlockColors, ItemColor> handler = ItemColorHandler.get(handlerName);
                     ItemColor ic = handler.apply(event.getBlockColors());
-                    event.getItemColors().register(ic, ((Item) thing.get()));
+                    event.register(ic, ((Item) thing.get()));
                 }
             });
         }

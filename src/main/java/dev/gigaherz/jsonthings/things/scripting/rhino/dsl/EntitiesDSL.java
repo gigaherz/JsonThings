@@ -19,7 +19,7 @@ public class EntitiesDSL
 
     private static Object findEntityType(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var entityType = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.ENTITIES);
+        var entityType = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.ENTITY_TYPES);
         return DSLHelpers.wrap(scope, entityType, EntityType.class);
     }
 }

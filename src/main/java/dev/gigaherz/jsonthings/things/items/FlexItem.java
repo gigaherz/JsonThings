@@ -226,22 +226,22 @@ public class FlexItem extends Item implements IFlexItem
     private InteractionResultHolder<ItemStack> doContainerItem(ItemStack stack)
     {
         return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
-            InteractionResult typeIn = super.hasContainerItem(stack) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+            InteractionResult typeIn = super.hasCraftingRemainingItem(stack) ? InteractionResult.SUCCESS : InteractionResult.PASS;
             if (typeIn == InteractionResult.SUCCESS)
-                return new FlexEventResult(typeIn, super.getContainerItem(stack));
+                return new FlexEventResult(typeIn, super.getCraftingRemainingItem(stack));
             return new FlexEventResult(typeIn, stack);
         }).holder();
     }
 
     @Override
-    public boolean hasContainerItem(ItemStack stack)
+    public boolean hasCraftingRemainingItem(ItemStack stack)
     {
         containerResult = doContainerItem(stack);
         return containerResult.getResult() == InteractionResult.SUCCESS;
     }
 
     @Override
-    public ItemStack getContainerItem(ItemStack itemStack)
+    public ItemStack getCraftingRemainingItem(ItemStack itemStack)
     {
         try
         {

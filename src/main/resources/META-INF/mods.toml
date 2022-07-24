@@ -17,7 +17,7 @@ displayURL="https://github.com/gigaherz/JsonThings"
 [[dependencies.jsonthings]]
    modId="forge"
    mandatory=true
-   versionRange="[41.0.35,)"
+   versionRange="[41.0.94,)"
    ordering="NONE"
    side="BOTH"
 [[dependencies.jsonthings]]

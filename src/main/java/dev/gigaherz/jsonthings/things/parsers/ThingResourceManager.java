@@ -6,7 +6,12 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.logging.LogUtils;
+import dev.gigaherz.jsonthings.QueueableExecutor;
 import dev.gigaherz.jsonthings.util.CustomPackType;
+import net.minecraft.CrashReport;
+import net.minecraft.ReportedException;
+import net.minecraft.Util;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
@@ -16,6 +21,7 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.loading.FMLPaths;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -24,10 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutionException;
 
 public class ThingResourceManager
 {
+    public static final Logger LOGGER = LogUtils.getLogger();
+
     private static ThingResourceManager instance;
 
     public static ThingResourceManager instance()
@@ -41,6 +49,8 @@ public class ThingResourceManager
     }
 
     private static final Set<String> disabledPacks = Sets.newHashSet();
+
+    private QueueableExecutor mainThreadExecutor;
 
     private final ReloadableResourceManager resourceManager;
     private final RepositorySource folderPackFinder;
@@ -99,22 +109,52 @@ public class ThingResourceManager
         resourceManager.registerReloadListener(listener);
     }
 
-
-    public CompletableFuture<ThingResourceManager> beginLoading(Executor backgroundExecutor, Executor gameExecutor)
+    public CompletableFuture<ThingResourceManager> beginLoading()
     {
         packList.reload();
 
         loadConfig();
 
+        mainThreadExecutor = new QueueableExecutor();
+
         return resourceManager
-                .createReload(backgroundExecutor, gameExecutor, CompletableFuture.completedFuture(Unit.INSTANCE), packList.openAllSelected())
-                .done().whenComplete((unit, throwable) -> {
+                .createReload(Util.backgroundExecutor(), mainThreadExecutor, CompletableFuture.completedFuture(Unit.INSTANCE), packList.openAllSelected())
+                .done()
+                .whenComplete((unit, throwable) -> {
                     if (throwable != null)
                     {
                         resourceManager.close();
                     }
                 })
+                .thenRun(mainThreadExecutor::finish)
                 .thenApply((unit) -> this);
+    }
+
+    public void waitForLoading(CompletableFuture<ThingResourceManager> loaderFuture)
+    {
+        try
+        {
+            //DSLHelpers.debugDumpBindings();
+
+            while (!loaderFuture.isDone())
+            {
+                mainThreadExecutor.runQueue();
+                mainThreadExecutor.waitForTasks();
+            }
+
+            mainThreadExecutor.runQueue();
+
+            loaderFuture.get().finishLoading();
+        }
+        catch (InterruptedException e)
+        {
+            LOGGER.error("Thingpack loader future interrupted!");
+        }
+        catch (ExecutionException e)
+        {
+            Throwable pCause = e.getCause();
+            throw new ReportedException(CrashReport.forThrowable(pCause, "Error loading thingpacks"));
+        }
     }
 
     public void finishLoading()

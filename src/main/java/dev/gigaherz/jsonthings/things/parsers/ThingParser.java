@@ -44,7 +44,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn)
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
     {
         objectIn.forEach((key, json) -> {
             var builder = parseFromElement(key, json);

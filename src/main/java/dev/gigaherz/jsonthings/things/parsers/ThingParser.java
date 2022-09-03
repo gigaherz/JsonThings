@@ -44,7 +44,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn)
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
     {
         objectIn.forEach(this::parseFromElement);
     }

@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
@@ -9,12 +10,11 @@ import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
 import net.minecraftforge.resource.PathResourcePack;
+import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import static net.minecraftforge.fml.Logging.CORE;
 
 class ModResourcesFinder
 {
@@ -37,7 +37,7 @@ class ModResourcesFinder
                 ModLoader.get().addWarning(new ModLoadingWarning(mod, ModLoadingStage.ERROR, "fml.modloading.brokenresources", e.getKey()));
                 continue;
             }
-            JsonThings.LOGGER.debug(CORE, "Generating PackInfo named {} for mod file {}", name, e.getKey().getFilePath());
+            LOGGER.debug("Generating PackInfo named {} for mod file {}", name, e.getKey().getFilePath());
             consumer.accept(packInfo);
         }
     }

@@ -1,13 +1,11 @@
 package dev.gigaherz.jsonthings;
 
+import com.mojang.logging.LogUtils;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
@@ -33,12 +31,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.resource.ResourcePackLoader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,7 +43,7 @@ import java.util.stream.Collectors;
 public class JsonThings
 {
     public static final String MODID = "jsonthings";
-    public static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     static
     {
@@ -96,7 +92,7 @@ public class JsonThings
 
             ResourcePackLoader.loadResourcePacks(instance.getRepository(), ModResourcesFinder::buildPackFinder);
 
-            loaderFuture = instance.beginLoading(Util.backgroundExecutor(), Runnable::run);
+            loaderFuture = instance.beginLoading();
         });
     }
 
@@ -112,22 +108,8 @@ public class JsonThings
     @SubscribeEvent
     public static void finishLoading(NewRegistryEvent event)
     {
-        try
-        {
-            //DSLHelpers.debugDumpBindings();
-
-            loaderFuture.get().finishLoading();
-            loaderFuture = null;
-        }
-        catch (InterruptedException e)
-        {
-            LOGGER.error("Thingpack loader future interrupted!");
-        }
-        catch (ExecutionException e)
-        {
-            Throwable pCause = e.getCause();
-            throw new ReportedException(CrashReport.forThrowable(pCause, "Error loading thingpacks"));
-        }
+        ThingResourceManager.instance().waitForLoading(loaderFuture);
+        loaderFuture = null;
     }
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)

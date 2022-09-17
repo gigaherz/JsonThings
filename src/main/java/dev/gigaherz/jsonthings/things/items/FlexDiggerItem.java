@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import net.minecraft.world.item.Item.Properties;
-
 public class FlexDiggerItem extends DiggerItem implements IFlexItem
 {
     public FlexDiggerItem(Tier material, float damage, float speed, TagKey<Block> breakable, Properties properties)
@@ -230,10 +228,9 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     private InteractionResultHolder<ItemStack> doContainerItem(ItemStack stack)
     {
         return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
-            InteractionResult typeIn = super.hasCraftingRemainingItem(stack) ? InteractionResult.SUCCESS : InteractionResult.PASS;
-            if (typeIn == InteractionResult.SUCCESS)
-                return new FlexEventResult(typeIn, super.getCraftingRemainingItem(stack));
-            return new FlexEventResult(typeIn, stack);
+            if (super.hasCraftingRemainingItem(stack))
+                return new FlexEventResult(InteractionResult.SUCCESS, super.getCraftingRemainingItem(stack));
+            return new FlexEventResult(InteractionResult.PASS, ItemStack.EMPTY);
         }).holder();
     }
 

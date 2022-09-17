@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import net.minecraft.world.item.Item.Properties;
-
 public class FlexBlockItem extends BlockItem implements IFlexItem
 {
     public FlexBlockItem(Block block, boolean useBlockName, Properties properties)
@@ -242,10 +240,9 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     private InteractionResultHolder<ItemStack> doContainerItem(ItemStack stack)
     {
         return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
-            InteractionResult typeIn = super.hasContainerItem(stack) ? InteractionResult.SUCCESS : InteractionResult.PASS;
-            if (typeIn == InteractionResult.SUCCESS)
-                return new FlexEventResult(typeIn, super.getContainerItem(stack));
-            return new FlexEventResult(typeIn, stack);
+            if (super.hasContainerItem(stack))
+                return new FlexEventResult(InteractionResult.SUCCESS, super.getContainerItem(stack));
+            return new FlexEventResult(InteractionResult.PASS, ItemStack.EMPTY);
         }).holder();
     }
 

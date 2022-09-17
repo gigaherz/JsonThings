@@ -18,6 +18,8 @@ import java.util.function.Consumer;
 
 class ModResourcesFinder
 {
+    public static final Logger LOGGER = LogUtils.getLogger();
+
     static RepositorySource buildPackFinder(Map<IModFile, ? extends PathResourcePack> modResourcePacks)
     {
         return (packList, factory) -> serverPackFinder(modResourcePacks, packList, factory);

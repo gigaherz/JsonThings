@@ -93,7 +93,7 @@ public class ThingResourceManager
     {
         Path thingpacks = FMLPaths.GAMEDIR.get().resolve("thingpacks");
         if (!Files.exists(thingpacks) && !thingpacks.toFile().mkdirs())
-            throw new RuntimeException("Could not create thingspacks directory! Please create the directory yourself, or make sure the name is not taken by a file and you have permission to create directories.");
+            throw new ThingParseException("Could not create thingspacks directory! Please create the directory yourself, or make sure the name is not taken by a file and you have permission to create directories.");
         return thingpacks;
     }
 

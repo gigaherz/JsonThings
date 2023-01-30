@@ -82,14 +82,14 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     private EnchantmentCategory parseEnchantmentType(String str)
     {
         EnchantmentCategory type = types.get(str);
-        if (type == null) throw new IllegalStateException("No enchantment type known with name " + str);
+        if (type == null) throw new ThingParseException("No enchantment type known with name " + str);
         return type;
     }
 
     private Enchantment.Rarity parseEnchantmentRarity(String str)
     {
         Enchantment.Rarity rarity = rarities.get(str);
-        if (rarity == null) throw new IllegalStateException("No enchantment rarity known with name " + str);
+        if (rarity == null) throw new ThingParseException("No enchantment rarity known with name " + str);
         return rarity;
     }
 

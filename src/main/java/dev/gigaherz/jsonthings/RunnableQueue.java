@@ -60,7 +60,7 @@ public class RunnableQueue implements Executor
 
     public void waitForTasks() throws InterruptedException
     {
-        //sem.acquire();
+        // FIXME: sem.acquire(); deadlocks
         Thread.sleep(1);
     }
 }

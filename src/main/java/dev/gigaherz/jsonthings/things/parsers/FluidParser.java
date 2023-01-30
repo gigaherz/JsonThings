@@ -95,8 +95,15 @@ public class FluidParser extends ThingParser<FluidBuilder>
 
     private static void createFluidType(FluidBuilder builder, JsonObject obj)
     {
-        var typeBuilder = JsonThings.fluidTypeParser.parseFromElement(builder.getRegistryName(), obj);
-        builder.setAttributesType(typeBuilder::get);
+        try
+        {
+            var typeBuilder = JsonThings.fluidTypeParser.parseFromElement(builder.getRegistryName(), obj);
+            builder.setAttributesType(typeBuilder::get);
+        }
+        catch(Exception e)
+        {
+            throw new ThingParseException("Exception while parsing nested fluid in " + builder.getRegistryName(), e);
+        }
     }
 
     private void parseFluidState(JsonObject props, FluidBuilder builder)
@@ -117,9 +124,9 @@ public class FluidParser extends ThingParser<FluidBuilder>
                 .ifString(str -> str.handle(prop -> {
                     var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
                     if (property == null)
-                        throw new IllegalStateException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
+                        throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
                     if (!property.getName().equals(name))
-                        throw new IllegalStateException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
+                        throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
                     map.put(name, property);
                 }))
                 .ifObj(obj -> obj.raw(rawObj -> map.put(name, PropertyType.deserialize(name, rawObj))))
@@ -129,11 +136,18 @@ public class FluidParser extends ThingParser<FluidBuilder>
 
     private void createStockBucketItem(ResourceLocation bucketName, FluidBuilder builder, JsonObject jsonObject)
     {
-        if (jsonObject.has("fluid"))
+        try
         {
-            throw new RuntimeException("Inline fluid bucket definition cannot contain a fluid entry.");
+            if (jsonObject.has("fluid"))
+            {
+                throw new ThingParseException("Inline fluid bucket definition cannot contain a fluid entry.");
+            }
+            jsonObject.addProperty("fluid", builder.getRegistryName().toString());
+            builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(FlexItemType.BUCKET)));
         }
-        jsonObject.addProperty("fluid", builder.getRegistryName().toString());
-        builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(FlexItemType.BUCKET)));
+        catch(Exception e)
+        {
+            throw new ThingParseException("Exception while parsing nested bucket in " + builder.getRegistryName(), e);
+        }
     }
 }

@@ -54,8 +54,8 @@ public class TierParser extends ThingParser<TierBuilder>
         final MutableObject<Supplier<Ingredient>> out = new MutableObject<>();
 
         any.obj()
-                .noKey("type", () -> new IllegalStateException("Custom ingredients not supported yet. Please use an 'item' or 'tag' ingredient."))
-                .mutex(List.of("item", "tag"), () -> new IllegalStateException("Cannot have both 'tag' and 'item' in the ingredient at the same time."))
+                .noKey("type", () -> new ThingParseException("Custom ingredients not supported yet. Please use an 'item' or 'tag' ingredient."))
+                .mutex(List.of("item", "tag"), () -> new ThingParseException("Cannot have both 'tag' and 'item' in the ingredient at the same time."))
                 .ifKey("tag", val -> val.string().map(Utils::itemTag).handle(tag -> out.setValue(Lazy.of(() -> Ingredient.of(tag)))))
                 .ifKey("tag", val -> val.string().map(ResourceLocation::new).handle(item -> out.setValue(Lazy.of(() -> Ingredient.of(Utils.getItemOrCrash(item))))));
 

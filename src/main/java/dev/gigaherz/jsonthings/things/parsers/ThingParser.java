@@ -4,18 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.mojang.logging.LogUtils;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
+import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -23,12 +19,16 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Rarity;
+import net.minecraftforge.fml.*;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> extends SimpleJsonResourceReloadListener
 {
+    public static final Logger LOGGER = LogUtils.getLogger();
+
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final Map<ResourceLocation, TBuilder> buildersByName = Maps.newHashMap();
@@ -47,8 +47,20 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
     {
         objectIn.forEach((key, json) -> {
-            var builder = parseFromElement(key, json);
-            buildersByName.put(key, builder);
+            try
+            {
+                var builder = parseFromElement(key, json);
+                buildersByName.put(key, builder);
+            }
+            catch(JsonParseException | KeyNotFoundException | ThingParseException e)
+            {
+                var message = "Error parsing " + thingType + " with id '" + key + "': " + e.getMessage();
+                LOGGER.error(message);
+                var modContainer = ModList.get().getModContainerById(key.getNamespace());
+                if (modContainer.isEmpty())
+                        modContainer = ModList.get().getModContainerById("jsonthings");
+                ModLoader.get().addWarning(new ModLoadingWarning(modContainer.orElseThrow().getModInfo(), ModLoadingStage.ERROR, "Json Things: " + message));
+            }
         });
     }
 
@@ -61,21 +73,9 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json, Consumer<TBuilder> builderModification)
     {
-        try
-        {
-            TBuilder builder = processThing(key, json.getAsJsonObject(), builderModification);
-            builders.add(builder);
-            return builder;
-        }
-        catch (Exception e)
-        {
-            CrashReport crashReport = CrashReport.forThrowable(e, "Error while parsing " + thingType + " from " + key);
-
-            CrashReportCategory reportCategory = crashReport.addCategory("Thing", 1);
-            reportCategory.setDetail("Resource name", key);
-
-            throw new ReportedException(crashReport);
-        }
+        TBuilder builder = processThing(key, json.getAsJsonObject(), builderModification);
+        builders.add(builder);
+        return builder;
     }
 
     public List<TBuilder> getBuilders()
@@ -112,7 +112,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
             }
             catch (Exception e)
             {
-                throw new RuntimeException("Failed to parse NBT json.", e);
+                throw new ThingParseException("Failed to parse NBT json.", e);
             }
         }
 
@@ -136,7 +136,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     protected static Rarity parseRarity(String str)
     {
         Rarity rarity = rarities.get(str);
-        if (rarity == null) throw new IllegalStateException("No item rarity known with name " + str);
+        if (rarity == null) throw new ThingParseException("No item rarity known with name " + str);
         return rarity;
     }
 
@@ -165,7 +165,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     {
         TBuilder b = buildersByName.get(name);
         if (b == null)
-            throw new RuntimeException("There is no known " + thingType + " with name " + name);
+            throw new ThingParseException("There is no known " + thingType + " with name " + name);
         return b;
     }
 
@@ -185,7 +185,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
             }
             else
             {
-                throw new RuntimeException("Color hex string must be either 6 or 8 digits long.");
+                throw new ThingParseException("Color hex string must be either 6 or 8 digits long.");
             }
         }
         return (int)Long.parseLong(color);
@@ -235,7 +235,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     private static String verifyRenderLayer(String layerName)
     {
         if (!VALID_BLOCK_LAYERS.contains(layerName))
-            throw new IllegalStateException("Render layer " + layerName + " is not a valid block chunk layer.");
+            throw new ThingParseException("Render layer " + layerName + " is not a valid block chunk layer.");
         return layerName;
     }
 

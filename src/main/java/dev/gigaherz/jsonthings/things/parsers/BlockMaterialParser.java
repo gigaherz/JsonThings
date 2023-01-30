@@ -58,7 +58,7 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
                     case "ignore" -> PushReaction.IGNORE;
                     case "push_only" -> PushReaction.PUSH_ONLY;
                     case "normal" -> PushReaction.NORMAL;
-                    default -> throw new IllegalStateException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
+                    default -> throw new ThingParseException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
                 };
     }
 }

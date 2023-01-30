@@ -51,8 +51,15 @@ public class FoodParser extends ThingParser<FoodBuilder>
 
     private MobEffectInstanceBuilder parseEffectInstance(ObjValue obj, FoodBuilder parentBuilder)
     {
-        var builder = JsonThings.mobEffectInstanceParser.parseFromElement(parentBuilder.getRegistryName(), obj.getAsJsonObject());
-        builder.setOwner(parentBuilder);
-        return builder;
+        try
+        {
+            var builder = JsonThings.mobEffectInstanceParser.parseFromElement(parentBuilder.getRegistryName(), obj.getAsJsonObject());
+            builder.setOwner(parentBuilder);
+            return builder;
+        }
+        catch(Exception e)
+        {
+            throw new ThingParseException("Exception while parsing nested block in " + parentBuilder.getRegistryName(), e);
+        }
     }
 }

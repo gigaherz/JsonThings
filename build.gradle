@@ -42,7 +42,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.19.3'
     //mappings channel: 'parchment', version: '1.18.1-2022.02.13-1.18.2'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -90,6 +90,8 @@ minecraft {
 
             args '--mod', 'jsonthings', '--all', '--output', file('src/main/generated_resources/'), '--existing', file('src/main/resources/')
 
+            arg "--mixin=jsonthings.mixins.json"
+
             mods {
                 thismod {
                     source sourceSets.main
@@ -115,14 +117,14 @@ minecraft.runs.all {
     }
 }*/
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.3'
+    minecraft 'net.minecraftforge:forge:1.19.3-44.1.2'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
     //runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
     //runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
 
-    implementation fg.deobf("curse.maven:rhino-416294:3647781")
+    implementation fg.deobf("curse.maven:rhino-416294:4085695")
 
     /*library 'org.graalvm.regex:regex:22.0.0.2'
     library 'org.graalvm.sdk:graal-sdk:22.0.0.2'

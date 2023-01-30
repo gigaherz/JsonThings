@@ -1,6 +1,8 @@
 package dev.gigaherz.jsonthings;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
@@ -20,19 +22,19 @@ class ModResourcesFinder
 {
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    static RepositorySource buildPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks)
+    static RepositorySource buildPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks, PackType packType)
     {
-        return (packList, factory) -> serverPackFinder(modResourcePacks, packList, factory);
+        return (packList) -> serverPackFinder(modResourcePacks, packList, packType);
     }
 
-    private static void serverPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks, Consumer<Pack> consumer, Pack.PackConstructor factory)
+    private static void serverPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks, Consumer<Pack> consumer, PackType packType)
     {
         for (Map.Entry<IModFile, ? extends PathPackResources> e : modResourcePacks.entrySet())
         {
             IModInfo mod = e.getKey().getModInfos().get(0);
             if (Objects.equals(mod.getModId(), "minecraft")) continue; // skip the minecraft "mod"
             final String name = "mod:" + mod.getModId();
-            final Pack packInfo = Pack.create(name, false, e::getValue, factory, Pack.Position.BOTTOM, PackSource.DEFAULT);
+            final Pack packInfo = Pack.readMetaAndCreate(name, Component.literal(mod.getModId()), false, (str) -> new net.minecraft.server.packs.PathPackResources(str, e.getKey().getFilePath(), true), packType, Pack.Position.BOTTOM, PackSource.DEFAULT);
             if (packInfo == null)
             {
                 // Vanilla only logs an error, instead of propagating, so handle null and warn that something went wrong

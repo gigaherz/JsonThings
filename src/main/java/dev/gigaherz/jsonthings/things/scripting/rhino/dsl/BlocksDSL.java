@@ -13,19 +13,19 @@ public class BlocksDSL
 {
     public static void use(Context cx, Scriptable scope)
     {
-        if (scope.has(".use_blocks", scope))
+        if (scope.has(cx, ".use_blocks", scope))
             return;
 
-        scope.put("block", scope, new LambdaBaseFunction(BlocksDSL::findBlock));
-        scope.put("blockState", scope, new LambdaBaseFunction(BlocksDSL::makeBlockState));
+        scope.put(cx, "block", scope, new LambdaBaseFunction(BlocksDSL::findBlock));
+        scope.put(cx, "blockState", scope, new LambdaBaseFunction(BlocksDSL::makeBlockState));
 
-        scope.put(".use_blocks", scope, true);
+        scope.put(cx, ".use_blocks", scope, true);
     }
 
     private static Object findBlock(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var block = DSLHelpers.find(ForgeRegistries.BLOCKS, (String)args[0]);
-        return DSLHelpers.wrap(scope, block, Block.class);
+        return DSLHelpers.wrap(cx, scope, block, Block.class);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -49,6 +49,6 @@ public class BlocksDSL
             }
         }
 
-        return DSLHelpers.wrap(scope, baseState, BlockState.class);
+        return DSLHelpers.wrap(cx, scope, baseState, BlockState.class);
     }
 }

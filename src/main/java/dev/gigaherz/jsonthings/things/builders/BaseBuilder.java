@@ -7,6 +7,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -110,13 +111,14 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>> implements Supp
     }
 
     @Nullable
-    protected <V> V getValueWithParent(@Nullable V thisValue, Function<B, V> parentGetter)
+    protected <V> V getValue(@Nullable V thisValue, Function<B, V> parentGetter)
     {
-        return getValueWithParent(thisValue, parentGetter, null);
+        return getValueOrElse(thisValue, parentGetter, null);
     }
 
+    @Contract("_, _, !null -> !null")
     @Nullable
-    protected <V> V getValueWithParent(@Nullable V thisValue, Function<B, V> parentGetter, @Nullable V defaultValue)
+    protected <V> V getValueOrElse(@Nullable V thisValue, Function<B, V> parentGetter, @Nullable V defaultValue)
     {
         if (thisValue != null) return thisValue;
         var parent = getParent();
@@ -125,6 +127,19 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>> implements Supp
             return parentGetter.apply(parent);
         }
         return defaultValue;
+    }
+
+    @Contract("_, _, !null -> !null")
+    @Nullable
+    protected <V> V getValueOrElseGet(@Nullable V thisValue, Function<B, V> parentGetter, @Nullable Supplier<V> defaultValue)
+    {
+        if (thisValue != null) return thisValue;
+        var parent = getParent();
+        if (parent != null)
+        {
+            return parentGetter.apply(parent);
+        }
+        return defaultValue.get();
     }
 
     @Nullable

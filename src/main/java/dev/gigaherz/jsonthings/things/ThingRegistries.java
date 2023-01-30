@@ -40,7 +40,7 @@ public class ThingRegistries
     public static final ResourceKey<Registry<SoundType>> SOUND_TYPE_REGISTRY = createKey("jsonthings:sound_types");
     public static final ResourceKey<Registry<FlexFluidType<?>>> FLUID_TYPE_REGISTRY = createKey("jsonthings:fluid_types");
 
-    public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental(), null);
+    public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental(), false);
     public static final Registry<ArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
     public static final Registry<FoodProperties> FOODS = makeRegistry(FOOD_REGISTRY);
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
@@ -84,7 +84,7 @@ public class ThingRegistries
 
     private static <T> Registry<T> makeRegistry(ResourceKey<Registry<T>> key)
     {
-        MappedRegistry<T> registry = new MappedRegistry<>(key, Lifecycle.experimental(), null);
+        MappedRegistry<T> registry = new MappedRegistry<>(key, Lifecycle.experimental(), false);
         return Registry.register(THING_REGISTRIES, key.location().toString(), registry);
     }
 

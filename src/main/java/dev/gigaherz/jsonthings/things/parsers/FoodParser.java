@@ -33,7 +33,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
 
         JParse.begin(data)
                 .key("nutrition", val -> val.intValue().min(1).handle(builder::setNutrition))
-                .key("saturation", val -> val.intValue().min(0).handle(builder::setSaturation))
+                .key("saturation", val -> val.floatValue().min(0).handle(builder::setSaturation))
                 .ifKey("meat", val -> val.bool().handle(builder::setIsMeat))
                 .ifKey("fast", val -> val.bool().handle(builder::setFast))
                 .ifKey("always_eat", val -> val.bool().handle(builder::setAlwaysEat))

@@ -116,7 +116,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
     @Nullable
     public FlexFluidType<?> getFluidTypeRaw()
     {
-        return getValueWithParent(fluidType, FluidBuilder::getFluidTypeRaw);
+        return getValue(fluidType, FluidBuilder::getFluidTypeRaw);
     }
 
     public FlexFluidType<?> getFluidType()
@@ -127,7 +127,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
     @Nullable
     public List<Property<?>> getPropertiesRaw()
     {
-        return getValueWithParent(properties, FluidBuilder::getPropertiesRaw);
+        return getValue(properties, FluidBuilder::getPropertiesRaw);
     }
 
     public List<Property<?>> getProperties()
@@ -138,7 +138,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
     @Nullable
     public Map<String, String> getPropertyDefaultValuesRaw()
     {
-        return getValueWithParent(propertyDefaultValues, FluidBuilder::getPropertyDefaultValuesRaw);
+        return getValue(propertyDefaultValues, FluidBuilder::getPropertyDefaultValuesRaw);
     }
 
     public Map<Property<?>, Comparable<?>> getPropertyDefaultValues()
@@ -170,7 +170,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     public Supplier<FluidType> getAttributesType()
     {
-        var val = getValueWithParent(attributesType, FluidBuilder::getAttributesType);
+        var val = getValue(attributesType, FluidBuilder::getAttributesType);
         if (val == null)
             throw new IllegalStateException("fluid_type not set!");
         return val;

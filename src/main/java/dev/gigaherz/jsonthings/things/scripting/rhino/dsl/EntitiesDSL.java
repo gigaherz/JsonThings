@@ -9,17 +9,17 @@ public class EntitiesDSL
 {
     public static void use(Context cx, Scriptable scope)
     {
-        if (scope.has(".use_entities", scope))
+        if (scope.has(cx, ".use_entities", scope))
             return;
 
-        scope.put("entityType", scope, new LambdaBaseFunction(EntitiesDSL::findEntityType));
+        scope.put(cx, "entityType", scope, new LambdaBaseFunction(EntitiesDSL::findEntityType));
 
-        scope.put(".use_entities", scope, true);
+        scope.put(cx, ".use_entities", scope, true);
     }
 
     private static Object findEntityType(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var entityType = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.ENTITY_TYPES);
-        return DSLHelpers.wrap(scope, entityType, EntityType.class);
+        return DSLHelpers.wrap(cx, scope, entityType, EntityType.class);
     }
 }

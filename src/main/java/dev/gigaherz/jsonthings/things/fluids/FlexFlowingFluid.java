@@ -179,7 +179,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     }
 
     @Override
-    protected boolean canConvertToSource()
+    protected boolean canConvertToSource(Level level)
     {
         return canConvertToSource;
     }
@@ -313,9 +313,9 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         }
 
         @Override
-        protected boolean canConvertToSource()
+        protected boolean canConvertToSource(Level level)
         {
-            return parent.canConvertToSource();
+            return parent.canConvertToSource(level);
         }
 
         @Override

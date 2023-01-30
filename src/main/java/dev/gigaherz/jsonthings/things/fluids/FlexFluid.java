@@ -131,7 +131,7 @@ public class FlexFluid extends Fluid implements IFlexFluid
     @Override
     public boolean isSource(FluidState pState)
     {
-        return false;
+        return true;
     }
 
     @Override

@@ -23,38 +23,31 @@ public class RhinoThingScript extends ThingScript
     public static RhinoThingScript fromResource(@WillClose Resource resource, String name) throws IOException, ScriptException
     {
         Context cx = Context.enter();
-        try
+        try(var reader = resource.openAsReader())
         {
-            try(var reader = resource.openAsReader())
+            Scriptable scope = cx.initStandardObjects();
+
+            Script script = cx.compileReader(reader, name, 0, null);
+
+            var logger = LogManager.getLogger("ThingScript/" + name);
+
+            scope = initDSL(cx, scope, logger);
+
+            script.exec(cx, scope);
+
+            var result = scope.get(cx, "apply", scope);
+            if (result instanceof Function function)
             {
-                Scriptable scope = cx.initStandardObjects();
-
-                Script script = cx.compileReader(reader, name, 0, null);
-
-                var logger = LogManager.getLogger("ThingScript/" + name);
-
-                scope = initDSL(scope, logger);
-
-                script.exec(cx, scope);
-
-                var result = scope.get("apply", scope);
-                if (result instanceof Function function)
-                {
-                    return new RhinoThingScript(scope, function);
-                }
-                else
-                {
-                    throw new ScriptException("Error evaluating script " + name + ": Function 'apply' not found or not a function.");
-                }
+                return new RhinoThingScript(scope, function);
             }
-            catch(EcmaError e)
+            else
             {
-                throw new ScriptException(e);
+                throw new ScriptException("Error evaluating script " + name + ": Function 'apply' not found or not a function.");
             }
         }
-        finally
+        catch(EcmaError e)
         {
-            Context.exit();
+            throw new ScriptException(e);
         }
     }
 
@@ -71,31 +64,24 @@ public class RhinoThingScript extends ThingScript
     public FlexEventResult apply(String eventName, FlexEventContext context)
     {
         Context cx = Context.enter();
-        try
-        {
-            var wrappedContext = new FlexEventScriptable(scope, context);
-            Object result = function.call(cx, scope, scope, new Object[]{eventName, wrappedContext});
-            return (FlexEventResult) ((NativeJavaObject)result).unwrap();
-        }
-        finally
-        {
-            Context.exit();
-        }
+        var wrappedContext = new FlexEventScriptable(scope, context, cx);
+        Object result = function.call(cx, scope, scope, new Object[]{eventName, wrappedContext});
+        return (FlexEventResult) ((NativeJavaObject)result).unwrap();
     }
 
-    private static Scriptable initDSL(Scriptable _scope, Logger logger)
+    private static Scriptable initDSL(Context cx, Scriptable _scope, Logger logger)
     {
         final var scope = _scope;
-        final var flex = new NativeJavaClass(_scope, FlexEventResult.class);
-        scope.put("FlexEventResult", scope, flex);
-        for(var flexMethod : flex.getIds())
+        final var flex = new NativeJavaClass(cx, _scope, FlexEventResult.class);
+        scope.put(cx, "FlexEventResult", scope, flex);
+        for(var flexMethod : flex.getIds(cx))
         {
             String name = (String)flexMethod;
-            scope.put(name, scope, flex.get(name, flex));
+            scope.put(cx, name, scope, flex.get(cx, name, flex));
         }
-        scope.put("Log", scope, new NativeJavaObject(scope, logger, Logger.class));
-        scope.put("Java", scope, new NativeJavaObject(scope, new JavaTypeAdapter(scope), JavaTypeAdapter.class));
-        scope.put("useClass", scope, new BaseFunction(){
+        scope.put(cx, "Log", scope, new NativeJavaObject(scope, logger, Logger.class, cx));
+        scope.put(cx, "Java", scope, new NativeJavaObject(scope, new JavaTypeAdapter(scope), JavaTypeAdapter.class, cx));
+        scope.put(cx, "useClass", scope, new BaseFunction(){
             final JavaTypeAdapter adapter = new JavaTypeAdapter(scope);
 
             @Override
@@ -103,25 +89,25 @@ public class RhinoThingScript extends ThingScript
             {
                 for (Object arg : args)
                 {
-                    adapter.doImport((String) arg);
+                    adapter.doImport(cx, (String) arg);
                 }
 
                 return Undefined.instance;
             }
         });
-        scope.put("use", scope, new LambdaBaseFunction((cx, __scope, thisObj, args) -> {
+        scope.put(cx, "use", scope, new LambdaBaseFunction((cx1, __scope, thisObj, args) -> {
                 for (Object arg : args)
                 {
                     switch ((String)arg)
                     {
-                        case "nbt" -> NbtDSL.use(cx, scope);
-                        case "items" -> ItemsDSL.use(cx, scope);
-                        case "blocks" -> BlocksDSL.use(cx, scope);
-                        case "levels" -> LevelsDSL.use(cx, scope);
-                        case "entities" -> EntitiesDSL.use(cx, scope);
-                        case "effects" -> EffectsDSL.use(cx, scope);
-                        case "attributes" -> AttributesDSL.use(cx, scope);
-                        case "enchantments" -> EnchantmentsDSL.use(cx, scope);
+                        case "nbt" -> NbtDSL.use(cx1, scope);
+                        case "items" -> ItemsDSL.use(cx1, scope);
+                        case "blocks" -> BlocksDSL.use(cx1, scope);
+                        case "levels" -> LevelsDSL.use(cx1, scope);
+                        case "entities" -> EntitiesDSL.use(cx1, scope);
+                        case "effects" -> EffectsDSL.use(cx1, scope);
+                        case "attributes" -> AttributesDSL.use(cx1, scope);
+                        case "enchantments" -> EnchantmentsDSL.use(cx1, scope);
                     }
                 }
                 return Undefined.instance;
@@ -156,17 +142,17 @@ public class RhinoThingScript extends ThingScript
             this.scope = scope;
         }
 
-        public Object type(String typename) throws ClassNotFoundException
+        public Object type(Context cx, String typename) throws ClassNotFoundException
         {
             if (!BLOCKED_PACKAGE_PREFIXES.contains(typename) || BLOCKED_PACKAGE_PREFIXE_EXCEPTIONS.contains(typename))
             {
                 var cls = Class.forName(typename);
-                return new NativeJavaClass(scope, cls, false);
+                return new NativeJavaClass(cx, scope, cls, false);
             }
             throw new ClassNotFoundException(typename);
         }
 
-        public void doImport(String importString)
+        public void doImport(Context cx, String importString)
         {
             try
             {
@@ -182,7 +168,7 @@ public class RhinoThingScript extends ThingScript
                         var flags = method.getModifiers();
                         if (Modifier.isPublic(flags) && Modifier.isStatic(flags))
                         {
-                            scope.put(method.getName(), scope, new NativeJavaMethod(method, method.getName()));
+                            scope.put(cx, method.getName(), scope, new NativeJavaMethod(method, method.getName()));
                         }
                     }
                 }
@@ -192,7 +178,7 @@ public class RhinoThingScript extends ThingScript
                     var className = (last >= 0) ? importString.substring(last + 1) : importString;
 
                     var cls = Class.forName(importString);
-                    scope.put(className, scope, new NativeJavaClass(scope, cls, false));
+                    scope.put(cx, className, scope, new NativeJavaClass(cx, scope, cls, false));
                 }
             }
             catch (ClassNotFoundException e)

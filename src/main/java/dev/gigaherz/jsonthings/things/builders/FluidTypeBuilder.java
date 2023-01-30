@@ -63,7 +63,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private ResourceLocation getStillTexture()
     {
-        return getValueWithParent(stillTexture, FluidTypeBuilder::getStillTexture);
+        return getValue(stillTexture, FluidTypeBuilder::getStillTexture);
     }
 
     public void setFlowingTexture(ResourceLocation flowingTexture)
@@ -74,7 +74,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private ResourceLocation getFlowingTexture()
     {
-        return getValueWithParent(flowingTexture, FluidTypeBuilder::getFlowingTexture);
+        return getValue(flowingTexture, FluidTypeBuilder::getFlowingTexture);
     }
 
     public void setSideTexture(ResourceLocation overlay)
@@ -85,7 +85,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private ResourceLocation getSideTexture()
     {
-        return getValueWithParent(sideTexture, FluidTypeBuilder::getSideTexture);
+        return getValue(sideTexture, FluidTypeBuilder::getSideTexture);
     }
 
     public void setRarity(Rarity rarity)
@@ -96,7 +96,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private Rarity getRarity()
     {
-        return getValueWithParent(rarity, FluidTypeBuilder::getRarity);
+        return getValue(rarity, FluidTypeBuilder::getRarity);
     }
 
     public void setColor(Integer color)
@@ -107,7 +107,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private Integer getColor()
     {
-        return getValueWithParent(color, FluidTypeBuilder::getColor);
+        return getValue(color, FluidTypeBuilder::getColor);
     }
 
     public void setDensity(Integer density)
@@ -118,7 +118,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private Integer getDensity()
     {
-        return getValueWithParent(density, FluidTypeBuilder::getDensity);
+        return getValue(density, FluidTypeBuilder::getDensity);
     }
 
     public void setLightLevel(Integer lightLevel)
@@ -129,7 +129,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private Integer getLightLevel()
     {
-        return getValueWithParent(lightLevel, FluidTypeBuilder::getLightLevel);
+        return getValue(lightLevel, FluidTypeBuilder::getLightLevel);
     }
 
     public void setTemperature(Integer temperature)
@@ -140,7 +140,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private Integer getTemperature()
     {
-        return getValueWithParent(temperature, FluidTypeBuilder::getTemperature);
+        return getValue(temperature, FluidTypeBuilder::getTemperature);
     }
 
     public void setViscosity(Integer viscosity)
@@ -151,7 +151,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private Integer getViscosity()
     {
-        return getValueWithParent(viscosity, FluidTypeBuilder::getViscosity);
+        return getValue(viscosity, FluidTypeBuilder::getViscosity);
     }
 
     public void setTranslationKey(String translationKey)
@@ -162,7 +162,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private String getTranslationKey()
     {
-        return getValueWithParent(translationKey, FluidTypeBuilder::getTranslationKey);
+        return getValue(translationKey, FluidTypeBuilder::getTranslationKey);
     }
 
     public void setGaseous(Boolean gaseous)
@@ -173,7 +173,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private Boolean getIsGaseous()
     {
-        return getValueWithParent(isGaseous, FluidTypeBuilder::getIsGaseous);
+        return getValue(isGaseous, FluidTypeBuilder::getIsGaseous);
     }
 
     public void setFillSound(ResourceLocation fillSound)
@@ -184,7 +184,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private ResourceLocation getFillSound()
     {
-        return getValueWithParent(fillSound, FluidTypeBuilder::getFillSound);
+        return getValue(fillSound, FluidTypeBuilder::getFillSound);
     }
 
     public void setEmptySound(ResourceLocation emptySound)
@@ -195,7 +195,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private ResourceLocation getEmptySound()
     {
-        return getValueWithParent(emptySound, FluidTypeBuilder::getEmptySound);
+        return getValue(emptySound, FluidTypeBuilder::getEmptySound);
     }
 
     public void setVaporizeSound(ResourceLocation vaporizeSound)
@@ -206,7 +206,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     private ResourceLocation getVaporizeSound()
     {
-        return getValueWithParent(vaporizeSound, FluidTypeBuilder::getVaporizeSound);
+        return getValue(vaporizeSound, FluidTypeBuilder::getVaporizeSound);
     }
 
     public void setMotionScale(double motionScale)
@@ -217,7 +217,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Double getMotionScale()
     {
-        return getValueWithParent(motionScale, FluidTypeBuilder::getMotionScale);
+        return getValue(motionScale, FluidTypeBuilder::getMotionScale);
     }
 
     public void setFallDistanceModifier(float fallDistanceModifier)
@@ -228,7 +228,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Float getFallDistanceModifier()
     {
-        return getValueWithParent(fallDistanceModifier, FluidTypeBuilder::getFallDistanceModifier);
+        return getValue(fallDistanceModifier, FluidTypeBuilder::getFallDistanceModifier);
     }
 
     public void setCanPushEntity(boolean canPushEntity)
@@ -239,7 +239,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Boolean getCanPushEntity()
     {
-        return getValueWithParent(canPushEntity, FluidTypeBuilder::getCanPushEntity);
+        return getValue(canPushEntity, FluidTypeBuilder::getCanPushEntity);
     }
 
     public void setCanSwim(boolean canSwim)
@@ -250,7 +250,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Boolean getCanSwim()
     {
-        return getValueWithParent(canSwim, FluidTypeBuilder::getCanSwim);
+        return getValue(canSwim, FluidTypeBuilder::getCanSwim);
     }
 
     public void setCanDrown(boolean canDrown)
@@ -261,7 +261,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Boolean getCanDrown()
     {
-        return getValueWithParent(canDrown, FluidTypeBuilder::getCanDrown);
+        return getValue(canDrown, FluidTypeBuilder::getCanDrown);
     }
 
     public void setCanExtinguish(boolean canExtinguish)
@@ -272,7 +272,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Boolean getCanExtinguish()
     {
-        return getValueWithParent(canExtinguish, FluidTypeBuilder::getCanExtinguish);
+        return getValue(canExtinguish, FluidTypeBuilder::getCanExtinguish);
     }
 
     public void setCanHydrate(boolean canHydrate)
@@ -283,7 +283,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Boolean getCanHydrate()
     {
-        return getValueWithParent(canHydrate, FluidTypeBuilder::getCanHydrate);
+        return getValue(canHydrate, FluidTypeBuilder::getCanHydrate);
     }
 
     public void setCanConvertToSource(boolean canConvertToSource)
@@ -294,7 +294,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Boolean getCanConvertToSource()
     {
-        return getValueWithParent(canConvertToSource, FluidTypeBuilder::getCanConvertToSource);
+        return getValue(canConvertToSource, FluidTypeBuilder::getCanConvertToSource);
     }
 
     public void setSupportsBoating(boolean supportsBoating)
@@ -305,7 +305,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     @Nullable
     public Boolean getSupportsBoating()
     {
-        return getValueWithParent(supportsBoating, FluidTypeBuilder::getSupportsBoating);
+        return getValue(supportsBoating, FluidTypeBuilder::getSupportsBoating);
     }
 
     @Override

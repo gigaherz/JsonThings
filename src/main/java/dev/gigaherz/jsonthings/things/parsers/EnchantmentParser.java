@@ -7,7 +7,7 @@ import dev.gigaherz.jsonthings.things.builders.EnchantmentBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
@@ -35,7 +35,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
 
     public void register(RegisterEvent event)
     {
-        event.register(Registry.ENCHANTMENT_REGISTRY, helper -> {
+        event.register(Registries.ENCHANTMENT, helper -> {
             LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
             getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get()));
             LOGGER.info("Done processing thingpack Blocks.");

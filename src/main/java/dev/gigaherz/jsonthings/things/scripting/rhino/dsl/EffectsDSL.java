@@ -11,19 +11,19 @@ public class EffectsDSL
 {
     public static void use(Context cx, Scriptable scope)
     {
-        if (scope.has(".use_effects", scope))
+        if (scope.has(cx, ".use_effects", scope))
             return;
 
-        scope.put("effect", scope, new LambdaBaseFunction(EffectsDSL::findEffect));
-        scope.put("effectInstance", scope, new LambdaBaseFunction(EffectsDSL::makeEffectInstance));
+        scope.put(cx, "effect", scope, new LambdaBaseFunction(EffectsDSL::findEffect));
+        scope.put(cx, "effectInstance", scope, new LambdaBaseFunction(EffectsDSL::makeEffectInstance));
 
-        scope.put(".use_effects", scope, true);
+        scope.put(cx, ".use_effects", scope, true);
     }
 
-    private static Object findEffect(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    private static Object findEffect(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var effect = DSLHelpers.find(ForgeRegistries.MOB_EFFECTS, (String) args[0]);
-        return DSLHelpers.wrap(ScriptableObject.getTopLevelScope(scope), effect, MobEffect.class);
+        return DSLHelpers.wrap(cx, ScriptableObject.getTopLevelScope(scope), effect, MobEffect.class);
     }
 
     private static Object makeEffectInstance(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
@@ -48,6 +48,6 @@ public class EffectsDSL
 
         var mobEffectInstance = new MobEffectInstance(effect, duration, amplifier, ambient, visible);
 
-        return DSLHelpers.wrap(scope, mobEffectInstance, MobEffectInstance.class);
+        return DSLHelpers.wrap(cx, scope, mobEffectInstance, MobEffectInstance.class);
     }
 }

@@ -6,6 +6,7 @@ import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
+import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
@@ -80,7 +81,7 @@ public class JsonThings
         fluidTypeParser = manager.registerParser(new FluidTypeParser(bus));
         blockMaterialParser = manager.registerParser(new BlockMaterialParser());
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
-        creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
+        creativeModeTabParser = manager.registerParser(new CreativeModeTabParser(bus));
         mobEffectInstanceParser = manager.registerParser(new MobEffectInstanceParser());
     }
 
@@ -92,7 +93,7 @@ public class JsonThings
         event.enqueueWork(() -> {
             ThingResourceManager instance = ThingResourceManager.instance();
 
-            ResourcePackLoader.loadResourcePacks(instance.getRepository(), ModResourcesFinder::buildPackFinder);
+            ResourcePackLoader.loadResourcePacks(instance.getRepository(), modResourcePacks -> ModResourcesFinder.buildPackFinder(modResourcePacks, CustomPackType.THINGS));
 
             loaderFuture = instance.beginLoading();
         });

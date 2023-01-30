@@ -1,14 +1,15 @@
 package dev.gigaherz.jsonthings.things.items;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
-import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
@@ -31,23 +32,30 @@ import java.util.function.Supplier;
 
 public class FlexShovelItem extends ShovelItem implements IFlexItem
 {
-    public FlexShovelItem(Tier tier, float damage, float speed, Item.Properties properties)
+    public FlexShovelItem(Tier tier, float damage, float speed, Item.Properties properties,
+                          UseAnim useAction, int useTime, CompletionMode useFinishMode,
+                          Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
+                          List<MutableComponent> lore)
     {
         super(tier, damage, speed, properties);
+        this.useAction = useAction;
+        this.useTime = useTime;
+        this.useFinishMode = useFinishMode;
+        this.attributeModifiers = attributeModifiers;
+        this.lore = lore;
         initializeFlex();
     }
 
     //region IFlexItem
-    private final Multimap<CreativeModeTab, StackContext> perTabStacks = ArrayListMultimap.create();
-    private final List<StackContext> searchTabStacks = Lists.newArrayList();
-    private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
     private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
-    private UseAnim useAction;
-    private int useTime;
-    private CompletionMode useFinishMode;
+    private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers;
+    private final UseAnim useAction;
+    private final int useTime;
+    private final CompletionMode useFinishMode;
+    private final List<MutableComponent> lore;
+
     private InteractionResultHolder<ItemStack> containerResult;
-    private List<MutableComponent> lore;
 
     private void initializeFlex()
     {
@@ -57,42 +65,6 @@ public class FlexShovelItem extends ShovelItem implements IFlexItem
             multimap.putAll(super.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
             attributeModifiers.put(slot1, multimap);
         }
-    }
-
-    @Override
-    public void setUseAction(UseAnim useAction)
-    {
-        this.useAction = useAction;
-    }
-
-    @Override
-    public UseAnim getUseAction()
-    {
-        return useAction;
-    }
-
-    @Override
-    public void setUseTime(int useTicks)
-    {
-        this.useTime = useTicks;
-    }
-
-    @Override
-    public int getUseTime()
-    {
-        return useTime;
-    }
-
-    @Override
-    public void setUseFinishMode(CompletionMode onComplete)
-    {
-        this.useFinishMode = onComplete;
-    }
-
-    @Override
-    public CompletionMode getUseFinishMode()
-    {
-        return useFinishMode;
     }
 
     @Override
@@ -106,37 +78,6 @@ public class FlexShovelItem extends ShovelItem implements IFlexItem
     {
         return eventHandlers.get(eventName);
     }
-
-    @Override
-    public void addCreativeStack(StackContext stack, Iterable<CreativeModeTab> tabs)
-    {
-        for (CreativeModeTab tab : tabs)
-        {
-            perTabStacks.put(tab, stack);
-        }
-        searchTabStacks.add(stack);
-    }
-
-    @Override
-    public void addAttributeModifier(@Nullable EquipmentSlot slot, Attribute attribute, AttributeModifier modifier)
-    {
-        if (slot != null)
-        {
-            attributeModifiers.get(slot).put(attribute, modifier);
-        }
-        else
-        {
-            for (EquipmentSlot slot1 : EquipmentSlot.values())
-            {attributeModifiers.get(slot1).put(attribute, modifier);}
-        }
-    }
-
-    @Override
-    public void setLore(List<MutableComponent> lore)
-    {
-        this.lore = lore;
-    }
-
     //endregion
 
     //region Item
@@ -193,19 +134,6 @@ public class FlexShovelItem extends ShovelItem implements IFlexItem
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         tooltip.addAll(lore);
-    }
-
-    @Override
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items)
-    {
-        if (tab == CreativeModeTab.TAB_SEARCH)
-        {
-            searchTabStacks.stream().map(s -> s.toStack(this)).forEach(items::add);
-        }
-        else if (perTabStacks.containsKey(tab))
-        {
-            perTabStacks.get(tab).stream().map(s -> s.toStack(this)).forEach(items::add);
-        }
     }
 
     @Override

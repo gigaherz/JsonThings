@@ -8,6 +8,7 @@ import dev.gigaherz.jsonthings.things.misc.FlexTreeGrower;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -47,7 +48,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         var featureId = new ResourceLocation(GsonHelper.getAsString(data, "tree_feature"));
-        var featureKey = ResourceKey.create(Registry.CONFIGURED_FEATURE_REGISTRY, featureId);
+        var featureKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, featureId);
         var treeGrower = new FlexTreeGrower(featureKey);
         return new FlexSaplingBlock(treeGrower, props, propertyDefaultValues)
         {

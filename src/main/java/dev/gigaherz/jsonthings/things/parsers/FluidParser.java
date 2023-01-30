@@ -10,7 +10,7 @@ import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -39,7 +39,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
 
     public void register(RegisterEvent event)
     {
-        event.register(Registry.FLUID_REGISTRY, helper -> {
+        event.register(Registries.FLUID, helper -> {
             LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
             getBuilders().forEach(thing -> thing.register(helper::register));
             LOGGER.info("Done processing thingpack Blocks.");

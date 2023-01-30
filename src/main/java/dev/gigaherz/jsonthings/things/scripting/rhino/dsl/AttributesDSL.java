@@ -7,9 +7,9 @@ public class AttributesDSL
 {
     public static void use(Context cx, Scriptable scope)
     {
-        if (scope.has(".use_attributes", scope))
+        if (scope.has(cx, ".use_attributes", scope))
             return;
 
-        scope.put(".use_attributes", scope, true);
+        scope.put(cx, ".use_attributes", scope, true);
     }
 }

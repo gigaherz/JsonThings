@@ -5,43 +5,91 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
+import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import joptsimple.internal.Strings;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraftforge.common.CreativeModeTabRegistry;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ItemParser extends ThingParser<ItemBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
+
+    private Map<CreativeModeTab, List<ItemStack>> creativeStacks;
 
     public ItemParser(IEventBus bus)
     {
         super(GSON, "item");
 
         bus.addListener(this::register);
+        bus.addListener(this::addToTabs);
     }
 
     public void register(RegisterEvent event)
     {
-        event.register(Registry.ITEM_REGISTRY, helper -> {
+        event.register(Registries.ITEM, helper -> {
             LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
             getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
             LOGGER.info("Done processing thingpack Blocks.");
+
         });
+
+    }
+
+    public void addToTabs(CreativeModeTabEvent.BuildContents event)
+    {
+        if(creativeStacks == null)
+        {
+            Map<String, List<ItemStack>> map = new HashMap<>();
+            getBuilders().forEach(thing ->
+            {
+                for(var entry : thing.getCreativeMenuStacks())
+                {
+                    var stack = entry.getFirst();
+                    for(var tab : entry.getSecond())
+                    {
+                        var list = map.computeIfAbsent(tab, key -> new ArrayList<>());
+                        list.add(stack.toStack(thing.get().self()));
+                    }
+                }
+            });
+
+            creativeStacks = new HashMap<>();
+            for(var entry : map.entrySet())
+            {
+                var tab = CreativeModeTabRegistry.getTab(new ResourceLocation(entry.getKey()));
+                if (tab == null)
+                {
+                    throw new IllegalStateException("Could not find tab with name " + entry.getKey() + " used by: " + entry.getValue().stream()
+                            .map(ItemStack::getDisplayName).map(Component::getString).collect(Collectors.joining(", ")));
+                }
+                creativeStacks.put(tab, entry.getValue());
+            }
+        }
+
+        var list = creativeStacks.get(event.getTab());
+        if (list != null)
+            event.acceptAll(list);
     }
 
     @Override
@@ -66,6 +114,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
                         .ifObj(obj -> obj.raw(food -> builder.setFood(JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food).get())))
                         .typeError()
                 )
+                .ifKey("container", val -> val.string().map(ResourceLocation::new).handle(builder::setContainerItem))
+                .ifKey("delayed_use", val -> val.obj().map(this::parseDelayedUse).handle(builder::makeDelayedUse))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
@@ -75,6 +125,17 @@ public class ItemParser extends ThingParser<ItemBuilder>
         builder.setFactory(builder.getType().getFactory(data));
 
         return builder;
+    }
+
+    private ItemBuilder.DelayedUse parseDelayedUse(ObjValue objValue)
+    {
+        ItemBuilder.DelayedUse du = new ItemBuilder.DelayedUse();
+        objValue
+                .key("duration", val -> val.intValue().handle(i -> du.useTicks = i))
+                .ifKey("animaction", val -> val.string().map(str -> UseAnim.valueOf(str.toUpperCase())).handle(anim -> du.useAction = anim))
+                .ifKey("on_complete", val -> val.string().map(str -> CompletionMode.valueOf(str.toUpperCase())).handle(mode -> du.onComplete = mode))
+        ;
+        return du;
     }
 
     private List<MutableComponent> parseLore(JsonArray lines)
@@ -92,6 +153,37 @@ public class ItemParser extends ThingParser<ItemBuilder>
         for (JsonElement e : list)
         {
             JsonObject item = e.getAsJsonObject();
+
+            EquipmentSlot slot;
+            if (item.has("slot"))
+            {
+                var name = item.get("slot").getAsString();
+                var names = Arrays.stream(EquipmentSlot.values()).map(EquipmentSlot::getName).toList();
+                if (Strings.isNullOrEmpty(name) || !names.contains(name))
+                {
+                    throw new RuntimeException("Attribute modifier slot must be a valid equipment slot name: " + String.join(", ", names));
+                }
+                slot = EquipmentSlot.byName(name);
+            }
+            else
+            {
+                throw new RuntimeException("Attribute modifier slot must be a non-empty string.");
+            }
+
+            ResourceLocation attribute;
+            if (item.has("attribute"))
+            {
+                var loc = item.get("attribute").getAsString();
+                if (Strings.isNullOrEmpty(loc))
+                {
+                    throw new RuntimeException("Attribute must be present and a valid resource location.");
+                }
+                attribute  = new ResourceLocation(loc);
+            }
+            else
+            {
+                throw new RuntimeException("Attribute must be present and a valid resource location.");
+            }
 
             UUID uuid = null;
             if (item.has("uuid"))
@@ -150,7 +242,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 throw new RuntimeException("Attribute modifier amount must have an operation type.");
             }
 
-            builder.withAttributeModifier(uuid, name, amount, operation);
+            builder.withAttributeModifier(slot, attribute, uuid, name, amount, operation);
         }
     }
 

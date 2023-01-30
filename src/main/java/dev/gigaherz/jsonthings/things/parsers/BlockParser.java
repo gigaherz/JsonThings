@@ -13,7 +13,7 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.MaterialColor;
@@ -40,7 +40,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
     public void register(RegisterEvent event)
     {
-        event.register(Registry.BLOCK_REGISTRY, helper -> {
+        event.register(Registries.BLOCK, helper -> {
             LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
             getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
             LOGGER.info("Done processing thingpack Blocks.");

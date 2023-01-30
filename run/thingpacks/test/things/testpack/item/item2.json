@@ -1,7 +1,9 @@
 {
+  "type": "food_bowl",
+
   "max_stack_size": 64,
 
-  "group": "food",
+  "group": "food_and_drinks",
 
   "food": {
     "nutrition": 5,

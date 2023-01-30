@@ -1,6 +1,9 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.CompletionMode;
@@ -13,16 +16,20 @@ import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
 import net.minecraftforge.common.util.NonNullSupplier;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 {
@@ -31,7 +38,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         return new ItemBuilder(ownerParser, registryName);
     }
 
-    private final List<AttributeModifier> attributeModifiers = Lists.newArrayList();
+    private final Map<EquipmentSlot, Multimap<ResourceLocation, AttributeModifier>> attributeModifiers = Maps.newHashMap();
 
     private FlexItemType<?> itemType;
 
@@ -43,11 +50,11 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     private NonNullSupplier<FoodProperties> foodDefinition = null;
 
     private DelayedUse delayedUse = null;
-    private ContainerInfo containerInfo = null;
+    private ResourceLocation containerItem = null;
 
     private String colorHandler = null;
 
-    private List<MutableComponent> lore = List.of();
+    private List<MutableComponent> lore;
 
     private IItemFactory<? extends Item> factory;
 
@@ -89,12 +96,13 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         creativeMenuStacks.add(Pair.of(stackContext, tabs));
     }
 
-    public void withAttributeModifier(@Nullable UUID uuid, String name, double amount, int op)
+    public void withAttributeModifier(EquipmentSlot slot, ResourceLocation attribute, @Nullable UUID uuid, String name, double amount, int op)
     {
         AttributeModifier.Operation operation = AttributeModifier.Operation.fromValue(op);
-        attributeModifiers.add(uuid != null ?
+        var mod = uuid != null ?
                 new AttributeModifier(uuid, name, amount, operation) :
-                new AttributeModifier(name, amount, operation));
+                new AttributeModifier(name, amount, operation);
+        attributeModifiers.computeIfAbsent(slot, _slot -> ArrayListMultimap.create()).put(attribute, mod);
     }
 
     public void setMaxDamage(int maxDamage)
@@ -117,16 +125,31 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.foodDefinition = () -> food;
     }
 
+    @Deprecated
     public void makeDelayedUse(int useTicks, String useType, String completeAction)
     {
-        if (this.delayedUse != null) throw new RuntimeException("Delayed use already set.");
-        this.delayedUse = new DelayedUse(useTicks, useType, completeAction);
+        makeDelayedUse(new DelayedUse(useTicks, useType, completeAction));
     }
 
+    public void makeDelayedUse(DelayedUse delayedUse)
+    {
+        if (this.delayedUse != null) throw new RuntimeException("Delayed use already set.");
+        this.delayedUse = delayedUse;
+    }
+
+    @Deprecated
     public void makeContainer(String emptyItem)
     {
-        if (this.containerInfo != null) throw new RuntimeException("Delayed use already set.");
-        this.containerInfo = new ContainerInfo(getRegistryName(), emptyItem);
+        if (emptyItem.contains(":"))
+            setContainerItem(new ResourceLocation(emptyItem));
+        else
+            setContainerItem(new ResourceLocation(getRegistryName().getNamespace(), emptyItem));
+    }
+
+    public void setContainerItem(ResourceLocation resourceLocation)
+    {
+        if (this.containerItem != null) throw new RuntimeException("Container Item already set.");
+        this.containerItem = resourceLocation;
     }
 
     public void setColorHandler(String colorHandler)
@@ -156,10 +179,10 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
             properties = properties.durability(md);
         }
 
-        var ci = getContainerInfo();
+        var ci = getContainerItem();
         if (ci != null)
         {
-            properties = properties.craftRemainder(Utils.getItemOrCrash(ci.emptyItem));
+            properties = properties.craftRemainder(Utils.getItemOrCrash(ci));
         }
 
         NonNullSupplier<FoodProperties> foodDefinition = getFoodDefinition();
@@ -170,49 +193,9 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
         IFlexItem flexItem = factory.construct(properties, this);
 
-        var du = getDelayedUse();
-        if (du != null)
-        {
-            flexItem.setUseAction(delayedUse.useAction);
-            flexItem.setUseTime(delayedUse.useTicks);
-            flexItem.setUseFinishMode(delayedUse.onComplete);
-        }
-
-        flexItem.setLore(lore);
-
-        var stacks = getCreativeMenuStacks();
-        if (stacks.size() > 0)
-        {
-            for (Pair<StackContext, String[]> tabEntries : stacks)
-            {
-                StackContext ctx = tabEntries.getFirst();
-                String[] tabs = tabEntries.getSecond();
-
-                Set<CreativeModeTab> tabsIterable = Arrays.stream(tabs).map(this::findCreativeTab).filter(Objects::nonNull).collect(Collectors.toSet());
-                flexItem.addCreativeStack(ctx, tabsIterable);
-            }
-        }
-
         constructEventHandlers(flexItem);
 
         return flexItem;
-    }
-
-    @Nullable
-    private CreativeModeTab findCreativeTab(String label)
-    {
-        var rl = new ResourceLocation(label);
-        for (CreativeModeTabBuilder builder : JsonThings.creativeModeTabParser.getBuilders())
-        {
-            if (builder.getRegistryName().equals(rl))
-                return builder.get();
-        }
-        for (CreativeModeTab tab : CreativeModeTab.TABS)
-        {
-            if (tab.getRecipeFolderName().equals(label))
-                return tab;
-        }
-        return null;
     }
 
     public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
@@ -229,31 +212,31 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     @Nullable
     public Integer getMaxDamage()
     {
-        return getValueWithParent(maxDamage, ItemBuilder::getMaxDamage);
+        return getValue(maxDamage, ItemBuilder::getMaxDamage);
     }
 
     @Nullable
     public Integer getMaxStackSize()
     {
-        return getValueWithParent(maxStackSize, ItemBuilder::getMaxStackSize);
+        return getValue(maxStackSize, ItemBuilder::getMaxStackSize);
     }
 
     @Nullable
-    public ContainerInfo getContainerInfo()
+    public ResourceLocation getContainerItem()
     {
-        return getValueWithParent(containerInfo, ItemBuilder::getContainerInfo);
+        return getValue(containerItem, ItemBuilder::getContainerItem);
     }
 
     @Nullable
     public NonNullSupplier<FoodProperties> getFoodDefinition()
     {
-        return getValueWithParent(foodDefinition, ItemBuilder::getFoodDefinition);
+        return getValue(foodDefinition, ItemBuilder::getFoodDefinition);
     }
 
     @Nullable
     public FlexItemType<?> getTypeRaw()
     {
-        return getValueWithParent(itemType, ItemBuilder::getTypeRaw);
+        return getValue(itemType, ItemBuilder::getTypeRaw);
     }
 
     public FlexItemType<?> getType()
@@ -263,19 +246,19 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
     public boolean hasType()
     {
-        return getValueWithParent(itemType != null, ItemBuilder::hasType);
+        return getValueOrElse(itemType != null, ItemBuilder::hasType, false);
     }
 
     @Nullable
     public DelayedUse getDelayedUse()
     {
-        return getValueWithParent(delayedUse, ItemBuilder::getDelayedUse);
+        return getValue(delayedUse, ItemBuilder::getDelayedUse);
     }
 
     @Nullable
     public String getColorHandler()
     {
-        return getValueWithParent(colorHandler, ItemBuilder::getColorHandler);
+        return getValue(colorHandler, ItemBuilder::getColorHandler);
     }
 
     public void setFactory(IItemFactory<?> factory)
@@ -283,25 +266,67 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.factory = factory;
     }
 
-    static class ContainerInfo
+    public UseAnim getUseAction()
     {
-        public ResourceLocation emptyItem;
-
-        public ContainerInfo(ResourceLocation registryName, String emptyItem)
-        {
-            if (emptyItem.contains(":"))
-                this.emptyItem = new ResourceLocation(emptyItem);
-            else
-                this.emptyItem = new ResourceLocation(registryName.getNamespace(), emptyItem);
-        }
+        var delayedUse = getDelayedUse();
+        return delayedUse != null ? delayedUse.useAction : UseAnim.NONE;
     }
 
-    static class DelayedUse
+    public int getUseTime()
+    {
+        var delayedUse = getDelayedUse();
+        return delayedUse != null ? delayedUse.useTicks : 0;
+    }
+
+    public CompletionMode getFinishMode()
+    {
+        var delayedUse = getDelayedUse();
+        return delayedUse != null ? delayedUse.onComplete : CompletionMode.USE_ITEM;
+    }
+
+    @Nullable
+    public List<MutableComponent> getLore()
+    {
+        return getValueOrElseGet(lore, ItemBuilder::getLore, List::of);
+    }
+
+    public Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> getAttributeModifiers()
+    {
+        var mods = getAttributeModifiersRaw();
+        if (mods == null) return Map.of();
+
+        Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> modifiers = new HashMap<>();
+
+        for(var kv : mods.entrySet())
+        {
+            var map = modifiers.computeIfAbsent(kv.getKey(), slot -> ArrayListMultimap.create());
+            for(var kv1 : kv.getValue().entries())
+            {
+                var attr = Utils.getOrCrash(ForgeRegistries.ATTRIBUTES, kv1.getKey());
+                map.put(attr, kv1.getValue());
+            }
+        }
+
+        return modifiers;
+    }
+
+    @Nullable
+    private Map<EquipmentSlot, Multimap<ResourceLocation, AttributeModifier>> getAttributeModifiersRaw()
+    {
+        return getValue(attributeModifiers, ItemBuilder::getAttributeModifiersRaw);
+    }
+
+    public static class DelayedUse
     {
         public int useTicks;
         public UseAnim useAction;
         public CompletionMode onComplete;
 
+        public DelayedUse()
+        {
+        }
+
+        @Deprecated
         public DelayedUse(int useTicks, String useAction, String completeAction)
         {
             this.useTicks = useTicks;

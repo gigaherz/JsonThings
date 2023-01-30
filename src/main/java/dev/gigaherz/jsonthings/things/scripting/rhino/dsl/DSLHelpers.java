@@ -113,15 +113,14 @@ public class DSLHelpers
         return (String) arg;
     }
 
-    public static Object wrap(Scriptable scope, Object arg)
+    public static Object wrap(Context cx, Scriptable scope, Object arg)
     {
-        return wrap(scope, arg, null);
+        return wrap(cx, scope, arg, null);
     }
 
-    public static <T> Object wrap(Scriptable scope, T value, @Nullable Class<? super T> fieldType)
+    public static <T> Object wrap(Context cx, Scriptable scope, T value, @Nullable Class<? super T> fieldType)
     {
         scope = ScriptableObject.getTopLevelScope(scope);
-        Context cx = Context.getContext();
         return cx.getWrapFactory().wrap(cx, scope, value, fieldType);
     }
 

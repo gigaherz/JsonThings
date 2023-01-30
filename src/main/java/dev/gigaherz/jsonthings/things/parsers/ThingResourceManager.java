@@ -7,15 +7,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import dev.gigaherz.jsonthings.QueueableExecutor;
+import dev.gigaherz.jsonthings.RunnableQueue;
 import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
-import net.minecraft.server.packs.repository.FolderRepositorySource;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.server.packs.repository.RepositorySource;
+import net.minecraft.server.packs.repository.*;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
@@ -25,6 +22,8 @@ import org.slf4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class ThingResourceManager
 
     private static final Set<String> disabledPacks = Sets.newHashSet();
 
-    private QueueableExecutor mainThreadExecutor;
+    private RunnableQueue mainThreadExecutor;
 
     private final ReloadableResourceManager resourceManager;
     private final RepositorySource folderPackFinder;
@@ -62,11 +61,11 @@ public class ThingResourceManager
     private ThingResourceManager()
     {
         resourceManager = new ReloadableResourceManager(CustomPackType.THINGS);
-        folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), PackSource.DEFAULT);
-        packList = new PackRepository(CustomPackType.THINGS, folderPackFinder);
+        folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), CustomPackType.THINGS, PackSource.DEFAULT);
+        packList = new PackRepository(folderPackFinder);
     }
 
-    public <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
+    public synchronized  <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
     {
         if (parsersMap.containsKey(parser.getThingType()))
             throw new IllegalStateException("There is already a parser registered for type " + parser.getThingType());
@@ -78,17 +77,22 @@ public class ThingResourceManager
 
     public RepositorySource getWrappedPackFinder()
     {
-        return (infoConsumer, infoFactory) -> folderPackFinder.loadPacks(info -> {
-            if (!disabledPacks.contains(info.getId()))
-                infoConsumer.accept(info);
-        }, (a, n, b, c, d, e, f, g) ->
-                infoFactory.create("thingpack:" + a, n, true, c, d, e, f, g));
+        // TODO: Reconsider how to do this right
+        return (infoConsumer) -> folderPackFinder.loadPacks(pack -> {
+            if (!disabledPacks.contains(pack.getId()))
+            {
+                pack.id = "thingpack:" + pack.id;
+                pack.required = true;
+                infoConsumer.accept(pack);
+            }
+        }/*, (a, n, b, c, d, e, f, g) ->
+                infoFactory.create("thingpack:" + a, n, true, c, d, e, f, g)*/);
     }
 
-    public File getThingPacksLocation()
+    public Path getThingPacksLocation()
     {
-        File thingpacks = FMLPaths.GAMEDIR.get().resolve("thingpacks").toFile();
-        if (!thingpacks.exists() && !thingpacks.mkdirs())
+        Path thingpacks = FMLPaths.GAMEDIR.get().resolve("thingpacks");
+        if (!Files.exists(thingpacks) && !thingpacks.toFile().mkdirs())
             throw new RuntimeException("Could not create thingspacks directory! Please create the directory yourself, or make sure the name is not taken by a file and you have permission to create directories.");
         return thingpacks;
     }
@@ -109,16 +113,17 @@ public class ThingResourceManager
         resourceManager.registerReloadListener(listener);
     }
 
+    private static final CompletableFuture<Unit> RESOURCE_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
     public CompletableFuture<ThingResourceManager> beginLoading()
     {
         packList.reload();
 
         loadConfig();
 
-        mainThreadExecutor = new QueueableExecutor();
+        mainThreadExecutor = new RunnableQueue();
 
         return resourceManager
-                .createReload(Util.backgroundExecutor(), mainThreadExecutor, CompletableFuture.completedFuture(Unit.INSTANCE), packList.openAllSelected())
+                .createReload(Util.backgroundExecutor(), mainThreadExecutor, RESOURCE_RELOAD_INITIAL_TASK, packList.openAllSelected())
                 .done()
                 .whenComplete((unit, throwable) -> {
                     if (throwable != null)
@@ -138,8 +143,8 @@ public class ThingResourceManager
 
             while (!loaderFuture.isDone())
             {
-                mainThreadExecutor.runQueue();
-                mainThreadExecutor.waitForTasks();
+                if(!mainThreadExecutor.runQueue())
+                    mainThreadExecutor.waitForTasks();
             }
 
             mainThreadExecutor.runQueue();

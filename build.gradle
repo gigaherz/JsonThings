@@ -42,8 +42,8 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18.2'
-    //mappings channel: 'parchment', version: '1.18.2-2022.09.04'
+    //mappings channel: 'official', version: '1.18.2'
+    mappings channel: 'parchment', version: '2022.09.04-1.18.2'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -149,5 +149,50 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "MixinConfigs": "jsonthings.mixins.json"
         ])
+    }
+}
+
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
+project.afterEvaluate {
+    publish.dependsOn('build')
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId project.archivesBaseName
+                from components.java
+
+                //artifact sourceJar
+
+                pom.withXml {
+                    asNode().dependencies.dependency.each { dep ->
+                        if (dep.groupId.last().value().last() in ["net.minecraftforge", "useless", "curse.maven"]) {
+                            assert dep.parent().remove(dep)
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            if (findProperty("RELEASE") && System.env.giga_maven_host != null) {
+                System.out.println("Remote publish enabled on " + System.env.giga_maven_host)
+                maven {
+                    url System.env.giga_maven_host
+                    credentials {
+                        username System.env.giga_maven_user
+                        password System.env.giga_maven_password
+                    }
+                }
+            }
+            else {
+                System.out.println("Remote publish disabled.")
+                maven {
+                    url "$projectDir/../CommonMaven"
+                }
+            }
+        }
     }
 }

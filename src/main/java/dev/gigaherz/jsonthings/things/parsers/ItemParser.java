@@ -6,6 +6,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.StackContext;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
+import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import joptsimple.internal.Strings;
@@ -13,13 +16,16 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.UseAnim;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -39,8 +45,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
     {
         event.register(Registry.ITEM_REGISTRY, helper -> {
             LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
-            LOGGER.info("Done processing thingpack Blocks.");
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get().self()), BaseBuilder::getRegistryName);
+            LOGGER.info("Done processing thingpack Items.");
         });
     }
 
@@ -53,7 +59,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
-                .mutex(List.of("group", "creative_menu_stacks"), () -> new RuntimeException("Cannot have group and creative_menu_stacks at the same time."))
+                .mutex(List.of("group", "creative_menu_stacks"), () -> new ThingParseException("Cannot have group and creative_menu_stacks at the same time."))
                 .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
                 .ifKey("creative_menu_stacks", val -> val
                         .array().forEach((i, entry) -> entry
@@ -63,8 +69,25 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("max_damage", val -> val.intValue().range(1, 128).handle(builder::setMaxDamage))
                 .ifKey("food", val -> val
                         .ifString(str -> str.map(ResourceLocation::new).handle(builder::setFood))
-                        .ifObj(obj -> obj.raw(food -> builder.setFood(JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food).get())))
+                        .ifObj(obj -> obj.raw(food -> {
+                            try
+                            {
+                                FoodBuilder foodBuilder = JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food);
+                                builder.setFood(foodBuilder.get());
+                            }
+                            catch (Exception e)
+                            {
+                                throw new ThingParseException("Exception while parsing nested food in " + builder.getRegistryName(), e);
+                            }
+                        }))
                         .typeError()
+                )
+                .ifKey("container", val -> val.string().map(ResourceLocation::new).handle(builder::setContainerItem))
+                .ifKey("delayed_use", val -> val.obj()
+                        .key("duration", val1 -> val1.intValue().handle(builder::setUseTime))
+                        .key("animation", val1 -> val1.string().map(str -> UseAnim.valueOf(str.toUpperCase())).handle(builder::setUseAnim))
+                        .ifKey("on_complete", val1 -> val1.string().map(str -> UseFinishMode.valueOf(str.toUpperCase())).handle(builder::setUseFinishMode)
+                        )
                 )
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore))
@@ -93,6 +116,37 @@ public class ItemParser extends ThingParser<ItemBuilder>
         {
             JsonObject item = e.getAsJsonObject();
 
+            EquipmentSlot slot;
+            if (item.has("slot"))
+            {
+                var name = item.get("slot").getAsString();
+                var names = Arrays.stream(EquipmentSlot.values()).map(EquipmentSlot::getName).toList();
+                if (Strings.isNullOrEmpty(name) || !names.contains(name))
+                {
+                    throw new ThingParseException("Attribute modifier slot must be a valid equipment slot name: " + String.join(", ", names));
+                }
+                slot = EquipmentSlot.byName(name);
+            }
+            else
+            {
+                throw new ThingParseException("Attribute modifier slot must be a non-empty string.");
+            }
+
+            ResourceLocation attribute;
+            if (item.has("attribute"))
+            {
+                var loc = item.get("attribute").getAsString();
+                if (Strings.isNullOrEmpty(loc))
+                {
+                    throw new ThingParseException("Attribute must be present and a valid resource location.");
+                }
+                attribute = new ResourceLocation(loc);
+            }
+            else
+            {
+                throw new ThingParseException("Attribute must be present and a valid resource location.");
+            }
+
             UUID uuid = null;
             if (item.has("uuid"))
             {
@@ -103,7 +157,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 }
                 else
                 {
-                    throw new RuntimeException("If present, uuid must be an UUID-formatted string.");
+                    throw new ThingParseException("If present, uuid must be an UUID-formatted string.");
                 }
             }
 
@@ -113,12 +167,12 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 name = item.get("name").getAsString();
                 if (Strings.isNullOrEmpty(name))
                 {
-                    throw new RuntimeException("Attribute modifier name must be a non-empty string.");
+                    throw new ThingParseException("Attribute modifier name must be a non-empty string.");
                 }
             }
             else
             {
-                throw new RuntimeException("Attribute modifier name must be a non-empty string.");
+                throw new ThingParseException("Attribute modifier name must be a non-empty string.");
             }
 
             double amount;
@@ -128,7 +182,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
             }
             else
             {
-                throw new RuntimeException("Attribute modifier amount must be a floating point number.");
+                throw new ThingParseException("Attribute modifier amount must be a floating point number.");
             }
 
             int operation;
@@ -147,10 +201,10 @@ public class ItemParser extends ThingParser<ItemBuilder>
             }
             else
             {
-                throw new RuntimeException("Attribute modifier amount must have an operation type.");
+                throw new ThingParseException("Attribute modifier amount must have an operation type.");
             }
 
-            builder.withAttributeModifier(uuid, name, amount, operation);
+            builder.withAttributeModifier(slot, attribute, uuid, name, amount, operation);
         }
     }
 
@@ -171,14 +225,14 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 }
                 else
                 {
-                    throw new RuntimeException("Tabs array must contain non-empty strings.");
+                    throw new ThingParseException("Tabs array must contain non-empty strings.");
                 }
             }
             return tabsArray;
         }
         else
         {
-            throw new RuntimeException("Creative menu entry must contain a list of tabs.");
+            throw new ThingParseException("Creative menu entry must contain a list of tabs.");
         }
     }
 }

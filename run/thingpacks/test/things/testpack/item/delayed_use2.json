@@ -1,0 +1,11 @@
+{
+  "delayed_use": {
+    "duration": 40,
+    "animation": "bow",
+    "on_complete": "continue"
+  },
+
+  "events": {
+    "stopped_using": "testpack:use_stop_message"
+  }
+}

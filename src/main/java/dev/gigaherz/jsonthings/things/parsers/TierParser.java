@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.TierBuilder;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -26,7 +27,7 @@ public class TierParser extends ThingParser<TierBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> TierSortingRegistry.registerTier(thing.get(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> TierSortingRegistry.registerTier(thing.get(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()), BaseBuilder::getRegistryName);
     }
 
     @Override
@@ -54,8 +55,8 @@ public class TierParser extends ThingParser<TierBuilder>
         final MutableObject<Supplier<Ingredient>> out = new MutableObject<>();
 
         any.obj()
-                .noKey("type", () -> new IllegalStateException("Custom ingredients not supported yet. Please use an 'item' or 'tag' ingredient."))
-                .mutex(List.of("item", "tag"), () -> new IllegalStateException("Cannot have both 'tag' and 'item' in the ingredient at the same time."))
+                .noKey("type", () -> new ThingParseException("Custom ingredients not supported yet. Please use an 'item' or 'tag' ingredient."))
+                .mutex(List.of("item", "tag"), () -> new ThingParseException("Cannot have both 'tag' and 'item' in the ingredient at the same time."))
                 .ifKey("tag", val -> val.string().map(Utils::itemTag).handle(tag -> out.setValue(Lazy.of(() -> Ingredient.of(tag)))))
                 .ifKey("tag", val -> val.string().map(ResourceLocation::new).handle(item -> out.setValue(Lazy.of(() -> Ingredient.of(Utils.getItemOrCrash(item))))));
 

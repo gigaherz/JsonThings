@@ -13,19 +13,19 @@ public class BlocksDSL
 {
     public static void use(Context cx, Scriptable scope)
     {
-        if (scope.has(".use_blocks", scope))
+        if (scope.has(cx, ".use_blocks", scope))
             return;
 
-        scope.put("block", scope, new LambdaBaseFunction(BlocksDSL::findBlock));
-        scope.put("blockState", scope, new LambdaBaseFunction(BlocksDSL::makeBlockState));
+        scope.put(cx, "block", scope, new LambdaBaseFunction(BlocksDSL::findBlock));
+        scope.put(cx, "blockState", scope, new LambdaBaseFunction(BlocksDSL::makeBlockState));
 
-        scope.put(".use_blocks", scope, true);
+        scope.put(cx, ".use_blocks", scope, true);
     }
 
     private static Object findBlock(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var block = DSLHelpers.find(ForgeRegistries.BLOCKS, (String)args[0]);
-        return DSLHelpers.wrap(scope, block, Block.class);
+        var block = DSLHelpers.find(ForgeRegistries.BLOCKS, (String) args[0]);
+        return DSLHelpers.wrap(cx, scope, block, Block.class);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -36,19 +36,19 @@ public class BlocksDSL
         var baseState = block.defaultBlockState();
         if (args.length > 1)
         {
-            var obj = (NativeObject)args[1];
+            var obj = (NativeObject) args[1];
             var props = baseState.getProperties();
-            for(var kv : obj.entrySet())
+            for (var kv : obj.entrySet())
             {
-                var key = (String)kv.getKey();
+                var key = (String) kv.getKey();
                 var value = kv.getValue();
                 if (value instanceof NativeJavaObject wrapped)
                     value = wrapped.unwrap();
-                var prop = (Property)props.stream().filter(p -> p.getName().equals(key)).findFirst().orElseThrow();
-                baseState = baseState.setValue(prop, (Comparable)value);
+                var prop = (Property) props.stream().filter(p -> p.getName().equals(key)).findFirst().orElseThrow();
+                baseState = baseState.setValue(prop, (Comparable) value);
             }
         }
 
-        return DSLHelpers.wrap(scope, baseState, BlockState.class);
+        return DSLHelpers.wrap(cx, scope, baseState, BlockState.class);
     }
 }

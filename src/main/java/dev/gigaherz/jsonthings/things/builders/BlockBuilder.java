@@ -15,7 +15,10 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
@@ -85,12 +88,12 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public FlexBlockType<?> getBlockTypeRaw()
     {
-        return getValueWithParent(blockType, BlockBuilder::getBlockTypeRaw);
+        return getValue(blockType, BlockBuilder::getBlockTypeRaw);
     }
 
     public FlexBlockType<?> getBlockType()
     {
-        return Utils.orElse(getBlockTypeRaw(), () -> FlexBlockType.PLAIN);
+        return Utils.orElseGet(getBlockTypeRaw(), () -> FlexBlockType.PLAIN);
     }
 
     public boolean hasBlockType()
@@ -112,12 +115,12 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public List<Property<?>> getPropertiesRaw()
     {
-        return getValueWithParent(properties, BlockBuilder::getPropertiesRaw);
+        return getValue(properties, BlockBuilder::getPropertiesRaw);
     }
 
     public List<Property<?>> getProperties()
     {
-        return Utils.orElse(getPropertiesRaw(), List::of);
+        return Utils.orElseGet(getPropertiesRaw(), List::of);
     }
 
     public void setPropertyDefaultValue(String name, String value)
@@ -129,7 +132,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Map<String, String> getPropertyDefaultValuesRaw()
     {
-        return getValueWithParent(propertyDefaultValues, BlockBuilder::getPropertyDefaultValuesRaw);
+        return getValue(propertyDefaultValues, BlockBuilder::getPropertyDefaultValuesRaw);
     }
 
     public Map<Property<?>, Comparable<?>> getPropertyDefaultValues()
@@ -156,7 +159,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public ResourceLocation getMaterialRaw()
     {
-        return getValueWithParent(blockMaterial, BlockBuilder::getMaterialRaw);
+        return getValue(blockMaterial, BlockBuilder::getMaterialRaw);
     }
 
     public Material getMaterial()
@@ -174,7 +177,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public MaterialColor getMaterialColor()
     {
-        return getValueWithParent(blockMaterialColor, BlockBuilder::getMaterialColor);
+        return getValue(blockMaterialColor, BlockBuilder::getMaterialColor);
     }
 
     public void setGeneralShape(DynamicShape shape)
@@ -185,7 +188,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public DynamicShape getGeneralShape()
     {
-        return getValueWithParent(generalShape, BlockBuilder::getGeneralShape);
+        return getValue(generalShape, BlockBuilder::getGeneralShape);
     }
 
     public void setCollisionShape(DynamicShape shape)
@@ -196,7 +199,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public DynamicShape getCollisionShape()
     {
-        return getValueWithParent(collisionShape, BlockBuilder::getCollisionShape);
+        return getValue(collisionShape, BlockBuilder::getCollisionShape);
     }
 
     public void setRaytraceShape(DynamicShape shape)
@@ -207,7 +210,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public DynamicShape getRaytraceShape()
     {
-        return getValueWithParent(raytraceShape, BlockBuilder::getRaytraceShape);
+        return getValue(raytraceShape, BlockBuilder::getRaytraceShape);
     }
 
     public void setRenderShape(DynamicShape shape)
@@ -218,7 +221,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public DynamicShape getRenderShape()
     {
-        return getValueWithParent(renderShape, BlockBuilder::getRenderShape);
+        return getValue(renderShape, BlockBuilder::getRenderShape);
     }
 
     public ResourceLocation getDefaultRenderLayer()
@@ -234,7 +237,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public String getColorHandler()
     {
-        return getValueWithParent(colorHandler, BlockBuilder::getColorHandler);
+        return getValue(colorHandler, BlockBuilder::getColorHandler);
     }
 
     public void setSeeThrough(boolean seeThrough)
@@ -245,7 +248,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Boolean isSeeThrough()
     {
-        return getValueWithParent(seeThrough, BlockBuilder::isSeeThrough);
+        return getValue(seeThrough, BlockBuilder::isSeeThrough);
     }
 
     public void setRequiresToolForDrops(boolean requiresToolForDrops)
@@ -256,7 +259,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Boolean requiresToolForDrops()
     {
-        return getValueWithParent(requiresToolForDrops, BlockBuilder::requiresToolForDrops);
+        return getValue(requiresToolForDrops, BlockBuilder::requiresToolForDrops);
     }
 
     public void setIsAir(boolean isAir)
@@ -267,7 +270,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Boolean getIsAir()
     {
-        return getValueWithParent(isAir, BlockBuilder::getIsAir);
+        return getValue(isAir, BlockBuilder::getIsAir);
     }
 
     public void setHasCollision(boolean hasCollision)
@@ -278,7 +281,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Boolean getHasCollision()
     {
-        return getValueWithParent(hasCollision, BlockBuilder::getHasCollision);
+        return getValue(hasCollision, BlockBuilder::getHasCollision);
     }
 
     public void setTicksRandom(boolean randomTicks)
@@ -289,7 +292,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Boolean getTicksRandom()
     {
-        return getValueWithParent(randomTicks, BlockBuilder::getTicksRandom);
+        return getValue(randomTicks, BlockBuilder::getTicksRandom);
     }
 
     public void setLightEmission(int lightEmission)
@@ -300,7 +303,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Integer getLightEmission()
     {
-        return getValueWithParent(lightEmission, BlockBuilder::getLightEmission);
+        return getValue(lightEmission, BlockBuilder::getLightEmission);
     }
 
     public void setExplosionResistance(float explosionResistance)
@@ -311,7 +314,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Float getExplosionResistance()
     {
-        return getValueWithParent(explosionResistance, BlockBuilder::getExplosionResistance);
+        return getValue(explosionResistance, BlockBuilder::getExplosionResistance);
     }
 
     public void setDestroyTime(float destroyTime)
@@ -322,7 +325,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Float getDestroyTime()
     {
-        return getValueWithParent(destroyTime, BlockBuilder::getDestroyTime);
+        return getValue(destroyTime, BlockBuilder::getDestroyTime);
     }
 
     public void setFriction(float friction)
@@ -333,7 +336,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Float getFriction()
     {
-        return getValueWithParent(friction, BlockBuilder::getFriction);
+        return getValue(friction, BlockBuilder::getFriction);
     }
 
     public void setSpeedFactor(float speedFactor)
@@ -344,7 +347,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Float getSpeedFactor()
     {
-        return getValueWithParent(speedFactor, BlockBuilder::getSpeedFactor);
+        return getValue(speedFactor, BlockBuilder::getSpeedFactor);
     }
 
     public void setJumpFactor(float jumpFactor)
@@ -355,7 +358,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public Float getJumpFactor()
     {
-        return getValueWithParent(jumpFactor, BlockBuilder::getJumpFactor);
+        return getValue(jumpFactor, BlockBuilder::getJumpFactor);
     }
 
     public void setSoundType(ResourceLocation loc)
@@ -366,7 +369,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     @Nullable
     public ResourceLocation getSoundType()
     {
-        return getValueWithParent(soundType, BlockBuilder::getSoundType);
+        return getValue(soundType, BlockBuilder::getSoundType);
     }
 
     @Override

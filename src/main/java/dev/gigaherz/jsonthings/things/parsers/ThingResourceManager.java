@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,11 +64,11 @@ public class ThingResourceManager
     private ThingResourceManager()
     {
         resourceManager = new ReloadableResourceManager(CustomPackType.THINGS);
-        folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), PackSource.DEFAULT);
+        folderPackFinder = new FolderRepositorySource(getThingPacksLocation().toFile(), PackSource.DEFAULT);
         packList = new PackRepository(CustomPackType.THINGS, folderPackFinder);
     }
 
-    public <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
+    public synchronized <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
     {
         if (parsersMap.containsKey(parser.getThingType()))
             throw new IllegalStateException("There is already a parser registered for type " + parser.getThingType());
@@ -85,11 +87,11 @@ public class ThingResourceManager
                 infoFactory.create("thingpack:" + a, n, true, c, d, e, f, g));
     }
 
-    public File getThingPacksLocation()
+    public Path getThingPacksLocation()
     {
-        File thingpacks = FMLPaths.GAMEDIR.get().resolve("thingpacks").toFile();
-        if (!thingpacks.exists() && !thingpacks.mkdirs())
-            throw new RuntimeException("Could not create thingspacks directory! Please create the directory yourself, or make sure the name is not taken by a file and you have permission to create directories.");
+        Path thingpacks = FMLPaths.GAMEDIR.get().resolve("thingpacks");
+        if (!Files.exists(thingpacks) && !thingpacks.toFile().mkdirs())
+            throw new ThingParseException("Could not create thingspacks directory! Please create the directory yourself, or make sure the name is not taken by a file and you have permission to create directories.");
         return thingpacks;
     }
 
@@ -109,6 +111,8 @@ public class ThingResourceManager
         resourceManager.registerReloadListener(listener);
     }
 
+    private static final CompletableFuture<Unit> RESOURCE_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
+
     public CompletableFuture<ThingResourceManager> beginLoading()
     {
         packList.reload();
@@ -118,7 +122,7 @@ public class ThingResourceManager
         mainThreadExecutor = new QueueableExecutor();
 
         return resourceManager
-                .createReload(Util.backgroundExecutor(), mainThreadExecutor, CompletableFuture.completedFuture(Unit.INSTANCE), packList.openAllSelected())
+                .createReload(Util.backgroundExecutor(), mainThreadExecutor, RESOURCE_RELOAD_INITIAL_TASK, packList.openAllSelected())
                 .done()
                 .whenComplete((unit, throwable) -> {
                     if (throwable != null)

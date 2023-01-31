@@ -90,6 +90,8 @@ minecraft {
 
             args '--mod', 'jsonthings', '--all', '--output', file('src/main/generated_resources/'), '--existing', file('src/main/resources/')
 
+            arg "--mixin=jsonthings.mixins.json"
+
             mods {
                 thismod {
                     source sourceSets.main
@@ -122,7 +124,7 @@ dependencies {
     //runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
     //runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
 
-    implementation fg.deobf("curse.maven:rhino-416294:3647781")
+    implementation fg.deobf("curse.maven:rhino-416294:4085695")
 
     /*library 'org.graalvm.regex:regex:22.0.0.2'
     library 'org.graalvm.sdk:graal-sdk:22.0.0.2'

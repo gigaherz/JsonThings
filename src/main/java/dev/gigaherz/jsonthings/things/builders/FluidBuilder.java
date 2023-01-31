@@ -14,7 +14,10 @@ import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -116,29 +119,29 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
     @Nullable
     public FlexFluidType<?> getFluidTypeRaw()
     {
-        return getValueWithParent(fluidType, FluidBuilder::getFluidTypeRaw);
+        return getValue(fluidType, FluidBuilder::getFluidTypeRaw);
     }
 
     public FlexFluidType<?> getFluidType()
     {
-        return Utils.orElse(getFluidTypeRaw(), () -> FlexFluidType.PLAIN);
+        return Utils.orElseGet(getFluidTypeRaw(), () -> FlexFluidType.PLAIN);
     }
 
     @Nullable
     public List<Property<?>> getPropertiesRaw()
     {
-        return getValueWithParent(properties, FluidBuilder::getPropertiesRaw);
+        return getValue(properties, FluidBuilder::getPropertiesRaw);
     }
 
     public List<Property<?>> getProperties()
     {
-        return Utils.orElse(getPropertiesRaw(), List::of);
+        return Utils.orElseGet(getPropertiesRaw(), List::of);
     }
 
     @Nullable
     public Map<String, String> getPropertyDefaultValuesRaw()
     {
-        return getValueWithParent(propertyDefaultValues, FluidBuilder::getPropertyDefaultValuesRaw);
+        return getValue(propertyDefaultValues, FluidBuilder::getPropertyDefaultValuesRaw);
     }
 
     public Map<Property<?>, Comparable<?>> getPropertyDefaultValues()
@@ -170,7 +173,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     public Supplier<FluidType> getAttributesType()
     {
-        var val = getValueWithParent(attributesType, FluidBuilder::getAttributesType);
+        var val = getValue(attributesType, FluidBuilder::getAttributesType);
         if (val == null)
             throw new IllegalStateException("fluid_type not set!");
         return val;
@@ -181,8 +184,9 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         return new ResourceLocation(getFluidType().getDefaultLayer());
     }
 
-    public void register(BiConsumer<ResourceLocation,Fluid> register)
+    public void register(BiConsumer<ResourceLocation, Fluid> register)
     {
+        if (isInErrorState()) return;
         get();
         factory.register(this, register);
     }

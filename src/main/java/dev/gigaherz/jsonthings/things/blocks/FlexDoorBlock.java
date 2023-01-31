@@ -22,8 +22,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
-
 public class FlexDoorBlock extends DoorBlock implements IFlexBlock
 {
     public FlexDoorBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)

@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.EnchantmentBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
@@ -37,7 +38,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     {
         event.register(Registry.ENCHANTMENT_REGISTRY, helper -> {
             LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get()));
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack Blocks.");
         });
     }
@@ -82,14 +83,14 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     private EnchantmentCategory parseEnchantmentType(String str)
     {
         EnchantmentCategory type = types.get(str);
-        if (type == null) throw new IllegalStateException("No enchantment type known with name " + str);
+        if (type == null) throw new ThingParseException("No enchantment type known with name " + str);
         return type;
     }
 
     private Enchantment.Rarity parseEnchantmentRarity(String str)
     {
         Enchantment.Rarity rarity = rarities.get(str);
-        if (rarity == null) throw new IllegalStateException("No enchantment rarity known with name " + str);
+        if (rarity == null) throw new ThingParseException("No enchantment rarity known with name " + str);
         return rarity;
     }
 

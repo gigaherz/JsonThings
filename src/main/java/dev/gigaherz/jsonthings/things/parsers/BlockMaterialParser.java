@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.BlockMaterialBuilder;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -22,7 +23,7 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.BLOCK_MATERIALS, thing.getRegistryName(), thing.get()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.BLOCK_MATERIALS, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override
@@ -58,7 +59,7 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
                     case "ignore" -> PushReaction.IGNORE;
                     case "push_only" -> PushReaction.PUSH_ONLY;
                     case "normal" -> PushReaction.NORMAL;
-                    default -> throw new IllegalStateException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
+                    default -> throw new ThingParseException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
                 };
     }
 }

@@ -134,7 +134,7 @@ public class JsonThings
             ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory((mc, returnTo) -> {
                 var thingPackManager = ThingResourceManager.instance();
                 return new PackSelectionScreen(returnTo, thingPackManager.getRepository(),
-                        rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
+                        rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation().toFile(),
                         Component.literal("Thing Packs"));
             }));
         }
@@ -144,6 +144,7 @@ public class JsonThings
         {
             final ResourceLocation solid = new ResourceLocation("solid");
             JsonThings.blockParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 ResourceLocation layer = thing.getDefaultRenderLayer();
                 if (!layer.equals(solid))
                 {
@@ -151,8 +152,9 @@ public class JsonThings
                 }
             });
             JsonThings.fluidParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 ResourceLocation layer = thing.getDefaultRenderLayer();
-                for(var fluid : thing.getAllSiblings())
+                for (var fluid : thing.getAllSiblings())
                 {
                     if (!layer.equals(solid))
                     {
@@ -179,6 +181,7 @@ public class JsonThings
         public static void itemColorHandlers(RegisterColorHandlersEvent.Item event)
         {
             JsonThings.itemParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 String handlerName = thing.getColorHandler();
                 if (handlerName != null)
                 {

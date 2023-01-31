@@ -7,9 +7,9 @@ public class LevelsDSL
 {
     public static void use(Context cx, Scriptable scope)
     {
-        if (scope.has(".use_levels", scope))
+        if (scope.has(cx, ".use_levels", scope))
             return;
 
-        scope.put(".use_levels", scope, true);
+        scope.put(cx, ".use_levels", scope, true);
     }
 }

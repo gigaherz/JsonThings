@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -23,7 +24,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.get()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
 
         JParse.begin(data)
                 .key("nutrition", val -> val.intValue().min(1).handle(builder::setNutrition))
-                .key("saturation", val -> val.intValue().min(0).handle(builder::setSaturation))
+                .key("saturation", val -> val.floatValue().min(0).handle(builder::setSaturation))
                 .ifKey("meat", val -> val.bool().handle(builder::setIsMeat))
                 .ifKey("fast", val -> val.bool().handle(builder::setFast))
                 .ifKey("always_eat", val -> val.bool().handle(builder::setAlwaysEat))
@@ -51,8 +52,15 @@ public class FoodParser extends ThingParser<FoodBuilder>
 
     private MobEffectInstanceBuilder parseEffectInstance(ObjValue obj, FoodBuilder parentBuilder)
     {
-        var builder = JsonThings.mobEffectInstanceParser.parseFromElement(parentBuilder.getRegistryName(), obj.getAsJsonObject());
-        builder.setOwner(parentBuilder);
-        return builder;
+        try
+        {
+            var builder = JsonThings.mobEffectInstanceParser.parseFromElement(parentBuilder.getRegistryName(), obj.getAsJsonObject());
+            builder.setOwner(parentBuilder);
+            return builder;
+        }
+        catch (Exception e)
+        {
+            throw new ThingParseException("Exception while parsing nested block in " + parentBuilder.getRegistryName(), e);
+        }
     }
 }

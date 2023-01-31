@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
@@ -42,7 +43,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         event.register(Registry.BLOCK_REGISTRY, helper -> {
             LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get().self()), BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack Blocks.");
         });
     }
@@ -105,9 +106,9 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         Property<?> prop = propertiesByName.getValue().get(name);
         if (prop == null)
-            throw new IllegalStateException("No property with name '" + name + "' declared in block.");
+            throw new ThingParseException("No property with name '" + name + "' declared in block.");
         if (prop.getValueClass() != Direction.class)
-            throw new IllegalStateException("The specified shape_rotation property is not a Direction property.");
+            throw new ThingParseException("The specified shape_rotation property is not a Direction property.");
         return prop;
     }
 
@@ -129,9 +130,9 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifString(str -> str.handle(prop -> {
                     var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
                     if (property == null)
-                        throw new IllegalStateException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
+                        throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
                     if (!property.getName().equals(name))
-                        throw new IllegalStateException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
+                        throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
                     map.put(name, property);
                 }))
                 .ifObj(obj -> obj.raw(rawObj -> map.put(name, PropertyType.deserialize(name, rawObj))))
@@ -153,9 +154,16 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
     private static void createItemBlock(BlockBuilder builder, JsonObject obj)
     {
-        builder.setItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
-            if (!b.hasType())
-                b.setType(FlexItemType.BLOCK);
-        }));
+        try
+        {
+            builder.setItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
+                if (!b.hasType())
+                    b.setType(FlexItemType.BLOCK);
+            }));
+        }
+        catch (Exception e)
+        {
+            throw new ThingParseException("Exception while parsing nested item in " + builder.getRegistryName(), e);
+        }
     }
 }

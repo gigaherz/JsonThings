@@ -30,14 +30,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class FlexAxeItem extends AxeItem implements IFlexItem
+public class FlexBowlFoodItem extends Item implements IFlexItem
 {
-    public FlexAxeItem(Tier material, float damage, float speed, Item.Properties properties,
-                       @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
-                       Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
-                       List<MutableComponent> lore)
+    public FlexBowlFoodItem(Properties properties,
+                            @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
+                            Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
+                            List<MutableComponent> lore)
     {
-        super(material, damage, speed, properties);
+        super(properties);
         this.useAction = useAction;
         this.useTime = useTime;
         this.useFinishMode = useFinishMode;

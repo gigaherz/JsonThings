@@ -1,12 +1,10 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import com.mojang.logging.LogUtils;
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.NativeJavaObject;
-import dev.latvian.mods.rhino.Scriptable;
-import dev.latvian.mods.rhino.ScriptableObject;
+import dev.latvian.mods.rhino.*;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -70,12 +68,12 @@ public class DSLHelpers
     @SuppressWarnings("unchecked")
     public static <T> T get(Object arg)
     {
-        return (T)((NativeJavaObject)arg).unwrap();
+        return (T) ((NativeJavaObject) arg).unwrap();
     }
 
     public static <T> T get(Object arg, Class<T> target)
     {
-        return target.cast(((NativeJavaObject)arg).unwrap());
+        return target.cast(((NativeJavaObject) arg).unwrap());
     }
 
     public static byte getByte(Object arg)
@@ -113,18 +111,33 @@ public class DSLHelpers
         return (String) arg;
     }
 
-    public static Object wrap(Scriptable scope, Object arg)
+    public static Component getComponent(Context cx, Object arg)
     {
-        return wrap(scope, arg, null);
+        if (arg instanceof NativeJavaObject o)
+            arg = o.unwrap();
+
+        if (arg instanceof String s)
+            return Component.literal(s);
+
+        if (arg instanceof ConsString cs)
+            return Component.literal(cs.toString());
+
+        if (arg instanceof NativeObject obj)
+            return Component.Serializer.fromJson(NativeJSON.stringify(obj, null, 0, cx));
+
+        return Component.literal("unknown");
     }
 
-    public static <T> Object wrap(Scriptable scope, T value, @Nullable Class<? super T> fieldType)
+    public static Object wrap(Context cx, Scriptable scope, Object arg)
+    {
+        return wrap(cx, scope, arg, null);
+    }
+
+    public static <T> Object wrap(Context cx, Scriptable scope, @Nullable T value, @Nullable Class<? super T> fieldType)
     {
         scope = ScriptableObject.getTopLevelScope(scope);
-        Context cx = Context.getContext();
         return cx.getWrapFactory().wrap(cx, scope, value, fieldType);
     }
-
 
 
     public static void debugDumpBindings()

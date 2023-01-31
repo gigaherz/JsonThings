@@ -17,18 +17,20 @@ import java.util.function.Supplier;
 
 public class Utils
 {
-    public static TagKey<Item> itemTag(String pName) {
+    public static TagKey<Item> itemTag(String pName)
+    {
         return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(pName));
     }
 
-    public static TagKey<Block> blockTag(String pName) {
+    public static TagKey<Block> blockTag(String pName)
+    {
         return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(pName));
     }
 
     public static <T extends Comparable<T>> T getPropertyValue(Property<T> prop, String value)
     {
         Optional<T> propValue = prop.getValue(value);
-        return propValue.orElseThrow(() -> new IllegalStateException("Value " + value + " for property " + prop.getName() + " not found in the allowed values."));
+        return propValue.orElseThrow(() -> new KeyNotFoundException("Value " + value + " for property " + prop.getName() + " not found in the allowed values."));
     }
 
     @Nonnull
@@ -37,7 +39,7 @@ public class Utils
         return val != null ? val : def;
     }
 
-    public static <T> T orElse(@Nullable T val, Supplier<T> def)
+    public static <T> T orElseGet(@Nullable T val, Supplier<T> def)
     {
         return val != null ? val : def.get();
     }
@@ -55,7 +57,7 @@ public class Utils
     public static <T> T getOrCrash(IForgeRegistry<T> reg, ResourceLocation name)
     {
         if (!reg.containsKey(name))
-            throw new RuntimeException("Could not find an entry with name " + name + " in registry " + reg.getRegistryName());
+            throw new KeyNotFoundException("Could not find an entry with name " + name + " in registry " + reg.getRegistryName());
         //noinspection ConstantConditions
         return reg.getValue(name);
     }
@@ -64,7 +66,7 @@ public class Utils
     {
         T t = registry.get(name);
         if (t == null)
-            throw new IllegalStateException("No object with name " + name + " found in the registry " + registry);
+            throw new KeyNotFoundException("No object with name " + name + " found in the registry " + registry);
         return t;
     }
 

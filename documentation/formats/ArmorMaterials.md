@@ -22,6 +22,9 @@ E.g.
   },
   "durability": {
     "feet": 20
+  },
+  "durability": {
+    "head": 1
   }
 }
 ```
@@ -82,7 +85,7 @@ See below for syntax.
 
 ## "armor"
 
-Defines how many hits (without Unbreaking) the item can take before breaking, based on the slot the armor is equipped into.
+Defines the base durability, based on the slot the armor is equipped into.
 
 Required.
 

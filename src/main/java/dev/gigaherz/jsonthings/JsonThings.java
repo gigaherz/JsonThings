@@ -145,6 +145,7 @@ public class JsonThings
         {
             final ResourceLocation solid = new ResourceLocation("solid");
             JsonThings.blockParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 ResourceLocation layer = thing.getDefaultRenderLayer();
                 if (!layer.equals(solid))
                 {
@@ -152,6 +153,7 @@ public class JsonThings
                 }
             });
             JsonThings.fluidParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 ResourceLocation layer = thing.getDefaultRenderLayer();
                 for(var fluid : thing.getAllSiblings())
                 {
@@ -180,6 +182,7 @@ public class JsonThings
         public static void itemColorHandlers(RegisterColorHandlersEvent.Item event)
         {
             JsonThings.itemParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 String handlerName = thing.getColorHandler();
                 if (handlerName != null)
                 {

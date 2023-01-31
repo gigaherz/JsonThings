@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -23,7 +24,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.get()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.FOODS, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override

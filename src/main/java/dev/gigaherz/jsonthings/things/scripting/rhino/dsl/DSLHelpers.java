@@ -1,12 +1,10 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import com.mojang.logging.LogUtils;
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.NativeJavaObject;
-import dev.latvian.mods.rhino.Scriptable;
-import dev.latvian.mods.rhino.ScriptableObject;
+import dev.latvian.mods.rhino.*;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -113,12 +111,29 @@ public class DSLHelpers
         return (String) arg;
     }
 
+    public static Component getComponent(Context cx, Object arg)
+    {
+        if (arg instanceof NativeJavaObject o)
+            arg = o.unwrap();
+
+        if (arg instanceof String s)
+            return Component.literal(s);
+
+        if (arg instanceof ConsString cs)
+            return Component.literal(cs.toString());
+
+        if (arg instanceof NativeObject obj)
+            return Component.Serializer.fromJson(NativeJSON.stringify(obj, null, 0, cx));
+
+        return Component.literal("unknown");
+    }
+
     public static Object wrap(Context cx, Scriptable scope, Object arg)
     {
         return wrap(cx, scope, arg, null);
     }
 
-    public static <T> Object wrap(Context cx, Scriptable scope, T value, @Nullable Class<? super T> fieldType)
+    public static <T> Object wrap(Context cx, Scriptable scope, @Nullable T value, @Nullable Class<? super T> fieldType)
     {
         scope = ScriptableObject.getTopLevelScope(scope);
         return cx.getWrapFactory().wrap(cx, scope, value, fieldType);

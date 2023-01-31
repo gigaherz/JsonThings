@@ -19,15 +19,59 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.fml.*;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.ModLoadingStage;
+import net.minecraftforge.fml.ModLoadingWarning;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> extends SimpleJsonResourceReloadListener
 {
     public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, ResourceLocation> keyGetter)
+    {
+        list.forEach((thing) -> {
+            processAndConsumeErrors(thingType, () -> consumer.accept(thing), () -> keyGetter.apply(thing));
+        });
+    }
+
+    public static <K,V> void processAndConsumeErrors(String thingType, Map<K,V> list, BiConsumer<K,V> consumer, Function<K, ResourceLocation> keyGetter)
+    {
+        list.forEach((key, value) -> {
+            processAndConsumeErrors(thingType, () -> consumer.accept(key, value), () -> keyGetter.apply(key));
+        });
+    }
+
+    public static void processAndConsumeErrors(String thingType, Runnable r, Supplier<ResourceLocation> keyGetter)
+    {
+        try
+        {
+            r.run();
+        }
+        catch(JsonParseException | KeyNotFoundException | ThingParseException | IllegalStateException e)
+        {
+            processParseException(thingType, keyGetter.get(), e);
+        }
+
+    }
+
+    public static void processParseException(String thingType, ResourceLocation key, Throwable e)
+    {
+        var message = "Error parsing " + thingType + " with id '" + key + "': " + e.getMessage();
+        LOGGER.error(message);
+        LOGGER.debug("Details for message above", e);
+        var modContainer = ModList.get().getModContainerById(key.getNamespace());
+        if (modContainer.isEmpty())
+            modContainer = ModList.get().getModContainerById("jsonthings");
+        ModLoader.get().addWarning(new ModLoadingWarning(modContainer.orElseThrow().getModInfo(), ModLoadingStage.ERROR, "Json Things: " + message));
+    }
 
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -46,22 +90,10 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
     {
-        objectIn.forEach((key, json) -> {
-            try
-            {
-                var builder = parseFromElement(key, json);
-                buildersByName.put(key, builder);
-            }
-            catch(JsonParseException | KeyNotFoundException | ThingParseException e)
-            {
-                var message = "Error parsing " + thingType + " with id '" + key + "': " + e.getMessage();
-                LOGGER.error(message);
-                var modContainer = ModList.get().getModContainerById(key.getNamespace());
-                if (modContainer.isEmpty())
-                        modContainer = ModList.get().getModContainerById("jsonthings");
-                ModLoader.get().addWarning(new ModLoadingWarning(modContainer.orElseThrow().getModInfo(), ModLoadingStage.ERROR, "Json Things: " + message));
-            }
-        });
+        processAndConsumeErrors(thingType, objectIn, (key, json) -> {
+            var builder = parseFromElement(key, json);
+            buildersByName.put(key, builder);
+        }, Function.identity());
     }
 
     protected abstract TBuilder processThing(ResourceLocation key, JsonObject data, Consumer<TBuilder> builderModification);

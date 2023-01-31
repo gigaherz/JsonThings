@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
@@ -41,8 +42,10 @@ public class FluidParser extends ThingParser<FluidBuilder>
     {
         event.register(Registries.FLUID, helper -> {
             LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> thing.register(helper::register));
-            LOGGER.info("Done processing thingpack Blocks.");
+            processAndConsumeErrors(getThingType(), getBuilders(), thing ->
+                    thing.register(helper::register),
+                    BaseBuilder::getRegistryName);
+            LOGGER.info("Done processing thingpack Fluids.");
         });
     }
     @Override

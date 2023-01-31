@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.network.chat.Component;
@@ -25,14 +26,12 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
 
     private void registerTabs(CreativeModeTabEvent.Register event)
     {
-        LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
-        getBuilders().forEach(thing -> event.registerCreativeModeTab(thing.getRegistryName(), builder -> {
-                var tab =  thing.get();
-                var icon = tab.icon();
-                var name = tab.name();
-                builder.icon(() -> icon.get().getDefaultInstance()).title(Component.translatable(name)).displayItems((a, b, c) -> {});
-        }));
-        LOGGER.info("Done processing thingpack Blocks.");
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> event.registerCreativeModeTab(thing.getRegistryName(), builder -> {
+            var tab =  thing.get();
+            var icon = tab.icon();
+            var name = tab.name();
+            builder.icon(() -> icon.get().getDefaultInstance()).title(Component.translatable(name)).displayItems((a, b, c) -> {});
+        }), BaseBuilder::getRegistryName);
 
     }
 

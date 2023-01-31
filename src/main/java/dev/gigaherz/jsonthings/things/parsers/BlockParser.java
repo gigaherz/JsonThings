@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
@@ -42,7 +43,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         event.register(Registries.BLOCK, helper -> {
             LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get().self()), BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack Blocks.");
         });
     }

@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.TierBuilder;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -26,7 +27,7 @@ public class TierParser extends ThingParser<TierBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> TierSortingRegistry.registerTier(thing.get(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> TierSortingRegistry.registerTier(thing.get(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()), BaseBuilder::getRegistryName);
     }
 
     @Override

@@ -121,7 +121,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     public FlexFluidType<?> getFluidType()
     {
-        return Utils.orElse(getFluidTypeRaw(), () -> FlexFluidType.PLAIN);
+        return Utils.orElseGet(getFluidTypeRaw(), () -> FlexFluidType.PLAIN);
     }
 
     @Nullable
@@ -132,7 +132,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     public List<Property<?>> getProperties()
     {
-        return Utils.orElse(getPropertiesRaw(), List::of);
+        return Utils.orElseGet(getPropertiesRaw(), List::of);
     }
 
     @Nullable
@@ -183,6 +183,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     public void register(BiConsumer<ResourceLocation,Fluid> register)
     {
+        if (isInErrorState()) return;
         get();
         factory.register(this, register);
     }

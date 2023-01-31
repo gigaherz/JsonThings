@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.BlockMaterialBuilder;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -22,7 +23,7 @@ public class BlockMaterialParser extends ThingParser<BlockMaterialBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.BLOCK_MATERIALS, thing.getRegistryName(), thing.get()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.BLOCK_MATERIALS, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override

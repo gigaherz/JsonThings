@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.ShapeBuilder;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.Registry;
@@ -19,7 +20,7 @@ public class ShapeParser extends ThingParser<ShapeBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.DYNAMIC_SHAPES, thing.getRegistryName(), thing.get()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.DYNAMIC_SHAPES, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override

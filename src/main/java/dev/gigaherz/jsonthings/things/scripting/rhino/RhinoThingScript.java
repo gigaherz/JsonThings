@@ -101,6 +101,7 @@ public class RhinoThingScript extends ThingScript
                     switch ((String)arg)
                     {
                         case "nbt" -> NbtDSL.use(cx1, scope);
+                        case "chat" -> ChatDSL.use(cx1, scope);
                         case "items" -> ItemsDSL.use(cx1, scope);
                         case "blocks" -> BlocksDSL.use(cx1, scope);
                         case "levels" -> LevelsDSL.use(cx1, scope);

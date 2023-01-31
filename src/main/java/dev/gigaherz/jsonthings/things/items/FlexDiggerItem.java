@@ -4,7 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import dev.gigaherz.jsonthings.things.CompletionMode;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 public class FlexDiggerItem extends DiggerItem implements IFlexItem
 {
     public FlexDiggerItem(Tier material, float damage, float speed, TagKey<Block> breakable, Properties properties,
-                          UseAnim useAction, int useTime, CompletionMode useFinishMode,
+                          @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
                           Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
                           List<MutableComponent> lore)
     {
@@ -53,8 +53,8 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
 
     private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers;
     private final UseAnim useAction;
-    private final int useTime;
-    private final CompletionMode useFinishMode;
+    private final Integer useTime;
+    private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
 
     private InteractionResultHolder<ItemStack> containerResult;
@@ -83,6 +83,20 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     //endregion
 
     //region Item
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
+    {
+        ItemStack heldItem = playerIn.getItemInHand(handIn);
+        if (useTime != null && useTime > 0)
+            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> {
+                playerIn.startUsingItem(handIn);
+                return FlexEventResult.consume(heldItem);
+            }).holder();
+        else
+            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context)
     {
@@ -96,6 +110,24 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
         }
 
         return result.result();
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack)
+    {
+        return Utils.orElseGet(useAction, () -> super.getUseAnimation(stack));
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack)
+    {
+        return Utils.orElseGet(useTime, () -> super.getUseDuration(stack));
+    }
+
+    @Override
+    public boolean useOnRelease(ItemStack stack)
+    {
+        return Utils.orElseGet(useFinishMode.isUseOnRelease(), () -> super.useOnRelease(stack));
     }
 
     @Override
@@ -119,16 +151,6 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
             return result.stack();
 
         return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).stack();
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
-    {
-        ItemStack heldItem = playerIn.getItemInHand(handIn);
-        if (useTime > 0)
-            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
-        else
-            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
     }
 
     @Override
@@ -187,7 +209,7 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
     {
-        return Utils.orElse(attributeModifiers.get(slot), HashMultimap::create);
+        return Utils.orElseGet(attributeModifiers.get(slot), HashMultimap::create);
     }
 
     //endregion

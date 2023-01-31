@@ -90,7 +90,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
     public FlexBlockType<?> getBlockType()
     {
-        return Utils.orElse(getBlockTypeRaw(), () -> FlexBlockType.PLAIN);
+        return Utils.orElseGet(getBlockTypeRaw(), () -> FlexBlockType.PLAIN);
     }
 
     public boolean hasBlockType()
@@ -117,7 +117,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
     public List<Property<?>> getProperties()
     {
-        return Utils.orElse(getPropertiesRaw(), List::of);
+        return Utils.orElseGet(getPropertiesRaw(), List::of);
     }
 
     public void setPropertyDefaultValue(String name, String value)

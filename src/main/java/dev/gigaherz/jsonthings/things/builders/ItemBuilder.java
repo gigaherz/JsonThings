@@ -6,7 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
-import dev.gigaherz.jsonthings.things.CompletionMode;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
@@ -49,7 +49,10 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
     private NonNullSupplier<FoodProperties> foodDefinition = null;
 
-    private DelayedUse delayedUse = null;
+    public Integer useTime = null;
+    public UseAnim useAnim = null;
+    public UseFinishMode useFinishMode = null;
+
     private ResourceLocation containerItem = null;
 
     private String colorHandler = null;
@@ -125,16 +128,19 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.foodDefinition = () -> food;
     }
 
-    @Deprecated
-    public void makeDelayedUse(int useTicks, String useType, String completeAction)
+    public void setUseTime(int useTime)
     {
-        makeDelayedUse(new DelayedUse(useTicks, useType, completeAction));
+        this.useTime = useTime;
     }
 
-    public void makeDelayedUse(DelayedUse delayedUse)
+    public void setUseAnim(UseAnim useAnim)
     {
-        if (this.delayedUse != null) throw new RuntimeException("Delayed use already set.");
-        this.delayedUse = delayedUse;
+        this.useAnim = useAnim;
+    }
+
+    public void setUseFinishMode(UseFinishMode finishMode)
+    {
+        this.useFinishMode = finishMode;
     }
 
     @Deprecated
@@ -250,12 +256,6 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     }
 
     @Nullable
-    public DelayedUse getDelayedUse()
-    {
-        return getValue(delayedUse, ItemBuilder::getDelayedUse);
-    }
-
-    @Nullable
     public String getColorHandler()
     {
         return getValue(colorHandler, ItemBuilder::getColorHandler);
@@ -266,22 +266,22 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.factory = factory;
     }
 
-    public UseAnim getUseAction()
+    @Nullable
+    public UseAnim getUseAnim()
     {
-        var delayedUse = getDelayedUse();
-        return delayedUse != null ? delayedUse.useAction : UseAnim.NONE;
+        return getValue(useAnim, ItemBuilder::getUseAnim);
     }
 
-    public int getUseTime()
+    @Nullable
+    public Integer getUseTime()
     {
-        var delayedUse = getDelayedUse();
-        return delayedUse != null ? delayedUse.useTicks : 0;
+        return getValue(useTime, ItemBuilder::getUseTime);
     }
 
-    public CompletionMode getFinishMode()
+    @Nullable
+    public UseFinishMode getUseFinishMode()
     {
-        var delayedUse = getDelayedUse();
-        return delayedUse != null ? delayedUse.onComplete : CompletionMode.USE_ITEM;
+        return getValue(useFinishMode, ItemBuilder::getUseFinishMode);
     }
 
     @Nullable
@@ -314,31 +314,6 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     private Map<EquipmentSlot, Multimap<ResourceLocation, AttributeModifier>> getAttributeModifiersRaw()
     {
         return getValue(attributeModifiers, ItemBuilder::getAttributeModifiersRaw);
-    }
-
-    public static class DelayedUse
-    {
-        public int useTicks;
-        public UseAnim useAction;
-        public CompletionMode onComplete;
-
-        public DelayedUse()
-        {
-        }
-
-        @Deprecated
-        public DelayedUse(int useTicks, String useAction, String completeAction)
-        {
-            this.useTicks = useTicks;
-            this.useAction = UseAnim.valueOf(useAction.toUpperCase());
-            this.onComplete = CompletionMode.valueOf(completeAction.toUpperCase());
-        }
-    }
-
-    static class PlantInfo
-    {
-        public ResourceLocation crops;
-        public ResourceLocation soil;
     }
 }
 

@@ -5,12 +5,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
-import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.StackContext;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import joptsimple.internal.Strings;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -50,9 +50,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
     {
         event.register(Registries.ITEM, helper -> {
             LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get().self()));
-            LOGGER.info("Done processing thingpack Blocks.");
-
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get().self()), BaseBuilder::getRegistryName);
+            LOGGER.info("Done processing thingpack Items.");
         });
 
     }
@@ -126,7 +125,12 @@ public class ItemParser extends ThingParser<ItemBuilder>
                         .typeError()
                 )
                 .ifKey("container", val -> val.string().map(ResourceLocation::new).handle(builder::setContainerItem))
-                .ifKey("delayed_use", val -> val.obj().map(this::parseDelayedUse).handle(builder::makeDelayedUse))
+                .ifKey("delayed_use", val -> val.obj()
+                        .key("duration", val1 -> val1.intValue().handle(builder::setUseTime))
+                        .key("animation", val1 -> val1.string().map(str -> UseAnim.valueOf(str.toUpperCase())).handle(builder::setUseAnim))
+                        .ifKey("on_complete", val1 -> val1.string().map(str -> UseFinishMode.valueOf(str.toUpperCase())).handle(builder::setUseFinishMode)
+                        )
+                )
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
@@ -136,17 +140,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
         builder.setFactory(builder.getType().getFactory(data));
 
         return builder;
-    }
-
-    private ItemBuilder.DelayedUse parseDelayedUse(ObjValue objValue)
-    {
-        ItemBuilder.DelayedUse du = new ItemBuilder.DelayedUse();
-        objValue
-                .key("duration", val -> val.intValue().handle(i -> du.useTicks = i))
-                .ifKey("animaction", val -> val.string().map(str -> UseAnim.valueOf(str.toUpperCase())).handle(anim -> du.useAction = anim))
-                .ifKey("on_complete", val -> val.string().map(str -> CompletionMode.valueOf(str.toUpperCase())).handle(mode -> du.onComplete = mode))
-        ;
-        return du;
     }
 
     private List<MutableComponent> parseLore(JsonArray lines)

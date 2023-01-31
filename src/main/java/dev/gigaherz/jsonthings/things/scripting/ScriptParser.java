@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.scripting;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingResourceManager;
 import dev.gigaherz.jsonthings.things.scripting.rhino.RhinoThingScript;
+import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -84,7 +85,7 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
     public ThingScript getEvent(ResourceLocation id)
     {
         if (!scripts.containsKey(id))
-            throw new RuntimeException("Script with id " + id + " not found.");
+            throw new KeyNotFoundException("Script with id " + id + " not found.");
         return scripts.get(id);
     }
 }

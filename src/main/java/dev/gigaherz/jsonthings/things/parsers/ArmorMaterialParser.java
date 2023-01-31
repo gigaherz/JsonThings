@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.ArmorMaterialBuilder;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
@@ -23,7 +24,7 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        getBuilders().forEach(thing -> Registry.register(ThingRegistries.ARMOR_MATERIALS, thing.getRegistryName(), thing.get()));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.ARMOR_MATERIALS, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override

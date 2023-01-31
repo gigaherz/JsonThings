@@ -2,9 +2,9 @@ package dev.gigaherz.jsonthings.things.serializers;
 
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonObject;
-import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.items.*;
 import dev.gigaherz.jsonthings.util.Utils;
 import joptsimple.internal.Strings;
@@ -22,6 +22,7 @@ import net.minecraftforge.common.TierSortingRegistry;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -31,9 +32,9 @@ import java.util.Objects;
 public class FlexItemType<T extends Item & IFlexItem>
 {
     public static final FlexItemType<FlexItem> PLAIN = register("plain", (data) -> (props, builder) -> {
-        var useAction = builder.getUseAction();
+        var useAction = builder.getUseAnim();
         var useTime = builder.getUseTime();
-        var useFinishMode = builder.getFinishMode();
+        var useFinishMode = builder.getUseFinishMode();
         var attributeModifiers = builder.getAttributeModifiers();
         var lore = builder.getLore();
         return new FlexItem(props, useAction, useTime, useFinishMode, attributeModifiers, lore != null ? lore : List.of());
@@ -43,9 +44,9 @@ public class FlexItemType<T extends Item & IFlexItem>
         final String name = GsonHelper.getAsString(data, "places", null);
         boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> {
-            var useAction = builder.getUseAction();
+            var useAction = builder.getUseAnim();
             var useTime = builder.getUseTime();
-            var useFinishMode = builder.getFinishMode();
+            var useFinishMode = builder.getUseFinishMode();
             var attributeModifiers = builder.getAttributeModifiers();
             var lore = builder.getLore();
             ResourceLocation blockName = name != null ? new ResourceLocation(name) : builder.getRegistryName();
@@ -55,9 +56,9 @@ public class FlexItemType<T extends Item & IFlexItem>
     });
 
     public static final FlexItemType<FlexBowlFoodItem> FOOD_BOWL = register("food_bowl", (data) -> (props, builder) -> {
-        var useAction = builder.getUseAction();
+        var useAction = builder.getUseAnim();
         var useTime = builder.getUseTime();
-        var useFinishMode = builder.getFinishMode();
+        var useFinishMode = builder.getUseFinishMode();
         var attributeModifiers = builder.getAttributeModifiers();
         var lore = builder.getLore();
         return new FlexBowlFoodItem(props, useAction, useTime, useFinishMode, attributeModifiers, lore != null ? lore : List.of());
@@ -67,9 +68,9 @@ public class FlexItemType<T extends Item & IFlexItem>
         String name = GsonHelper.getAsString(data, "fluid", null);
         return (props, builder) ->
         {
-            var useAction = builder.getUseAction();
+            var useAction = builder.getUseAnim();
             var useTime = builder.getUseTime();
-            var useFinishMode = builder.getFinishMode();
+            var useFinishMode = builder.getUseFinishMode();
             var attributeModifiers = builder.getAttributeModifiers();
             var lore = builder.getLore();
             ResourceLocation fluidName;
@@ -131,9 +132,9 @@ public class FlexItemType<T extends Item & IFlexItem>
         final ArmorMaterials material = ArmorMaterials.valueOf(materialName.toUpperCase());
 
         return (props, builder) -> {
-            var useAction = builder.getUseAction();
+            var useAction = builder.getUseAnim();
             var useTime = builder.getUseTime();
-            var useFinishMode = builder.getFinishMode();
+            var useFinishMode = builder.getUseFinishMode();
             var attributeModifiers = builder.getAttributeModifiers();
             var lore = builder.getLore();
             return new FlexArmorItem(material, slot, props,
@@ -159,9 +160,9 @@ public class FlexItemType<T extends Item & IFlexItem>
         float speed = GsonHelper.getAsFloat(data, "speed");
 
         return (props, builder) -> {
-            var useAction = builder.getUseAction();
+            var useAction = builder.getUseAnim();
             var useTime = builder.getUseTime();
-            var useFinishMode = builder.getFinishMode();
+            var useFinishMode = builder.getUseFinishMode();
             var attributeModifiers = builder.getAttributeModifiers();
             var lore = builder.getLore();
             return new FlexDiggerItem(getTier(tier), damage, speed, tag, props,
@@ -179,9 +180,9 @@ public class FlexItemType<T extends Item & IFlexItem>
             float speed = GsonHelper.getAsFloat(data, "speed");
 
             return (props, builder) -> {
-                var useAction = builder.getUseAction();
+                var useAction = builder.getUseAnim();
                 var useTime = builder.getUseTime();
-                var useFinishMode = builder.getFinishMode();
+                var useFinishMode = builder.getUseFinishMode();
                 var attributeModifiers = builder.getAttributeModifiers();
                 var lore = builder.getLore();
                 return factory.create(getTier(tier), damage, speed, props,
@@ -200,9 +201,9 @@ public class FlexItemType<T extends Item & IFlexItem>
             float speed = GsonHelper.getAsFloat(data, "speed");
 
             return (props, builder) -> {
-                var useAction = builder.getUseAction();
+                var useAction = builder.getUseAnim();
                 var useTime = builder.getUseTime();
-                var useFinishMode = builder.getFinishMode();
+                var useFinishMode = builder.getUseFinishMode();
                 var attributeModifiers = builder.getAttributeModifiers();
                 var lore = builder.getLore();
                 return factory.create(getTier(tier), damage, speed, props,
@@ -220,9 +221,9 @@ public class FlexItemType<T extends Item & IFlexItem>
             String tier = parseTier(data);
 
             return (props, builder) -> {
-                var useAction = builder.getUseAction();
+                var useAction = builder.getUseAnim();
                 var useTime = builder.getUseTime();
-                var useFinishMode = builder.getFinishMode();
+                var useFinishMode = builder.getUseFinishMode();
                 var attributeModifiers = builder.getAttributeModifiers();
                 var lore = builder.getLore();
                 return factory.create(getTier(tier), props,
@@ -235,7 +236,7 @@ public class FlexItemType<T extends Item & IFlexItem>
     public interface DiggerFactory<T extends TieredItem & IFlexItem>
     {
         T create(Tier tier, float damage, float speed, Item.Properties properties,
-                 UseAnim useAction, int useTime, CompletionMode useFinishMode,
+                 @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
                  Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
                  List<MutableComponent> lore);
     }
@@ -244,7 +245,7 @@ public class FlexItemType<T extends Item & IFlexItem>
     public interface DiggerFactory2<T extends TieredItem & IFlexItem>
     {
         T create(Tier tier, int damage, float speed, Item.Properties properties,
-                 UseAnim useAction, int useTime, CompletionMode useFinishMode,
+                 @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
                  Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
                  List<MutableComponent> lore);
     }
@@ -253,7 +254,7 @@ public class FlexItemType<T extends Item & IFlexItem>
     public interface TieredFactory<T extends TieredItem & IFlexItem>
     {
         T create(Tier tier, Item.Properties properties,
-                 UseAnim useAction, int useTime, CompletionMode useFinishMode,
+                 @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
                  Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
                  List<MutableComponent> lore);
     }

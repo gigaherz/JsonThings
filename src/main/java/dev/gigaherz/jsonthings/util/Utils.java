@@ -38,7 +38,7 @@ public class Utils
         return val != null ? val : def;
     }
 
-    public static <T> T orElse(@Nullable T val, Supplier<T> def)
+    public static <T> T orElseGet(@Nullable T val, Supplier<T> def)
     {
         return val != null ? val : def.get();
     }

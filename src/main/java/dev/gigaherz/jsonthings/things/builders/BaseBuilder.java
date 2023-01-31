@@ -5,7 +5,6 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Contract;
 
@@ -16,7 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>> implements Supplier<T>
+public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>>
 {
     private final ThingParser<B> ownerParser;
     private final ResourceLocation registryName;
@@ -24,6 +23,7 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>> implements Supp
     private B parentBuilder;
     private T builtThing;
     private Map<String, List<ResourceLocation>> eventMap;
+    private Throwable errorState = null;
 
     protected BaseBuilder(ThingParser<B> ownerParser, ResourceLocation registryName)
     {
@@ -38,13 +38,10 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>> implements Supp
             builtThing = buildInternal();
             return builtThing;
         }
-        catch (Exception e)
+        catch(Throwable t)
         {
-            CrashReport report = CrashReport.forThrowable(e, "Error while building " + getThingTypeDisplayName() + " from " + registryName);
-
-            fillReport(report);
-
-            throw new ReportedException(report);
+            errorState = t;
+            throw t;
         }
     }
 
@@ -63,7 +60,14 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>> implements Supp
     {
         if (builtThing == null)
             return build();
+        if (errorState != null)
+            throw new IllegalStateException("This builder has previously errored due to " + errorState.getMessage(), errorState);
         return builtThing;
+    }
+
+    public final boolean isInErrorState()
+    {
+        return errorState != null;
     }
 
     public final ResourceLocation getRegistryName()
@@ -170,10 +174,9 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>> implements Supp
         if (ScriptParser.isEnabled())
         {
             forEachEvent((key, list) -> {
-                for (var ev : list)
-                {
-                    eventRunner.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-                }
+                ThingParser.processAndConsumeErrors(getParser().getThingType(), list, ev ->
+                        eventRunner.addEventHandler(key, ScriptParser.instance().getEvent(ev)),
+                        (unused) -> getRegistryName());
             });
         }
     }

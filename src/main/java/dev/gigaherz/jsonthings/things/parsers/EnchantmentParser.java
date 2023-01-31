@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.EnchantmentBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
@@ -37,7 +38,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     {
         event.register(Registries.ENCHANTMENT, helper -> {
             LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
-            getBuilders().forEach(thing -> helper.register(thing.getRegistryName(), thing.get()));
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack Blocks.");
         });
     }

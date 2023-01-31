@@ -39,7 +39,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         event.register(Registry.ENCHANTMENT_REGISTRY, helper -> {
             LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
             processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
-            LOGGER.info("Done processing thingpack Blocks.");
+            LOGGER.info("Done processing thingpack Enchantments.");
         });
     }
 

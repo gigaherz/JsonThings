@@ -58,7 +58,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
             builder.setOwner(parentBuilder);
             return builder;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new ThingParseException("Exception while parsing nested block in " + parentBuilder.getRegistryName(), e);
         }

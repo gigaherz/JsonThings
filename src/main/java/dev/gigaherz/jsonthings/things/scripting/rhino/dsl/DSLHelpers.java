@@ -68,12 +68,12 @@ public class DSLHelpers
     @SuppressWarnings("unchecked")
     public static <T> T get(Object arg)
     {
-        return (T)((NativeJavaObject)arg).unwrap();
+        return (T) ((NativeJavaObject) arg).unwrap();
     }
 
     public static <T> T get(Object arg, Class<T> target)
     {
-        return target.cast(((NativeJavaObject)arg).unwrap());
+        return target.cast(((NativeJavaObject) arg).unwrap());
     }
 
     public static byte getByte(Object arg)
@@ -138,7 +138,6 @@ public class DSLHelpers
         scope = ScriptableObject.getTopLevelScope(scope);
         return cx.getWrapFactory().wrap(cx, scope, value, fieldType);
     }
-
 
 
     public static void debugDumpBindings()

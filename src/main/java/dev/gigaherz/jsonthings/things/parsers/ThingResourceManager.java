@@ -12,7 +12,10 @@ import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
-import net.minecraft.server.packs.repository.*;
+import net.minecraft.server.packs.repository.FolderRepositorySource;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
@@ -65,7 +68,7 @@ public class ThingResourceManager
         packList = new PackRepository(folderPackFinder);
     }
 
-    public synchronized  <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
+    public synchronized <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
     {
         if (parsersMap.containsKey(parser.getThingType()))
             throw new IllegalStateException("There is already a parser registered for type " + parser.getThingType());
@@ -114,6 +117,7 @@ public class ThingResourceManager
     }
 
     private static final CompletableFuture<Unit> RESOURCE_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
+
     public CompletableFuture<ThingResourceManager> beginLoading()
     {
         packList.reload();
@@ -143,7 +147,7 @@ public class ThingResourceManager
 
             while (!loaderFuture.isDone())
             {
-                if(!mainThreadExecutor.runQueue())
+                if (!mainThreadExecutor.runQueue())
                     mainThreadExecutor.waitForTasks();
             }
 

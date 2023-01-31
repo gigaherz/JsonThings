@@ -24,7 +24,7 @@ public class BlocksDSL
 
     private static Object findBlock(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var block = DSLHelpers.find(ForgeRegistries.BLOCKS, (String)args[0]);
+        var block = DSLHelpers.find(ForgeRegistries.BLOCKS, (String) args[0]);
         return DSLHelpers.wrap(cx, scope, block, Block.class);
     }
 
@@ -36,16 +36,16 @@ public class BlocksDSL
         var baseState = block.defaultBlockState();
         if (args.length > 1)
         {
-            var obj = (NativeObject)args[1];
+            var obj = (NativeObject) args[1];
             var props = baseState.getProperties();
-            for(var kv : obj.entrySet())
+            for (var kv : obj.entrySet())
             {
-                var key = (String)kv.getKey();
+                var key = (String) kv.getKey();
                 var value = kv.getValue();
                 if (value instanceof NativeJavaObject wrapped)
                     value = wrapped.unwrap();
-                var prop = (Property)props.stream().filter(p -> p.getName().equals(key)).findFirst().orElseThrow();
-                baseState = baseState.setValue(prop, (Comparable)value);
+                var prop = (Property) props.stream().filter(p -> p.getName().equals(key)).findFirst().orElseThrow();
+                baseState = baseState.setValue(prop, (Comparable) value);
             }
         }
 

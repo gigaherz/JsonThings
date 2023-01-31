@@ -22,8 +22,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
-
 public class FlexWallBlock extends WallBlock implements IFlexBlock
 {
     public FlexWallBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)

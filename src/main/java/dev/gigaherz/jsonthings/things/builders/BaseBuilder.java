@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>>
+public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
 {
     private final ThingParser<B> ownerParser;
     private final ResourceLocation registryName;
@@ -38,7 +38,7 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>>
             builtThing = buildInternal();
             return builtThing;
         }
-        catch(Throwable t)
+        catch (Throwable t)
         {
             errorState = t;
             throw t;
@@ -175,7 +175,7 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T,B>>
         {
             forEachEvent((key, list) -> {
                 ThingParser.processAndConsumeErrors(getParser().getThingType(), list, ev ->
-                        eventRunner.addEventHandler(key, ScriptParser.instance().getEvent(ev)),
+                                eventRunner.addEventHandler(key, ScriptParser.instance().getEvent(ev)),
                         (unused) -> getRegistryName());
             });
         }

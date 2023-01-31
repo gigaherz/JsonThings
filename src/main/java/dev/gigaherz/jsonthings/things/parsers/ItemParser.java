@@ -53,20 +53,19 @@ public class ItemParser extends ThingParser<ItemBuilder>
             processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get().self()), BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack Items.");
         });
-
     }
 
     public void addToTabs(CreativeModeTabEvent.BuildContents event)
     {
-        if(creativeStacks == null)
+        if (creativeStacks == null)
         {
             Map<String, List<ItemStack>> map = new HashMap<>();
             getBuilders().forEach(thing ->
             {
-                for(var entry : thing.getCreativeMenuStacks())
+                for (var entry : thing.getCreativeMenuStacks())
                 {
                     var stack = entry.getFirst();
-                    for(var tab : entry.getSecond())
+                    for (var tab : entry.getSecond())
                     {
                         var list = map.computeIfAbsent(tab, key -> new ArrayList<>());
                         list.add(stack.toStack(thing.get().self()));
@@ -75,7 +74,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
             });
 
             creativeStacks = new HashMap<>();
-            for(var entry : map.entrySet())
+            for (var entry : map.entrySet())
             {
                 var tab = CreativeModeTabRegistry.getTab(new ResourceLocation(entry.getKey()));
                 if (tab == null)
@@ -117,7 +116,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                                 FoodBuilder foodBuilder = JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food);
                                 builder.setFood(foodBuilder.get());
                             }
-                            catch(Exception e)
+                            catch (Exception e)
                             {
                                 throw new ThingParseException("Exception while parsing nested food in " + builder.getRegistryName(), e);
                             }
@@ -182,7 +181,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 {
                     throw new ThingParseException("Attribute must be present and a valid resource location.");
                 }
-                attribute  = new ResourceLocation(loc);
+                attribute = new ResourceLocation(loc);
             }
             else
             {

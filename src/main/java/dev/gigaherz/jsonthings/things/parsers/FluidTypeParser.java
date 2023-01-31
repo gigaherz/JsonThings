@@ -49,8 +49,8 @@ public class FluidTypeParser extends ThingParser<FluidTypeBuilder>
                 .ifKey("side_texture", val -> val.string().map(ResourceLocation::new).handle(builder::setSideTexture))
                 .ifKey("rarity", val -> val.string().map(ThingParser::parseRarity).handle(builder::setRarity))
                 .ifKey("color", val -> val
-                        .ifObj(obj -> obj.map((ObjValueFunction<Integer>)ThingParser::parseColor).handle(builder::setColor))
-                        .ifArray(arr -> arr.map((ArrayValueFunction<Integer>)ThingParser::parseColor).handle(builder::setColor))
+                        .ifObj(obj -> obj.map((ObjValueFunction<Integer>) ThingParser::parseColor).handle(builder::setColor))
+                        .ifArray(arr -> arr.map((ArrayValueFunction<Integer>) ThingParser::parseColor).handle(builder::setColor))
                         .ifString(str -> str.map(ThingParser::parseColor).handle(builder::setColor))
                         .ifInteger(i -> i.handle(builder::setColor))
                         .typeError())

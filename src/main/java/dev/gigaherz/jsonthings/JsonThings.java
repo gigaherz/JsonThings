@@ -155,7 +155,7 @@ public class JsonThings
             JsonThings.fluidParser.getBuilders().forEach(thing -> {
                 if (thing.isInErrorState()) return;
                 ResourceLocation layer = thing.getDefaultRenderLayer();
-                for(var fluid : thing.getAllSiblings())
+                for (var fluid : thing.getAllSiblings())
                 {
                     if (!layer.equals(solid))
                     {

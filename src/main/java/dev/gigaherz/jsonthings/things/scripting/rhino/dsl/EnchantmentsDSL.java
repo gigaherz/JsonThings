@@ -23,7 +23,7 @@ public class EnchantmentsDSL
     {
         return new NativeJavaObject(
                 ScriptableObject.getTopLevelScope(scope),
-                DSLHelpers.find(ForgeRegistries.ENCHANTMENTS, (String)args[0]),
+                DSLHelpers.find(ForgeRegistries.ENCHANTMENTS, (String) args[0]),
                 Item.class,
                 cx);
     }

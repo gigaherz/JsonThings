@@ -27,12 +27,12 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
     private void registerTabs(CreativeModeTabEvent.Register event)
     {
         processAndConsumeErrors(getThingType(), getBuilders(), thing -> event.registerCreativeModeTab(thing.getRegistryName(), builder -> {
-            var tab =  thing.get();
+            var tab = thing.get();
             var icon = tab.icon();
             var name = tab.name();
-            builder.icon(() -> icon.get().getDefaultInstance()).title(Component.translatable(name)).displayItems((a, b, c) -> {});
+            builder.icon(() -> icon.get().getDefaultInstance()).title(Component.translatable(name)).displayItems((a, b, c) -> {
+            });
         }), BaseBuilder::getRegistryName);
-
     }
 
     @Override

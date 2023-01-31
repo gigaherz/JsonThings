@@ -42,7 +42,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         });
     }
 
-    public static <K,V> void processAndConsumeErrors(String thingType, Map<K,V> list, BiConsumer<K,V> consumer, Function<K, ResourceLocation> keyGetter)
+    public static <K, V> void processAndConsumeErrors(String thingType, Map<K, V> list, BiConsumer<K, V> consumer, Function<K, ResourceLocation> keyGetter)
     {
         list.forEach((key, value) -> {
             processAndConsumeErrors(thingType, () -> consumer.accept(key, value), () -> keyGetter.apply(key));
@@ -55,11 +55,10 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         {
             r.run();
         }
-        catch(JsonParseException | KeyNotFoundException | ThingParseException | IllegalStateException e)
+        catch (JsonParseException | KeyNotFoundException | ThingParseException | IllegalStateException e)
         {
             processParseException(thingType, keyGetter.get(), e);
         }
-
     }
 
     public static void processParseException(String thingType, ResourceLocation key, Throwable e)
@@ -100,7 +99,8 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json)
     {
-        return parseFromElement(key, json, (b) -> {});
+        return parseFromElement(key, json, (b) -> {
+        });
     }
 
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json, Consumer<TBuilder> builderModification)
@@ -209,9 +209,9 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
             if (color.length() == 8)
             {
-                return (int)Long.parseLong(color, 16);
+                return (int) Long.parseLong(color, 16);
             }
-            else if(color.length() == 6)
+            else if (color.length() == 6)
             {
                 return 0xFF | Integer.parseInt(color, 16);
             }
@@ -220,7 +220,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
                 throw new ThingParseException("Color hex string must be either 6 or 8 digits long.");
             }
         }
-        return (int)Long.parseLong(color);
+        return (int) Long.parseLong(color);
     }
 
     public static int parseColor(ObjValue color)
@@ -230,10 +230,10 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         values[0] = 0xFF;
 
         color
-                .ifKey("a", any -> any.intValue().handle(i -> values[0]=i))
-                .ifKey("r", any -> any.intValue().handle(i -> values[1]=i))
-                .ifKey("g", any -> any.intValue().handle(i -> values[2]=i))
-                .ifKey("b", any -> any.intValue().handle(i -> values[3]=i));
+                .ifKey("a", any -> any.intValue().handle(i -> values[0] = i))
+                .ifKey("r", any -> any.intValue().handle(i -> values[1] = i))
+                .ifKey("g", any -> any.intValue().handle(i -> values[2] = i))
+                .ifKey("b", any -> any.intValue().handle(i -> values[3] = i));
 
         return (values[0] << 24) | (values[1] << 16) | (values[2] << 8) | (values[3]);
     }
@@ -242,8 +242,8 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     {
         int[] values = new int[4];
 
-        color.between(3,4).raw(arr -> {
-            int i=0;
+        color.between(3, 4).raw(arr -> {
+            int i = 0;
             values[0] = arr.size() == 4 ? arr.get(i++).getAsInt() : 0xFF;
             values[1] = arr.get(i++).getAsInt();
             values[2] = arr.get(i++).getAsInt();
@@ -270,5 +270,4 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
             throw new ThingParseException("Render layer " + layerName + " is not a valid block chunk layer.");
         return layerName;
     }
-
 }

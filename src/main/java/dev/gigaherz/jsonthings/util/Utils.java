@@ -18,11 +18,13 @@ import java.util.function.Supplier;
 
 public class Utils
 {
-    public static TagKey<Item> itemTag(String pName) {
+    public static TagKey<Item> itemTag(String pName)
+    {
         return TagKey.create(Registries.ITEM, new ResourceLocation(pName));
     }
 
-    public static TagKey<Block> blockTag(String pName) {
+    public static TagKey<Block> blockTag(String pName)
+    {
         return TagKey.create(Registries.BLOCK, new ResourceLocation(pName));
     }
 

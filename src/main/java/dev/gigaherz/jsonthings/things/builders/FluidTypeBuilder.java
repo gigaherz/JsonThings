@@ -348,7 +348,8 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         if (flowingTexture == null)
             throw new IllegalStateException("FluidType requires a flowing_texture value");
 
-        return new FluidType(props) {
+        return new FluidType(props)
+        {
             @Override
             public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer)
             {
@@ -381,5 +382,4 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
             }
         };
     }
-
 }

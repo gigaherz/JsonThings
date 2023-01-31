@@ -14,7 +14,10 @@ import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -181,7 +184,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         return new ResourceLocation(getFluidType().getDefaultLayer());
     }
 
-    public void register(BiConsumer<ResourceLocation,Fluid> register)
+    public void register(BiConsumer<ResourceLocation, Fluid> register)
     {
         if (isInErrorState()) return;
         get();

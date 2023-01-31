@@ -87,7 +87,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
 
             JParse.begin(data)
                     .ifKey("slope_distance", any -> any.intValue().min(1).handle(slopeDistance::setValue))
-                    .ifKey("dropoff", any -> any.intValue().range(1,8).handle(dropOff::setValue))
+                    .ifKey("dropoff", any -> any.intValue().range(1, 8).handle(dropOff::setValue))
                     .ifKey("can_convert_to_source", any -> any.bool().handle(canConvertToSource::setValue))
                     .ifKey("tick_delay", any -> any.intValue().min(0).handle(tickDelay::setValue))
                     .ifKey("explosion_resistance", any -> any.floatValue().handle(explosionResistance::setValue))
@@ -103,7 +103,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                     Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
                     return new FlexFlowingFluid(fluidType, _properties, propertyDefaultValues, slopeDistance.getValue(), dropOff.getValue(),
                             canConvertToSource.getValue(), tickDelay.getValue(), explosionResistance.getValue(), Lazy.of(() -> {
-                                var v = block.getValue();
+                        var v = block.getValue();
                         return v != null ? v.get().self() : Blocks.AIR;
                     }))
                     {
@@ -118,7 +118,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
 
                 public Iterable<Fluid> getAllSiblings(FluidBuilder builder)
                 {
-                    var main = (FlowingFluid)builder.get().self();
+                    var main = (FlowingFluid) builder.get().self();
                     return Arrays.asList(main.getSource(), main.getFlowing());
                 }
 
@@ -128,7 +128,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                     register.accept(builder.getRegistryName(), builder.get().self());
 
                     var flowingName = new ResourceLocation(builder.getRegistryName().getNamespace(), builder.getRegistryName().getPath() + "_flowing");
-                    register.accept(flowingName, ((FlowingFluid)builder.get().self()).getFlowing());
+                    register.accept(flowingName, ((FlowingFluid) builder.get().self()).getFlowing());
                 }
             };
         }

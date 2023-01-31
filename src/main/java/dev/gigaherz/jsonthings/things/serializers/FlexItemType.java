@@ -82,7 +82,7 @@ public class FlexItemType<T extends Item & IFlexItem>
             {
                 var thisName = builder.getRegistryName();
                 var path = thisName.getPath();
-                if (path.endsWith("_bucket")) path = path.substring(0,path.length() - "_bucket".length());
+                if (path.endsWith("_bucket")) path = path.substring(0, path.length() - "_bucket".length());
                 fluidName = new ResourceLocation(thisName.getNamespace(), path);
             }
             return new FlexBucketItem(Lazy.of(() -> Utils.getOrCrash(ForgeRegistries.FLUIDS, fluidName)), props,

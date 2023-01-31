@@ -161,7 +161,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
                     b.setType(FlexItemType.BLOCK);
             }));
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new ThingParseException("Exception while parsing nested item in " + builder.getRegistryName(), e);
         }

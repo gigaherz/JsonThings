@@ -41,7 +41,7 @@ public class RunnableQueue implements Executor
             throw new IllegalStateException("This method must be called in the main thread.");
         }
 
-        if (queue.size() > 0) LOGGER.debug("Running "+ queue.size() +" tasks (give or take)");
+        if (queue.size() > 0) LOGGER.debug("Running " + queue.size() + " tasks (give or take)");
 
         int n = 0;
         while (queue.size() > 0)

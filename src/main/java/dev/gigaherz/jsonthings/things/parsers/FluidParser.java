@@ -43,11 +43,12 @@ public class FluidParser extends ThingParser<FluidBuilder>
         event.register(Registries.FLUID, helper -> {
             LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
             processAndConsumeErrors(getThingType(), getBuilders(), thing ->
-                    thing.register(helper::register),
+                            thing.register(helper::register),
                     BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack Fluids.");
         });
     }
+
     @Override
     public FluidBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FluidBuilder> builderModification)
     {
@@ -103,7 +104,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
             var typeBuilder = JsonThings.fluidTypeParser.parseFromElement(builder.getRegistryName(), obj);
             builder.setAttributesType(typeBuilder::get);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new ThingParseException("Exception while parsing nested fluid in " + builder.getRegistryName(), e);
         }
@@ -148,7 +149,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
             jsonObject.addProperty("fluid", builder.getRegistryName().toString());
             builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(FlexItemType.BUCKET)));
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new ThingParseException("Exception while parsing nested bucket in " + builder.getRegistryName(), e);
         }

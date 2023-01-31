@@ -4,8 +4,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
@@ -31,6 +31,7 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class FlexBowlFoodItem extends Item implements IFlexItem
@@ -64,9 +65,8 @@ public class FlexBowlFoodItem extends Item implements IFlexItem
     {
         for (EquipmentSlot slot1 : EquipmentSlot.values())
         {
-            Multimap<Attribute, AttributeModifier> multimap = ArrayListMultimap.create();
-            multimap.putAll(super.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
-            attributeModifiers.put(slot1, multimap);
+            attributeModifiers.computeIfAbsent(slot1, key -> ArrayListMultimap.create())
+                    .putAll(super.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
         }
     }
 
@@ -105,7 +105,7 @@ public class FlexBowlFoodItem extends Item implements IFlexItem
 
         FlexEventResult result = runEvent("use_on_block", FlexEventContext.of(context), () -> new FlexEventResult(super.useOn(context), heldItem));
 
-        if (result.stack() != heldItem)
+        if (result.stack() != heldItem && context.getPlayer() != null)
         {
             context.getPlayer().setItemInHand(context.getHand(), result.stack());
         }
@@ -197,9 +197,7 @@ public class FlexBowlFoodItem extends Item implements IFlexItem
     {
         try
         {
-            if (containerResult != null)
-                return containerResult.getObject();
-            return doContainerItem(itemStack).getObject();
+            return Objects.requireNonNullElseGet(containerResult, () -> doContainerItem(itemStack)).getObject();
         }
         finally
         {

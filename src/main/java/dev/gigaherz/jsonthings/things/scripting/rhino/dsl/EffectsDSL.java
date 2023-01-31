@@ -43,7 +43,7 @@ public class EffectsDSL
         }
         if (args.length >= 5)
         {
-            visible = (boolean)args[4];
+            visible = (boolean) args[4];
         }
 
         var mobEffectInstance = new MobEffectInstance(effect, duration, amplifier, ambient, visible);

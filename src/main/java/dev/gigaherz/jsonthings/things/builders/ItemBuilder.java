@@ -6,10 +6,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
-import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
@@ -297,10 +297,10 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
         Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> modifiers = new HashMap<>();
 
-        for(var kv : mods.entrySet())
+        for (var kv : mods.entrySet())
         {
             var map = modifiers.computeIfAbsent(kv.getKey(), slot -> ArrayListMultimap.create());
-            for(var kv1 : kv.getValue().entries())
+            for (var kv1 : kv.getValue().entries())
             {
                 var attr = Utils.getOrCrash(ForgeRegistries.ATTRIBUTES, kv1.getKey());
                 map.put(attr, kv1.getValue());

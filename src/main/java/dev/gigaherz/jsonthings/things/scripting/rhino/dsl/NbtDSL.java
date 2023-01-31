@@ -236,11 +236,11 @@ public class NbtDSL
             compound = new CompoundTag();
             if ((args.length % 2) != 0)
                 throw new IllegalStateException("compound constructor must either have one compound param, or a sequence of key-value pairs");
-            for(int i=0;i<args.length;i+=2)
+            for (int i = 0; i < args.length; i += 2)
             {
                 compound.put(
-                        (String)args[i],
-                        wrapVanillaInternal(args[i+1])
+                        (String) args[i],
+                        wrapVanillaInternal(args[i + 1])
                 );
             }
         }

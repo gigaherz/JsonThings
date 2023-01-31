@@ -17,7 +17,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'maven-publish'
 
-version = "0.4.2"
+version = "0.4.5"
 group= "dev.gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "JsonThings-UNKNOWN"
 
@@ -118,11 +118,11 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.80'
 
     //library 'com.google.guava:guava:21.0'
-    runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
-    runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
-    runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
+    //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
+    //runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
+    //runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
 
-    implementation fg.deobf("curse.maven:rhino-416294:3647781")
+    implementation fg.deobf("curse.maven:rhino-416294:4069880")
 
     /*library 'org.graalvm.regex:regex:22.0.0.2'
     library 'org.graalvm.sdk:graal-sdk:22.0.0.2'

@@ -3,9 +3,9 @@ package dev.gigaherz.jsonthings.things;
 import com.mojang.serialization.Lifecycle;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.properties.PropertyTypes;
-import dev.gigaherz.jsonthings.things.serializers.BlockType;
-import dev.gigaherz.jsonthings.things.serializers.FluidType;
-import dev.gigaherz.jsonthings.things.serializers.ItemType;
+import dev.gigaherz.jsonthings.things.serializers.FlexBlockType;
+import dev.gigaherz.jsonthings.things.serializers.FlexFluidType;
+import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.MappedRegistry;
@@ -34,11 +34,11 @@ public class ThingRegistries
     public static final ResourceKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
     public static final ResourceKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
     public static final ResourceKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
-    public static final ResourceKey<Registry<BlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
+    public static final ResourceKey<Registry<FlexBlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
     public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
-    public static final ResourceKey<Registry<ItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
+    public static final ResourceKey<Registry<FlexItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
     public static final ResourceKey<Registry<SoundType>> SOUND_TYPE_REGISTRY = createKey("jsonthings:sound_types");
-    public static final ResourceKey<Registry<FluidType<?>>> FLUID_TYPE_REGISTRY = createKey("jsonthings:fluid_types");
+    public static final ResourceKey<Registry<FlexFluidType<?>>> FLUID_TYPE_REGISTRY = createKey("jsonthings:fluid_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental(), null);
     public static final Registry<ArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
@@ -46,11 +46,11 @@ public class ThingRegistries
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
     public static final Registry<DynamicShape> DYNAMIC_SHAPES = makeRegistry(DYNAMIC_SHAPE_REGISTRY);
-    public static final Registry<ItemType<?>> ITEM_TYPES = makeRegistry(ITEM_TYPE_REGISTRY);
-    public static final Registry<BlockType<?>> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
+    public static final Registry<FlexItemType<?>> ITEM_TYPES = makeRegistry(ITEM_TYPE_REGISTRY);
+    public static final Registry<FlexBlockType<?>> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
     public static final Registry<Material> BLOCK_MATERIALS = makeRegistry(BLOCK_MATERIAL_REGISTRY);
     public static final Registry<SoundType> SOUND_TYPES = makeRegistry(SOUND_TYPE_REGISTRY);
-    public static final Registry<FluidType<?>> FLUID_TYPES = makeRegistry(FLUID_TYPE_REGISTRY);
+    public static final Registry<FlexFluidType<?>> FLUID_TYPES = makeRegistry(FLUID_TYPE_REGISTRY);
 
     static
     {
@@ -68,13 +68,13 @@ public class ThingRegistries
 
         PropertyTypes.init();
 
-        BlockType.init();
+        FlexBlockType.init();
 
-        ItemType.init();
+        FlexItemType.init();
 
         MaterialColors.init();
 
-        FluidType.init();
+        FlexFluidType.init();
     }
 
     private static <T> ResourceKey<Registry<T>> createKey(String name)

@@ -130,7 +130,8 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     }
 
     @Override
-    public boolean isSame(Fluid pFluid) {
+    public boolean isSame(Fluid pFluid)
+    {
         return pFluid == getSource() || pFluid == getFlowing();
     }
 
@@ -152,7 +153,8 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         return explosionResistance;
     }
 
-    public BlockState createLegacyBlock(FluidState pState) {
+    public BlockState createLegacyBlock(FluidState pState)
+    {
         var b = block.get();
         if (b == Blocks.AIR)
             return b.defaultBlockState();
@@ -160,12 +162,14 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     }
 
     @Override
-    public int getAmount(FluidState state) {
+    public int getAmount(FluidState state)
+    {
         return 8;
     }
 
     @Override
-    public boolean isSource(FluidState state) {
+    public boolean isSource(FluidState state)
+    {
         return true;
     }
     //endregion
@@ -235,21 +239,25 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
             initializeFlex(propertyDefaultValues);
         }
 
-        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder)
+        {
             super.createFluidStateDefinition(builder);
             builder.add(LEVEL);
         }
 
         @Override
-        public boolean isSame(Fluid pFluid) {
+        public boolean isSame(Fluid pFluid)
+        {
             return pFluid == getSource() || pFluid == getFlowing();
         }
 
-        public int getAmount(FluidState state) {
+        public int getAmount(FluidState state)
+        {
             return state.getValue(LEVEL);
         }
 
-        public boolean isSource(FluidState state) {
+        public boolean isSource(FluidState state)
+        {
             return false;
         }
 

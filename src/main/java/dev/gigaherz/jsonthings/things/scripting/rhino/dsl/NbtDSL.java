@@ -18,7 +18,7 @@ public class NbtDSL
         if (scope.has(".use_nbt", scope))
             return;
 
-        scope.put("NBT", scope, new NativeJavaMap(scope, new Object(), ImmutableMap.<String, Object>builder()
+        scope.put("NBT", scope, new NativeJavaMap(cx.sharedContextData, scope, new Object(), ImmutableMap.<String, Object>builder()
                 .put("of", new LambdaBaseFunction(NbtDSL::wrap))
                 .put("boolean", new LambdaBaseFunction(NbtDSL::makeBoolTag))
                 .put("byte", new LambdaBaseFunction(NbtDSL::makeByteTag))
@@ -236,11 +236,11 @@ public class NbtDSL
             compound = new CompoundTag();
             if ((args.length % 2) != 0)
                 throw new IllegalStateException("compound constructor must either have one compound param, or a sequence of key-value pairs");
-            for(int i=0;i<args.length;i+=2)
+            for (int i = 0; i < args.length; i += 2)
             {
                 compound.put(
-                        (String)args[i],
-                        wrapVanillaInternal(args[i+1])
+                        (String) args[i],
+                        wrapVanillaInternal(args[i + 1])
                 );
             }
         }

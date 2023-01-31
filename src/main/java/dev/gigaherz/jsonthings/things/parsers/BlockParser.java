@@ -4,13 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
-import dev.gigaherz.jsonthings.things.serializers.ItemType;
+import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Direction;
@@ -27,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class BlockParser extends ThingParser<BlockBuilder>
@@ -45,25 +44,25 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
         IForgeRegistry<Block> registry = event.getRegistry();
-        getBuilders().forEach(thing -> registry.register(thing.get().self().setRegistryName(thing.getRegistryName())));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> registry.register(thing.get().self().setRegistryName(thing.getRegistryName())), BaseBuilder::getRegistryName);
         LOGGER.info("Done processing thingpack Blocks.");
     }
 
     @Override
     public BlockBuilder processThing(ResourceLocation key, JsonObject data, Consumer<BlockBuilder> builderModification)
     {
-        final BlockBuilder builder = BlockBuilder.begin(key);
+        final BlockBuilder builder = BlockBuilder.begin(this, key);
 
         MutableObject<Map<String, Property<?>>> propertiesByName = new MutableObject<>(new HashMap<>());
         MutableObject<Property<Direction>> facingProperty = new MutableObject<>();
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParentBlock))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setBlockType))
                 .ifKey("material", val -> val.string().map(ResourceLocation::new).handle(builder::setMaterial))
                 .ifKey("map_color", val -> val
-                        .ifString(str -> builder.setColor(MaterialColors.get(str.getAsString())))
-                        .ifInteger(str -> builder.setColor(MaterialColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
+                        .ifString(str -> builder.setMaterialColor(MaterialColors.get(str.getAsString())))
+                        .ifInteger(str -> builder.setMaterialColor(MaterialColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
                         .typeError()
                 )
                 .ifKey("requires_tool_for_drops", val -> val.bool().handle(builder::setRequiresToolForDrops))
@@ -91,7 +90,6 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("collision_shape", val -> val.raw(obj -> builder.setCollisionShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("raytrace_shape", val -> val.raw(obj -> builder.setRaytraceShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("render_layer", val -> val.map((AnyFunction<Set<String>>) ThingParser::parseRenderLayers).handle(builder::setRenderLayers))
                 .ifKey("not_solid", val -> val.bool().handle(builder::setSeeThrough))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("item", val -> parseItemBlock(builder, val))
@@ -108,9 +106,9 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         Property<?> prop = propertiesByName.getValue().get(name);
         if (prop == null)
-            throw new IllegalStateException("No property with name '" + name + "' declared in block.");
+            throw new ThingParseException("No property with name '" + name + "' declared in block.");
         if (prop.getValueClass() != Direction.class)
-            throw new IllegalStateException("The specified shape_rotation property is not a Direction property.");
+            throw new ThingParseException("The specified shape_rotation property is not a Direction property.");
         return prop;
     }
 
@@ -120,7 +118,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
         {
             String name = entry.getKey();
             JsonElement value = entry.getValue();
-            builder.withDefaultState(name, value.getAsString());
+            builder.setPropertyDefaultValue(name, value.getAsString());
         }
     }
 
@@ -132,9 +130,9 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifString(str -> str.handle(prop -> {
                     var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
                     if (property == null)
-                        throw new IllegalStateException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
+                        throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
                     if (!property.getName().equals(name))
-                        throw new IllegalStateException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
+                        throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
                     map.put(name, property);
                 }))
                 .ifObj(obj -> obj.raw(rawObj -> map.put(name, PropertyType.deserialize(name, rawObj))))
@@ -156,9 +154,16 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
     private static void createItemBlock(BlockBuilder builder, JsonObject obj)
     {
-        builder.withItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
-            if (!b.hasType())
-                b.setType(ItemType.BLOCK);
-        }));
+        try
+        {
+            builder.setItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
+                if (!b.hasType())
+                    b.setType(FlexItemType.BLOCK);
+            }));
+        }
+        catch (Exception e)
+        {
+            throw new ThingParseException("Exception while parsing nested item in " + builder.getRegistryName(), e);
+        }
     }
 }

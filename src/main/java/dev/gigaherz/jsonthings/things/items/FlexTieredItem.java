@@ -1,9 +1,9 @@
 package dev.gigaherz.jsonthings.things.items;
 
 import com.google.common.collect.*;
-import dev.gigaherz.jsonthings.things.CompletionMode;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
+import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
@@ -27,72 +27,45 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class FlexTieredItem extends TieredItem implements IFlexItem
 {
-    public FlexTieredItem(Tier material, Properties properties)
+    public FlexTieredItem(Tier material, Properties properties,
+                          @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
+                          Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
+                          List<MutableComponent> lore)
     {
         super(material, properties);
+        this.useAction = useAction;
+        this.useTime = useTime;
+        this.useFinishMode = useFinishMode;
+        this.attributeModifiers = attributeModifiers;
+        this.lore = lore;
         initializeFlex();
     }
 
     //region IFlexItem
     private final Multimap<CreativeModeTab, StackContext> perTabStacks = ArrayListMultimap.create();
     private final List<StackContext> searchTabStacks = Lists.newArrayList();
-    private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers = Maps.newHashMap();
     private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
-    private UseAnim useAction;
-    private int useTime;
-    private CompletionMode useFinishMode;
+    private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers;
+    private final UseAnim useAction;
+    private final Integer useTime;
+    private final UseFinishMode useFinishMode;
+    private final List<MutableComponent> lore;
+
     private InteractionResultHolder<ItemStack> containerResult;
-    private List<MutableComponent> lore;
 
     private void initializeFlex()
     {
         for (EquipmentSlot slot1 : EquipmentSlot.values())
         {
-            Multimap<Attribute, AttributeModifier> multimap = ArrayListMultimap.create();
-            multimap.putAll(super.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
-            attributeModifiers.put(slot1, multimap);
+            attributeModifiers.computeIfAbsent(slot1, key -> ArrayListMultimap.create())
+                    .putAll(super.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
         }
-    }
-
-    @Override
-    public void setUseAction(UseAnim useAction)
-    {
-        this.useAction = useAction;
-    }
-
-    @Override
-    public UseAnim getUseAction()
-    {
-        return useAction;
-    }
-
-    @Override
-    public void setUseTime(int useTicks)
-    {
-        this.useTime = useTicks;
-    }
-
-    @Override
-    public int getUseTime()
-    {
-        return useTime;
-    }
-
-    @Override
-    public void setUseFinishMode(CompletionMode onComplete)
-    {
-        this.useFinishMode = onComplete;
-    }
-
-    @Override
-    public CompletionMode getUseFinishMode()
-    {
-        return useFinishMode;
     }
 
     @Override
@@ -117,29 +90,23 @@ public class FlexTieredItem extends TieredItem implements IFlexItem
         searchTabStacks.add(stack);
     }
 
-    @Override
-    public void addAttributeModifier(@Nullable EquipmentSlot slot, Attribute attribute, AttributeModifier modifier)
-    {
-        if (slot != null)
-        {
-            attributeModifiers.get(slot).put(attribute, modifier);
-        }
-        else
-        {
-            for (EquipmentSlot slot1 : EquipmentSlot.values())
-            {attributeModifiers.get(slot1).put(attribute, modifier);}
-        }
-    }
-
-    @Override
-    public void setLore(List<MutableComponent> lore)
-    {
-        this.lore = lore;
-    }
-
     //endregion
 
     //region Item
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
+    {
+        ItemStack heldItem = playerIn.getItemInHand(handIn);
+        if (useTime != null && useTime > 0)
+            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> {
+                playerIn.startUsingItem(handIn);
+                return FlexEventResult.consume(heldItem);
+            }).holder();
+        else
+            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context)
     {
@@ -147,12 +114,30 @@ public class FlexTieredItem extends TieredItem implements IFlexItem
 
         FlexEventResult result = runEvent("use_on_block", FlexEventContext.of(context), () -> new FlexEventResult(super.useOn(context), heldItem));
 
-        if (result.stack() != heldItem)
+        if (result.stack() != heldItem && context.getPlayer() != null)
         {
             context.getPlayer().setItemInHand(context.getHand(), result.stack());
         }
 
         return result.result();
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack)
+    {
+        return Utils.orElseGet(useAction, () -> super.getUseAnimation(stack));
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack)
+    {
+        return Utils.orElseGet(useTime, () -> super.getUseDuration(stack));
+    }
+
+    @Override
+    public boolean useOnRelease(ItemStack stack)
+    {
+        return Utils.orElseGet(useFinishMode.isUseOnRelease(), () -> super.useOnRelease(stack));
     }
 
     @Override
@@ -176,16 +161,6 @@ public class FlexTieredItem extends TieredItem implements IFlexItem
             return result.stack();
 
         return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).stack();
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
-    {
-        ItemStack heldItem = playerIn.getItemInHand(handIn);
-        if (useTime > 0)
-            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
-        else
-            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
     }
 
     @Override
@@ -244,9 +219,7 @@ public class FlexTieredItem extends TieredItem implements IFlexItem
     {
         try
         {
-            if (containerResult != null)
-                return containerResult.getObject();
-            return doContainerItem(itemStack).getObject();
+            return Objects.requireNonNullElseGet(containerResult, () -> doContainerItem(itemStack)).getObject();
         }
         finally
         {
@@ -257,7 +230,7 @@ public class FlexTieredItem extends TieredItem implements IFlexItem
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
     {
-        return Utils.orElse(attributeModifiers.get(slot), HashMultimap::create);
+        return Utils.orElseGet(attributeModifiers.get(slot), HashMultimap::create);
     }
 
     //endregion

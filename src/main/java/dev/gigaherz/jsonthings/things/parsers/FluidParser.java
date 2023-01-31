@@ -4,9 +4,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
-import dev.gigaherz.jsonthings.things.serializers.ItemType;
+import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.function.AnyFunction;
 import dev.gigaherz.jsonthings.util.parse.function.ArrayValueFunction;
@@ -42,21 +43,19 @@ public class FluidParser extends ThingParser<FluidBuilder>
     {
         LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
         IForgeRegistry<Fluid> registry = event.getRegistry();
-        getBuilders().forEach(thing -> {
-            thing.register(registry);
-        });
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> thing.register(registry), BaseBuilder::getRegistryName);
         LOGGER.info("Done processing thingpack Blocks.");
     }
 
     @Override
     public FluidBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FluidBuilder> builderModification)
     {
-        final FluidBuilder builder = FluidBuilder.begin(key);
+        final FluidBuilder builder = FluidBuilder.begin(this, key);
 
         MutableObject<Map<String, Property<?>>> propertiesByName = new MutableObject<>(new HashMap<>());
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParentFluid))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setFluidType))
                 .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
                     propertiesByName.setValue(properties);
@@ -120,9 +119,9 @@ public class FluidParser extends ThingParser<FluidBuilder>
                 .ifString(str -> str.handle(prop -> {
                     var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
                     if (property == null)
-                        throw new IllegalStateException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
+                        throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
                     if (!property.getName().equals(name))
-                        throw new IllegalStateException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
+                        throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
                     map.put(name, property);
                 }))
                 .ifObj(obj -> obj.raw(rawObj -> map.put(name, PropertyType.deserialize(name, rawObj))))
@@ -132,11 +131,18 @@ public class FluidParser extends ThingParser<FluidBuilder>
 
     private void createStockBucketItem(ResourceLocation bucketName, FluidBuilder builder, JsonObject jsonObject)
     {
-        if (jsonObject.has("fluid"))
+        try
         {
-            throw new RuntimeException("Inline fluid bucket definition cannot contain a fluid entry.");
+            if (jsonObject.has("fluid"))
+            {
+                throw new ThingParseException("Inline fluid bucket definition cannot contain a fluid entry.");
+            }
+            jsonObject.addProperty("fluid", builder.getRegistryName().toString());
+            builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(FlexItemType.BUCKET)));
         }
-        jsonObject.addProperty("fluid", builder.getRegistryName().toString());
-        builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(ItemType.BUCKET)));
+        catch (Exception e)
+        {
+            throw new ThingParseException("Exception while parsing nested bucket in " + builder.getRegistryName(), e);
+        }
     }
 }

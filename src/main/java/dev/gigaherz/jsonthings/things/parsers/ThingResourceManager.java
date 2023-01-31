@@ -66,7 +66,7 @@ public class ThingResourceManager
         packList = new PackRepository(CustomPackType.THINGS, folderPackFinder);
     }
 
-    public <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
+    public synchronized <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
     {
         if (parsersMap.containsKey(parser.getThingType()))
             throw new IllegalStateException("There is already a parser registered for type " + parser.getThingType());
@@ -109,6 +109,8 @@ public class ThingResourceManager
         resourceManager.registerReloadListener(listener);
     }
 
+    private static final CompletableFuture<Unit> RESOURCE_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
+
     public CompletableFuture<ThingResourceManager> beginLoading()
     {
         packList.reload();
@@ -118,7 +120,7 @@ public class ThingResourceManager
         mainThreadExecutor = new QueueableExecutor();
 
         return resourceManager
-                .createReload(Util.backgroundExecutor(), mainThreadExecutor, CompletableFuture.completedFuture(Unit.INSTANCE), packList.openAllSelected())
+                .createReload(Util.backgroundExecutor(), mainThreadExecutor, RESOURCE_RELOAD_INITIAL_TASK, packList.openAllSelected())
                 .done()
                 .whenComplete((unit, throwable) -> {
                     if (throwable != null)

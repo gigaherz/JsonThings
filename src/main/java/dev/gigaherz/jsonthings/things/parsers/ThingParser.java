@@ -4,18 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.mojang.logging.LogUtils;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
+import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -23,12 +19,59 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Rarity;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.ModLoadingStage;
+import net.minecraftforge.fml.ModLoadingWarning;
+import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends SimpleJsonResourceReloadListener
+public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> extends SimpleJsonResourceReloadListener
 {
+    public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, ResourceLocation> keyGetter)
+    {
+        list.forEach((thing) -> {
+            processAndConsumeErrors(thingType, () -> consumer.accept(thing), () -> keyGetter.apply(thing));
+        });
+    }
+
+    public static <K, V> void processAndConsumeErrors(String thingType, Map<K, V> list, BiConsumer<K, V> consumer, Function<K, ResourceLocation> keyGetter)
+    {
+        list.forEach((key, value) -> {
+            processAndConsumeErrors(thingType, () -> consumer.accept(key, value), () -> keyGetter.apply(key));
+        });
+    }
+
+    public static void processAndConsumeErrors(String thingType, Runnable r, Supplier<ResourceLocation> keyGetter)
+    {
+        try
+        {
+            r.run();
+        }
+        catch (JsonParseException | KeyNotFoundException | ThingParseException | IllegalStateException e)
+        {
+            processParseException(thingType, keyGetter.get(), e);
+        }
+    }
+
+    public static void processParseException(String thingType, ResourceLocation key, Throwable e)
+    {
+        var message = "Error parsing " + thingType + " with id '" + key + "': " + e.getMessage();
+        LOGGER.error(message);
+        LOGGER.debug("Details for message above", e);
+        var modContainer = ModList.get().getModContainerById(key.getNamespace());
+        if (modContainer.isEmpty())
+            modContainer = ModList.get().getModContainerById("jsonthings");
+        ModLoader.get().addWarning(new ModLoadingWarning(modContainer.orElseThrow().getModInfo(), ModLoadingStage.ERROR, "Json Things: " + message));
+    }
+
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final Map<ResourceLocation, TBuilder> buildersByName = Maps.newHashMap();
@@ -46,34 +89,25 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
     {
-        objectIn.forEach(this::parseFromElement);
+        processAndConsumeErrors(thingType, objectIn, (key, json) -> {
+            var builder = parseFromElement(key, json);
+            buildersByName.put(key, builder);
+        }, Function.identity());
     }
 
     protected abstract TBuilder processThing(ResourceLocation key, JsonObject data, Consumer<TBuilder> builderModification);
 
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json)
     {
-        return parseFromElement(key, json, (b) -> {});
+        return parseFromElement(key, json, (b) -> {
+        });
     }
 
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json, Consumer<TBuilder> builderModification)
     {
-        try
-        {
-            TBuilder builder = processThing(key, json.getAsJsonObject(), builderModification);
-            buildersByName.put(key, builder);
-            builders.add(builder);
-            return builder;
-        }
-        catch (Exception e)
-        {
-            CrashReport crashReport = CrashReport.forThrowable(e, "Error while parsing " + thingType + " from " + key);
-
-            CrashReportCategory reportCategory = crashReport.addCategory("Thing", 1);
-            reportCategory.setDetail("Resource name", key);
-
-            throw new ReportedException(crashReport);
-        }
+        TBuilder builder = processThing(key, json.getAsJsonObject(), builderModification);
+        builders.add(builder);
+        return builder;
     }
 
     public List<TBuilder> getBuilders()
@@ -110,7 +144,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
             }
             catch (Exception e)
             {
-                throw new RuntimeException("Failed to parse NBT json.", e);
+                throw new ThingParseException("Failed to parse NBT json.", e);
             }
         }
 
@@ -126,23 +160,15 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
                     .ifString(val -> map.put(str, List.of(new ResourceLocation(val.getAsString()))))
                     .ifArray(arr -> map.put(str, arr.flatMap(f -> f.map(val -> new ResourceLocation(val.string().getAsString())).toList())))
                     .typeError();
-
         });
 
         return map;
     }
 
-    protected ResourceLocation makeResourceLocation(ResourceLocation key, String name)
-    {
-        if (name.contains(":"))
-            return new ResourceLocation(name);
-        return new ResourceLocation(key.getNamespace(), name);
-    }
-
     protected static Rarity parseRarity(String str)
     {
         Rarity rarity = rarities.get(str);
-        if (rarity == null) throw new IllegalStateException("No item rarity known with name " + str);
+        if (rarity == null) throw new ThingParseException("No item rarity known with name " + str);
         return rarity;
     }
 
@@ -171,7 +197,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
     {
         TBuilder b = buildersByName.get(name);
         if (b == null)
-            throw new RuntimeException("There is no known " + thingType + " with name " + name);
+            throw new ThingParseException("There is no known " + thingType + " with name " + name);
         return b;
     }
 
@@ -183,18 +209,18 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
 
             if (color.length() == 8)
             {
-                return (int)Long.parseLong(color, 16);
+                return (int) Long.parseLong(color, 16);
             }
-            else if(color.length() == 6)
+            else if (color.length() == 6)
             {
                 return 0xFF | Integer.parseInt(color, 16);
             }
             else
             {
-                throw new RuntimeException("Color hex string must be either 6 or 8 digits long.");
+                throw new ThingParseException("Color hex string must be either 6 or 8 digits long.");
             }
         }
-        return (int)Long.parseLong(color);
+        return (int) Long.parseLong(color);
     }
 
     public static int parseColor(ObjValue color)
@@ -204,10 +230,10 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
         values[0] = 0xFF;
 
         color
-                .ifKey("a", any -> any.intValue().handle(i -> values[0]=i))
-                .ifKey("r", any -> any.intValue().handle(i -> values[1]=i))
-                .ifKey("g", any -> any.intValue().handle(i -> values[2]=i))
-                .ifKey("b", any -> any.intValue().handle(i -> values[3]=i));
+                .ifKey("a", any -> any.intValue().handle(i -> values[0] = i))
+                .ifKey("r", any -> any.intValue().handle(i -> values[1] = i))
+                .ifKey("g", any -> any.intValue().handle(i -> values[2] = i))
+                .ifKey("b", any -> any.intValue().handle(i -> values[3] = i));
 
         return (values[0] << 24) | (values[1] << 16) | (values[2] << 8) | (values[3]);
     }
@@ -216,8 +242,8 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
     {
         int[] values = new int[4];
 
-        color.between(3,4).raw(arr -> {
-            int i=0;
+        color.between(3, 4).raw(arr -> {
+            int i = 0;
             values[0] = arr.size() == 4 ? arr.get(i++).getAsInt() : 0xFF;
             values[1] = arr.get(i++).getAsInt();
             values[2] = arr.get(i++).getAsInt();
@@ -244,5 +270,4 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?>> extends Simpl
             throw new IllegalStateException("Render layer " + layerName + " is not a valid block chunk layer.");
         return layerName;
     }
-
 }

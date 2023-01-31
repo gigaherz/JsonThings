@@ -28,9 +28,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class FluidType<T extends Fluid & IFlexFluid>
+public class FlexFluidType<T extends Fluid & IFlexFluid>
 {
-    public static final FluidType<FlexFluid> PLAIN = register("plain", (builder, data) -> new IFluidFactory<FlexFluid>()
+    public static final FlexFluidType<FlexFluid> PLAIN = register("plain", (builder, data) -> new IFluidFactory<FlexFluid>()
     {
         @Override
         public FlexFluid construct(FluidBuilder builder)
@@ -49,7 +49,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
         }
     }, "translucent");
 
-    public static final FluidType<FlexFlowingFluid> FLOWING = register("flowing", new IFluidSerializer<FlexFlowingFluid>()
+    public static final FlexFluidType<FlexFlowingFluid> FLOWING = register("flowing", new IFluidSerializer<FlexFlowingFluid>()
     {
         private static void parseLiquidBlock(ResourceLocation name, Any val, Consumer<BlockBuilder> blockConsumer)
         {
@@ -68,7 +68,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
             obj.addProperty("fluid", name.toString());
             blockConsumer.accept(JsonThings.blockParser.parseFromElement(name, obj, b -> {
                 if (!b.hasBlockType())
-                    b.setBlockType(BlockType.LIQUID);
+                    b.setBlockType(FlexBlockType.LIQUID);
             }));
         }
 
@@ -84,7 +84,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
 
             JParse.begin(data)
                     .ifKey("slope_distance", any -> any.intValue().min(1).handle(slopeDistance::setValue))
-                    .ifKey("dropoff", any -> any.intValue().range(1,8).handle(dropOff::setValue))
+                    .ifKey("dropoff", any -> any.intValue().range(1, 8).handle(dropOff::setValue))
                     .ifKey("can_convert_to_source", any -> any.bool().handle(canConvertToSource::setValue))
                     .ifKey("tick_delay", any -> any.intValue().min(0).handle(tickDelay::setValue))
                     .ifKey("explosion_resistance", any -> any.floatValue().handle(explosionResistance::setValue))
@@ -99,7 +99,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
                     Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
                     return new FlexFlowingFluid(_properties, propertyDefaultValues, slopeDistance.getValue(), dropOff.getValue(),
                             canConvertToSource.getValue(), tickDelay.getValue(), explosionResistance.getValue(), Lazy.of(() -> {
-                                var v = block.getValue();
+                        var v = block.getValue();
                         return v != null ? v.get().self() : Blocks.AIR;
                     }))
                     {
@@ -114,7 +114,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
 
                 public Iterable<Fluid> getAllSiblings(FluidBuilder builder)
                 {
-                    var main = (FlowingFluid)builder.get().self();
+                    var main = (FlowingFluid) builder.get().self();
                     return Arrays.asList(main.getSource(), main.getFlowing());
                 }
 
@@ -124,7 +124,7 @@ public class FluidType<T extends Fluid & IFlexFluid>
                     register.accept(builder.getRegistryName(), builder.get().self());
 
                     var flowingName = new ResourceLocation(builder.getRegistryName().getNamespace(), builder.getRegistryName().getPath() + "_flowing");
-                    register.accept(flowingName, ((FlowingFluid)builder.get().self()).getFlowing());
+                    register.accept(flowingName, ((FlowingFluid) builder.get().self()).getFlowing());
                 }
             };
         }
@@ -135,16 +135,16 @@ public class FluidType<T extends Fluid & IFlexFluid>
         /* do nothing */
     }
 
-    public static <T extends Fluid & IFlexFluid> FluidType<T> register(String name, IFluidSerializer<T> factory, String defaultLayer, Property<?>... stockProperties)
+    public static <T extends Fluid & IFlexFluid> FlexFluidType<T> register(String name, IFluidSerializer<T> factory, String defaultLayer, Property<?>... stockProperties)
     {
-        return Registry.register(ThingRegistries.FLUID_TYPES, name, new FluidType<>(factory, defaultLayer, Arrays.asList(stockProperties)));
+        return Registry.register(ThingRegistries.FLUID_TYPES, name, new FlexFluidType<>(factory, defaultLayer, Arrays.asList(stockProperties)));
     }
 
     private final IFluidSerializer<T> factory;
     private final List<Property<?>> stockProperties;
     private final String defaultLayer;
 
-    private FluidType(IFluidSerializer<T> factory, String defaultLayer, List<Property<?>> stockProperties)
+    private FlexFluidType(IFluidSerializer<T> factory, String defaultLayer, List<Property<?>> stockProperties)
     {
         this.factory = factory;
         this.defaultLayer = defaultLayer;

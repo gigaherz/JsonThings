@@ -23,8 +23,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
-
 public class FlexSaplingBlock extends SaplingBlock implements IFlexBlock
 {
     public FlexSaplingBlock(AbstractTreeGrower treeGrower, Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)

@@ -1,14 +1,19 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 
-public class BlockMaterialBuilder extends BaseBuilder<Material>
+public class BlockMaterialBuilder extends BaseBuilder<Material, BlockMaterialBuilder>
 {
-    private PushReaction pushReaction = PushReaction.NORMAL;
+    public static BlockMaterialBuilder begin(ThingParser<BlockMaterialBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new BlockMaterialBuilder(ownerParser, registryName);
+    }
 
+    private PushReaction pushReaction = PushReaction.NORMAL;
     private MaterialColor color;
     private boolean blocksMotion = true;
     private boolean flammable;
@@ -17,20 +22,15 @@ public class BlockMaterialBuilder extends BaseBuilder<Material>
     private boolean solid = true;
     private boolean solidBlocking = true;
 
-    private BlockMaterialBuilder(ResourceLocation registryName)
+    private BlockMaterialBuilder(ThingParser<BlockMaterialBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
     protected String getThingTypeDisplayName()
     {
         return "Block Material";
-    }
-
-    public static BlockMaterialBuilder begin(ResourceLocation registryName)
-    {
-        return new BlockMaterialBuilder(registryName);
     }
 
     public void setPushReaction(PushReaction pushReaction)

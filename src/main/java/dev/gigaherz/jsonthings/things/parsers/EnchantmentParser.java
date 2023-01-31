@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.EnchantmentBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
@@ -36,14 +37,14 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     {
         LOGGER.info("Started registering Enchantment things, errors about unexpected registry domains are harmless...");
         IForgeRegistry<Enchantment> registry = event.getRegistry();
-        getBuilders().forEach(thing -> registry.register((thing.get()).setRegistryName(thing.getRegistryName())));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> registry.register(thing.get().setRegistryName(thing.getRegistryName())), BaseBuilder::getRegistryName);
         LOGGER.info("Done processing thingpack Enchantments.");
     }
 
     @Override
     public EnchantmentBuilder processThing(ResourceLocation key, JsonObject data, Consumer<EnchantmentBuilder> builderModification)
     {
-        final EnchantmentBuilder builder = EnchantmentBuilder.begin(key);
+        final EnchantmentBuilder builder = EnchantmentBuilder.begin(this, key);
 
         MutableInt minLevel = new MutableInt(1);
 
@@ -80,14 +81,14 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     private EnchantmentCategory parseEnchantmentType(String str)
     {
         EnchantmentCategory type = types.get(str);
-        if (type == null) throw new IllegalStateException("No enchantment type known with name " + str);
+        if (type == null) throw new ThingParseException("No enchantment type known with name " + str);
         return type;
     }
 
     private Enchantment.Rarity parseEnchantmentRarity(String str)
     {
         Enchantment.Rarity rarity = rarities.get(str);
-        if (rarity == null) throw new IllegalStateException("No enchantment rarity known with name " + str);
+        if (rarity == null) throw new ThingParseException("No enchantment rarity known with name " + str);
         return rarity;
     }
 

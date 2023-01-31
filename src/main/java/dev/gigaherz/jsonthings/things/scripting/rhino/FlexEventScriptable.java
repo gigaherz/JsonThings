@@ -36,7 +36,7 @@ public class FlexEventScriptable extends NativeJavaObject
 
             var scope = ScriptableObject.getTopLevelScope(this);
             Context cx = Context.getContext();
-            return cx.getWrapFactory().wrap(cx, scope, rval, val.getType());
+            return cx.sharedContextData.getWrapFactory().wrap(cx.sharedContextData, scope, rval, val.getType());
         }
         return super.get(name, start);
     }

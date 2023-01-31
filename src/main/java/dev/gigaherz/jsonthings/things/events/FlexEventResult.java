@@ -14,6 +14,7 @@ public record FlexEventResult(InteractionResult result, @Nullable Object object)
     {
         return new FlexEventResult(InteractionResult.SUCCESS, null);
     }
+
     public static FlexEventResult success(@Nonnull Object resultState)
     {
         return new FlexEventResult(InteractionResult.SUCCESS, resultState);
@@ -23,6 +24,7 @@ public record FlexEventResult(InteractionResult result, @Nullable Object object)
     {
         return new FlexEventResult(InteractionResult.CONSUME, null);
     }
+
     public static FlexEventResult consume(@Nonnull Object resultState)
     {
         return new FlexEventResult(InteractionResult.CONSUME, resultState);
@@ -32,6 +34,7 @@ public record FlexEventResult(InteractionResult result, @Nullable Object object)
     {
         return new FlexEventResult(InteractionResult.CONSUME_PARTIAL, null);
     }
+
     public static FlexEventResult consumePartial(@Nonnull Object resultState)
     {
         return new FlexEventResult(InteractionResult.CONSUME_PARTIAL, resultState);
@@ -41,6 +44,7 @@ public record FlexEventResult(InteractionResult result, @Nullable Object object)
     {
         return new FlexEventResult(InteractionResult.PASS, null);
     }
+
     public static FlexEventResult pass(@Nonnull Object resultState)
     {
         return new FlexEventResult(InteractionResult.PASS, resultState);
@@ -50,6 +54,7 @@ public record FlexEventResult(InteractionResult result, @Nullable Object object)
     {
         return new FlexEventResult(InteractionResult.FAIL, null);
     }
+
     public static FlexEventResult fail(@Nonnull Object resultState)
     {
         return new FlexEventResult(InteractionResult.FAIL, resultState);

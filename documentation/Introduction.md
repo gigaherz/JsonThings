@@ -7,15 +7,16 @@ A Thing Pack supports a set of file types for defining different things.
 ### Formats with their own JSON files
 
 * [Items](./formats/Items.md)
+  * [Item Tiers](./formats/ItemTiers.md)
+  * [Armor Materials](./formats/ArmorMaterials.md)
+  * [Food Definitions](./formats/Food.md)
+  * [Creative Mode Tabs](./formats/CreativeModeTabs.md)
 * [Blocks](./formats/Blocks.md)
+  * [Block Materials](./formats/BlockMaterials.md)
+  * [Voxel Shape models](./formats/VoxelShapes.md)
 * [Fluids](./formats/Fluids.md)
-* [Item Tiers](./formats/ItemTiers.md)
+  * [Fluid Types](./formats/FluidTypes.md)
 * [Enchantments](./formats/Enchantments.md)
-* [Armor Materials](./formats/ArmorMaterials.md)
-* [Block Materials](./formats/BlockMaterials.md)
-* [Food Definitions](./formats/Food.md)
-* [Creative Mode Tabs](./formats/CreativeModeTabs.md)
-* [Voxel Shape models](./formats/VoxelShapes.md)
 
 ### Formats used inside other JSON files
 
@@ -26,6 +27,6 @@ A Thing Pack supports a set of file types for defining different things.
 
 ### Version
 
-This documentation is for the 1.17.1 version of the mod.
+This documentation is for the 1.18.2 version of the mod.
 
-For the 1.16.5 documentation see the [1.16 branch](https://github.com/gigaherz/JsonThings/blob/1.16/documentation/Introduction.md).
+For other versions see the appropriate branch in the branch selector.

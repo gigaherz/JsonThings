@@ -60,6 +60,7 @@ public class JsonThings
     public static BlockMaterialParser blockMaterialParser;
     public static ArmorMaterialParser armorMaterialParser;
     public static CreativeModeTabParser creativeModeTabParser;
+    public static MobEffectInstanceParser mobEffectInstanceParser;
 
     public JsonThings()
     {
@@ -80,6 +81,7 @@ public class JsonThings
         blockMaterialParser = manager.registerParser(new BlockMaterialParser());
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser());
+        mobEffectInstanceParser = manager.registerParser(new MobEffectInstanceParser());
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;
@@ -141,6 +143,7 @@ public class JsonThings
         public static void clientSetup(FMLClientSetupEvent event)
         {
             JsonThings.blockParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 Set<String> layers = thing.getRenderLayers();
                 if (layers.size() != 1 || !layers.contains("solid"))
                 {
@@ -149,6 +152,7 @@ public class JsonThings
                 }
             });
             JsonThings.fluidParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 Set<String> layers = thing.getRenderLayers();
                 if (layers.size() != 1 || !layers.contains("solid"))
                 {
@@ -178,6 +182,7 @@ public class JsonThings
         public static void itemColorHandlers(ColorHandlerEvent.Item event)
         {
             JsonThings.itemParser.getBuilders().forEach(thing -> {
+                if (thing.isInErrorState()) return;
                 String handlerName = thing.getColorHandler();
                 if (handlerName != null)
                 {

@@ -4,8 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.IFlexFluid;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
-import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
-import dev.gigaherz.jsonthings.things.serializers.FluidType;
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
+import dev.gigaherz.jsonthings.things.serializers.FlexFluidType;
 import dev.gigaherz.jsonthings.things.serializers.IFluidFactory;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
@@ -21,13 +21,17 @@ import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class FluidBuilder extends BaseBuilder<IFlexFluid>
+public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 {
-    private FluidType<?> fluidType;
+    public static FluidBuilder begin(ThingParser<FluidBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new FluidBuilder(ownerParser, registryName);
+    }
+
+    private FlexFluidType<?> fluidType;
     private List<Property<?>> properties;
     private Map<String, Property<?>> propertiesByName;
     private Map<String, String> propertyDefaultValues;
@@ -55,9 +59,9 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
 
     private IFluidFactory<? extends Fluid> factory;
 
-    private FluidBuilder(ResourceLocation registryName)
+    private FluidBuilder(ThingParser<FluidBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
@@ -66,14 +70,9 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
         return "Fluid";
     }
 
-    public static FluidBuilder begin(ResourceLocation registryName)
-    {
-        return new FluidBuilder(registryName);
-    }
-
     public void setFluidType(ResourceLocation typeName)
     {
-        FluidType<?> FluidType = ThingRegistries.FLUID_TYPES.get(typeName);
+        FlexFluidType<?> FluidType = ThingRegistries.FLUID_TYPES.get(typeName);
         if (FluidType == null)
             throw new IllegalStateException("No known Fluid type with name " + typeName);
         this.fluidType = FluidType;
@@ -221,15 +220,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
             flexFluid.setBucketItem(Lazy.of(() -> getBucketBuilder().get().self()));
         flexFluid.setAttributesBuilder(attrsBuilder);
 
-        if (ScriptParser.isEnabled())
-        {
-            forEachEvent((key, list) -> {
-                for (var ev : list)
-                {
-                    flexFluid.addEventHandler(key, ScriptParser.instance().getEvent(ev));
-                }
-            });
-        }
+        constructEventHandlers(flexFluid);
 
         return flexFluid;
     }
@@ -264,43 +255,31 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     }
 
     @Nullable
-    private <T> T getValueWithParent(@Nullable T thisValue, Function<FluidBuilder, T> parentGetter)
+    public FlexFluidType<?> getFluidTypeRaw()
     {
-        if (thisValue != null) return thisValue;
-        if (getParent() != null)
-        {
-            FluidBuilder parent = getParentBuilderName();
-            return parentGetter.apply(parent);
-        }
-        return null;
+        return getValue(fluidType, FluidBuilder::getFluidTypeRaw);
     }
 
-    @Nullable
-    public FluidType<?> getFluidTypeRaw()
+    public FlexFluidType<?> getFluidType()
     {
-        return getValueWithParent(fluidType, FluidBuilder::getFluidTypeRaw);
-    }
-
-    public FluidType<?> getFluidType()
-    {
-        return Utils.orElse(getFluidTypeRaw(), () -> FluidType.PLAIN);
+        return Utils.orElseGet(getFluidTypeRaw(), () -> FlexFluidType.PLAIN);
     }
 
     @Nullable
     public List<Property<?>> getPropertiesRaw()
     {
-        return getValueWithParent(properties, FluidBuilder::getPropertiesRaw);
+        return getValue(properties, FluidBuilder::getPropertiesRaw);
     }
 
     public List<Property<?>> getProperties()
     {
-        return Utils.orElse(getPropertiesRaw(), List::of);
+        return Utils.orElseGet(getPropertiesRaw(), List::of);
     }
 
     @Nullable
     public Map<String, String> getPropertyDefaultValuesRaw()
     {
-        return getValueWithParent(propertyDefaultValues, FluidBuilder::getPropertyDefaultValuesRaw);
+        return getValue(propertyDefaultValues, FluidBuilder::getPropertyDefaultValuesRaw);
     }
 
     public Map<Property<?>, Comparable<?>> getPropertyDefaultValues()
@@ -345,106 +324,100 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid>
     @Nullable
     private ResourceLocation getStillTexture()
     {
-        return getValueWithParent(stillTexture, FluidBuilder::getStillTexture);
+        return getValue(stillTexture, FluidBuilder::getStillTexture);
     }
 
     @Nullable
     private ResourceLocation getFlowingTexture()
     {
-        return getValueWithParent(flowingTexture, FluidBuilder::getFlowingTexture);
+        return getValue(flowingTexture, FluidBuilder::getFlowingTexture);
     }
 
     @Nullable
     private Rarity getRarity()
     {
-        return getValueWithParent(rarity, FluidBuilder::getRarity);
+        return getValue(rarity, FluidBuilder::getRarity);
     }
 
     @Nullable
     private ResourceLocation getSideTexture()
     {
-        return getValueWithParent(sideTexture, FluidBuilder::getSideTexture);
+        return getValue(sideTexture, FluidBuilder::getSideTexture);
     }
 
     @Nullable
     private Integer getColor()
     {
-        return getValueWithParent(color, FluidBuilder::getColor);
+        return getValue(color, FluidBuilder::getColor);
     }
 
     @Nullable
     private Integer getDensity()
     {
-        return getValueWithParent(density, FluidBuilder::getDensity);
+        return getValue(density, FluidBuilder::getDensity);
     }
 
     @Nullable
     private Integer getLuminosity()
     {
-        return getValueWithParent(luminosity, FluidBuilder::getLuminosity);
+        return getValue(luminosity, FluidBuilder::getLuminosity);
     }
 
     @Nullable
     private Integer getTemperature()
     {
-        return getValueWithParent(temperature, FluidBuilder::getTemperature);
+        return getValue(temperature, FluidBuilder::getTemperature);
     }
 
     @Nullable
     private Integer getViscosity()
     {
-        return getValueWithParent(viscosity, FluidBuilder::getViscosity);
+        return getValue(viscosity, FluidBuilder::getViscosity);
     }
 
     @Nullable
     private String getTranslationKey()
     {
-        return getValueWithParent(translationKey, FluidBuilder::getTranslationKey);
+        return getValue(translationKey, FluidBuilder::getTranslationKey);
     }
 
     @Nullable
     private Boolean getIsGaseous()
     {
-        return getValueWithParent(isGaseous, FluidBuilder::getIsGaseous);
+        return getValue(isGaseous, FluidBuilder::getIsGaseous);
     }
 
     @Nullable
     private ResourceLocation getFillSound()
     {
-        return getValueWithParent(fillSound, FluidBuilder::getFillSound);
+        return getValue(fillSound, FluidBuilder::getFillSound);
     }
 
     @Nullable
     private ResourceLocation getEmptySound()
     {
-        return getValueWithParent(emptySound, FluidBuilder::getEmptySound);
+        return getValue(emptySound, FluidBuilder::getEmptySound);
     }
 
     @Nullable
     public Set<String> getRenderLayersRaw()
     {
-        return getValueWithParent(renderLayers, FluidBuilder::getRenderLayersRaw);
+        return getValue(renderLayers, FluidBuilder::getRenderLayersRaw);
     }
 
     public Set<String> getRenderLayers()
     {
-        return Utils.orElse(getRenderLayersRaw(), () -> Collections.singleton(getFluidType().getDefaultLayer()));
+        return Utils.orElseGet(getRenderLayersRaw(), () -> Collections.singleton(getFluidType().getDefaultLayer()));
     }
 
-    private void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
+    public ResourceLocation getDefaultRenderLayer()
     {
-        var ev = getEventMap();
-        if (ev != null)
-            ev.forEach(consumer);
-        FluidBuilder parent = getParent();
-        if (parent != null)
-        {
-            parent.forEachEvent(consumer);
-        }
+        return new ResourceLocation(getFluidType().getDefaultLayer());
     }
 
     public void register(IForgeRegistry<Fluid> registry)
     {
+        if (isInErrorState()) return;
         get();
         factory.register(this, (name, obj) -> registry.register(obj.setRegistryName(name)));
     }

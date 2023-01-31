@@ -2,6 +2,8 @@
 
 Creative Mode tab definitions allow adding new tabs to the creative mode menu.
 
+Creative Mode tab definitions go in the `creative_mode_tab` directory in the thing pack.
+
 See ["group"](./Items.md#group) and ["creative_menu_stacks"](./Items.md#creative_menu_stacks) in the Item definitions for an example of where this is used.
 
 ## Basic structure of the JSON file

@@ -20,7 +20,8 @@
   },
 
   "delayed_use": {
-    "time": 120,
+    "duration": 120,
+    "animation": "eat",
     "on_complete": "use_item"
   },
 
@@ -30,10 +31,10 @@
   },
 
   "attribute_modifiers": [
-    { "name": "test", "amount": 2, "operation": "addition" }
+    { "slot":"head", "attribute": "generic.armor", "name": "test", "amount": 2, "operation": "addition" }
   ],
 
   "events": {
-    "onItemUse": "testpack:test"
+    "use": "testpack:test"
   }
 }

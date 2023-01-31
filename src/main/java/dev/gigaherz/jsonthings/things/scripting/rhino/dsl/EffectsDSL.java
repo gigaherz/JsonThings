@@ -20,7 +20,7 @@ public class EffectsDSL
         scope.put(".use_effects", scope, true);
     }
 
-    private static Object findEffect(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    private static Object findEffect(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var effect = DSLHelpers.find(ForgeRegistries.MOB_EFFECTS, (String) args[0]);
         return DSLHelpers.wrap(ScriptableObject.getTopLevelScope(scope), effect, MobEffect.class);
@@ -43,7 +43,7 @@ public class EffectsDSL
         }
         if (args.length >= 5)
         {
-            visible = (boolean)args[4];
+            visible = (boolean) args[4];
         }
 
         var mobEffectInstance = new MobEffectInstance(effect, duration, amplifier, ambient, visible);

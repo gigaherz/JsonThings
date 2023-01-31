@@ -15,7 +15,10 @@ public interface IFlexFluid extends IEventRunner
         return (Fluid) this;
     }
 
-    default boolean registerTwin() { return true; }
+    default boolean registerTwin()
+    {
+        return true;
+    }
 
     void setBucketItem(Supplier<Item> bucketItem);
 

@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -9,8 +10,13 @@ import net.minecraftforge.common.ForgeTier;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TierBuilder extends BaseBuilder<ForgeTier>
+public class TierBuilder extends BaseBuilder<ForgeTier, TierBuilder>
 {
+    public static TierBuilder begin(ThingParser<TierBuilder> ownerParser, ResourceLocation registryName)
+    {
+        return new TierBuilder(ownerParser, registryName);
+    }
+
     private int level = 0;
     private int uses;
     private float speed;
@@ -21,20 +27,15 @@ public class TierBuilder extends BaseBuilder<ForgeTier>
     private List<Object> sortAfter;
     private List<Object> sortBefore;
 
-    private TierBuilder(ResourceLocation registryName)
+    private TierBuilder(ThingParser<TierBuilder> ownerParser, ResourceLocation registryName)
     {
-        super(registryName);
+        super(ownerParser, registryName);
     }
 
     @Override
     protected String getThingTypeDisplayName()
     {
         return "Item Tier";
-    }
-
-    public static TierBuilder begin(ResourceLocation registryName)
-    {
-        return new TierBuilder(registryName);
     }
 
     public void setLevel(int level)

@@ -37,7 +37,7 @@ public class ItemsDSL
         }
         if (args.length >= 3)
         {
-            var tag = (CompoundTag)NbtDSL.wrapVanillaInternal(args[2]);
+            var tag = (CompoundTag) NbtDSL.wrapVanillaInternal(args[2]);
             stack.setTag(tag);
         }
 

@@ -19,11 +19,11 @@ public class EnchantmentsDSL
         scope.put(".use_enchantments", scope, true);
     }
 
-    private static Object findEnchantment(Context _cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    private static Object findEnchantment(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         return new NativeJavaObject(
                 ScriptableObject.getTopLevelScope(scope),
-                DSLHelpers.find(ForgeRegistries.ENCHANTMENTS, (String)args[0]),
+                DSLHelpers.find(ForgeRegistries.ENCHANTMENTS, (String) args[0]),
                 Item.class);
     }
 }

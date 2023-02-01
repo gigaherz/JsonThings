@@ -13,7 +13,6 @@ See [Food](./Food.md) for an example of where this is used.
   "duration": 5,
   "amplifier": 0,
   "ambient": false,
-  "visible": true,
   "show_particles": true,
   "show_icon": true
 }
@@ -32,9 +31,7 @@ if the namespace (the part before the colon) is missing "minecraft" is implied.
 
 Defines how long the effect lasts, in ingame ticks (20ths of a second).
 
-Optional. Default: 0. 
-
-The default will disappear immediately so a non-zero value is advised.
+Required. 
 
 Must be a positive integer.
 
@@ -58,19 +55,11 @@ Optional. Default: false.
 
 Must be a boolean (`false` or `true`).
 
-## "visible"
-
-Defines if the effect is visible. Invisible effects by default have no icon or particles, and don't appear in the list.
-
-Optional. Default: true.
-
-Must be a boolean (`false` or `true`).
-
 ## "show_particles"
 
 Defines if the effect produces particles around the player.
 
-Optional. Default: same as "visible".
+Optional. Default: true.
 
 Must be a boolean (`false` or `true`).
 
@@ -78,6 +67,6 @@ Must be a boolean (`false` or `true`).
 
 Defines if the effect has an icon in the top right of the HUD.
 
-Optional. Default: same as "visible".
+Optional. Default: true.
 
 Must be a boolean (`false` or `true`).

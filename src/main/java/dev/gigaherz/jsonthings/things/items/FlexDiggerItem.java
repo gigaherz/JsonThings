@@ -139,7 +139,9 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     @Override
     public boolean useOnRelease(ItemStack stack)
     {
-        return Utils.orElseGet(useFinishMode.isUseOnRelease(), () -> super.useOnRelease(stack));
+        if (useFinishMode != null)
+            return useFinishMode.isUseOnRelease();
+        return super.useOnRelease(stack);
     }
 
     @Override

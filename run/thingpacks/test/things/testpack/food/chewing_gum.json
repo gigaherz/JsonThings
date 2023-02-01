@@ -3,10 +3,10 @@
   "saturation": 0,
   "fast": true,
   "always_eat": true,
-  "effects1":[
+  "effects":[
     {
-      "effect": "non:existant",
-      "duration": 1,
+      "effect": "minecraft:glowing",
+      "duration": 500,
       "amplifier": 0,
       "ambient": true,
       "visible": false,

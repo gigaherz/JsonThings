@@ -21,11 +21,11 @@ public class MobEffectInstanceParser extends ThingParser<MobEffectInstanceBuilde
         JParse.begin(data)
                 .key("effect", val -> val.string().handle(str -> builder.setEffect(new ResourceLocation(str))))
                 .key("duration", val -> val.intValue().min(0).handle(builder::setDuration))
-                .key("amplifier", val -> val.intValue().min(0).handle(builder::setAmplifier))
-                .key("ambient", val -> val.bool().handle(builder::setAmbient))
-                .key("visible", val -> val.bool().handle(builder::setVisible))
-                .key("show_particles", val -> val.bool().handle(builder::setShowParticles))
-                .key("show_icon", val -> val.bool().handle(builder::setShowIcon));
+                .ifKey("amplifier", val -> val.intValue().min(0).handle(builder::setAmplifier))
+                .ifKey("ambient", val -> val.bool().handle(builder::setAmbient))
+                .ifKey("visible", val -> val.bool().handle(builder::setVisible))
+                .ifKey("show_particles", val -> val.bool().handle(builder::setShowParticles))
+                .ifKey("show_icon", val -> val.bool().handle(builder::setShowIcon));
         return builder;
     }
 }

@@ -12,11 +12,10 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
 {
     private ResourceLocation effect;
     private int duration;
-    private int amplifier;
-    private boolean isAmbient;
-    private boolean visible;
-    private boolean showParticles;
-    private boolean showIcon;
+    private int amplifier = 0;
+    private boolean isAmbient = false;
+    private boolean showParticles = true;
+    private boolean showIcon = true;
     private FoodBuilder owner;
 
     public MobEffectInstanceBuilder(ThingParser<MobEffectInstanceBuilder> ownerParser, ResourceLocation name)
@@ -73,11 +72,6 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
         isAmbient = ambient;
     }
 
-    public void setVisible(boolean visible)
-    {
-        this.visible = visible;
-    }
-
     public void setShowParticles(boolean showParticles)
     {
         this.showParticles = showParticles;
@@ -86,6 +80,11 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
     public void setShowIcon(boolean showIcon)
     {
         this.showIcon = showIcon;
+    }
+
+    public void setVisible(boolean visible)
+    {
+        this.showParticles = this.showIcon = visible;
     }
 
     @Override

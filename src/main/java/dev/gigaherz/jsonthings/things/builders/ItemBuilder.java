@@ -23,6 +23,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
+import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 {
+
     public static ItemBuilder begin(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
     {
         return new ItemBuilder(ownerParser, registryName);
@@ -55,6 +57,8 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     private ResourceLocation containerItem = null;
 
     private String colorHandler = null;
+
+    private String[] toolActions;
 
     private List<MutableComponent> lore;
 
@@ -155,6 +159,11 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     {
         if (this.containerItem != null) throw new RuntimeException("Container Item already set.");
         this.containerItem = resourceLocation;
+    }
+
+    public void setToolActions(String[] stringValues)
+    {
+        toolActions = stringValues;
     }
 
     public void setColorHandler(String colorHandler)
@@ -343,6 +352,21 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     private Map<EquipmentSlot, Multimap<ResourceLocation, AttributeModifier>> getAttributeModifiersRaw()
     {
         return getValue(attributeModifiers, ItemBuilder::getAttributeModifiersRaw);
+    }
+
+    @Nullable
+    public String[] getToolActionsRaw()
+    {
+        return getValue(toolActions, ItemBuilder::getToolActionsRaw);
+    }
+
+    @Nullable
+    public Set<ToolAction> getToolActions()
+    {
+        var raw = getToolActionsRaw();
+        if (raw == null)
+            return null;
+        return Arrays.stream(raw).map(ToolAction::get).collect(Collectors.toSet());
     }
 }
 

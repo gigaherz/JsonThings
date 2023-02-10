@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FluidTypeBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import dev.gigaherz.jsonthings.util.parse.function.ArrayValueFunction;
 import dev.gigaherz.jsonthings.util.parse.function.ObjValueFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -50,7 +49,7 @@ public class FluidTypeParser extends ThingParser<FluidTypeBuilder>
                 .ifKey("rarity", val -> val.string().map(ThingParser::parseRarity).handle(builder::setRarity))
                 .ifKey("color", val -> val
                         .ifObj(obj -> obj.map((ObjValueFunction<Integer>) ThingParser::parseColor).handle(builder::setColor))
-                        .ifArray(arr -> arr.map((ArrayValueFunction<Integer>) ThingParser::parseColor).handle(builder::setColor))
+                        .ifArray(arr -> arr.mapWhole(ThingParser::parseColor).handle(builder::setColor))
                         .ifString(str -> str.map(ThingParser::parseColor).handle(builder::setColor))
                         .ifInteger(i -> i.handle(builder::setColor))
                         .typeError())

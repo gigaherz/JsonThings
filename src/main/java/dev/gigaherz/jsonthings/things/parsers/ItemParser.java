@@ -11,6 +11,7 @@ import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.value.StringValue;
 import joptsimple.internal.Strings;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
@@ -90,7 +91,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
                         )
                 )
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
-                .ifKey("lore", val -> val.array().map(this::parseLore).handle(builder::setLore))
+                .ifKey("lore", val -> val.array().unwrapRaw(this::parseLore).handle(builder::setLore))
+                .ifKey("tool_actions", val -> val.array().strings().flatten(StringValue::getAsString, String[]::new).handle(builder::setToolActions))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
         builderModification.accept(builder);

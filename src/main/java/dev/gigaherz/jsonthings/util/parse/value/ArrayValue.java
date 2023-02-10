@@ -8,6 +8,7 @@ import dev.gigaherz.jsonthings.util.parse.function.JsonArrayFunction;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 public interface ArrayValue
@@ -16,7 +17,11 @@ public interface ArrayValue
 
     void collect(Consumer<Stream<Any>> collector);
 
+    <T> MappedArrayValue<T> map(Function<Any, T> mapping);
+
     <T> T flatMap(Function<Stream<Any>, T> collector);
+
+    <T> MappedValue<T[]> flatten(Function<Any, T> mapping, IntFunction<T[]> factory);
 
     ArrayValue notEmpty();
 
@@ -28,13 +33,45 @@ public interface ArrayValue
 
     void raw(JsonArrayConsumer value);
 
-    default <T> MappedValue<T> map(JsonArrayFunction<T> mapping)
+    default <T> MappedValue<T> unwrapRaw(JsonArrayFunction<T> mapping)
     {
         return MappedValue.of(mapping.apply(getAsJsonArray()));
     }
 
-    default <T> MappedValue<T> map(ArrayValueFunction<T> mapping)
+    default <T> MappedValue<T> mapWhole(ArrayValueFunction<T> mapping)
     {
         return MappedValue.of(mapping.apply(this));
     }
+
+    default MappedArrayValue<IntValue> ints()
+    {
+        return this.map(Any::intValue);
+    }
+
+    default MappedArrayValue<LongValue> longs()
+    {
+        return this.map(Any::longValue);
+    }
+
+    default MappedArrayValue<FloatValue> floats()
+    {
+        return this.map(Any::floatValue);
+    }
+
+    default MappedArrayValue<DoubleValue> doubles()
+    {
+        return this.map(Any::doubleValue);
+    }
+
+    default MappedArrayValue<BooleanValue> booleans()
+    {
+        return this.map(Any::bool);
+    }
+
+    default MappedArrayValue<StringValue> strings()
+    {
+        return this.map(Any::string);
+    }
 }
+
+

@@ -35,7 +35,8 @@ E.g.
   "lore": [
     "Hello",
     {"text": "Hi", "italic": true, "color": "gray" }
-  ]
+  ],
+  "tool_actions": ["shovel_dig"]
 }
 ```
 
@@ -149,3 +150,11 @@ Defines a list of lines of lore text to show in the tooltip box.
 Optional. Default: no lore.
 
 Must be a json array (`[]`) containing strings and json-formatted text components, as they would be used in commands such as `/tellraw`.
+
+## "tool_actions"
+
+Defines a list of tool actions to present to the game. This doesn't make an item able to perform those actions unless it's scripted to do so, without scripting it only declares the item as a kind of tool. 
+
+Optional. Default: depends on item type.
+
+Must be a json array (`[]`) containing strings.

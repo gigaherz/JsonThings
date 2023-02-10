@@ -28,7 +28,7 @@ displayURL="https://github.com/gigaherz/JsonThings"
    side="BOTH"
 [[dependencies.jsonthings]]
    modId="rhino"
-   mandatory=true
+   mandatory=false
    versionRange="[1802,1900)"
    ordering="NONE"
    side="BOTH"

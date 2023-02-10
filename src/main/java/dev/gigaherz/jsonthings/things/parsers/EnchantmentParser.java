@@ -65,7 +65,7 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
                 .ifKey("discoverable", val -> val.bool().handle(builder::setIsDiscoverable))
                 .ifKey("allow_on_books", val -> val.bool().handle(builder::setIsAllowedOnBooks))
                 .ifKey("item_compatibility", val -> val.map(ItemPredicate::fromJson).handle(builder::setItemCompatibility))
-                .ifKey("disallow_enchants", val -> val.array().map(this::parseBlacklist).handle(builder::setBlacklist))
+                .ifKey("disallow_enchants", val -> val.array().mapWhole(this::parseBlacklist).handle(builder::setBlacklist))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
         builderModification.accept(builder);

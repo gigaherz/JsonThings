@@ -8,3 +8,4 @@ import java.util.function.Function;
 public interface ArrayValueFunction<T> extends Function<ArrayValue, T>
 {
 }
+

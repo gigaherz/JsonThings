@@ -1,6 +1,6 @@
 {
   "type": "armor",
-  "material": "iron",
+  "material": "testpack:test",
   "equipment_slot": "head",
 
   "max_stack_size": 64,

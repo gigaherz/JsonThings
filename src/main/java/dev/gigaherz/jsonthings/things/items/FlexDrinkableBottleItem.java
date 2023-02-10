@@ -8,6 +8,7 @@ import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.util.DrinkableBottleItem;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -33,11 +34,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class FlexShovelItem extends ShovelItem implements IFlexItem
+public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IFlexItem
 {
-    public FlexShovelItem(Tier tier, float damage, float speed, Item.Properties properties, ItemBuilder builder)
+    public FlexDrinkableBottleItem(Supplier<Item> baseItem, Properties properties, ItemBuilder builder)
     {
-        super(tier, damage, speed, properties);
+        super(baseItem, properties);
         this.useAction = builder.getUseAnim();
         this.useTime = builder.getUseTime();
         this.useFinishMode = builder.getUseFinishMode();

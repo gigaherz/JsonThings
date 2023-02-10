@@ -10,6 +10,7 @@ import dev.gigaherz.jsonthings.util.parse.function.JsonObjectConsumer;
 import dev.gigaherz.jsonthings.util.parse.value.*;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
+import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class JParse
             return String.join(", ", altTypes);
         }
 
-        throw new RuntimeException("IMPLEMENTATION ERROR: typeError() called without having used any ifType() methods!");
+        throw new JParseException("IMPLEMENTATION ERROR: typeError() called without having used any ifType() methods! Please report to the author asap!");
     }
 
     @Override
@@ -110,7 +111,7 @@ public class JParse
     }
 
     @Override
-    public IntValue longValue()
+    public LongValue longValue()
     {
         if (!GsonHelper.isNumberValue(data))
         {
@@ -351,7 +352,9 @@ public class JParse
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Error running visitor for " + keyPath);
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running visitor for " + keyPath + ": " + e.getMessage(), e);
         }
         return this;
     }
@@ -371,7 +374,7 @@ public class JParse
             {
                 if (e instanceof JParseException)
                     throw e;
-                throw new JParseException("Error running visitor for " + keyPath, e);
+                throw new JParseException("Error running visitor for " + keyPath + ": " + e.getMessage(), e);
             }
         }
         return this;
@@ -466,6 +469,19 @@ public class JParse
     }
 
     @Override
+    public <M> MappedArrayValue<M> map(Function<Any, M> mapping)
+    {
+        final List<M> items = Util.make(new ArrayList<>(), list -> {
+            for (var e : data.getAsJsonArray())
+            {
+                list.add(mapping.apply(new JParse("", e)));
+            }
+        });
+
+        return new MappedArray<M>(path, items);
+    }
+
+    @Override
     public <T> T flatMap(Function<Stream<Any>, T> collector)
     {
         var arr = getAsJsonArray();
@@ -531,6 +547,12 @@ public class JParse
             throw new JParseException("Json Array at '" + path + "' must contain at least " + min + ".");
         }
         return this;
+    }
+
+    @Override
+    public <T> MappedValue<T[]> flatten(Function<Any, T> mapping, IntFunction<T[]> factory)
+    {
+        return new MappedValue.Impl<>(flatMap(items -> items.map(mapping).toArray(factory)));
     }
 
     @Override

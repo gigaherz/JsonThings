@@ -42,8 +42,8 @@ public class TierParser extends ThingParser<TierBuilder>
                 .key("enchantment_value", val -> val.intValue().min(1).handle(builder::setEnchantmentValue))
                 .key("tag", val -> val.string().map(Utils::blockTag).handle(builder::setTag))
                 .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient))
-                .key("sort_after", val -> val.array().map(TierParser::parseDependencyList).handle(builder::setAfterDependencies))
-                .key("sort_before", val -> val.array().map(TierParser::parseDependencyList).handle(builder::setBeforeDependencies));
+                .key("sort_after", val -> val.array().mapWhole(TierParser::parseDependencyList).handle(builder::setAfterDependencies))
+                .key("sort_before", val -> val.array().mapWhole(TierParser::parseDependencyList).handle(builder::setBeforeDependencies));
 
         builderModification.accept(builder);
 

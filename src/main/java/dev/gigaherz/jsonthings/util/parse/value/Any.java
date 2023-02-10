@@ -17,7 +17,7 @@ public interface Any
 
     IntValue intValue();
 
-    IntValue longValue();
+    LongValue longValue();
 
     FloatValue floatValue();
 

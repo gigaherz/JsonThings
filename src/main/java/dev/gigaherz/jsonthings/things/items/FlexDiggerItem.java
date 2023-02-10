@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
+import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
@@ -26,27 +27,26 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.common.ToolAction;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class FlexDiggerItem extends DiggerItem implements IFlexItem
 {
-    public FlexDiggerItem(Tier material, float damage, float speed, TagKey<Block> breakable, Properties properties,
-                          @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
-                          Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
-                          List<MutableComponent> lore)
+    public FlexDiggerItem(Tier material, float damage, float speed, TagKey<Block> breakable, Properties properties, ItemBuilder builder)
     {
         super(damage, speed, material, breakable, properties);
-        this.useAction = useAction;
-        this.useTime = useTime;
-        this.useFinishMode = useFinishMode;
-        this.attributeModifiers = attributeModifiers;
-        this.lore = lore;
-        initializeFlex();
+        this.useAction = builder.getUseAnim();
+        this.useTime = builder.getUseTime();
+        this.useFinishMode = builder.getUseFinishMode();
+        this.attributeModifiers = builder.getAttributeModifiers();
+        this.lore = builder.getLore();
+        this.toolActions = builder.getToolActions();
     }
 
     //region IFlexItem
@@ -57,6 +57,7 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     private final Integer useTime;
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
+    private final Set<ToolAction> toolActions;
 
     private InteractionResultHolder<ItemStack> containerResult;
 
@@ -159,7 +160,7 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.addAll(lore);
+        if (lore != null) tooltip.addAll(lore);
     }
 
     @Override
@@ -210,6 +211,13 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
     {
         return Utils.orElseGet(attributeModifiers.get(slot), HashMultimap::create);
+    }
+
+    @Override
+    public boolean canPerformAction(ItemStack stack, ToolAction toolAction)
+    {
+        if (toolActions != null) return toolActions.contains(toolAction);
+        return super.canPerformAction(stack, toolAction);
     }
 
     //endregion

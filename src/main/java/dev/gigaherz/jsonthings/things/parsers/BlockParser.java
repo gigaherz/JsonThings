@@ -146,9 +146,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifBool(v -> v.handle(b -> {
                     if (b) createItemBlock(builder, new JsonObject());
                 }))
-                .ifObj(obj -> obj.raw((JsonObject item) -> {
-                    createItemBlock(builder, item);
-                }))
+                .ifObj(obj -> obj.raw((JsonObject item) -> createItemBlock(builder, item)))
                 .typeError();
     }
 

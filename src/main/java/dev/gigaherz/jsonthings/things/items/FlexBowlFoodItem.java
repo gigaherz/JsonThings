@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
+import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
@@ -21,32 +22,32 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BowlFoodItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ToolAction;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
-public class FlexBowlFoodItem extends Item implements IFlexItem
+public class FlexBowlFoodItem extends BowlFoodItem implements IFlexItem
 {
-    public FlexBowlFoodItem(Properties properties,
-                            @Nullable UseAnim useAction, @Nullable Integer useTime, @Nullable UseFinishMode useFinishMode,
-                            Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers,
-                            List<MutableComponent> lore)
+    public FlexBowlFoodItem(Properties properties, ItemBuilder builder)
     {
         super(properties);
-        this.useAction = useAction;
-        this.useTime = useTime;
-        this.useFinishMode = useFinishMode;
-        this.attributeModifiers = attributeModifiers;
-        this.lore = lore;
+        this.useAction = builder.getUseAnim();
+        this.useTime = builder.getUseTime();
+        this.useFinishMode = builder.getUseFinishMode();
+        this.attributeModifiers = builder.getAttributeModifiers();
+        this.lore = builder.getLore();
+        this.toolActions = builder.getToolActions();
         initializeFlex();
     }
 
@@ -58,6 +59,7 @@ public class FlexBowlFoodItem extends Item implements IFlexItem
     private final Integer useTime;
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
+    private final Set<ToolAction> toolActions;
 
     private InteractionResultHolder<ItemStack> containerResult;
 
@@ -160,7 +162,7 @@ public class FlexBowlFoodItem extends Item implements IFlexItem
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        tooltip.addAll(lore);
+        if (lore != null) tooltip.addAll(lore);
     }
 
     @Override
@@ -211,6 +213,13 @@ public class FlexBowlFoodItem extends Item implements IFlexItem
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
     {
         return Utils.orElseGet(attributeModifiers.get(slot), HashMultimap::create);
+    }
+
+    @Override
+    public boolean canPerformAction(ItemStack stack, ToolAction toolAction)
+    {
+        if (toolActions != null) return toolActions.contains(toolAction);
+        return super.canPerformAction(stack, toolAction);
     }
 
     //endregion

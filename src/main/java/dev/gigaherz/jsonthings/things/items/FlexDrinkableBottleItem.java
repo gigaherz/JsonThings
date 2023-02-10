@@ -10,6 +10,7 @@ import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.util.DrinkableBottleItem;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -22,7 +23,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ToolAction;
@@ -34,11 +38,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class FlexTieredItem extends TieredItem implements IFlexItem
+public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IFlexItem
 {
-    public FlexTieredItem(Tier material, Properties properties, ItemBuilder builder)
+    public FlexDrinkableBottleItem(Supplier<Item> baseItem, Properties properties, ItemBuilder builder)
     {
-        super(material, properties);
+        super(baseItem, properties);
         this.useAction = builder.getUseAnim();
         this.useTime = builder.getUseTime();
         this.useFinishMode = builder.getUseFinishMode();

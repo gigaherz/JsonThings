@@ -18,6 +18,26 @@ Parameters:
 * `"places"`: The block registry name for the block that will be placed by this item.
   * Optional. Default: a block with the same name as the item.
 
+## "food_bowl"
+
+Makes the item behave as a food bowl and return an empty bowl when eating.
+
+## "drinkable_bottle"
+
+Similar to "food_bowl", this item allows defining foods that come in bottles and other containers.
+
+Parameters:
+* `"base_item"`: The item that will be returned when eating.
+  * Optional. Default: an empty glass bottle.
+
+## "bucket"
+
+Makes the item into a bucket, with some contained fluid.
+
+Parameters:
+* `"fluid"`: The registry name of the fluid.
+  * Required.
+
 ## "armor" 
 
 Armor items are equippable in the armor slots of the player and other entities. Armor items need special textures based on the armor material.

@@ -20,6 +20,7 @@ E.g.
   "food": {
     "saturation": 5
   },
+  "container": "bowl",
   "group": "decorations",
   "creative_menu_stacks": [
     {
@@ -113,6 +114,12 @@ The `"tabs"` key is required and must be a json array (`[]`) containing strings.
 The rest of the object are values defining the item stack.
 
 For details on the definition of item stacks in json, see the [ItemStack Definitions](./ItemStack.md) page.
+
+## "container"
+
+Defines the item that will be left behind in the crafting table after crafting, or in the furnace when the fuel is spent.
+
+Optional. Default: no container.
 
 ## "food"
 

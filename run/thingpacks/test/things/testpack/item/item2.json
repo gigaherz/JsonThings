@@ -1,5 +1,8 @@
 {
-  "type": "food_bowl",
+  "type": "drinkable_bottle",
+
+  "base_item": "bowl",
+  "container": "bowl",
 
   "max_stack_size": 64,
 

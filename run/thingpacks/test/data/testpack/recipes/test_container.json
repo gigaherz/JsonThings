@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {"item": "testpack:item2"}
+  ],
+  "result": {
+    "item": "minecraft:diamond"
+  }
+}

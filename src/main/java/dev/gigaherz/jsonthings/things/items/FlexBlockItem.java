@@ -31,7 +31,6 @@ import net.minecraftforge.common.ToolAction;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -92,8 +91,6 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
     private final Set<ToolAction> toolActions;
-
-    private InteractionResultHolder<ItemStack> containerResult;
 
     private void initializeFlex()
     {
@@ -233,35 +230,6 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
         if (result.stack() != stack)
         {
             entityIn.getSlot(itemSlot).set(result.stack());
-        }
-    }
-
-    private InteractionResultHolder<ItemStack> doContainerItem(ItemStack stack)
-    {
-        return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
-            if (super.hasCraftingRemainingItem(stack))
-                return new FlexEventResult(InteractionResult.SUCCESS, super.getCraftingRemainingItem(stack));
-            return new FlexEventResult(InteractionResult.PASS, ItemStack.EMPTY);
-        }).holder();
-    }
-
-    @Override
-    public boolean hasCraftingRemainingItem(ItemStack stack)
-    {
-        containerResult = doContainerItem(stack);
-        return containerResult.getResult() == InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public ItemStack getCraftingRemainingItem(ItemStack itemStack)
-    {
-        try
-        {
-            return Objects.requireNonNullElseGet(containerResult, () -> doContainerItem(itemStack)).getObject();
-        }
-        finally
-        {
-            containerResult = null;
         }
     }
 

@@ -60,8 +60,6 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
     private final List<MutableComponent> lore;
     private final Set<ToolAction> toolActions;
 
-    private InteractionResultHolder<ItemStack> containerResult;
-
     private void initializeFlex()
     {
         for (EquipmentSlot slot1 : EquipmentSlot.values())
@@ -200,35 +198,6 @@ public class FlexDiggerItem extends DiggerItem implements IFlexItem
         if (result.stack() != stack)
         {
             entityIn.getSlot(itemSlot).set(result.stack());
-        }
-    }
-
-    private InteractionResultHolder<ItemStack> doContainerItem(ItemStack stack)
-    {
-        return runEvent("get_container_item", FlexEventContext.of(stack), () -> {
-            if (super.hasCraftingRemainingItem(stack))
-                return new FlexEventResult(InteractionResult.SUCCESS, super.getCraftingRemainingItem(stack));
-            return new FlexEventResult(InteractionResult.PASS, ItemStack.EMPTY);
-        }).holder();
-    }
-
-    @Override
-    public boolean hasCraftingRemainingItem(ItemStack stack)
-    {
-        containerResult = doContainerItem(stack);
-        return containerResult.getResult() == InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public ItemStack getCraftingRemainingItem(ItemStack itemStack)
-    {
-        try
-        {
-            return Objects.requireNonNullElseGet(containerResult, () -> doContainerItem(itemStack)).getObject();
-        }
-        finally
-        {
-            containerResult = null;
         }
     }
 

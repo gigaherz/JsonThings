@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.misc.FlexArmorMaterial;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -19,8 +19,8 @@ public class ArmorMaterialBuilder extends BaseBuilder<FlexArmorMaterial, ArmorMa
         return new ArmorMaterialBuilder(ownerParser, registryName);
     }
 
-    private final Map<EquipmentSlot, Integer> durability = new HashMap<>();
-    private final Map<EquipmentSlot, Integer> defense = new HashMap<>();
+    private final Map<ArmorItem.Type, Integer> durability = new HashMap<>();
+    private final Map<ArmorItem.Type, Integer> defense = new HashMap<>();
     private float toughness;
     private float knockbackResistance;
     private int enchantmentValue;
@@ -38,12 +38,12 @@ public class ArmorMaterialBuilder extends BaseBuilder<FlexArmorMaterial, ArmorMa
         return "Armor Material";
     }
 
-    public void setDurability(Map<EquipmentSlot, Integer> durability)
+    public void setDurability(Map<ArmorItem.Type, Integer> durability)
     {
         this.durability.putAll(durability);
     }
 
-    public void setDefense(Map<EquipmentSlot, Integer> defense)
+    public void setDefense(Map<ArmorItem.Type, Integer> defense)
     {
         this.defense.putAll(defense);
     }

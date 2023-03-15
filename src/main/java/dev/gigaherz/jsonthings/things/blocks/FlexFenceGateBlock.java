@@ -7,7 +7,6 @@ import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -25,10 +25,10 @@ import java.util.Map;
 
 public class FlexFenceGateBlock extends FenceGateBlock implements IFlexBlock
 {
-    public FlexFenceGateBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexFenceGateBlock(Properties properties, WoodType woodType, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         // TODO: allow customizing open/close sounds
-        super(properties, SoundEvents.FENCE_GATE_CLOSE, SoundEvents.FENCE_GATE_OPEN);
+        super(properties, woodType);
         initializeFlex(propertyDefaultValues);
     }
 

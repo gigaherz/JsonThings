@@ -15,7 +15,9 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.util.Lazy;
@@ -26,6 +28,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class FlexBlockType<T extends Block & IFlexBlock>
@@ -180,17 +183,24 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         };
     }, "solid", false, Material.STONE, FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED);
 
-    public static final FlexBlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexFenceGateBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+    public static final FlexBlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> {
+        var blockSetType = new MutableObject<ResourceLocation>();
+        JParse.begin(data)
+                .key("wood_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
+        return (props, builder) -> {
+            List<Property<?>> _properties = builder.getProperties();
+            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+            var woodTypeName = blockSetType.getValue().toString();
+            var woodType = WoodType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            return new FlexFenceGateBlock(props, woodType, propertyDefaultValues)
             {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
+                @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+                {
+                    super.createBlockStateDefinition(builder1);
+                    _properties.forEach(builder1::add);
+                }
+            };
         };
     }, "solid", false, Material.STONE, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
 
@@ -208,31 +218,45 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         };
     }, "cutout_mipped", true, Material.LEAVES, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
 
-    public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexDoorBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+    public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {
+        var blockSetType = new MutableObject<ResourceLocation>();
+        JParse.begin(data)
+                .key("block_set_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
+        return (props, builder) -> {
+            List<Property<?>> _properties = builder.getProperties();
+            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+            var woodTypeName = blockSetType.getValue().toString();
+            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            return new FlexDoorBlock(props, woodType, propertyDefaultValues)
             {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
+                @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+                {
+                    super.createBlockStateDefinition(builder1);
+                    _properties.forEach(builder1::add);
+                }
+            };
         };
     }, "cutout", true, Material.STONE, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF);
 
-    public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexTrapdoorBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+    public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> {
+        var blockSetType = new MutableObject<ResourceLocation>();
+        JParse.begin(data)
+            .key("block_set_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
+        return (props, builder) -> {
+            List<Property<?>> _properties = builder.getProperties();
+            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+            var woodTypeName = blockSetType.getValue().toString();
+            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            return new FlexTrapdoorBlock(props, woodType, propertyDefaultValues)
             {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
+                @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+                {
+                    super.createBlockStateDefinition(builder1);
+                    _properties.forEach(builder1::add);
+                }
+            };
         };
     }, "cutout", true, Material.STONE, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
 

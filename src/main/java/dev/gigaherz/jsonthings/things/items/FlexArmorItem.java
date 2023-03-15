@@ -30,13 +30,12 @@ import net.minecraftforge.common.ToolAction;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
 public class FlexArmorItem extends ArmorItem implements IFlexItem
 {
-    public FlexArmorItem(ArmorMaterial material, EquipmentSlot slot, Properties properties, ItemBuilder builder)
+    public FlexArmorItem(ArmorMaterial material, ArmorItem.Type slot, Properties properties, ItemBuilder builder)
     {
         super(material, slot, properties);
         this.useAction = builder.getUseAnim();

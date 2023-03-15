@@ -124,7 +124,6 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "triggered", BlockStateProperties.TRIGGERED);
         Registry.register(PROPERTIES, "unstable", BlockStateProperties.UNSTABLE);
         Registry.register(PROPERTIES, "waterlogged", BlockStateProperties.WATERLOGGED);
-        Registry.register(PROPERTIES, "vine_end", BlockStateProperties.VINE_END);
         Registry.register(PROPERTIES, "berries", BlockStateProperties.BERRIES);
         Registry.register(PROPERTIES, "horizontal_axis", BlockStateProperties.HORIZONTAL_AXIS);
         Registry.register(PROPERTIES, "axis", BlockStateProperties.AXIS);
@@ -193,6 +192,7 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "vertical_direction", BlockStateProperties.VERTICAL_DIRECTION);
         Registry.register(PROPERTIES, "dripstone_thickness", BlockStateProperties.DRIPSTONE_THICKNESS);
         Registry.register(PROPERTIES, "sculk_sensor_phase", BlockStateProperties.SCULK_SENSOR_PHASE);
+        Registry.register(PROPERTIES, "dusted", BlockStateProperties.DUSTED);
     }
 
     private static void registerFoods()

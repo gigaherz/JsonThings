@@ -7,7 +7,6 @@ import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -25,10 +25,10 @@ import java.util.Map;
 
 public class FlexTrapdoorBlock extends TrapDoorBlock implements IFlexBlock
 {
-    public FlexTrapdoorBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexTrapdoorBlock(Properties properties, BlockSetType blockSetType, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         // TODO: allow customizing open/close sounds
-        super(properties, SoundEvents.WOODEN_TRAPDOOR_CLOSE, SoundEvents.WOODEN_TRAPDOOR_OPEN);
+        super(properties, blockSetType);
         initializeFlex(propertyDefaultValues);
     }
 

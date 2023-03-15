@@ -1,6 +1,7 @@
 {
   "type": "door",
   "parent": "sandwood:sandwood_planks",
+  "block_set_type": "sandwood:sandwood",
   "item": {
     "group": "sandwood:sandwood"
   }

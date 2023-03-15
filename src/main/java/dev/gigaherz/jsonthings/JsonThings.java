@@ -61,6 +61,7 @@ public class JsonThings
     public static ArmorMaterialParser armorMaterialParser;
     public static CreativeModeTabParser creativeModeTabParser;
     public static MobEffectInstanceParser mobEffectInstanceParser;
+    public static BlockSetTypeParser blockSetTypeParser;
 
     public JsonThings()
     {
@@ -83,6 +84,7 @@ public class JsonThings
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser(bus));
         mobEffectInstanceParser = manager.registerParser(new MobEffectInstanceParser());
+        blockSetTypeParser = manager.registerParser(new BlockSetTypeParser());
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;
@@ -134,8 +136,11 @@ public class JsonThings
 
             ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory((mc, returnTo) -> {
                 var thingPackManager = ThingResourceManager.instance();
-                return new PackSelectionScreen(returnTo, thingPackManager.getRepository(),
-                        rpl -> thingPackManager.onConfigScreenSave(), thingPackManager.getThingPacksLocation(),
+                return new PackSelectionScreen(thingPackManager.getRepository(),
+                        rpl -> {
+                                Minecraft.getInstance().setScreen(returnTo);
+                                thingPackManager.onConfigScreenSave();
+                        }, thingPackManager.getThingPacksLocation(),
                         Component.literal("Thing Packs"));
             }));
         }

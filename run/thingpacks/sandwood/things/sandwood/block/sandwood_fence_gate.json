@@ -1,6 +1,7 @@
 {
   "type": "fence_gate",
   "parent": "sandwood:sandwood_planks",
+  "wood_type": "sandwood:sandwood",
   "item": {
     "group": "sandwood:sandwood"
   }

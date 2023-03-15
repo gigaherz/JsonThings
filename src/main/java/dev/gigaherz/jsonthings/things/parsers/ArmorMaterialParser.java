@@ -8,7 +8,7 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,28 +38,28 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
                 .key("enchantment_value", val -> val.intValue().min(0).handle(builder::setEnchantmentValue))
                 .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient))
                 .key("equip_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setEquipSound))
-                .key("durability", val -> val.map(this::parseEquipmentSlotMap).handle(builder::setDurability))
-                .key("armor", val -> val.map(this::parseEquipmentSlotMap).handle(builder::setDefense));
+                .key("durability", val -> val.map(this::parseArmorType).handle(builder::setDurability))
+                .key("armor", val -> val.map(this::parseArmorType).handle(builder::setDefense));
 
         builderModification.accept(builder);
 
         return builder;
     }
 
-    private Map<EquipmentSlot, Integer> parseEquipmentSlotMap(Any data)
+    private Map<ArmorItem.Type, Integer> parseArmorType(Any data)
     {
-        Map<EquipmentSlot, Integer> map = new HashMap<>();
+        Map<ArmorItem.Type, Integer> map = new HashMap<>();
 
         data
                 .ifObj(obj -> {
-                    for (EquipmentSlot slot : EquipmentSlot.values())
+                    for (ArmorItem.Type slot : ArmorItem.Type.values())
                     {
                         obj.ifKey(slot.getName(), val -> val.intValue().handle(num -> map.put(slot, num)));
                     }
                 })
                 .ifInteger(val -> {
                     var num = val.getAsInt();
-                    for (EquipmentSlot slot : EquipmentSlot.values())
+                    for (ArmorItem.Type slot : ArmorItem.Type.values())
                     {
                         map.put(slot, num);
                     }

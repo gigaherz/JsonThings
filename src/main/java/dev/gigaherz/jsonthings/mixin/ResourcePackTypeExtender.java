@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(PackType.class)
 public class ResourcePackTypeExtender implements IExtensibleEnum
 {
-    private static PackType create(String name, String directoryName, com.mojang.bridge.game.PackType packType)
+    private static PackType create(String name, String directoryName)
     {
         throw new IllegalStateException("Enum not extended");
     }

@@ -30,7 +30,7 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
             var tab = thing.get();
             var icon = tab.icon();
             var name = tab.name();
-            builder.icon(() -> icon.get().getDefaultInstance()).title(Component.translatable(name)).displayItems((a, b, c) -> {
+            builder.icon(() -> icon.get().getDefaultInstance()).title(Component.translatable(name)).displayItems((a, b) -> {
             });
         }), BaseBuilder::getRegistryName);
     }

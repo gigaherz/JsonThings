@@ -45,7 +45,7 @@ public class CombinedShape implements IShapeProvider
             list -> new CombinedShape(BooleanOp.OR, list),
             shape -> shape.operator == BooleanOp.OR
                     ? DataResult.success(shape.boxes)
-                    : DataResult.error("Cannot use CombinedShape.LIST_CODEC to encode a CombinedShape whose boolean function is not OR")
+                    : DataResult.error(() -> "Cannot use CombinedShape.LIST_CODEC to encode a CombinedShape whose boolean function is not OR")
     );
     public static final Codec<CombinedShape> OBJECT_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
             BOOLEAN_OP_CODEC.fieldOf("op").forGetter(shape -> shape.operator),

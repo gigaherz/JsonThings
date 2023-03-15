@@ -1,7 +1,7 @@
 package dev.gigaherz.jsonthings.things.misc;
 
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -12,15 +12,15 @@ import java.util.function.Supplier;
 public class FlexArmorMaterial implements ArmorMaterial
 {
     private final String name;
-    private final Map<EquipmentSlot, Integer> durability;
-    private final Map<EquipmentSlot, Integer> defense;
+    private final Map<ArmorItem.Type, Integer> durability;
+    private final Map<ArmorItem.Type, Integer> defense;
     private final float toughness;
     private final float knockbackResistance;
     private final int enchantmentValue;
     private final Supplier<SoundEvent> equipSound;
     private final Supplier<Ingredient> repairIngredient;
 
-    public FlexArmorMaterial(String name, Map<EquipmentSlot, Integer> durability, Map<EquipmentSlot, Integer> defense, float toughness, float knockbackResistance, int enchantmentValue, Supplier<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient)
+    public FlexArmorMaterial(String name, Map<ArmorItem.Type, Integer> durability, Map<ArmorItem.Type, Integer> defense, float toughness, float knockbackResistance, int enchantmentValue, Supplier<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient)
     {
         this.name = name;
         this.durability = durability;
@@ -33,15 +33,15 @@ public class FlexArmorMaterial implements ArmorMaterial
     }
 
     @Override
-    public int getDurabilityForSlot(EquipmentSlot pSlot)
+    public int getDurabilityForType(ArmorItem.Type type)
     {
-        return durability.getOrDefault(pSlot, 0);
+        return durability.getOrDefault(type, 0);
     }
 
     @Override
-    public int getDefenseForSlot(EquipmentSlot pSlot)
+    public int getDefenseForType(ArmorItem.Type type)
     {
-        return defense.getOrDefault(pSlot, 0);
+        return defense.getOrDefault(type, 0);
     }
 
     @Override

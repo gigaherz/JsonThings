@@ -42,8 +42,8 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.19.3'
-    //mappings channel: 'parchment', version: '1.18.1-2022.02.13-1.18.2'
+    //mappings channel: 'official', version: '1.19.3'
+    mappings channel: 'parchment', version: '1.19.3-2023.03.12-1.19.4'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -117,7 +117,7 @@ minecraft.runs.all {
     }
 }*/
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.3-44.1.2'
+    minecraft 'net.minecraftforge:forge:1.19.4-45.0.4'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")

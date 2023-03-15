@@ -7,16 +7,13 @@ import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.items.*;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.JParseException;
 import joptsimple.internal.Strings;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.TierSortingRegistry;
 import net.minecraftforge.common.util.Lazy;
@@ -24,6 +21,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.mutable.MutableObject;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -77,47 +75,18 @@ public class FlexItemType<T extends Item & IFlexItem>
 
     public static final FlexItemType<FlexArmorItem> ARMOR = register("armor", data -> {
 
-        String slotName;
-        if (data.has("equipment_slot"))
-        {
-            String str = data.get("equipment_slot").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                slotName = str;
-            }
-            else
-            {
-                throw new RuntimeException("Armor equipment slot must be a non-empty string.");
-            }
-        }
-        else
-        {
-            throw new RuntimeException("Armor info must have a non-empty 'equipment_slot' string.");
-        }
+        MutableObject<ArmorItem.Type> armorType = new MutableObject<>();
+        MutableObject<ResourceLocation> materialName = new MutableObject<>();
 
-        String materialName;
-        if (data.has("material"))
-        {
-            String str = data.get("material").getAsString();
-            if (!Strings.isNullOrEmpty(str))
-            {
-                materialName = str;
-            }
-            else
-            {
-                throw new RuntimeException("Armor material must be a non-empty string.");
-            }
-        }
-        else
-        {
-            throw new RuntimeException("Armor info must have a non-empty 'material' string.");
-        }
+        JParse.begin(data)
+                .requireExactlyOne(List.of("equipment_slot", "armor_type"), () -> new JParseException("Amor item must have an 'armor_type' key, or for backward compatibility, a 'slotName' key."))
+                .ifKey("equipment_slot", val -> val.string().map(Utils::armorTypeByEquipmentSlotName).handle(armorType::setValue))
+                .ifKey("armor_type", val -> val.string().map(Utils::armorTypeByName).handle(armorType::setValue))
+                .key("material", val -> val.string().map(ResourceLocation::new).handle(materialName::setValue));
 
-        final EquipmentSlot slot = EquipmentSlot.byName(slotName);
         return (props, builder) -> {
-            var loc = new ResourceLocation(materialName);
-            var material = Utils.getOrCrash(ThingRegistries.ARMOR_MATERIALS, loc);
-            return new FlexArmorItem(material, slot, props, builder);
+            var material = Utils.getOrCrash(ThingRegistries.ARMOR_MATERIALS, materialName.getValue());
+            return new FlexArmorItem(material, armorType.getValue(), props, builder);
         };
     });
 

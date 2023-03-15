@@ -1,10 +1,12 @@
 package dev.gigaherz.jsonthings.util;
 
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -13,6 +15,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -71,9 +75,47 @@ public class Utils
         return t;
     }
 
-    public static <T> T getOrCrash(Registry<T> registry, String name)
+    public static <T> T getOrElse(IForgeRegistry<T> reg, ResourceLocation name, T fallback)
     {
-        return getOrCrash(registry, new ResourceLocation(name));
+        if (!reg.containsKey(name))
+            return fallback;
+        //noinspection ConstantConditions
+        return reg.getValue(name);
+    }
+
+    public static <T> T getOrElse(Registry<T> registry, ResourceLocation name, T fallback)
+    {
+        if (!registry.containsKey(name))
+            return fallback;
+        return Objects.requireNonNull(registry.get(name));
+    }
+
+
+    private static final Map<String, ArmorItem.Type> BACKWARD_COMPAT = ImmutableMap.<String, ArmorItem.Type>builder()
+            .put("head", ArmorItem.Type.HELMET)
+            .put("chest", ArmorItem.Type.CHESTPLATE)
+            .put("legs", ArmorItem.Type.LEGGINGS)
+            .put("feet", ArmorItem.Type.BOOTS)
+        .build();
+
+    public static ArmorItem.Type armorTypeByEquipmentSlotName(String name) {
+        ArmorItem.Type backwardCompat = BACKWARD_COMPAT.get(name);
+
+        if (backwardCompat != null)
+            return backwardCompat;
+
+        throw new IllegalArgumentException("Invalid armor type '" + name + "'");
+    }
+
+    public static ArmorItem.Type armorTypeByName(String name) {
+
+        for(ArmorItem.Type equipmentslot : ArmorItem.Type.values()) {
+            if (equipmentslot.getName().equals(name)) {
+                return equipmentslot;
+            }
+        }
+
+        throw new IllegalArgumentException("Invalid armor type '" + name + "'");
     }
 
     public MutableComponent withFont(MutableComponent component, ResourceLocation font)

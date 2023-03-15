@@ -55,4 +55,27 @@ public interface ObjValue
         }
         return this;
     }
+
+    default ObjValue requireExactlyOne(List<String> keys, Supplier<RuntimeException> exception)
+    {
+        return requireExactlyOne(keys, exception, exception);
+    }
+
+    default ObjValue requireExactlyOne(List<String> keys, Supplier<RuntimeException> tooManyException, Supplier<RuntimeException> notEnoughException)
+    {
+        String found = null;
+        for (String key : keys)
+        {
+            if (hasKey(key))
+            {
+                if (found != null)
+                    throw tooManyException.get();
+
+                found = key;
+            }
+        }
+        if (found == null)
+            throw notEnoughException.get();
+        return this;
+    }
 }

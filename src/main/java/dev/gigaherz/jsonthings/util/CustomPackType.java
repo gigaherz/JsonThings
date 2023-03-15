@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 @Mod.EventBusSubscriber(modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CustomPackType
 {
-    private static final Method M_CREATE = ObfuscationReflectionHelper.findMethod(PackType.class, "create", String.class, String.class, com.mojang.bridge.game.PackType.class);
+    private static final Method M_CREATE = ObfuscationReflectionHelper.findMethod(PackType.class, "create", String.class, String.class);
 
     public static final PackType THINGS;
 
@@ -21,7 +21,7 @@ public class CustomPackType
     {
         try
         {
-            THINGS = (PackType) M_CREATE.invoke(null, "JSONTHINGS_THINGS", "things", com.mojang.bridge.game.PackType.DATA);
+            THINGS = (PackType) M_CREATE.invoke(null, "JSONTHINGS_THINGS", "things");
         }
         catch (IllegalAccessException | InvocationTargetException e)
         {

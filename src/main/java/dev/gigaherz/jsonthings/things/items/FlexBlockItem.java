@@ -30,7 +30,9 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.ToolAction;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -41,7 +43,7 @@ import java.util.function.Supplier;
 public class FlexBlockItem extends BlockItem implements IFlexItem
 {
 
-    public FlexBlockItem(Supplier<Block> block, boolean useBlockName, Properties properties, ItemBuilder builder)
+    public FlexBlockItem(RegistryObject<Block> block, boolean useBlockName, Properties properties, ItemBuilder builder)
     {
         super(null, properties);
         this.useBlockName = useBlockName;
@@ -57,7 +59,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
 
     //region BlockItem
     private final boolean useBlockName;
-    private final Supplier<Block> block;
+    private final RegistryObject<Block> block;
 
     // Recreation of ItemNameBlockItem's function
     @Override
@@ -69,7 +71,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     @Override
     public Block getBlock()
     {
-        return block.get();
+        return block.orElse(Blocks.AIR);
     }
 
     public boolean canFitInsideContainerItems()

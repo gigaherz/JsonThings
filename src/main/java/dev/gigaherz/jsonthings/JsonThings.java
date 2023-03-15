@@ -62,6 +62,8 @@ public class JsonThings
     public static CreativeModeTabParser creativeModeTabParser;
     public static MobEffectInstanceParser mobEffectInstanceParser;
     public static BlockSetTypeParser blockSetTypeParser;
+    public static SoundEventParser soundEventParser;
+    public static SoundTypeParser soundTypeParser;
 
     public JsonThings()
     {
@@ -85,6 +87,8 @@ public class JsonThings
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser(bus));
         mobEffectInstanceParser = manager.registerParser(new MobEffectInstanceParser());
         blockSetTypeParser = manager.registerParser(new BlockSetTypeParser());
+        soundEventParser = manager.registerParser(new SoundEventParser(bus));
+        soundTypeParser = manager.registerParser(new SoundTypeParser());
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;

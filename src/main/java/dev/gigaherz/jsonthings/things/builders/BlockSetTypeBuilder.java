@@ -133,8 +133,8 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
     public WoodType buildWoodType(BlockSetType setType)
     {
         var hangingSignSoundType = Utils.getOrElse(ThingRegistries.SOUND_TYPES, pressurePlateOn, SoundType.HANGING_SIGN);
-        var fenceGateClose = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, buttonOff, SoundEvents.FENCE_GATE_CLOSE);
-        var fenceGateOpen = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, buttonOn, SoundEvents.FENCE_GATE_OPEN);
+        var fenceGateClose = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, this.fenceGateClose, SoundEvents.FENCE_GATE_CLOSE);
+        var fenceGateOpen = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, this.fenceGateOpen, SoundEvents.FENCE_GATE_OPEN);
         return new WoodType(getRegistryName().toString(), setType, setType.soundType(), hangingSignSoundType, fenceGateClose, fenceGateOpen);
     }
 }

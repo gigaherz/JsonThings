@@ -14,9 +14,12 @@ A Thing Pack supports a set of file types for defining different things.
 * [Blocks](./formats/Blocks.md)
   * [Block Materials](./formats/BlockMaterials.md)
   * [Voxel Shape models](./formats/VoxelShapes.md)
+  * [Block Set Types](./formats/BlockSetTypes.md)
+  * [Sound Types](./formats/SoundTypes.md)
 * [Fluids](./formats/Fluids.md)
   * [Fluid Types](./formats/FluidTypes.md)
 * [Enchantments](./formats/Enchantments.md)
+* [Sound Events](./formats/SoundEvents.md)
 
 ### Formats used inside other JSON files
 

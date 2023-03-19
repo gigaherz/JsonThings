@@ -15,8 +15,8 @@ public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
         return new SoundTypeBuilder(ownerParser, registryName);
     }
 
-    private float volume;
-    private float pitch;
+    private float volume = 1.0f;
+    private float pitch = 1.0f;
     private ResourceLocation breakSound;
     private ResourceLocation stepSound;
     private ResourceLocation placeSound;

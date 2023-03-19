@@ -125,6 +125,9 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "unstable", BlockStateProperties.UNSTABLE);
         Registry.register(PROPERTIES, "waterlogged", BlockStateProperties.WATERLOGGED);
         Registry.register(PROPERTIES, "berries", BlockStateProperties.BERRIES);
+        Registry.register(PROPERTIES, "bloom", BlockStateProperties.BLOOM);
+        Registry.register(PROPERTIES, "shrieking", BlockStateProperties.SHRIEKING);
+        Registry.register(PROPERTIES, "can_summon", BlockStateProperties.CAN_SUMMON);
         Registry.register(PROPERTIES, "horizontal_axis", BlockStateProperties.HORIZONTAL_AXIS);
         Registry.register(PROPERTIES, "axis", BlockStateProperties.AXIS);
         Registry.register(PROPERTIES, "up", BlockStateProperties.UP);
@@ -136,6 +139,7 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "facing", BlockStateProperties.FACING);
         Registry.register(PROPERTIES, "facing_except_up", BlockStateProperties.FACING_HOPPER);
         Registry.register(PROPERTIES, "horizontal_facing", BlockStateProperties.HORIZONTAL_FACING);
+        Registry.register(PROPERTIES, "flower_amount", BlockStateProperties.FLOWER_AMOUNT);
         Registry.register(PROPERTIES, "orientation", BlockStateProperties.ORIENTATION);
         Registry.register(PROPERTIES, "face", BlockStateProperties.ATTACH_FACE);
         Registry.register(PROPERTIES, "bell_attachment", BlockStateProperties.BELL_ATTACHMENT);
@@ -154,6 +158,7 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "age_0_1", BlockStateProperties.AGE_1);
         Registry.register(PROPERTIES, "age_0_2", BlockStateProperties.AGE_2);
         Registry.register(PROPERTIES, "age_0_3", BlockStateProperties.AGE_3);
+        Registry.register(PROPERTIES, "age_0_4", BlockStateProperties.AGE_4);
         Registry.register(PROPERTIES, "age_0_5", BlockStateProperties.AGE_5);
         Registry.register(PROPERTIES, "age_0_7", BlockStateProperties.AGE_7);
         Registry.register(PROPERTIES, "age_0_15", BlockStateProperties.AGE_15);
@@ -192,6 +197,12 @@ public class ThingRegistries
         Registry.register(PROPERTIES, "vertical_direction", BlockStateProperties.VERTICAL_DIRECTION);
         Registry.register(PROPERTIES, "dripstone_thickness", BlockStateProperties.DRIPSTONE_THICKNESS);
         Registry.register(PROPERTIES, "sculk_sensor_phase", BlockStateProperties.SCULK_SENSOR_PHASE);
+        Registry.register(PROPERTIES, "chiseled_bookshelf_slot_0_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_0_OCCUPIED);
+        Registry.register(PROPERTIES, "chiseled_bookshelf_slot_1_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_1_OCCUPIED);
+        Registry.register(PROPERTIES, "chiseled_bookshelf_slot_2_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_2_OCCUPIED);
+        Registry.register(PROPERTIES, "chiseled_bookshelf_slot_3_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_3_OCCUPIED);
+        Registry.register(PROPERTIES, "chiseled_bookshelf_slot_4_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_4_OCCUPIED);
+        Registry.register(PROPERTIES, "chiseled_bookshelf_slot_5_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_5_OCCUPIED);
         Registry.register(PROPERTIES, "dusted", BlockStateProperties.DUSTED);
     }
 
@@ -296,6 +307,9 @@ public class ThingRegistries
         Registry.register(BLOCK_MATERIALS, "cake", Material.CAKE);
         Registry.register(BLOCK_MATERIALS, "amethyst", Material.AMETHYST);
         Registry.register(BLOCK_MATERIALS, "powder_snow", Material.POWDER_SNOW);
+        Registry.register(BLOCK_MATERIALS, "frogspawn", Material.FROGSPAWN);
+        Registry.register(BLOCK_MATERIALS, "froglight", Material.FROGLIGHT);
+        Registry.register(BLOCK_MATERIALS, "decorated_pot", Material.DECORATED_POT);
     }
 
     private static void registerSoundTypes()
@@ -364,6 +378,7 @@ public class ThingRegistries
         Registry.register(SOUND_TYPES, "azalea", SoundType.AZALEA);
         Registry.register(SOUND_TYPES, "flowering_azalea", SoundType.FLOWERING_AZALEA);
         Registry.register(SOUND_TYPES, "moss_carpet", SoundType.MOSS_CARPET);
+        Registry.register(SOUND_TYPES, "pink_petals", SoundType.PINK_PETALS);
         Registry.register(SOUND_TYPES, "moss", SoundType.MOSS);
         Registry.register(SOUND_TYPES, "big_dripleaf", SoundType.BIG_DRIPLEAF);
         Registry.register(SOUND_TYPES, "small_dripleaf", SoundType.SMALL_DRIPLEAF);
@@ -371,10 +386,33 @@ public class ThingRegistries
         Registry.register(SOUND_TYPES, "hanging_roots", SoundType.HANGING_ROOTS);
         Registry.register(SOUND_TYPES, "azalea_leaves", SoundType.AZALEA_LEAVES);
         Registry.register(SOUND_TYPES, "sculk_sensor", SoundType.SCULK_SENSOR);
+        Registry.register(SOUND_TYPES, "sculk_catalyst", SoundType.SCULK_CATALYST);
+        Registry.register(SOUND_TYPES, "sculk", SoundType.SCULK);
+        Registry.register(SOUND_TYPES, "sculk_vein", SoundType.SCULK_VEIN);
+        Registry.register(SOUND_TYPES, "sculk_shrieker", SoundType.SCULK_SHRIEKER);
         Registry.register(SOUND_TYPES, "glow_lichen", SoundType.GLOW_LICHEN);
         Registry.register(SOUND_TYPES, "deepslate", SoundType.DEEPSLATE);
         Registry.register(SOUND_TYPES, "deepslate_bricks", SoundType.DEEPSLATE_BRICKS);
         Registry.register(SOUND_TYPES, "deepslate_tiles", SoundType.DEEPSLATE_TILES);
         Registry.register(SOUND_TYPES, "polished_deepslate", SoundType.POLISHED_DEEPSLATE);
+        Registry.register(SOUND_TYPES, "froglight", SoundType.FROGLIGHT);
+        Registry.register(SOUND_TYPES, "frogspawn", SoundType.FROGSPAWN);
+        Registry.register(SOUND_TYPES, "mangrove_roots", SoundType.MANGROVE_ROOTS);
+        Registry.register(SOUND_TYPES, "muddy_mangrove_roots", SoundType.MUDDY_MANGROVE_ROOTS);
+        Registry.register(SOUND_TYPES, "mud", SoundType.MUD);
+        Registry.register(SOUND_TYPES, "mud_bricks", SoundType.MUD_BRICKS);
+        Registry.register(SOUND_TYPES, "packed_mud", SoundType.PACKED_MUD);
+        Registry.register(SOUND_TYPES, "hanging_sign", SoundType.HANGING_SIGN);
+        Registry.register(SOUND_TYPES, "nether_wood_hanging_sign", SoundType.NETHER_WOOD_HANGING_SIGN);
+        Registry.register(SOUND_TYPES, "bamboo_wood_hanging_sign", SoundType.BAMBOO_WOOD_HANGING_SIGN);
+        Registry.register(SOUND_TYPES, "bamboo_wood", SoundType.BAMBOO_WOOD);
+        Registry.register(SOUND_TYPES, "nether_wood", SoundType.NETHER_WOOD);
+        Registry.register(SOUND_TYPES, "cherry_wood", SoundType.CHERRY_WOOD);
+        Registry.register(SOUND_TYPES, "cherry_sapling", SoundType.CHERRY_SAPLING);
+        Registry.register(SOUND_TYPES, "cherry_leaves", SoundType.CHERRY_LEAVES);
+        Registry.register(SOUND_TYPES, "cherry_wood_hanging_sign", SoundType.CHERRY_WOOD_HANGING_SIGN);
+        Registry.register(SOUND_TYPES, "chiseled_bookshelf", SoundType.CHISELED_BOOKSHELF);
+        Registry.register(SOUND_TYPES, "suspicious_sand", SoundType.SUSPICIOUS_SAND);
+        Registry.register(SOUND_TYPES, "decorated_pot", SoundType.DECORATED_POT);        
     }
 }

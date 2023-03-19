@@ -152,7 +152,7 @@ public class FlexItem extends Item implements IFlexItem
         if (result.result() != InteractionResult.SUCCESS)
             return result.stack();
 
-        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).stack();
+        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), () -> FlexEventResult.success(result.stack())).stack();
     }
 
     @Override

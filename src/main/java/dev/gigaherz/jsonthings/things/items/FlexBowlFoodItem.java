@@ -33,7 +33,6 @@ import net.minecraftforge.common.ToolAction;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -153,7 +152,7 @@ public class FlexBowlFoodItem extends BowlFoodItem implements IFlexItem
         if (result.result() != InteractionResult.SUCCESS)
             return result.stack();
 
-        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier).stack();
+        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), () -> FlexEventResult.success(result.stack())).stack();
     }
 
     @Override

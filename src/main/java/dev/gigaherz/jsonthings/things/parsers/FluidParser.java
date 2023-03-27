@@ -102,7 +102,8 @@ public class FluidParser extends ThingParser<FluidBuilder>
         try
         {
             var typeBuilder = JsonThings.fluidTypeParser.parseFromElement(builder.getRegistryName(), obj);
-            builder.setAttributesType(typeBuilder::get);
+            if (typeBuilder != null)
+                builder.setAttributesType(typeBuilder::get);
         }
         catch (Exception e)
         {
@@ -147,7 +148,9 @@ public class FluidParser extends ThingParser<FluidBuilder>
                 throw new ThingParseException("Inline fluid bucket definition cannot contain a fluid entry.");
             }
             jsonObject.addProperty("fluid", builder.getRegistryName().toString());
-            builder.setBucket(JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(FlexItemType.BUCKET)));
+            var bucketBuilder = JsonThings.itemParser.parseFromElement(bucketName, jsonObject, b -> b.setType(FlexItemType.BUCKET));
+            if (bucketBuilder != null)
+                builder.setBucket(bucketBuilder);
         }
         catch (Exception e)
         {

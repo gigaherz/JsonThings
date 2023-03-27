@@ -154,10 +154,12 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         try
         {
-            builder.setItem(JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
+            var itemBuilder = JsonThings.itemParser.parseFromElement(builder.getRegistryName(), obj, b -> {
                 if (!b.hasType())
                     b.setType(FlexItemType.BLOCK);
-            }));
+            });
+            if (itemBuilder != null)
+                builder.setItem(itemBuilder);
         }
         catch (Exception e)
         {

@@ -66,10 +66,11 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
         private static void createLiquidBlock(ResourceLocation name, JsonObject obj, Consumer<BlockBuilder> blockConsumer)
         {
             obj.addProperty("fluid", name.toString());
-            blockConsumer.accept(JsonThings.blockParser.parseFromElement(name, obj, b -> {
+            var blockBuilder = JsonThings.blockParser.parseFromElement(name, obj, b -> {
                 if (!b.hasBlockType())
                     b.setBlockType(FlexBlockType.LIQUID);
-            }));
+            });
+            blockConsumer.accept(blockBuilder);
         }
 
         @Override

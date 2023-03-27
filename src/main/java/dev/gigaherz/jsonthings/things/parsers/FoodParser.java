@@ -11,6 +11,7 @@ import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -40,9 +41,10 @@ public class FoodParser extends ThingParser<FoodBuilder>
                 .ifKey("always_eat", val -> val.bool().handle(builder::setAlwaysEat))
                 .ifKey("effects", val -> val.array().forEach((i, entry) -> {
                     var probability = new MutableFloat(1.0f);
-                    var ei = parseEffectInstance(entry.obj()
+                    var effectBuilder = parseEffectInstance(entry.obj()
                             .ifKey("probability", v3 -> v3.floatValue().range(0, 1).handle(probability::setValue)), builder);
-                    builder.effect(ei, probability.getValue());
+                    if (effectBuilder != null)
+                        builder.effect(effectBuilder, probability.getValue());
                 }));
 
         builderModification.accept(builder);
@@ -50,12 +52,14 @@ public class FoodParser extends ThingParser<FoodBuilder>
         return builder;
     }
 
+    @Nullable
     private MobEffectInstanceBuilder parseEffectInstance(ObjValue obj, FoodBuilder parentBuilder)
     {
         try
         {
             var builder = JsonThings.mobEffectInstanceParser.parseFromElement(parentBuilder.getRegistryName(), obj.getAsJsonObject());
-            builder.setOwner(parentBuilder);
+            if (builder != null)
+                builder.setOwner(parentBuilder);
             return builder;
         }
         catch (Exception e)

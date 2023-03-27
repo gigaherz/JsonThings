@@ -73,7 +73,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
                             try
                             {
                                 FoodBuilder foodBuilder = JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food);
-                                builder.setFood(foodBuilder.get());
+                                if (foodBuilder != null)
+                                    builder.setFood(foodBuilder.get());
                             }
                             catch (Exception e)
                             {

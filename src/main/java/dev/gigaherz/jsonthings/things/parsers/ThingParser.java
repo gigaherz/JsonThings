@@ -12,17 +12,24 @@ import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Rarity;
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.ModLoadingWarning;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -74,7 +81,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    private final Map<ResourceLocation, TBuilder> buildersByName = Maps.newHashMap();
+    private final Map<ResourceLocation, @NotNull TBuilder> buildersByName = Maps.newHashMap();
     private final List<TBuilder> builders = Lists.newArrayList();
     private final String thingType;
     private final Gson gson;
@@ -91,23 +98,43 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     {
         processAndConsumeErrors(thingType, objectIn, (key, json) -> {
             var builder = parseFromElement(key, json);
-            buildersByName.put(key, builder);
+            if (builder != null)
+                buildersByName.put(key, builder);
         }, Function.identity());
     }
 
     protected abstract TBuilder processThing(ResourceLocation key, JsonObject data, Consumer<TBuilder> builderModification);
 
+    @Nullable
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json)
     {
         return parseFromElement(key, json, (b) -> {
         });
     }
 
+    @Nullable
     public TBuilder parseFromElement(ResourceLocation key, JsonElement json, Consumer<TBuilder> builderModification)
     {
+        if (!parseAndTestConditions(json)) return null;
+
         TBuilder builder = processThing(key, json.getAsJsonObject(), builderModification);
         builders.add(builder);
         return builder;
+    }
+
+    private boolean parseAndTestConditions(JsonElement json)
+    {
+        var conditions = json.getAsJsonObject().get("conditions");
+        if (conditions == null)
+            return true;
+        return CraftingHelper.processConditions(conditions.getAsJsonArray(), new ICondition.IContext()
+        {
+            @Override
+            public <T> Map<ResourceLocation, Collection<Holder<T>>> getAllTags(ResourceKey<? extends Registry<T>> registry)
+            {
+                return Collections.emptyMap();
+            }
+        });
     }
 
     public List<TBuilder> getBuilders()

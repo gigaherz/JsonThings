@@ -12,19 +12,14 @@ import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.ModLoadingStage;
@@ -42,6 +37,44 @@ import java.util.function.Supplier;
 public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> extends SimpleJsonResourceReloadListener
 {
     public static final Logger LOGGER = LogUtils.getLogger();
+
+    private static final Map<ResourceLocation, ThingCondition> CONDITIONS_REGISTRY = new HashMap<>();
+    public synchronized static void registerCondition(ResourceLocation id, ThingCondition condition)
+    {
+        CONDITIONS_REGISTRY.put(id, condition);
+    }
+
+    public static boolean parseAndTestConditions(String thingType, ResourceLocation thingId, JsonElement json)
+    {
+        var conditions = json.getAsJsonObject().get("conditions");
+        if (conditions == null)
+            return true;
+        var conditionArray = conditions.getAsJsonArray();
+        for(var e : conditionArray)
+        {
+            if (!parseAndTestCondition(thingType, thingId, e.getAsJsonObject()))
+                return false;
+        }
+        return true;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean parseAndTestCondition(String thingType, ResourceLocation thingId, JsonObject condition)
+    {
+        var type = new ResourceLocation(condition.get("type").getAsString());
+
+        var conditionHandler = CONDITIONS_REGISTRY.get(type);
+
+        if (conditionHandler == null)
+            throw new JsonParseException("Unknown condition type for id '" + type + "' while parsing " + thingId);
+
+        return conditionHandler.test(thingType, thingId, condition);
+    }
+
+    static {
+        registerCondition(new ResourceLocation("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
+        registerCondition(new ResourceLocation("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
+    }
 
     public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, ResourceLocation> keyGetter)
     {
@@ -114,28 +147,13 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     }
 
     @Nullable
-    public TBuilder parseFromElement(ResourceLocation key, JsonElement json, Consumer<TBuilder> builderModification)
+    public TBuilder parseFromElement(ResourceLocation thingId, JsonElement json, Consumer<TBuilder> builderModification)
     {
-        if (!parseAndTestConditions(json)) return null;
+        if (!parseAndTestConditions(thingType, thingId, json)) return null;
 
-        TBuilder builder = processThing(key, json.getAsJsonObject(), builderModification);
+        TBuilder builder = processThing(thingId, json.getAsJsonObject(), builderModification);
         builders.add(builder);
         return builder;
-    }
-
-    private boolean parseAndTestConditions(JsonElement json)
-    {
-        var conditions = json.getAsJsonObject().get("conditions");
-        if (conditions == null)
-            return true;
-        return CraftingHelper.processConditions(conditions.getAsJsonArray(), new ICondition.IContext()
-        {
-            @Override
-            public <T> Map<ResourceLocation, Tag<Holder<T>>> getAllTags(ResourceKey<? extends Registry<T>> registry)
-            {
-                return Collections.emptyMap();
-            }
-        });
     }
 
     public List<TBuilder> getBuilders()

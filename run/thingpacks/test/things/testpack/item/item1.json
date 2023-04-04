@@ -1,8 +1,18 @@
 {
+  "conditions": [
+    {
+      "type": "not",
+      "condition": {
+        "type": "mod_loaded",
+        "modid": "nonexistant"
+      }
+    }
+  ],
   "type": "axe",
   "tier": "iron",
   "damage": 1,
   "speed": 1,
+  "max_damage": 1536,
 
   "food": "testpack:chewing_gum",
 
@@ -15,9 +25,6 @@
     }
   ],
 
-  "durability": {
-    "max_damage": 1536
-  },
 
   "delayed_use": {
     "duration": 120,

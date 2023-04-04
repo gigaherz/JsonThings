@@ -67,7 +67,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                                 .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item), parseTabsList(item))))
                 )
                 .ifKey("attribute_modifiers", val -> val.array().raw(arr -> parseAttributeModifiers(arr, builder)))
-                .ifKey("max_damage", val -> val.intValue().range(1, 128).handle(builder::setMaxDamage))
+                .ifKey("max_damage", val -> val.intValue().min(1).handle(builder::setMaxDamage))
                 .ifKey("food", val -> val
                         .ifString(str -> str.map(ResourceLocation::new).handle(builder::setFood))
                         .ifObj(obj -> obj.raw(food -> {

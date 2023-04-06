@@ -1,0 +1,17 @@
+{
+
+  "type": "sword",
+  "tier": "iron",
+  "damage": 1,
+  "speed": 1,
+  "max_damage": 1536,
+
+  "max_stack_size": 1,
+
+  "creative_menu_stacks": [
+    {
+      "tabs": [ "tools_and_utilities" ]
+    }
+  ]
+
+}

@@ -64,7 +64,7 @@ public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IFle
         for (EquipmentSlot slot1 : EquipmentSlot.values())
         {
             attributeModifiers.computeIfAbsent(slot1, key -> ArrayListMultimap.create())
-                    .putAll(super.getAttributeModifiers(EquipmentSlot.CHEST, ItemStack.EMPTY));
+                    .putAll(super.getAttributeModifiers(slot1, ItemStack.EMPTY));
         }
     }
 

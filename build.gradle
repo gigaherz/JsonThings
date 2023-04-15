@@ -170,7 +170,7 @@ project.afterEvaluate {
 
                 pom.withXml {
                     asNode().dependencies.dependency.each { dep ->
-                        if (dep.groupId.last().value().last() in ["net.minecraftforge", "useless", "curse.maven"]) {
+                        if (dep.version.last().value().last().contains("mapped")) {
                             assert dep.parent().remove(dep)
                         }
                     }

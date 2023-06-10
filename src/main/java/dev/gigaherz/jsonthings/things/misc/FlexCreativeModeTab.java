@@ -1,12 +1,10 @@
 package dev.gigaherz.jsonthings.things.misc;
 
-import net.minecraft.world.item.Item;
+import dev.gigaherz.jsonthings.things.StackContext;
 
-import java.util.function.Supplier;
-
-public record FlexCreativeModeTab(String name, Supplier<Item> icon)
+public record FlexCreativeModeTab(String name, StackContext icon)
 {
-    public static FlexCreativeModeTab create(String name, Supplier<Item> icon)
+    public static FlexCreativeModeTab create(String name, StackContext icon)
     {
         return new FlexCreativeModeTab(name, icon);
     }

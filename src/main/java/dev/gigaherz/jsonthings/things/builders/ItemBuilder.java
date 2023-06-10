@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 {
-
     public static ItemBuilder begin(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
     {
         return new ItemBuilder(ownerParser, registryName);
@@ -44,6 +43,8 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
     private Integer maxStackSize = null;
     private Integer maxDamage = null;
+
+    private Boolean isFireResistant;
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
 
@@ -114,6 +115,11 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     {
         if (this.maxDamage != null) throw new RuntimeException("Damageable already set.");
         this.maxDamage = maxDamage;
+    }
+
+    public void setFireResistant(boolean isFireResistant)
+    {
+        this.isFireResistant = isFireResistant;
     }
 
     public void setFood(ResourceLocation foodName)
@@ -204,6 +210,12 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
             properties = properties.food(foodDefinition.get());
         }
 
+        var fr = getIsFireResistant();
+        if (fr != null && fr)
+        {
+            properties = properties.fireResistant();
+        }
+
         IFlexItem flexItem = factory.construct(properties, this);
 
         constructEventHandlers(flexItem);
@@ -232,6 +244,12 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     public Integer getMaxStackSize()
     {
         return getValue(maxStackSize, ItemBuilder::getMaxStackSize);
+    }
+
+    @Nullable
+    public Boolean getIsFireResistant()
+    {
+        return getValue(isFireResistant, ItemBuilder::getIsFireResistant);
     }
 
     @Nullable

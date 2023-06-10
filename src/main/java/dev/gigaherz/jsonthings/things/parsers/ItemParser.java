@@ -105,10 +105,11 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
                 .ifKey("creative_menu_stacks", val -> val
                         .array().forEach((i, entry) -> entry
-                                .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item), parseTabsList(item))))
+                                .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item, false, false), parseTabsList(item))))
                 )
                 .ifKey("attribute_modifiers", val -> val.array().raw(arr -> parseAttributeModifiers(arr, builder)))
                 .ifKey("max_damage", val -> val.intValue().min(1).handle(builder::setMaxDamage))
+                .ifKey("fire_resistant", val -> val.bool().handle(builder::setFireResistant))
                 .ifKey("food", val -> val
                         .ifString(str -> str.map(ResourceLocation::new).handle(builder::setFood))
                         .ifObj(obj -> obj.raw(food -> {
@@ -252,7 +253,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         }
     }
 
-    private String[] parseTabsList(JsonObject stackEntry)
+    public static String[] parseTabsList(JsonObject stackEntry)
     {
         if (stackEntry.has("tabs"))
         {

@@ -1,18 +1,25 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, CreativeModeTabBuilder>
 {
+
     public static CreativeModeTabBuilder begin(ThingParser<CreativeModeTabBuilder> ownerParser, ResourceLocation registryName)
     {
         return new CreativeModeTabBuilder(ownerParser, registryName);
     }
 
-    private ResourceLocation iconItem;
+    private StackContext iconItem;
+    private final ArrayList<StackContext> items = new ArrayList<>();
 
     private CreativeModeTabBuilder(ThingParser<CreativeModeTabBuilder> ownerParser, ResourceLocation registryName)
     {
@@ -25,15 +32,25 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
         return "Creative Mode Tab";
     }
 
-    public void setIcon(ResourceLocation iconItem)
+    public void setIcon(StackContext stackContext)
     {
-        this.iconItem = iconItem;
+        this.iconItem = stackContext;
     }
 
     @Override
     protected FlexCreativeModeTab buildInternal()
     {
         ResourceLocation registryName = getRegistryName();
-        return new FlexCreativeModeTab(registryName.getNamespace() + "." + registryName.getPath().replace("/", "."), () -> Utils.getItemOrCrash(iconItem));
+        return new FlexCreativeModeTab(registryName.getNamespace() + "." + registryName.getPath().replace("/", "."), iconItem);
+    }
+
+    public void addItem(StackContext stackContext)
+    {
+        this.items.add(stackContext);
+    }
+
+    public List<StackContext> getItems()
+    {
+        return Collections.unmodifiableList(items);
     }
 }

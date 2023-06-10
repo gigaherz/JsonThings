@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -30,7 +31,11 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
             var tab = thing.get();
             var icon = tab.icon();
             var name = tab.name();
-            builder.icon(() -> icon.get().getDefaultInstance()).title(Component.translatable(name)).displayItems((a, b) -> {
+            builder.icon(() -> icon.toStack(null)).title(Component.translatable(name)).displayItems((parameters, output) -> {
+                for(var stackContext : thing.getItems())
+                {
+                    output.accept(stackContext.toStack(null));
+                }
             });
         }), BaseBuilder::getRegistryName);
     }
@@ -47,7 +52,14 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
         final CreativeModeTabBuilder builder = CreativeModeTabBuilder.begin(this, key);
 
         JParse.begin(data)
-                .key("icon", val -> val.string().map(ResourceLocation::new).handle(builder::setIcon));
+                .key("icon", val -> val
+                        .ifString(str -> str.map(ResourceLocation::new).map(StackContext::new).handle(builder::setIcon))
+                        .ifObj(str -> str.map((JsonObject name) -> parseStackContext(name, true, true)).handle(builder::setIcon))
+                        .typeError()
+                )
+                .ifKey("items", val -> val.array().forEach((index,entry) -> entry.obj()
+                        .map((JsonObject name) -> parseStackContext(name, true, true))
+                        .handle(builder::addItem)));
 
         builderModification.accept(builder);
 

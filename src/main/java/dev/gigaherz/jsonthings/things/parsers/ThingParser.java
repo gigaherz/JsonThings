@@ -165,9 +165,22 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         return Collections.unmodifiableMap(buildersByName);
     }
 
-    protected StackContext parseStackContext(JsonObject item)
+    protected StackContext parseStackContext(JsonObject item, boolean allowItem, boolean requireItem)
     {
-        StackContext ctx = new StackContext(null);
+        ResourceLocation itemName = null;
+        if (item.has("item"))
+        {
+            if (!allowItem)
+                throw new JsonParseException("'item' key provided in a context that doesn't allow customizing the item.");
+            itemName = new ResourceLocation(item.get("item").getAsString());
+        }
+        else
+        {
+            if (requireItem)
+                throw new JsonParseException("'item' key missing in a context that requires the item.");
+        }
+
+        StackContext ctx = new StackContext(itemName);
 
         if (item.has("count"))
         {

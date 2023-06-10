@@ -1,0 +1,6 @@
+modLoader="lowcodefml"
+loaderVersion="0"
+license="ARR"
+[[mods]]
+modId="testpack"
+version="1.0.0"

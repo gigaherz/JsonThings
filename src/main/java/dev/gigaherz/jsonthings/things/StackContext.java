@@ -33,7 +33,7 @@ public class StackContext
         return this;
     }
 
-    public ItemStack toStack(Item self)
+    public ItemStack toStack(@Nullable Item self)
     {
         if (theItem == null)
         {
@@ -46,6 +46,8 @@ public class StackContext
             else
             {
                 theItem = self;
+                if (theItem == null)
+                    throw new RuntimeException("No item name specified for a stack context that isn't linked to an item.");
             }
         }
         ItemStack stack = new ItemStack(theItem, count);

@@ -16,14 +16,14 @@ import joptsimple.internal.Strings;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraftforge.common.CreativeModeTabRegistry;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
@@ -31,13 +31,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class ItemParser extends ThingParser<ItemBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
-    private Map<CreativeModeTab, List<ItemStack>> creativeStacks;
+    private Map<ResourceKey<CreativeModeTab>, List<ItemStack>> creativeStacks;
 
     public ItemParser(IEventBus bus)
     {
@@ -56,7 +55,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         });
     }
 
-    public void addToTabs(CreativeModeTabEvent.BuildContents event)
+    public void addToTabs(BuildCreativeModeTabContentsEvent event)
     {
         if (creativeStacks == null)
         {
@@ -77,17 +76,12 @@ public class ItemParser extends ThingParser<ItemBuilder>
             creativeStacks = new HashMap<>();
             for (var entry : map.entrySet())
             {
-                var tab = CreativeModeTabRegistry.getTab(new ResourceLocation(entry.getKey()));
-                if (tab == null)
-                {
-                    throw new ThingParseException("Could not find tab with name " + entry.getKey() + " used by: " + entry.getValue().stream()
-                            .map(ItemStack::getDisplayName).map(Component::getString).collect(Collectors.joining(", ")));
-                }
+                var tab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(entry.getKey()));
                 creativeStacks.put(tab, entry.getValue());
             }
         }
 
-        var list = creativeStacks.get(event.getTab());
+        var list = creativeStacks.get(event.getTabKey());
         if (list != null)
             event.acceptAll(list);
     }

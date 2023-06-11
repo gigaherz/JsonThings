@@ -30,6 +30,7 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
     private ResourceLocation hangingSignSoundType;
     private ResourceLocation fenceGateClose;
     private ResourceLocation fenceGateOpen;
+    private boolean canOpenByHand = true;
 
     private BlockSetTypeBuilder(ThingParser<BlockSetTypeBuilder> ownerParser, ResourceLocation registryName)
     {
@@ -102,6 +103,11 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
         fenceGateOpen = resourceLocation;
     }
 
+    public void setCanOpenByHand(boolean b)
+    {
+        canOpenByHand = b;
+    }
+
     @Override
     protected String getThingTypeDisplayName()
     {
@@ -120,7 +126,7 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
         var pressurePlateOnEvent = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, pressurePlateOn, SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON);
         var buttonOffEvent = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, buttonOff, SoundEvents.WOODEN_BUTTON_CLICK_OFF);
         var buttonOnEvent = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, buttonOn, SoundEvents.WOODEN_BUTTON_CLICK_ON);
-        return new BlockSetType(getRegistryName().toString(), soundTypeObj,
+        return new BlockSetType(getRegistryName().toString(), canOpenByHand, soundTypeObj,
                 doorCloseEvent, doorOpenEvent, trapdoorCloseEvent, trapdoorOpenEvent,
                 pressurePlateOffEvent, pressurePlateOnEvent, buttonOffEvent,buttonOnEvent);
     }

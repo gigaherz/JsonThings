@@ -298,3 +298,45 @@ Optional. Default: no item. If not used, the block will not be able to exist in 
 Can be one of 2 types:
 * A Boolean: If `true`, the block item will have all the default properties.
 * A json object (`{}`) containing the definition of an item, as seen in the [Items](./Items.md) page.
+
+
+## "ignited_by_lava"
+Defines that the block will be set on fire by nearby lava.
+
+Optional. Default: false.
+
+Must be a boolean (`false` or `true`).
+
+## "force_solid"
+Defines that the block must be considered solid regardless of its voxel shape. If true, the "blocks_motion" option is not used.
+
+Optional. Default: false.
+
+Must be a boolean (`false` or `true`).
+
+## "blocks_motion"
+If false, defines that the block must be considered non-solid regardless of its voxel shape. This option is not used if force_solid is true.
+
+Optional. Default: true.
+
+Must be a boolean (`false` or `true`).
+
+## "replaceable"
+Defines that the block can be deleted when placing other blocks in the same space. By default, block placement is prevented.
+
+Optional. Default: false.
+
+Must be a boolean (`false` or `true`).
+
+## "push_reaction"
+Defines how the block reacts when pushed by a piston.
+
+Optional. Default: normal.
+
+Must be one of these strings:
+
+* `"normal"`: The block can be pushed and pulled by pistons.
+* `"block"`: The block cannot be pushed by pistons.
+* `"destroy"`: The block breaks and drops its loot when pushed by pistons.
+* `"push_only"`: The block can be pushed by a piston, but not pulled.
+

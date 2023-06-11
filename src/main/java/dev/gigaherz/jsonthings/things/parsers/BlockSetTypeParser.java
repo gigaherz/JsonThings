@@ -46,6 +46,7 @@ public class BlockSetTypeParser extends ThingParser<BlockSetTypeBuilder>
                 .ifKey("hanging_sign_sound_type", val -> val.string().map(ResourceLocation::new).handle(builder::setHangingSignSoundType))
                 .ifKey("fence_gate_close", val -> val.string().map(ResourceLocation::new).handle(builder::setFenceGateClose))
                 .ifKey("fence_gate_open", val -> val.string().map(ResourceLocation::new).handle(builder::setFenceGateOpen))
+                .ifKey("can_open_by_hand", val -> val.bool().handle(builder::setCanOpenByHand))
         ;
 
         builderModification.accept(builder);

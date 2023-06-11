@@ -11,8 +11,8 @@ import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -33,8 +33,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     private Map<String, String> propertyDefaultValues;
     private Map<Property<?>, Comparable<?>> propertyDefaultValuesMap;
     private FlexBlockType<?> blockType;
-    private ResourceLocation blockMaterial;
-    private MaterialColor blockMaterialColor;
+    private MapColor blockMaterialColor;
 
     private ItemBuilder itemBuilder;
     //private RegistryObject<Block> parentBlock;
@@ -55,6 +54,12 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     private Float speedFactor;
     private Float jumpFactor;
     private ResourceLocation soundType;
+    private Boolean blocksMotion;
+    private Boolean ignitedByLava;
+    private Boolean liquid;
+    private Boolean replaceable;
+    private Boolean forceSolid;
+    private PushReaction pushReaction;
 
     private IBlockFactory<? extends Block> factory;
 
@@ -151,31 +156,13 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         return propertyDefaultValuesMap;
     }
 
-    public void setMaterial(ResourceLocation material)
-    {
-        blockMaterial = material;
-    }
-
-    @Nullable
-    public ResourceLocation getMaterialRaw()
-    {
-        return getValue(blockMaterial, BlockBuilder::getMaterialRaw);
-    }
-
-    public Material getMaterial()
-    {
-        var matName = getMaterialRaw();
-        var mat = matName != null ? ThingRegistries.BLOCK_MATERIALS.get(matName) : null;
-        return Utils.orElse(mat, getBlockType().getDefaultMaterial());
-    }
-
-    public void setMaterialColor(MaterialColor mapColor)
+    public void setMaterialColor(MapColor mapColor)
     {
         blockMaterialColor = mapColor;
     }
 
     @Nullable
-    public MaterialColor getMaterialColor()
+    public MapColor getMaterialColor()
     {
         return getValue(blockMaterialColor, BlockBuilder::getMaterialColor);
     }
@@ -372,16 +359,69 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         return getValue(soundType, BlockBuilder::getSoundType);
     }
 
+    public void setPushReaction(PushReaction pushReaction)
+    {
+        this.pushReaction = pushReaction;
+    }
+
+    @Nullable
+    public PushReaction getPushReaction()
+    {
+        return getValue(pushReaction, BlockBuilder::getPushReaction);
+    }
+
+    public void setBlocksMotion(boolean blocksMotion)
+    {
+        this.blocksMotion = blocksMotion;
+    }
+
+    @Nullable
+    public Boolean getBlocksMotion()
+    {
+        return getValue(blocksMotion, BlockBuilder::getBlocksMotion);
+    }
+
+    public void setIgnitedByLava(boolean ignitedByLava)
+    {
+        this.ignitedByLava = ignitedByLava;
+    }
+
+    @Nullable
+    public Boolean getIgnitedByLava()
+    {
+        return getValue(ignitedByLava, BlockBuilder::getIgnitedByLava);
+    }
+
+    public void setReplaceable(boolean replaceable)
+    {
+        this.replaceable = replaceable;
+    }
+
+    @Nullable
+    public Boolean getReplaceable()
+    {
+        return getValue(replaceable, BlockBuilder::getReplaceable);
+    }
+
+    public void setForceSolid(boolean solid)
+    {
+        this.forceSolid = solid;
+    }
+
+    @Nullable
+    public Boolean getForceSolid()
+    {
+        return getValue(forceSolid, BlockBuilder::getForceSolid);
+    }
+
     @Override
     protected IFlexBlock buildInternal()
     {
-        Material material = getMaterial();
-        MaterialColor blockMaterialColor = getMaterialColor();
-        Block.Properties props = blockMaterialColor != null ?
-                Block.Properties.of(material, blockMaterialColor) :
-                Block.Properties.of(material);
+        MapColor blockMaterialColor = getMaterialColor();
+        Block.Properties props = Block.Properties.of();
 
         var blockType = getBlockType();
+        if (blockMaterialColor != null) props.mapColor(blockMaterialColor);
         if (Utils.orElse(isSeeThrough(), blockType.isDefaultSeeThrough())) props.noOcclusion();
         if (Utils.orElse(requiresToolForDrops(), false)) props.requiresCorrectToolForDrops();
         if (Utils.orElse(getIsAir(), false)) props.air();
@@ -393,6 +433,11 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         if (Utils.orElse(getFriction(), 0.6f) != 0.6f) props.friction(getFriction());
         if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
         if (Utils.orElse(getJumpFactor(), 1.0f) != 1) props.jumpFactor(getSpeedFactor());
+        if (Utils.orElse(getPushReaction(), PushReaction.NORMAL) != PushReaction.NORMAL) props.pushReaction(getPushReaction());
+        if (Utils.orElse(getIgnitedByLava(), true)) props.ignitedByLava();
+        if (Utils.orElse(getReplaceable(), true)) props.replaceable();
+        if (Utils.orElse(getForceSolid(), false)) props.forceSolidOn();
+        if (!Utils.orElse(getBlocksMotion(), true)) props.forceSolidOff();
 
         if (getSoundType() != null) props.sound(Utils.getOrCrash(ThingRegistries.SOUND_TYPES, getSoundType()));
 

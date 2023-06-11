@@ -57,7 +57,6 @@ public class JsonThings
     public static ShapeParser shapeParser;
     public static TierParser tierParser;
     public static FluidTypeParser fluidTypeParser;
-    public static BlockMaterialParser blockMaterialParser;
     public static ArmorMaterialParser armorMaterialParser;
     public static CreativeModeTabParser creativeModeTabParser;
     public static MobEffectInstanceParser mobEffectInstanceParser;
@@ -82,7 +81,6 @@ public class JsonThings
         shapeParser = manager.registerParser(new ShapeParser());
         tierParser = manager.registerParser(new TierParser());
         fluidTypeParser = manager.registerParser(new FluidTypeParser(bus));
-        blockMaterialParser = manager.registerParser(new BlockMaterialParser());
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser(bus));
         mobEffectInstanceParser = manager.registerParser(new MobEffectInstanceParser());

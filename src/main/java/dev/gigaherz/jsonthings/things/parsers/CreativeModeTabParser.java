@@ -5,10 +5,12 @@ import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,19 +27,23 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
         modBus.addListener(this::registerTabs);
     }
 
-    private void registerTabs(CreativeModeTabEvent.Register event)
+    public void registerTabs(RegisterEvent event)
     {
-        processAndConsumeErrors(getThingType(), getBuilders(), thing -> event.registerCreativeModeTab(thing.getRegistryName(), builder -> {
-            var tab = thing.get();
-            var icon = tab.icon();
-            var name = tab.name();
-            builder.icon(() -> icon.toStack(null)).title(Component.translatable(name)).displayItems((parameters, output) -> {
-                for(var stackContext : thing.getItems())
-                {
-                    output.accept(stackContext.toStack(null));
-                }
-            });
-        }), BaseBuilder::getRegistryName);
+        event.register(Registries.CREATIVE_MODE_TAB, helper -> {
+            LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> {
+                var tab = thing.get();
+                var icon = tab.icon();
+                var name = tab.name();
+                helper.register(thing.getRegistryName(), new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0).icon(() -> icon.toStack(null)).title(Component.translatable(name)).displayItems((parameters, output) -> {
+                    for(var stackContext : thing.getItems())
+                    {
+                        output.accept(stackContext.toStack(null));
+                    }
+                }).build());
+            }, BaseBuilder::getRegistryName);
+            LOGGER.info("Done processing thingpack CreativeModeTabs.");
+        });
     }
 
     @Override

@@ -27,3 +27,4 @@ run/thingpacks/*
 !run/thingpacks/sandwood
 !run/thingpacks/test
 
+/.vs

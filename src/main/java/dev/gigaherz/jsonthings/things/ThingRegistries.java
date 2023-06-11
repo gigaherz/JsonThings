@@ -6,7 +6,7 @@ import dev.gigaherz.jsonthings.things.properties.PropertyTypes;
 import dev.gigaherz.jsonthings.things.serializers.FlexBlockType;
 import dev.gigaherz.jsonthings.things.serializers.FlexFluidType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
-import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
+import dev.gigaherz.jsonthings.things.serializers.MapColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -19,7 +19,6 @@ import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Material;
 
 public class ThingRegistries
 {
@@ -35,7 +34,6 @@ public class ThingRegistries
     public static final ResourceKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
     public static final ResourceKey<Registry<DynamicShape>> DYNAMIC_SHAPE_REGISTRY = createKey("jsonthings:dynamic_shapes");
     public static final ResourceKey<Registry<FlexBlockType<?>>> BLOCK_TYPE_REGISTRY = createKey("jsonthings:block_types");
-    public static final ResourceKey<Registry<Material>> BLOCK_MATERIAL_REGISTRY = createKey("jsonthings:block_materials");
     public static final ResourceKey<Registry<FlexItemType<?>>> ITEM_TYPE_REGISTRY = createKey("jsonthings:item_types");
     public static final ResourceKey<Registry<SoundType>> SOUND_TYPE_REGISTRY = createKey("jsonthings:sound_types");
     public static final ResourceKey<Registry<FlexFluidType<?>>> FLUID_TYPE_REGISTRY = createKey("jsonthings:fluid_types");
@@ -48,7 +46,6 @@ public class ThingRegistries
     public static final Registry<DynamicShape> DYNAMIC_SHAPES = makeRegistry(DYNAMIC_SHAPE_REGISTRY);
     public static final Registry<FlexItemType<?>> ITEM_TYPES = makeRegistry(ITEM_TYPE_REGISTRY);
     public static final Registry<FlexBlockType<?>> BLOCK_TYPES = makeRegistry(BLOCK_TYPE_REGISTRY);
-    public static final Registry<Material> BLOCK_MATERIALS = makeRegistry(BLOCK_MATERIAL_REGISTRY);
     public static final Registry<SoundType> SOUND_TYPES = makeRegistry(SOUND_TYPE_REGISTRY);
     public static final Registry<FlexFluidType<?>> FLUID_TYPES = makeRegistry(FLUID_TYPE_REGISTRY);
 
@@ -62,8 +59,6 @@ public class ThingRegistries
 
         registerDynamicShapes();
 
-        registerBlockMaterials();
-
         registerSoundTypes();
 
         PropertyTypes.init();
@@ -72,7 +67,7 @@ public class ThingRegistries
 
         FlexItemType.init();
 
-        MaterialColors.init();
+        MapColors.init();
 
         FlexFluidType.init();
     }
@@ -256,60 +251,6 @@ public class ThingRegistries
         {
             Registry.register(ARMOR_MATERIALS, mat.getName(), mat);
         }
-    }
-
-    private static void registerBlockMaterials()
-    {
-        Registry.register(BLOCK_MATERIALS, "air", Material.AIR);
-        Registry.register(BLOCK_MATERIALS, "structural_air", Material.STRUCTURAL_AIR);
-        Registry.register(BLOCK_MATERIALS, "portal", Material.PORTAL);
-        Registry.register(BLOCK_MATERIALS, "cloth_decoration", Material.CLOTH_DECORATION);
-        Registry.register(BLOCK_MATERIALS, "plant", Material.PLANT);
-        Registry.register(BLOCK_MATERIALS, "water_plant", Material.WATER_PLANT);
-        Registry.register(BLOCK_MATERIALS, "replaceable_plant", Material.REPLACEABLE_PLANT);
-        Registry.register(BLOCK_MATERIALS, "replaceable_fireproof_plant", Material.REPLACEABLE_FIREPROOF_PLANT);
-        Registry.register(BLOCK_MATERIALS, "replaceable_water_plant", Material.REPLACEABLE_WATER_PLANT);
-        Registry.register(BLOCK_MATERIALS, "water", Material.WATER);
-        Registry.register(BLOCK_MATERIALS, "bubble_column", Material.BUBBLE_COLUMN);
-        Registry.register(BLOCK_MATERIALS, "lava", Material.LAVA);
-        Registry.register(BLOCK_MATERIALS, "top_snow", Material.TOP_SNOW);
-        Registry.register(BLOCK_MATERIALS, "fire", Material.FIRE);
-        Registry.register(BLOCK_MATERIALS, "decoration", Material.DECORATION);
-        Registry.register(BLOCK_MATERIALS, "web", Material.WEB);
-        Registry.register(BLOCK_MATERIALS, "sculk", Material.SCULK);
-        Registry.register(BLOCK_MATERIALS, "buildable_glass", Material.BUILDABLE_GLASS);
-        Registry.register(BLOCK_MATERIALS, "clay", Material.CLAY);
-        Registry.register(BLOCK_MATERIALS, "dirt", Material.DIRT);
-        Registry.register(BLOCK_MATERIALS, "grass", Material.GRASS);
-        Registry.register(BLOCK_MATERIALS, "ice_solid", Material.ICE_SOLID);
-        Registry.register(BLOCK_MATERIALS, "sand", Material.SAND);
-        Registry.register(BLOCK_MATERIALS, "sponge", Material.SPONGE);
-        Registry.register(BLOCK_MATERIALS, "shulker_shell", Material.SHULKER_SHELL);
-        Registry.register(BLOCK_MATERIALS, "wood", Material.WOOD);
-        Registry.register(BLOCK_MATERIALS, "nether_wood", Material.NETHER_WOOD);
-        Registry.register(BLOCK_MATERIALS, "bamboo_sapling", Material.BAMBOO_SAPLING);
-        Registry.register(BLOCK_MATERIALS, "bamboo", Material.BAMBOO);
-        Registry.register(BLOCK_MATERIALS, "wool", Material.WOOL);
-        Registry.register(BLOCK_MATERIALS, "explosive", Material.EXPLOSIVE);
-        Registry.register(BLOCK_MATERIALS, "leaves", Material.LEAVES);
-        Registry.register(BLOCK_MATERIALS, "glass", Material.GLASS);
-        Registry.register(BLOCK_MATERIALS, "ice", Material.ICE);
-        Registry.register(BLOCK_MATERIALS, "cactus", Material.CACTUS);
-        Registry.register(BLOCK_MATERIALS, "stone", Material.STONE);
-        Registry.register(BLOCK_MATERIALS, "metal", Material.METAL);
-        Registry.register(BLOCK_MATERIALS, "snow", Material.SNOW);
-        Registry.register(BLOCK_MATERIALS, "heavy_metal", Material.HEAVY_METAL);
-        Registry.register(BLOCK_MATERIALS, "barrier", Material.BARRIER);
-        Registry.register(BLOCK_MATERIALS, "piston", Material.PISTON);
-        Registry.register(BLOCK_MATERIALS, "moss", Material.MOSS);
-        Registry.register(BLOCK_MATERIALS, "vegetable", Material.VEGETABLE);
-        Registry.register(BLOCK_MATERIALS, "egg", Material.EGG);
-        Registry.register(BLOCK_MATERIALS, "cake", Material.CAKE);
-        Registry.register(BLOCK_MATERIALS, "amethyst", Material.AMETHYST);
-        Registry.register(BLOCK_MATERIALS, "powder_snow", Material.POWDER_SNOW);
-        Registry.register(BLOCK_MATERIALS, "frogspawn", Material.FROGSPAWN);
-        Registry.register(BLOCK_MATERIALS, "froglight", Material.FROGLIGHT);
-        Registry.register(BLOCK_MATERIALS, "decorated_pot", Material.DECORATED_POT);
     }
 
     private static void registerSoundTypes()

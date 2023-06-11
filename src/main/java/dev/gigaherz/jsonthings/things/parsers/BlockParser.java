@@ -8,7 +8,7 @@ import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
-import dev.gigaherz.jsonthings.things.serializers.MaterialColors;
+import dev.gigaherz.jsonthings.things.serializers.MapColors;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
@@ -17,7 +17,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -59,10 +60,9 @@ public class BlockParser extends ThingParser<BlockBuilder>
         JParse.begin(data)
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setBlockType))
-                .ifKey("material", val -> val.string().map(ResourceLocation::new).handle(builder::setMaterial))
                 .ifKey("map_color", val -> val
-                        .ifString(str -> builder.setMaterialColor(MaterialColors.get(str.getAsString())))
-                        .ifInteger(str -> builder.setMaterialColor(MaterialColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
+                        .ifString(str -> builder.setMaterialColor(MapColors.get(str.getAsString())))
+                        .ifInteger(str -> builder.setMaterialColor(MapColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
                         .typeError()
                 )
                 .ifKey("requires_tool_for_drops", val -> val.bool().handle(builder::setRequiresToolForDrops))
@@ -92,6 +92,11 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
                 .ifKey("not_solid", val -> val.bool().handle(builder::setSeeThrough))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
+                .ifKey("ignited_by_lava", val -> val.bool().handle(builder::setIgnitedByLava))
+                .ifKey("force_solid", val -> val.bool().handle(builder::setForceSolid))
+                .ifKey("replaceable", val -> val.bool().handle(builder::setReplaceable))
+                .ifKey("blocks_motion", val -> val.bool().handle(builder::setBlocksMotion))
+                .ifKey("push_reaction", val -> val.string().map(BlockParser::parsePushReaction).handle(builder::setPushReaction))
                 .ifKey("item", val -> parseItemBlock(builder, val))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
@@ -100,6 +105,19 @@ public class BlockParser extends ThingParser<BlockBuilder>
         builder.setFactory(builder.getBlockType().getFactory(data));
 
         return builder;
+    }
+
+    private static PushReaction parsePushReaction(String s)
+    {
+        return switch (s)
+                {
+                    case "block" -> PushReaction.BLOCK;
+                    case "destroy" -> PushReaction.DESTROY;
+                    case "ignore" -> PushReaction.IGNORE;
+                    case "push_only" -> PushReaction.PUSH_ONLY;
+                    case "normal" -> PushReaction.NORMAL;
+                    default -> throw new ThingParseException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
+                };
     }
 
     private Property<?> getRotationProperty(MutableObject<Map<String, Property<?>>> propertiesByName, String name)

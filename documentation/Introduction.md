@@ -30,6 +30,6 @@ A Thing Pack supports a set of file types for defining different things.
 
 ### Version
 
-This documentation is for the 1.19 version of the mod.
+This documentation is for the 1.20 version of the mod.
 
 For other versions see the appropriate branch in the branch selector.

@@ -6,6 +6,7 @@ import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
@@ -88,7 +89,7 @@ public class FlexFluid extends Fluid implements IFlexFluid
     @Override
     public Item getBucket()
     {
-        return bucketItem.get();
+        return bucketItem != null ? bucketItem.get() : Items.AIR;
     }
 
     @Override

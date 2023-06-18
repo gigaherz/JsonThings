@@ -126,7 +126,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     @Override
     public Item getBucket()
     {
-        return bucketItem.get();
+        return bucketItem != null ? bucketItem.get() : Items.AIR;
     }
 
     @Override

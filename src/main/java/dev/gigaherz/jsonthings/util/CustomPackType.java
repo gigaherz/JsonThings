@@ -8,4 +8,9 @@ import net.minecraftforge.fml.common.Mod;
 public class CustomPackType
 {
     public static PackType THINGS;
+
+    static { // make sure the field has been initialized.
+        //noinspection ResultOfMethodCallIgnored
+        PackType.values();
+    }
 }

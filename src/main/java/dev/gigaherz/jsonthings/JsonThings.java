@@ -90,11 +90,18 @@ public class JsonThings
     public static void construct(FMLConstructModEvent event)
     {
         event.enqueueWork(() -> {
-            ThingResourceManager instance = ThingResourceManager.instance();
+            try
+            {
+                ThingResourceManager instance = ThingResourceManager.instance();
 
-            ResourcePackLoader.loadResourcePacks(instance.getRepository(), ModResourcesFinder::buildPackFinder);
+                ResourcePackLoader.loadResourcePacks(instance.getRepository(), ModResourcesFinder::buildPackFinder);
 
-            loaderFuture = instance.beginLoading();
+                loaderFuture = instance.beginLoading();
+            }
+            catch(Exception e)
+            {
+                LOGGER.error("Exception during FMLConstructModEvent", e);
+            }
         });
     }
 

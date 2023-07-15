@@ -62,6 +62,8 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
     private List<MutableComponent> lore;
 
+    private Integer burnDuration;
+
     private IItemFactory<? extends Item> factory;
 
     private ItemBuilder(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
@@ -174,6 +176,11 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     public void setLore(List<MutableComponent> lore)
     {
         this.lore = lore;
+    }
+
+    public void setBurnDuration(int burnTime)
+    {
+        this.burnDuration = burnTime;
     }
 
     @Override
@@ -326,6 +333,12 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     public List<MutableComponent> getLore()
     {
         return getValueOrElseGet(lore, ItemBuilder::getLore, List::of);
+    }
+
+    @Nullable
+    public Integer getBurnDuration()
+    {
+        return getValue(burnDuration, ItemBuilder::getBurnDuration);
     }
 
     public Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> getAttributeModifiers()

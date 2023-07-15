@@ -37,7 +37,8 @@ E.g.
     "Hello",
     {"text": "Hi", "italic": true, "color": "gray" }
   ],
-  "tool_actions": ["shovel_dig"]
+  "tool_actions": ["shovel_dig"],
+  "burn_duration": 20
 }
 ```
 
@@ -165,3 +166,11 @@ Defines a list of tool actions to present to the game. This doesn't make an item
 Optional. Default: depends on item type.
 
 Must be a json array (`[]`) containing strings.
+
+## "burn_duration"
+
+Defines the amount of time this item can burn when used as fuel for a furnace.
+
+Optional. Default: use vanilla default handling (depends on item type).
+
+Must be an integer. A value of 0 prevents the item from being considered fuel.

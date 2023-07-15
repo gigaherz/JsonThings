@@ -36,18 +36,22 @@ import java.util.concurrent.ExecutionException;
 
 public class ThingResourceManager
 {
-    public static final Logger LOGGER = LogUtils.getLogger();
+    private static class InstanceHolder
+    {
+        private static final ThingResourceManager instance = new ThingResourceManager();
+    }
 
-    private static ThingResourceManager instance;
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public static ThingResourceManager instance()
     {
-        return instance;
+        return InstanceHolder.instance;
     }
 
+    @Deprecated(forRemoval = true)
     public static ThingResourceManager initialize(IEventBus modBusEvent)
     {
-        return instance = new ThingResourceManager();
+        return InstanceHolder.instance;
     }
 
     private static final Set<String> disabledPacks = Sets.newHashSet();

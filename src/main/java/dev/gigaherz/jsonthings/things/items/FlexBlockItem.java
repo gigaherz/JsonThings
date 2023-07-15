@@ -24,6 +24,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ToolAction;
@@ -48,6 +49,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
         this.attributeModifiers = builder.getAttributeModifiers();
         this.lore = builder.getLore();
         this.toolActions = builder.getToolActions();
+        this.burnTime = Utils.orElse(builder.getBurnDuration(), -1);
         initializeFlex();
     }
 
@@ -91,6 +93,7 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
     private final Set<ToolAction> toolActions;
+    private final int burnTime;
 
     private void initializeFlex()
     {
@@ -244,6 +247,12 @@ public class FlexBlockItem extends BlockItem implements IFlexItem
     {
         if (toolActions != null) return toolActions.contains(toolAction);
         return super.canPerformAction(stack, toolAction);
+    }
+
+    @Override
+    public int getBurnTime(ItemStack itemStack, @org.jetbrains.annotations.Nullable RecipeType<?> recipeType)
+    {
+        return burnTime;
     }
 
     //endregion

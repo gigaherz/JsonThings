@@ -94,7 +94,8 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("lore", val -> val.array().unwrapRaw(this::parseLore).handle(builder::setLore))
                 .ifKey("tool_actions", val -> val.array().strings().flatten(StringValue::getAsString, String[]::new).handle(builder::setToolActions))
-                .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
+                .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap))
+                .ifKey("burn_duration", val -> val.intValue().min(1).handle(builder::setBurnDuration));
 
         builderModification.accept(builder);
 

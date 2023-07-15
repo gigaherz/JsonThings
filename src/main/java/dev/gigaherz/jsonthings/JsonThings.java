@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.NamedRenderTypeManager;
@@ -68,7 +67,7 @@ public class JsonThings
     {
         var bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        var manager = ThingResourceManager.initialize(bus);
+        var manager = ThingResourceManager.instance();
         if (ModList.get().isLoaded("rhino"))
         {
             ScriptParser.enable(manager);
@@ -195,7 +194,7 @@ public class JsonThings
                 {
                     Function<BlockColors, ItemColor> handler = ItemColorHandler.get(handlerName);
                     ItemColor ic = handler.apply(event.getBlockColors());
-                    event.register(ic, ((Item) thing.get()));
+                    event.register(ic, thing.get().self());
                 }
             });
         }

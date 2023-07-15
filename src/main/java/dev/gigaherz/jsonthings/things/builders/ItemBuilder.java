@@ -10,6 +10,8 @@ import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
+import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
+import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
@@ -30,6 +32,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// TODO: replace generic parameter with Item
 public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 {
     public static ItemBuilder begin(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
@@ -61,6 +64,8 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     private String[] toolActions;
 
     private List<MutableComponent> lore;
+
+    private Integer burnDuration;
 
     private IItemFactory<? extends Item> factory;
 
@@ -181,6 +186,12 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.lore = lore;
     }
 
+    public void setBurnDuration(int burnTime)
+    {
+        this.burnDuration = burnTime;
+    }
+
+    // TODO: change to return Item
     @Override
     protected IFlexItem buildInternal()
     {
@@ -216,11 +227,36 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
             properties = properties.fireResistant();
         }
 
-        IFlexItem flexItem = factory.construct(properties, this);
+        Item item = factory.construct(properties, this);
 
-        constructEventHandlers(flexItem);
+        if (item instanceof IEventRunner eventRunner)
+            constructEventHandlers(eventRunner);
 
-        return flexItem;
+        // TODO: return item;
+        return new IFlexItem()
+        {
+            @Override
+            public Item self()
+            {
+                return item;
+            }
+
+            @Override
+            public void addEventHandler(String eventName, FlexEventHandler eventHandler)
+            {
+                if (item instanceof IEventRunner eventRunner)
+                    eventRunner.addEventHandler(eventName, eventHandler);
+            }
+
+            @Nullable
+            @Override
+            public FlexEventHandler getEventHandler(String eventName)
+            {
+                return (item instanceof IEventRunner eventRunner)
+                        ? eventRunner.getEventHandler(eventName)
+                        : null;
+            }
+        };
     }
 
     public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
@@ -313,6 +349,12 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     public List<MutableComponent> getLore()
     {
         return getValueOrElseGet(lore, ItemBuilder::getLore, List::of);
+    }
+
+    @Nullable
+    public Integer getBurnDuration()
+    {
+        return getValue(burnDuration, ItemBuilder::getBurnDuration);
     }
 
     public Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> getAttributeModifiers()

@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.things.serializers;
 
 import com.google.gson.JsonObject;
-import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.items.*;
@@ -26,7 +25,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class FlexItemType<T extends Item & IFlexItem>
+public class FlexItemType<T extends Item>
 {
     public static final FlexItemType<FlexItem> PLAIN = register("plain", (data) -> FlexItem::new);
 
@@ -110,7 +109,7 @@ public class FlexItemType<T extends Item & IFlexItem>
         return (props, builder) -> new FlexDiggerItem(getTier(tier), damage, speed, tag, props, builder);
     });
 
-    private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
+    private static <T extends TieredItem> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
     {
         return data -> {
 
@@ -123,7 +122,7 @@ public class FlexItemType<T extends Item & IFlexItem>
         };
     }
 
-    private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeToolSerializer2(DiggerFactory2<T> factory)
+    private static <T extends TieredItem> IItemSerializer<T> makeToolSerializer2(DiggerFactory2<T> factory)
     {
         return data -> {
 
@@ -138,7 +137,7 @@ public class FlexItemType<T extends Item & IFlexItem>
 
     public static final FlexItemType<FlexTieredItem> TIERED = register("tiered", makeTieredSerializer(FlexTieredItem::new));
 
-    private static <T extends TieredItem & IFlexItem> IItemSerializer<T> makeTieredSerializer(TieredFactory<T> factory)
+    private static <T extends TieredItem> IItemSerializer<T> makeTieredSerializer(TieredFactory<T> factory)
     {
         return data -> {
 
@@ -149,19 +148,19 @@ public class FlexItemType<T extends Item & IFlexItem>
     }
 
     @FunctionalInterface
-    public interface DiggerFactory<T extends TieredItem & IFlexItem>
+    public interface DiggerFactory<T extends TieredItem>
     {
         T create(Tier tier, float damage, float speed, Item.Properties properties, ItemBuilder builder);
     }
 
     @FunctionalInterface
-    public interface DiggerFactory2<T extends TieredItem & IFlexItem>
+    public interface DiggerFactory2<T extends TieredItem>
     {
         T create(Tier tier, int damage, float speed, Item.Properties properties, ItemBuilder builder);
     }
 
     @FunctionalInterface
-    public interface TieredFactory<T extends TieredItem & IFlexItem>
+    public interface TieredFactory<T extends TieredItem>
     {
         T create(Tier tier, Item.Properties properties, ItemBuilder builder);
     }
@@ -199,7 +198,7 @@ public class FlexItemType<T extends Item & IFlexItem>
         /* do nothing */
     }
 
-    public static <T extends Item & IFlexItem> FlexItemType<T> register(String name, IItemSerializer<T> factory)
+    public static <T extends Item> FlexItemType<T> register(String name, IItemSerializer<T> factory)
     {
         return Registry.register(ThingRegistries.ITEM_TYPES, name, new FlexItemType<>(factory));
     }

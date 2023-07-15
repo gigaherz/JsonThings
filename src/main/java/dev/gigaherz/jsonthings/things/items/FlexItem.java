@@ -4,12 +4,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -27,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ToolAction;
 
@@ -36,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class FlexItem extends Item implements IFlexItem
+public class FlexItem extends Item implements IEventRunner
 {
     public FlexItem(Properties properties, ItemBuilder builder)
     {
@@ -47,6 +48,7 @@ public class FlexItem extends Item implements IFlexItem
         this.attributeModifiers = builder.getAttributeModifiers();
         this.lore = builder.getLore();
         this.toolActions = builder.getToolActions();
+        this.burnTime = Utils.orElse(builder.getBurnDuration(), -1);
         initializeFlex();
     }
 
@@ -59,6 +61,7 @@ public class FlexItem extends Item implements IFlexItem
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
     private final Set<ToolAction> toolActions;
+    private final int burnTime;
 
     private void initializeFlex()
     {
@@ -188,6 +191,12 @@ public class FlexItem extends Item implements IFlexItem
     {
         if (toolActions != null) return toolActions.contains(toolAction);
         return super.canPerformAction(stack, toolAction);
+    }
+
+    @Override
+    public int getBurnTime(ItemStack itemStack, @org.jetbrains.annotations.Nullable RecipeType<?> recipeType)
+    {
+        return burnTime;
     }
 
     //endregion

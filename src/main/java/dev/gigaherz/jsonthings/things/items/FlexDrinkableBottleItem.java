@@ -4,12 +4,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.util.DrinkableBottleItem;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.Component;
@@ -28,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ToolAction;
 
@@ -37,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IFlexItem
+public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IEventRunner
 {
     public FlexDrinkableBottleItem(Supplier<Item> baseItem, Properties properties, ItemBuilder builder)
     {
@@ -48,6 +49,7 @@ public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IFle
         this.attributeModifiers = builder.getAttributeModifiers();
         this.lore = builder.getLore();
         this.toolActions = builder.getToolActions();
+        this.burnTime = Utils.orElse(builder.getBurnDuration(), -1);
         initializeFlex();
     }
 
@@ -60,6 +62,7 @@ public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IFle
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
     private final Set<ToolAction> toolActions;
+    private final int burnTime;
 
     private void initializeFlex()
     {
@@ -189,6 +192,12 @@ public class FlexDrinkableBottleItem extends DrinkableBottleItem implements IFle
     {
         if (toolActions != null) return toolActions.contains(toolAction);
         return super.canPerformAction(stack, toolAction);
+    }
+
+    @Override
+    public int getBurnTime(ItemStack itemStack, @org.jetbrains.annotations.Nullable RecipeType<?> recipeType)
+    {
+        return burnTime;
     }
 
     //endregion

@@ -15,6 +15,8 @@ public interface Any
 
     StringValue string();
 
+    NumberValue number();
+
     IntValue intValue();
 
     LongValue longValue();
@@ -30,6 +32,8 @@ public interface Any
     Any ifArray(Consumer<ArrayValue> visitor);
 
     Any ifString(Consumer<StringValue> visitor);
+
+    Any ifNumber(Consumer<NumberValue> visitor);
 
     Any ifInteger(Consumer<IntValue> visitor);
 

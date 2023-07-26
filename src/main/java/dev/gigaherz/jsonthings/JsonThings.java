@@ -20,6 +20,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.NamedRenderTypeManager;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.data.loading.DatagenModLoader;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -121,7 +122,7 @@ public class JsonThings
     @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientHandlers
     {
-        public static void addClientPackFinder()
+        private static void addClientPackFinder()
         {
             Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.instance().getWrappedPackFinder());
         }
@@ -129,6 +130,8 @@ public class JsonThings
         @SubscribeEvent
         public static void constructMod(FMLConstructModEvent event)
         {
+            if (DatagenModLoader.isRunningDataGen()) return;
+
             event.enqueueWork(() -> {
                 ClientHandlers.addClientPackFinder();
                 BlockColorHandler.init();

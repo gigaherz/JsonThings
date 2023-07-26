@@ -54,16 +54,15 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
                 .ifObj(obj -> {
                     for (ArmorItem.Type slot : ArmorItem.Type.values())
                     {
-                        obj.ifKey(slot.getName(), val -> val.intValue().handle(num -> map.put(slot, num)));
+                        obj.ifKey(slot.getName(), val -> val.intValue().min(0).handle(num -> map.put(slot, num)));
                     }
                 })
-                .ifInteger(val -> {
-                    var num = val.getAsInt();
+                .ifInteger(val -> val.min(0).handle(num -> {
                     for (ArmorItem.Type slot : ArmorItem.Type.values())
                     {
                         map.put(slot, num);
                     }
-                })
+                }))
                 .typeError();
 
         return map;

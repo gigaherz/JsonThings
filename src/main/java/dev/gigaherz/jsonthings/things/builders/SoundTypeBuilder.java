@@ -61,7 +61,7 @@ public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
     @Override
     protected String getThingTypeDisplayName()
     {
-        return "Creative Mode Tab";
+        return "Sound Type";
     }
 
     @Override

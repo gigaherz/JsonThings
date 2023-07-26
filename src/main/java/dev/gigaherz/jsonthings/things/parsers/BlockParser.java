@@ -61,8 +61,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
                 .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setBlockType))
                 .ifKey("map_color", val -> val
-                        .ifString(str -> builder.setMaterialColor(MapColors.get(str.getAsString())))
-                        .ifInteger(str -> builder.setMaterialColor(MapColor.MATERIAL_COLORS[str.range(0, 64).getAsInt()]))
+                        .ifString(str -> str.handle(name -> builder.setMaterialColor(MapColors.get(name))))
+                        .ifInteger(num -> num.range(0, 64).handle(index -> builder.setMaterialColor(MapColor.MATERIAL_COLORS[index])))
                         .typeError()
                 )
                 .ifKey("requires_tool_for_drops", val -> val.bool().handle(builder::setRequiresToolForDrops))

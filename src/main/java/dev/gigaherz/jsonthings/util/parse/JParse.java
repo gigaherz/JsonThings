@@ -13,6 +13,8 @@ import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class JParse
-        implements Any, ObjValue, ArrayValue, StringValue, FloatValue, DoubleValue, IntValue, LongValue, BooleanValue
+        implements Any, ObjValue, ArrayValue, StringValue, NumberValue, FloatValue, DoubleValue, IntValue, LongValue, BooleanValue
 {
     private final String path;
     private final JsonElement data;
@@ -101,6 +103,16 @@ public class JParse
     }
 
     @Override
+    public NumberValue number()
+    {
+        if (!GsonHelper.isNumberValue(data))
+        {
+            throw new JParseException("Value at '" + path + "' must be " + formatAltTypes("a Number"));
+        }
+        return this;
+    }
+
+    @Override
     public IntValue intValue()
     {
         if (!GsonHelper.isNumberValue(data))
@@ -161,6 +173,7 @@ public class JParse
     public Any ifObj(Consumer<ObjValue> visitor)
     {
         altTypes.add("a Json Object");
+        if (handledType) return this;
         if (data.isJsonObject())
         {
             handledType = true;
@@ -182,6 +195,7 @@ public class JParse
     public Any ifArray(Consumer<ArrayValue> visitor)
     {
         altTypes.add("a Json Array");
+        if (handledType) return this;
         if (data.isJsonArray())
         {
             handledType = true;
@@ -203,7 +217,30 @@ public class JParse
     public Any ifString(Consumer<StringValue> visitor)
     {
         altTypes.add("aString");
+        if (handledType) return this;
         if (GsonHelper.isStringValue(data))
+        {
+            handledType = true;
+            try
+            {
+                visitor.accept(this);
+            }
+            catch (Exception e)
+            {
+                if (e instanceof JParseException)
+                    throw e;
+                throw new JParseException("Error running visitor for " + path, e);
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public Any ifNumber(Consumer<NumberValue> visitor)
+    {
+        altTypes.add("a Number");
+        if (handledType) return this;
+        if (data.isJsonPrimitive() && data.getAsJsonPrimitive().isNumber())
         {
             handledType = true;
             try
@@ -224,18 +261,23 @@ public class JParse
     public Any ifInteger(Consumer<IntValue> visitor)
     {
         altTypes.add("an Integer");
-        if (GsonHelper.isNumberValue(data))
+        if (handledType) return this;
+        if (data.isJsonPrimitive() && data.getAsJsonPrimitive().isNumber())
         {
-            handledType = true;
-            try
+            var number = data.getAsNumber();
+            if (isNumberInt(number))
             {
-                visitor.accept(this);
-            }
-            catch (Exception e)
-            {
-                if (e instanceof JParseException)
-                    throw e;
-                throw new JParseException("Error running visitor for " + path, e);
+                handledType = true;
+                try
+                {
+                    visitor.accept(this);
+                }
+                catch (Exception e)
+                {
+                    if (e instanceof JParseException)
+                        throw e;
+                    throw new JParseException("Error running visitor for " + path, e);
+                }
             }
         }
         return this;
@@ -245,18 +287,23 @@ public class JParse
     public Any ifLong(Consumer<LongValue> visitor)
     {
         altTypes.add("a Long Integer");
-        if (GsonHelper.isNumberValue(data))
+        if (handledType) return this;
+        if (data.isJsonPrimitive() && data.getAsJsonPrimitive().isNumber())
         {
-            handledType = true;
-            try
+            var number = data.getAsNumber();
+            if (isNumberLong(number))
             {
-                visitor.accept(this);
-            }
-            catch (Exception e)
-            {
-                if (e instanceof JParseException)
-                    throw e;
-                throw new JParseException("Error running visitor for " + path, e);
+                handledType = true;
+                try
+                {
+                    visitor.accept(this);
+                }
+                catch (Exception e)
+                {
+                    if (e instanceof JParseException)
+                        throw e;
+                    throw new JParseException("Error running visitor for " + path, e);
+                }
             }
         }
         return this;
@@ -266,18 +313,23 @@ public class JParse
     public Any ifFloat(Consumer<FloatValue> visitor)
     {
         altTypes.add("a Float");
-        if (GsonHelper.isNumberValue(data))
+        if (handledType) return this;
+        if (data.isJsonPrimitive() && data.getAsJsonPrimitive().isNumber())
         {
-            handledType = true;
-            try
+            var number = data.getAsNumber();
+            if (isNumberFloat(number))
             {
-                visitor.accept(this);
-            }
-            catch (Exception e)
-            {
-                if (e instanceof JParseException)
-                    throw e;
-                throw new JParseException("Error running visitor for " + path, e);
+                handledType = true;
+                try
+                {
+                    visitor.accept(this);
+                }
+                catch (Exception e)
+                {
+                    if (e instanceof JParseException)
+                        throw e;
+                    throw new JParseException("Error running visitor for " + path, e);
+                }
             }
         }
         return this;
@@ -287,18 +339,23 @@ public class JParse
     public Any ifDouble(Consumer<DoubleValue> visitor)
     {
         altTypes.add("a Double");
-        if (GsonHelper.isNumberValue(data))
+        if (handledType) return this;
+        if (data.isJsonPrimitive() && data.getAsJsonPrimitive().isNumber())
         {
-            handledType = true;
-            try
+            var number = data.getAsNumber();
+            if (isNumberDouble(number))
             {
-                visitor.accept(this);
-            }
-            catch (Exception e)
-            {
-                if (e instanceof JParseException)
-                    throw e;
-                throw new JParseException("Error running visitor for " + path, e);
+                handledType = true;
+                try
+                {
+                    visitor.accept(this);
+                }
+                catch (Exception e)
+                {
+                    if (e instanceof JParseException)
+                        throw e;
+                    throw new JParseException("Error running visitor for " + path, e);
+                }
             }
         }
         return this;
@@ -308,6 +365,7 @@ public class JParse
     public Any ifBool(Consumer<BooleanValue> visitor)
     {
         altTypes.add("a Boolean");
+        if (handledType) return this;
         if (GsonHelper.isBooleanValue(data))
         {
             handledType = true;
@@ -323,6 +381,51 @@ public class JParse
             }
         }
         return this;
+    }
+
+    private static final Pattern INTEGER_PATTERN = Pattern.compile("^-?[0-9]+$");
+    private static final Pattern FLOAT = Pattern.compile("^-?(([0-9]+)|([0-9]*\\.[0-9]+))([eEfFdD][+-]?[0-9]+)$");
+    private boolean isNumberInt(Number number)
+    {
+        var text = number.toString();
+        if (INTEGER_PATTERN.matcher(text).matches())
+        {
+            var num = Long.parseLong(text);
+            return num >= Integer.MIN_VALUE && num <= Integer.MAX_VALUE;
+        }
+        return false;
+    }
+    private boolean isNumberLong(Number number)
+    {
+        var text = number.toString();
+        if (INTEGER_PATTERN.matcher(text).matches())
+        {
+            var num = new BigInteger(text);
+            return num.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0
+                    && num.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0;
+        }
+        return false;
+    }
+    private boolean isNumberFloat(Number number)
+    {
+        var text = number.toString();
+        if (FLOAT.matcher(text).matches())
+        {
+            var num = Double.parseDouble(text);
+            return ((double)(float)num) == num;
+        }
+        return false;
+    }
+    private boolean isNumberDouble(Number number)
+    {
+        var text = number.toString();
+        if (FLOAT.matcher(text).matches())
+        {
+            var num = new BigDecimal(text);
+            return num.compareTo(BigDecimal.valueOf(-Double.MAX_VALUE)) >= 0
+                    && num.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) <= 0;
+        }
+        return false;
     }
 
     @Override
@@ -605,7 +708,7 @@ public class JParse
         var val = getAsFloat();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be between " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
     }
@@ -632,6 +735,43 @@ public class JParse
     }
 
     @Override
+    public void handle(NumberConsumer value)
+    {
+        try
+        {
+            value.accept(getNumber());
+        }
+        catch (Exception e)
+        {
+            if (e instanceof JParseException)
+                throw e;
+            throw new JParseException("Error running handler for " + path, e);
+        }
+    }
+
+    @Override
+    public NumberValue min(Number min)
+    {
+        var val = getAsDouble();
+        if (val < min.doubleValue())
+        {
+            throw new JParseException("Value at '" + path + "' must be " + min + " or bigger.");
+        }
+        return this;
+    }
+
+    @Override
+    public NumberValue range(Number min, Number maxExclusive)
+    {
+        var val = getAsDouble();
+        if (val < min.doubleValue() || val >= maxExclusive.doubleValue())
+        {
+            throw new JParseException("Value at '" + path + "' must be between " + min + " and " + maxExclusive + " (exclusive).");
+        }
+        return this;
+    }
+
+    @Override
     public DoubleValue min(double min)
     {
         var val = getAsDouble();
@@ -648,9 +788,15 @@ public class JParse
         var val = getAsDouble();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be between " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
+    }
+
+    @Override
+    public Number getNumber()
+    {
+        return null;
     }
 
     @Override
@@ -691,7 +837,7 @@ public class JParse
         var val = data.getAsJsonPrimitive().getAsInt();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be between " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
     }
@@ -755,7 +901,7 @@ public class JParse
         var val = getAsLong();
         if (val < min || val >= maxExclusive)
         {
-            throw new JParseException("Value at '" + path + "' must be betwee " + min + " and " + maxExclusive + " (exclusive).");
+            throw new JParseException("Value at '" + path + "' must be between " + min + " and " + maxExclusive + " (exclusive).");
         }
         return this;
     }

@@ -271,7 +271,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
             }
             else if (color.length() == 6)
             {
-                return 0xFF | Integer.parseInt(color, 16);
+                return 0xFF000000 | Integer.parseInt(color, 16);
             }
             else
             {

@@ -8,11 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Consumer;
 
 public class SoundEventParser extends ThingParser<SoundEventBuilder>
 {
+    public static final Logger LOGGER = LogManager.getLogger();
+
     public SoundEventParser(IEventBus bus)
     {
         super(GSON, "sound_event");

@@ -6,7 +6,6 @@ import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
-import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
@@ -97,7 +96,7 @@ public class JsonThings
         event.enqueueWork(() -> {
             ThingResourceManager instance = ThingResourceManager.instance();
 
-            ResourcePackLoader.loadResourcePacks(instance.getRepository(), modResourcePacks -> ModResourcesFinder.buildPackFinder(modResourcePacks, CustomPackType.THINGS));
+            ResourcePackLoader.loadResourcePacks(instance.getRepository(), ModResourcesFinder::buildPackFinder);
 
             loaderFuture = instance.beginLoading();
         });

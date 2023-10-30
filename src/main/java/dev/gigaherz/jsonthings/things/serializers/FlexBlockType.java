@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class FlexBlockType<T extends Block & IFlexBlock>
 {
     public static final FlexBlockType<FlexBlock> PLAIN = register("plain", data -> (props, builder) -> {
@@ -44,7 +43,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false);
+    }, "solid", false, false, false);
 
     public static final FlexBlockType<FlexSaplingBlock> SAPLING = register("sapling", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -61,7 +60,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "cutout", false);
+    }, "cutout", false, false, false);
 
     public static final FlexBlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -75,7 +74,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, DirectionalBlock.FACING);
+    }, "solid", false, false, false, DirectionalBlock.FACING);
 
     public static final FlexBlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -89,7 +88,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, HorizontalDirectionalBlock.FACING);
+    }, "solid", false, false, false, HorizontalDirectionalBlock.FACING);
 
     public static final FlexBlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -117,7 +116,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, SlabBlock.TYPE, SlabBlock.WATERLOGGED);
+    }, "solid", false, false, false, SlabBlock.TYPE, SlabBlock.WATERLOGGED);
 
     public static final FlexBlockType<FlexStairsBlock> STAIRS = register("stairs", data -> {
 
@@ -152,7 +151,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 }
             };
         };
-    }, "solid", false, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
+    }, "solid", false, false, false, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
 
     public static final FlexBlockType<FlexWallBlock> WALL = register("wall", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -166,7 +165,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
+    }, "solid", false, false, false, WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED);
 
     public static final FlexBlockType<FlexFenceBlock> FENCE = register("fence", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -180,7 +179,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "solid", false, FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED);
+    }, "solid", false, false, false, FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED);
 
     public static final FlexBlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
@@ -201,7 +200,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 }
             };
         };
-    }, "solid", false, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
+    }, "solid", false, false, false, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL);
 
     public static final FlexBlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -215,7 +214,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, "cutout_mipped", true, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
+    }, "cutout_mipped", true, false, false, LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT);
 
     public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
@@ -236,7 +235,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 }
             };
         };
-    }, "cutout", true, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF);
+    }, "cutout", true, false, false, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF);
 
     public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
@@ -257,7 +256,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 }
             };
         };
-    }, "cutout", true, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
+    }, "cutout", true, false, false, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED);
 
     public static final FlexBlockType<FlexLiquidBlock> LIQUID = register("liquid", data -> {
         var extras = JParse.begin(data);
@@ -283,29 +282,39 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 }
             };
         };
-    }, "translucent", true);
+    }, "translucent", true, false, false);
 
     public static void init()
     {
         /* do nothing */
     }
 
+    @Deprecated(forRemoval = true)
     public static <T extends Block & IFlexBlock> FlexBlockType<T> register(String name, IBlockSerializer<T> factory, String defaultLayer, boolean defaultSeeThrough, Property<?>... stockProperties)
     {
-        return Registry.register(ThingRegistries.BLOCK_TYPES, name, new FlexBlockType<>(factory, Arrays.asList(stockProperties), defaultLayer, defaultSeeThrough));
+        return register(name, factory, defaultLayer, defaultSeeThrough, false, false, stockProperties);
+    }
+
+    public static <T extends Block & IFlexBlock> FlexBlockType<T> register(String name, IBlockSerializer<T> factory, String defaultLayer, boolean defaultSeeThrough, boolean defaultIgnitedByLava, boolean defaultReplaceable, Property<?>... stockProperties)
+    {
+        return Registry.register(ThingRegistries.BLOCK_TYPES, name, new FlexBlockType<>(factory, Arrays.asList(stockProperties), defaultLayer, defaultSeeThrough, defaultIgnitedByLava, defaultReplaceable));
     }
 
     private final IBlockSerializer<T> factory;
     private final List<Property<?>> stockProperties;
     private final String defaultLayer;
     private final boolean defaultSeeThrough;
+    private final boolean defaultIgnitedByLava;
+    private final boolean defaultReplaceable;
 
-    private FlexBlockType(IBlockSerializer<T> factory, List<Property<?>> stockProperties, String defaultLayer, boolean defaultSeeThrough)
+    private FlexBlockType(IBlockSerializer<T> factory, List<Property<?>> stockProperties, String defaultLayer, boolean defaultSeeThrough, boolean defaultIgnitedByLava, boolean defaultReplaceable)
     {
         this.factory = factory;
         this.stockProperties = stockProperties;
         this.defaultLayer = defaultLayer;
         this.defaultSeeThrough = defaultSeeThrough;
+        this.defaultIgnitedByLava = defaultIgnitedByLava;
+        this.defaultReplaceable = defaultReplaceable;
     }
 
     public IBlockFactory<T> getFactory(JsonObject data)
@@ -326,6 +335,16 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public boolean isDefaultSeeThrough()
     {
         return defaultSeeThrough;
+    }
+
+    public boolean isDefaultIgnitedByLava()
+    {
+        return defaultIgnitedByLava;
+    }
+
+    public boolean isDefaultReplaceable()
+    {
+        return defaultReplaceable;
     }
 
     public String toString()

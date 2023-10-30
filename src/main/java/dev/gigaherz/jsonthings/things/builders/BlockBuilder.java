@@ -434,8 +434,8 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
         if (Utils.orElse(getJumpFactor(), 1.0f) != 1) props.jumpFactor(getSpeedFactor());
         if (Utils.orElse(getPushReaction(), PushReaction.NORMAL) != PushReaction.NORMAL) props.pushReaction(getPushReaction());
-        if (Utils.orElse(getIgnitedByLava(), true)) props.ignitedByLava();
-        if (Utils.orElse(getReplaceable(), true)) props.replaceable();
+        if (Utils.orElse(getIgnitedByLava(), blockType.isDefaultIgnitedByLava())) props.ignitedByLava();
+        if (Utils.orElse(getReplaceable(), blockType.isDefaultReplaceable())) props.replaceable();
         if (Utils.orElse(getForceSolid(), false)) props.forceSolidOn();
         if (!Utils.orElse(getBlocksMotion(), true)) props.forceSolidOff();
 

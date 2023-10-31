@@ -24,9 +24,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
-import net.minecraftforge.common.ToolAction;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.ToolAction;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.*;

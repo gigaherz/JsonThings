@@ -19,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.neoforge.registries.IForgeRegistry;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;

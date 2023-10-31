@@ -19,8 +19,9 @@ import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -68,7 +69,7 @@ public class ThingResourceManager
     private ThingResourceManager()
     {
         resourceManager = new ReloadableResourceManager(CustomPackType.THINGS);
-        folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), CustomPackType.THINGS, PackSource.DEFAULT);
+        folderPackFinder = new FolderRepositorySource(getThingPacksLocation(), CustomPackType.THINGS, PackSource.DEFAULT, LevelStorageSource.parseValidator(FMLPaths.GAMEDIR.get().resolve("allowed_symlinks.txt")));
         packList = new PackRepository(folderPackFinder);
     }
 

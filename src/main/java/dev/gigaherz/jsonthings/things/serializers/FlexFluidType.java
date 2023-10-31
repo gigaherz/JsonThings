@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.fluids.FluidType;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Arrays;

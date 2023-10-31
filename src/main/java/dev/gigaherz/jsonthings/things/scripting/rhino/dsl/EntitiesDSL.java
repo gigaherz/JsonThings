@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 import dev.latvian.mods.rhino.Context;
 import dev.latvian.mods.rhino.Scriptable;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.ForgeRegistries;
 
 public class EntitiesDSL
 {

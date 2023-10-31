@@ -9,8 +9,8 @@ import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.TierSortingRegistry;
-import net.minecraftforge.common.util.Lazy;
+import net.neoforged.neoforge.common.TierSortingRegistry;
+import net.neoforged.neoforge.common.util.Lazy;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.List;

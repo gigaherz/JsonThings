@@ -8,10 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.RegistryObject;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, EnchantmentBuilder>
@@ -103,9 +104,9 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, Enchantment
         this.isDiscoverable = discoverable;
     }
 
-    public void setItemCompatibility(ItemPredicate item_compatibility)
+    public void setItemCompatibility(Optional<ItemPredicate> item_compatibility)
     {
-        this.itemCompatibility = item_compatibility;
+        item_compatibility.ifPresent(itemPredicate -> this.itemCompatibility = itemPredicate);
     }
 
     public void setBlacklist(List<ResourceLocation> blacklist)

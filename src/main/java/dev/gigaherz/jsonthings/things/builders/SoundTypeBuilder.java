@@ -4,9 +4,9 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraftforge.common.util.ForgeSoundType;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.util.DeferredSoundType;
+import net.neoforged.neoforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.RegistryObject;
 
 public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
 {
@@ -72,6 +72,6 @@ public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
         RegistryObject<SoundEvent> placeSoundEvent = RegistryObject.create(placeSound, ForgeRegistries.SOUND_EVENTS);
         RegistryObject<SoundEvent> hitSoundEvent = RegistryObject.create(hitSound, ForgeRegistries.SOUND_EVENTS);
         RegistryObject<SoundEvent> fallSoundEvent = RegistryObject.create(fallSound, ForgeRegistries.SOUND_EVENTS);
-        return new ForgeSoundType(volume, pitch, breakSoundEvent, stepSoundEvent, placeSoundEvent, hitSoundEvent, fallSoundEvent);
+        return new DeferredSoundType(volume, pitch, breakSoundEvent, stepSoundEvent, placeSoundEvent, hitSoundEvent, fallSoundEvent);
     }
 }

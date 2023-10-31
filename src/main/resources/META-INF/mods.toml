@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[46,)"
+loaderVersion="[1,)"
 license="BSD (3 Clause)"
 issueTrackerURL="https://github.com/gigaherz/JsonThings/issues"
 
@@ -15,15 +15,15 @@ authors="gigaherz"
 displayURL="https://github.com/gigaherz/JsonThings"
 
 [[dependencies.jsonthings]]
-   modId="forge"
+   modId="neoforge"
    mandatory=true
-   versionRange="[46.0.12,)"
+   versionRange="[20.2.4-beta,)"
    ordering="NONE"
    side="BOTH"
 [[dependencies.jsonthings]]
    modId="minecraft"
    mandatory=true
-   versionRange="[1.20,1.21)"
+   versionRange="[1.20.2,1.21)"
    ordering="NONE"
    side="BOTH"
 [[dependencies.jsonthings]]

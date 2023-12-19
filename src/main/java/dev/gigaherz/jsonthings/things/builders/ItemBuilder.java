@@ -6,16 +6,15 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.JsonThings;
-import dev.gigaherz.jsonthings.things.IFlexItem;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
-import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -26,14 +25,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
 import net.neoforged.neoforge.common.ToolAction;
 import net.neoforged.neoforge.common.util.NonNullSupplier;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO: replace generic parameter with Item
-public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
+public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 {
     public static ItemBuilder begin(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
     {
@@ -191,9 +188,8 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.burnDuration = burnTime;
     }
 
-    // TODO: change to return Item
     @Override
-    protected IFlexItem buildInternal()
+    protected Item buildInternal()
     {
         Item.Properties properties = new Item.Properties();
 
@@ -212,7 +208,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         var ci = getContainerItem();
         if (ci != null)
         {
-            properties = properties.craftRemainder(Utils.getItemOrCrash(ci));
+            properties = properties.craftRemainder(Utils.getOrCrash(BuiltInRegistries.ITEM, ci));
         }
 
         NonNullSupplier<FoodProperties> foodDefinition = getFoodDefinition();
@@ -232,31 +228,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         if (item instanceof IEventRunner eventRunner)
             constructEventHandlers(eventRunner);
 
-        // TODO: return item;
-        return new IFlexItem()
-        {
-            @Override
-            public Item self()
-            {
-                return item;
-            }
-
-            @Override
-            public void addEventHandler(String eventName, FlexEventHandler eventHandler)
-            {
-                if (item instanceof IEventRunner eventRunner)
-                    eventRunner.addEventHandler(eventName, eventHandler);
-            }
-
-            @Nullable
-            @Override
-            public FlexEventHandler getEventHandler(String eventName)
-            {
-                return (item instanceof IEventRunner eventRunner)
-                        ? eventRunner.getEventHandler(eventName)
-                        : null;
-            }
-        };
+        return item;
     }
 
     public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
@@ -369,7 +341,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
             var map = modifiers.computeIfAbsent(kv.getKey(), slot -> ArrayListMultimap.create());
             for (var kv1 : kv.getValue().entries())
             {
-                var attr = Utils.getOrCrash(ForgeRegistries.ATTRIBUTES, kv1.getKey());
+                var attr = Utils.getOrCrash(BuiltInRegistries.ATTRIBUTE, kv1.getKey());
                 map.put(attr, kv1.getValue());
             }
         }

@@ -28,7 +28,7 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
     public FlexDoorBlock(Properties properties, BlockSetType woodType, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         // TODO: allow customizing open/close sounds
-        super(properties, woodType);
+        super(woodType, properties);
         initializeFlex(propertyDefaultValues);
     }
 

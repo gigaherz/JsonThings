@@ -2,11 +2,11 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.misc.FlexArmorMaterial;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class ArmorMaterialBuilder extends BaseBuilder<FlexArmorMaterial, ArmorMa
     @Override
     protected FlexArmorMaterial buildInternal()
     {
-        var se = RegistryObject.create(equipSound, ForgeRegistries.SOUND_EVENTS);
+        var se = DeferredHolder.create(Registries.SOUND_EVENT, equipSound);
         return new FlexArmorMaterial(getRegistryName().toString(), durability, defense, toughness, knockbackResistance, enchantmentValue, se, repairIngredient);
     }
 }

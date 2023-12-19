@@ -4,9 +4,9 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 
 public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, MobEffectInstanceBuilder>
 {
@@ -90,6 +90,6 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
     @Override
     protected MobEffectInstance buildInternal()
     {
-        return new MobEffectInstance(Utils.getOrCrash(ForgeRegistries.MOB_EFFECTS, effect), duration, amplifier, isAmbient, showParticles, showIcon);
+        return new MobEffectInstance(Utils.getOrCrash(BuiltInRegistries.MOB_EFFECT, effect), duration, amplifier, isAmbient, showParticles, showIcon);
     }
 }

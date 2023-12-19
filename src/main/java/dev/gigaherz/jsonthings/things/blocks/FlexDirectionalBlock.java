@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.things.blocks;
 
 import com.google.common.collect.Maps;
+import com.mojang.serialization.MapCodec;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
@@ -20,10 +21,13 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Map;
 
 public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
 {
+    private static final MapCodec<FlexDirectionalBlock> CODEC = simpleCodec(props -> new FlexDirectionalBlock(props, Collections.emptyMap()));
+
     public FlexDirectionalBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         super(properties);
@@ -134,6 +138,12 @@ public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
         return runEvent("use", FlexEventContext.of(worldIn, pos, state)
                 .withHand(player, handIn)
                 .withRayTrace(hit), () -> FlexEventResult.of(super.use(state, worldIn, pos, player, handIn, hit))).result();
+    }
+
+    @Override
+    protected MapCodec<? extends DirectionalBlock> codec()
+    {
+        return CODEC;
     }
 
     //endregion

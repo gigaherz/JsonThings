@@ -2,7 +2,10 @@ package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.EnchantmentBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
@@ -21,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
@@ -66,13 +70,19 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
                 .ifKey("tradeable", val -> val.bool().handle(builder::setIsTradeable))
                 .ifKey("discoverable", val -> val.bool().handle(builder::setIsDiscoverable))
                 .ifKey("allow_on_books", val -> val.bool().handle(builder::setIsAllowedOnBooks))
-                .ifKey("item_compatibility", val -> val.map(ItemPredicate::fromJson).handle(builder::setItemCompatibility))
+                .ifKey("item_compatibility", val -> val.map(this::parseItemPredicate).handle(builder::setItemCompatibility))
                 .ifKey("disallow_enchants", val -> val.array().mapWhole(this::parseBlacklist).handle(builder::setBlacklist))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
         builderModification.accept(builder);
 
         return builder;
+    }
+
+    private Optional<ItemPredicate> parseItemPredicate(JsonElement jsonElement)
+    {
+        var r = ItemPredicate.CODEC.decode(JsonOps.INSTANCE, jsonElement);
+        return r.result().map(Pair::getFirst);
     }
 
     private List<ResourceLocation> parseBlacklist(ArrayValue blacklist)

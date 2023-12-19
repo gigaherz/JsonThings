@@ -4,10 +4,10 @@ import dev.latvian.mods.rhino.Context;
 import dev.latvian.mods.rhino.NativeJavaObject;
 import dev.latvian.mods.rhino.NativeObject;
 import dev.latvian.mods.rhino.Scriptable;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 
 public class BlocksDSL
 {
@@ -24,14 +24,14 @@ public class BlocksDSL
 
     private static Object findBlock(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var block = DSLHelpers.find(ForgeRegistries.BLOCKS, (String) args[0]);
+        var block = DSLHelpers.find(BuiltInRegistries.BLOCK, (String) args[0]);
         return DSLHelpers.wrap(cx, scope, block, Block.class);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private static Object makeBlockState(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var block = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.BLOCKS);
+        var block = DSLHelpers.getRegistryEntry(args[0], BuiltInRegistries.BLOCK);
 
         var baseState = block.defaultBlockState();
         if (args.length > 1)

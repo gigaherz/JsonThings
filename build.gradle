@@ -3,23 +3,15 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.5'
-    //id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'net.neoforged.gradle.mixin' version '[7.0.5,)'
+    id 'net.neoforged.gradle.userdev' version '7.0.60'
+    id 'net.neoforged.gradle.mixin' version '7.0.60'
 }
 
 version = "0.9.1"
 group= "dev.gigaherz.jsonthings"
 
-repositories {
-    mavenLocal()
-}
-
 base {
-    archivesName = "JsonThings-UNKNOWN"
-}
-project.afterEvaluate {
-    base.archivesName = "JsonThings-1.20.2"
+    archivesName = "JsonThings-1.20.2"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -29,6 +21,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 repositories {
+    //mavenLocal()
+
     maven {
         url 'https://repo.spongepowered.org/repository/maven-public/'
         content {
@@ -81,7 +75,7 @@ runs {
 minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.2.4-beta'
+    implementation 'net.neoforged:neoforge:20.4.3-beta'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")

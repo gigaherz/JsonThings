@@ -4,15 +4,17 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.blocks.*;
-import dev.gigaherz.jsonthings.things.misc.FlexTreeGrower;
+import dev.gigaherz.jsonthings.things.parsers.ThingParseException;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -20,14 +22,10 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.apache.commons.lang3.mutable.MutableObject;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class FlexBlockType<T extends Block & IFlexBlock>
 {
@@ -50,7 +48,8 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         var featureId = new ResourceLocation(GsonHelper.getAsString(data, "tree_feature"));
         var featureKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, featureId);
-        var treeGrower = new FlexTreeGrower(featureKey);
+        // TODO: "mega" tree, and flower of the TreeGrower?
+        var treeGrower = new TreeGrower(builder.getRegistryName().toString(), Optional.empty(), Optional.of(featureKey), Optional.empty());
         return new FlexSaplingBlock(treeGrower, props, propertyDefaultValues)
         {
             @Override
@@ -137,7 +136,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 parentName = parentBuilder.getRegistryName();
             }
 
-            var parentBlock = RegistryObject.create(parentName, ForgeRegistries.BLOCKS);
+            var parentBlock = DeferredHolder.create(Registries.BLOCK, parentName);
 
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
@@ -224,7 +223,8 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var woodTypeName = blockSetType.getValue().toString();
-            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst()
+                    .orElseThrow(() -> new ThingParseException("Block set type not found: " + woodTypeName));
             return new FlexDoorBlock(props, woodType, propertyDefaultValues)
             {
                 @Override
@@ -267,7 +267,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var fluidName = fluid.getValue() != null ? fluid.getValue() : builder.getRegistryName();
             var fluidSupplier = Lazy.<FlowingFluid>of(() -> {
-                var fluidObj = Utils.getOrCrash(ForgeRegistries.FLUIDS, fluidName);
+                var fluidObj = Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName);
                 if (!(fluidObj instanceof FlowingFluid flowing))
                     throw new RuntimeException("LiquidBlock requires a flowing fluid");
                 return flowing;

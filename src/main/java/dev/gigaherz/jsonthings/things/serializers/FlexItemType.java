@@ -9,6 +9,8 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.JParseException;
 import joptsimple.internal.Strings;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
@@ -16,8 +18,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.TierSortingRegistry;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class FlexItemType<T extends Item>
         boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> {
             ResourceLocation blockName = name != null ? new ResourceLocation(name) : builder.getRegistryName();
-            return new FlexBlockItem(RegistryObject.create(blockName, ForgeRegistries.BLOCKS), useBlockName, props, builder);
+            return new FlexBlockItem(DeferredHolder.create(Registries.BLOCK, blockName), useBlockName, props, builder);
         };
     });
 
@@ -46,7 +47,7 @@ public class FlexItemType<T extends Item>
                 .ifKey("base_item", val -> val.string().map(ResourceLocation::new).handle(baseItemName::setValue));
         return (props, builder) -> {
             Supplier<Item> baseItem = baseItemName.getValue() != null
-                    ? RegistryObject.create(baseItemName.getValue(), ForgeRegistries.ITEMS)
+                    ? DeferredHolder.create(Registries.ITEM, baseItemName.getValue())
                     : () -> Items.GLASS_BOTTLE;
             return new FlexDrinkableBottleItem(baseItem, props, builder);
         };
@@ -68,7 +69,7 @@ public class FlexItemType<T extends Item>
                 if (path.endsWith("_bucket")) path = path.substring(0, path.length() - "_bucket".length());
                 fluidName = new ResourceLocation(thisName.getNamespace(), path);
             }
-            return new FlexBucketItem(Lazy.of(() -> Utils.getOrCrash(ForgeRegistries.FLUIDS, fluidName)), props, builder);
+            return new FlexBucketItem(Lazy.of(() -> Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName)), props, builder);
         };
     });
 

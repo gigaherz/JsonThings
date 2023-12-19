@@ -15,9 +15,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import net.neoforged.neoforge.registries.RegistryObject;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,7 +89,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
     {
         val
                 .ifString(v -> v.map(ResourceLocation::new).handle(rl -> {
-                    builder.setAttributesType(RegistryObject.create(rl, ForgeRegistries.FLUID_TYPES.get()));
+                    builder.setAttributesType(DeferredHolder.create(NeoForgeRegistries.Keys.FLUID_TYPES, rl));
                 }))
                 .ifObj(obj -> obj.raw((JsonObject item) -> {
                     createFluidType(builder, item);

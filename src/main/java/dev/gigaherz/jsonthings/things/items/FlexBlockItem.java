@@ -33,7 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.ToolAction;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -44,11 +44,12 @@ import java.util.function.Supplier;
 public class FlexBlockItem extends BlockItem implements IEventRunner
 {
 
-    public FlexBlockItem(RegistryObject<Block> block, boolean useBlockName, Properties properties, ItemBuilder builder)
+    public FlexBlockItem(DeferredHolder<Block, ? extends Block> block, boolean useBlockName, Properties properties, ItemBuilder builder)
     {
         super(null, properties);
         this.useBlockName = useBlockName;
-        this.block = block;
+        //noinspection unchecked
+        this.block = (DeferredHolder<Block, Block>) block;
         this.useAction = builder.getUseAnim();
         this.useTime = builder.getUseTime();
         this.useFinishMode = builder.getUseFinishMode();
@@ -61,7 +62,7 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
 
     //region BlockItem
     private final boolean useBlockName;
-    private final RegistryObject<Block> block;
+    private final DeferredHolder<Block, Block> block;
 
     // Recreation of ItemNameBlockItem's function
     @Override
@@ -70,10 +71,11 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
         return useBlockName ? getBlock().getDescriptionId() : super.getOrCreateDescriptionId();
     }
 
+    // FIXME: cursed code
     @Override
     public Block getBlock()
     {
-        return block.orElse(Blocks.AIR);
+        return block.asOptional().orElse(Blocks.AIR);
     }
 
     public boolean canFitInsideContainerItems()

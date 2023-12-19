@@ -16,11 +16,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.ConfigScreenHandler;
-import net.neoforged.neoforge.client.NamedRenderTypeManager;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.data.loading.DatagenModLoader;
-import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -29,6 +24,11 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.client.ConfigScreenHandler;
+import net.neoforged.neoforge.client.NamedRenderTypeManager;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.data.loading.DatagenModLoader;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.resource.ResourcePackLoader;
 import org.slf4j.Logger;
@@ -196,7 +196,7 @@ public class JsonThings
                 {
                     Function<BlockColors, ItemColor> handler = ItemColorHandler.get(handlerName);
                     ItemColor ic = handler.apply(event.getBlockColors());
-                    event.register(ic, thing.get().self());
+                    event.register(ic, thing.get());
                 }
             });
         }

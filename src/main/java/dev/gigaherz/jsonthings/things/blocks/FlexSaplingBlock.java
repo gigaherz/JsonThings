@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SaplingBlock;
-import net.minecraft.world.level.block.grower.AbstractTreeGrower;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class FlexSaplingBlock extends SaplingBlock implements IFlexBlock
 {
-    public FlexSaplingBlock(AbstractTreeGrower treeGrower, Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexSaplingBlock(TreeGrower treeGrower, Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         super(treeGrower, properties);
         initializeFlex(propertyDefaultValues);

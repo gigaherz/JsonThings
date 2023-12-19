@@ -28,7 +28,7 @@ public class FlexFenceGateBlock extends FenceGateBlock implements IFlexBlock
     public FlexFenceGateBlock(Properties properties, WoodType woodType, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         // TODO: allow customizing open/close sounds
-        super(properties, woodType);
+        super(woodType, properties);
         initializeFlex(propertyDefaultValues);
     }
 

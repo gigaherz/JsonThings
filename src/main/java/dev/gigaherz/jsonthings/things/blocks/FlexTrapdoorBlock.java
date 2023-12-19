@@ -28,7 +28,7 @@ public class FlexTrapdoorBlock extends TrapDoorBlock implements IFlexBlock
     public FlexTrapdoorBlock(Properties properties, BlockSetType blockSetType, Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
         // TODO: allow customizing open/close sounds
-        super(properties, blockSetType);
+        super(blockSetType, properties);
         initializeFlex(propertyDefaultValues);
     }
 

@@ -1,10 +1,10 @@
 package dev.gigaherz.jsonthings.things;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 
@@ -39,9 +39,9 @@ public class StackContext
         {
             if (this.item != null)
             {
-                theItem = ForgeRegistries.ITEMS.getValue(this.item);
-                if (theItem == null)
+                if (!BuiltInRegistries.ITEM.containsKey(this.item))
                     throw new RuntimeException(String.format("The item '%s' is not registered.", this.item));
+                theItem = BuiltInRegistries.ITEM.get(this.item);
             }
             else
             {

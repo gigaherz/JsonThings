@@ -19,10 +19,9 @@ import net.minecraft.server.packs.repository.RepositorySource;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.ModLoadingStage;
 import net.neoforged.fml.ModLoadingWarning;
+import net.neoforged.neoforge.resource.DelegatingPackResources;
 import net.neoforged.neoforgespi.language.IModInfo;
 import net.neoforged.neoforgespi.locating.IModFile;
-import net.neoforged.neoforge.resource.DelegatingPackResources;
-import net.neoforged.neoforge.resource.PathPackResources;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -35,15 +34,15 @@ class ModResourcesFinder
 {
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    static RepositorySource buildPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks)
+    static RepositorySource buildPackFinder(Map<IModFile, ? extends PackResources> modResourcePacks)
     {
         return (packList) -> serverPackFinder(modResourcePacks, packList);
     }
 
-    private static void serverPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks, Consumer<Pack> consumer)
+    private static void serverPackFinder(Map<IModFile, ? extends PackResources> modResourcePacks, Consumer<Pack> consumer)
     {
-        List<PathPackResources> hiddenPacks = new ArrayList<>();
-        for (Map.Entry<IModFile, ? extends PathPackResources> e : modResourcePacks.entrySet())
+        List<PackResources> hiddenPacks = new ArrayList<>();
+        for (Map.Entry<IModFile, ? extends PackResources> e : modResourcePacks.entrySet())
         {
             IModInfo mod = e.getKey().getModInfos().get(0);
             if (Objects.equals(mod.getModId(), "minecraft")) continue; // skip the minecraft "mod"

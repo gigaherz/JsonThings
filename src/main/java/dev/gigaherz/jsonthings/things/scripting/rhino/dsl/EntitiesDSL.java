@@ -2,8 +2,8 @@ package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import dev.latvian.mods.rhino.Context;
 import dev.latvian.mods.rhino.Scriptable;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 
 public class EntitiesDSL
 {
@@ -19,7 +19,7 @@ public class EntitiesDSL
 
     private static Object findEntityType(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var entityType = DSLHelpers.getRegistryEntry(args[0], ForgeRegistries.ENTITY_TYPES);
+        var entityType = DSLHelpers.getRegistryEntry(args[0], BuiltInRegistries.ENTITY_TYPE);
         return DSLHelpers.wrap(cx, scope, entityType, EntityType.class);
     }
 }

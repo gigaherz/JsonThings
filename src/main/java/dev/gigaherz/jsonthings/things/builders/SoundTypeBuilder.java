@@ -1,12 +1,11 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.SoundType;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
 {
@@ -67,11 +66,11 @@ public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
     @Override
     protected SoundType buildInternal()
     {
-        RegistryObject<SoundEvent> breakSoundEvent = RegistryObject.create(breakSound, ForgeRegistries.SOUND_EVENTS);
-        RegistryObject<SoundEvent> stepSoundEvent = RegistryObject.create(stepSound, ForgeRegistries.SOUND_EVENTS);
-        RegistryObject<SoundEvent> placeSoundEvent = RegistryObject.create(placeSound, ForgeRegistries.SOUND_EVENTS);
-        RegistryObject<SoundEvent> hitSoundEvent = RegistryObject.create(hitSound, ForgeRegistries.SOUND_EVENTS);
-        RegistryObject<SoundEvent> fallSoundEvent = RegistryObject.create(fallSound, ForgeRegistries.SOUND_EVENTS);
+        var breakSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, breakSound);
+        var stepSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, stepSound);
+        var placeSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, placeSound);
+        var hitSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, hitSound);
+        var fallSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, fallSound);
         return new DeferredSoundType(volume, pitch, breakSoundEvent, stepSoundEvent, placeSoundEvent, hitSoundEvent, fallSoundEvent);
     }
 }

@@ -19,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.registries.IForgeRegistry;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -28,17 +27,6 @@ import java.lang.reflect.Modifier;
 public class DSLHelpers
 {
     private static Logger LOGGER = LogUtils.getLogger();
-
-    public static <T> T find(IForgeRegistry<T> reg, String n)
-    {
-        var rl = new ResourceLocation(n);
-
-        if (!reg.containsKey(rl))
-            throw new RuntimeException("Cannot find effect with name " + rl);
-
-        //noinspection ConstantConditions
-        return reg.getValue(rl);
-    }
 
     public static <T> T find(Registry<T> reg, String n)
     {
@@ -49,13 +37,6 @@ public class DSLHelpers
 
         //noinspection ConstantConditions
         return reg.get(rl);
-    }
-
-    public static <T> T getRegistryEntry(Object arg, IForgeRegistry<T> reg)
-    {
-        return arg instanceof String str
-                ? DSLHelpers.find(reg, str)
-                : DSLHelpers.get(arg);
     }
 
     public static <T> T getRegistryEntry(Object arg, Registry<T> reg)

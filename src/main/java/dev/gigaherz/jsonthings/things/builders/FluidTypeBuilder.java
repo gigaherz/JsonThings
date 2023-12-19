@@ -2,12 +2,12 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -318,11 +318,11 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         if (getTemperature() != null) props.temperature(getTemperature());
         if (getViscosity() != null) props.viscosity(getViscosity());
         if (getRarity() != null) props.rarity(getRarity());
-        var fillSound = getFillSound() != null ? Utils.getOrCrash(ForgeRegistries.SOUND_EVENTS, getFillSound()) : null;
+        var fillSound = getFillSound() != null ? Utils.getOrCrash(BuiltInRegistries.SOUND_EVENT, getFillSound()) : null;
         if (fillSound != null) props.sound(SoundActions.BUCKET_FILL, fillSound);
-        var emptySound = getEmptySound() != null ? Utils.getOrCrash(ForgeRegistries.SOUND_EVENTS, getEmptySound()) : null;
+        var emptySound = getEmptySound() != null ? Utils.getOrCrash(BuiltInRegistries.SOUND_EVENT, getEmptySound()) : null;
         if (emptySound != null) props.sound(SoundActions.BUCKET_EMPTY, emptySound);
-        var vaporizeSound = getVaporizeSound() != null ? Utils.getOrCrash(ForgeRegistries.SOUND_EVENTS, getVaporizeSound()) : null;
+        var vaporizeSound = getVaporizeSound() != null ? Utils.getOrCrash(BuiltInRegistries.SOUND_EVENT, getVaporizeSound()) : null;
         if (vaporizeSound != null) props.sound(SoundActions.FLUID_VAPORIZE, emptySound);
         if (getTranslationKey() != null) props.descriptionId(getTranslationKey());
         //if (getIsGaseous() != null && getIsGaseous()) props.gaseous();

@@ -47,10 +47,19 @@ public class BlockSetTypeParser extends ThingParser<BlockSetTypeBuilder>
                 .ifKey("fence_gate_close", val -> val.string().map(ResourceLocation::new).handle(builder::setFenceGateClose))
                 .ifKey("fence_gate_open", val -> val.string().map(ResourceLocation::new).handle(builder::setFenceGateOpen))
                 .ifKey("can_open_by_hand", val -> val.bool().handle(builder::setCanOpenByHand))
+                .ifKey("can_open_by_wind_charge", val -> val.bool().handle(builder::setCanOpenByWindCharge))
+                .ifKey("can_button_be_activated_by_arrows", val -> val.bool().handle(builder::setCanButtonBeActivatedByArrowsd))
+                .ifKey("pressure_plate_sensitivity", val -> val.string().map(this::parsePressurePlateSensitivity).handle(builder::setPressurePlateSensitivity))
+
         ;
 
         builderModification.accept(builder);
 
         return builder;
+    }
+
+    private BlockSetType.PressurePlateSensitivity parsePressurePlateSensitivity(String str)
+    {
+        return "mobs".equals(str) ? BlockSetType.PressurePlateSensitivity.MOBS : BlockSetType.PressurePlateSensitivity.EVERYTHING;
     }
 }

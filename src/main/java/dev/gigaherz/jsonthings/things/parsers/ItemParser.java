@@ -50,7 +50,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
     {
         event.register(Registries.ITEM, helper -> {
             LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
-            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get().self()), BaseBuilder::getRegistryName);
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack Items.");
         });
     }
@@ -68,7 +68,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                     for (var tab : entry.getSecond())
                     {
                         var list = map.computeIfAbsent(tab, key -> new ArrayList<>());
-                        list.add(stack.toStack(thing.get().self()));
+                        list.add(stack.toStack(thing.get()));
                     }
                 }
             });

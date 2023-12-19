@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "jsonthings.refmap.json",
   "mixins": [
-    "ResourcePackTypeExtender",
-    "ThingPackMcAssetsRoot"
+    "ResourcePackTypeExtender"
   ],
   "client": [],
   "server": [],

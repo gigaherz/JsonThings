@@ -109,7 +109,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         IFlexFluid flexFluid = factory.construct(this);
 
         if (getBucketBuilder() != null)
-            flexFluid.setBucketItem(Lazy.of(() -> getBucketBuilder().get().self()));
+            flexFluid.setBucketItem(Lazy.of(() -> getBucketBuilder().get()));
 
         constructEventHandlers(flexFluid);
 

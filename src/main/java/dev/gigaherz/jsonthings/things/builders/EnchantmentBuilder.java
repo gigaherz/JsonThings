@@ -4,12 +4,12 @@ import com.google.common.collect.Lists;
 import dev.gigaherz.jsonthings.things.misc.FlexEnchantment;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
-import net.neoforged.neoforge.registries.ForgeRegistries;
-import net.neoforged.neoforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -131,8 +131,9 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, Enchantment
         flexEnchantment.setDiscoverable(isDiscoverable);
         flexEnchantment.setAllowedOnBooks(isAllowedOnBooks);
         flexEnchantment.setBlackList(blackList.stream().map(loc -> {
-            var ro = RegistryObject.create(loc, ForgeRegistries.ENCHANTMENTS);
-            return (Predicate<Enchantment>) ((enchantment) -> ro.filter(en -> en == enchantment).isPresent());
+            // FIXME: this code is cursed
+            var ro = DeferredHolder.create(Registries.ENCHANTMENT, loc);
+            return (Predicate<Enchantment>) ((enchantment) -> ro.asOptional().filter(en -> en == enchantment).isPresent());
         }).toList());
 
         constructEventHandlers(flexEnchantment);

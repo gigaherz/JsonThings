@@ -7,7 +7,7 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.function.ObjValueFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +28,7 @@ public class FluidTypeParser extends ThingParser<FluidTypeBuilder>
 
     public void register(RegisterEvent event)
     {
-        event.register(ForgeRegistries.Keys.FLUID_TYPES, helper -> {
+        event.register(NeoForgeRegistries.Keys.FLUID_TYPES, helper -> {
             LOGGER.info("Started registering FluidType things, errors about unexpected registry domains are harmless...");
             processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack FluidTypes.");

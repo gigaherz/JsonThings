@@ -3,8 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.60'
-    id 'net.neoforged.gradle.mixin' version '7.0.60'
+    id 'net.neoforged.gradle.userdev' version '7.0.71'
 }
 
 version = "0.9.1"
@@ -45,11 +44,6 @@ repositories {
      */
 }
 
-
-mixin {
-    config "jsonthings.mixins.json"
-}
-
 runs {
     // applies to all the run configs below
     configureEach {
@@ -75,7 +69,7 @@ runs {
 minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.4.3-beta'
+    implementation 'net.neoforged:neoforge:20.4.46-beta'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
@@ -106,8 +100,7 @@ jar {
                 "Implementation-Title": project.name,
                 "Implementation-Version": project.version,
                 "Implementation-Vendor" :"gigaherz",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs": "jsonthings.mixins.json"
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }

@@ -5,7 +5,7 @@ import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventResult;
 import dev.gigaherz.jsonthings.things.scripting.ThingScript;
 import dev.gigaherz.jsonthings.things.scripting.rhino.dsl.*;
-import dev.latvian.mods.rhino.*;
+import dev.gigaherz.rhinolib.*;
 import net.minecraft.server.packs.resources.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

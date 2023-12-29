@@ -1,9 +1,9 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.NativeJavaObject;
-import dev.latvian.mods.rhino.NativeObject;
-import dev.latvian.mods.rhino.Scriptable;
+import dev.gigaherz.rhinolib.Context;
+import dev.gigaherz.rhinolib.NativeJavaObject;
+import dev.gigaherz.rhinolib.NativeObject;
+import dev.gigaherz.rhinolib.Scriptable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;

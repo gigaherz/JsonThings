@@ -18,13 +18,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.client.ConfigScreenHandler;
 import net.neoforged.neoforge.client.NamedRenderTypeManager;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -64,12 +63,10 @@ public class JsonThings
     public static SoundEventParser soundEventParser;
     public static SoundTypeParser soundTypeParser;
 
-    public JsonThings()
+    public JsonThings(IEventBus bus)
     {
-        var bus = FMLJavaModLoadingContext.get().getModEventBus();
-
         var manager = ThingResourceManager.instance();
-        if (ModList.get().isLoaded("rhino"))
+        //if (ModList.get().isLoaded("rhino"))
         {
             ScriptParser.enable(manager);
         }

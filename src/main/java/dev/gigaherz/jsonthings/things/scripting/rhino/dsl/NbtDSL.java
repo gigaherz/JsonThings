@@ -1,10 +1,10 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import com.google.common.collect.ImmutableMap;
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.NativeJavaMap;
-import dev.latvian.mods.rhino.NativeJavaObject;
-import dev.latvian.mods.rhino.Scriptable;
+import dev.gigaherz.rhinolib.Context;
+import dev.gigaherz.rhinolib.NativeJavaMap;
+import dev.gigaherz.rhinolib.NativeJavaObject;
+import dev.gigaherz.rhinolib.Scriptable;
 import net.minecraft.nbt.*;
 
 import java.util.Arrays;

@@ -1,8 +1,8 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.Scriptable;
-import dev.latvian.mods.rhino.Undefined;
+import dev.gigaherz.rhinolib.Context;
+import dev.gigaherz.rhinolib.Scriptable;
+import dev.gigaherz.rhinolib.Undefined;
 import net.minecraft.world.entity.player.Player;
 
 public class ChatDSL

@@ -1,9 +1,9 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import dev.gigaherz.jsonthings.things.scripting.rhino.RhinoThingScript;
-import dev.latvian.mods.rhino.BaseFunction;
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.Scriptable;
+import dev.gigaherz.rhinolib.BaseFunction;
+import dev.gigaherz.rhinolib.Context;
+import dev.gigaherz.rhinolib.Scriptable;
 
 public class LambdaBaseFunction extends BaseFunction
 {

@@ -1,7 +1,7 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import com.mojang.logging.LogUtils;
-import dev.latvian.mods.rhino.*;
+import dev.gigaherz.rhinolib.*;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;

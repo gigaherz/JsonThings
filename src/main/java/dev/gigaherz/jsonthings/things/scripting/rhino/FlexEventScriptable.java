@@ -2,10 +2,10 @@ package dev.gigaherz.jsonthings.things.scripting.rhino;
 
 import dev.gigaherz.jsonthings.things.events.ContextValue;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.NativeJavaObject;
-import dev.latvian.mods.rhino.Scriptable;
-import dev.latvian.mods.rhino.ScriptableObject;
+import dev.gigaherz.rhinolib.Context;
+import dev.gigaherz.rhinolib.NativeJavaObject;
+import dev.gigaherz.rhinolib.Scriptable;
+import dev.gigaherz.rhinolib.ScriptableObject;
 
 public class FlexEventScriptable extends NativeJavaObject
 {

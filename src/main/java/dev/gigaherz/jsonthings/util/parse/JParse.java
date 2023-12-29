@@ -527,7 +527,7 @@ public class JParse
         {
             if (e instanceof JParseException)
                 throw e;
-            throw new JParseException("Error running handler for " + path, e);
+            throw new JParseException("Error running handler for " + path + ": " + e.getMessage(), e);
         }
     }
 

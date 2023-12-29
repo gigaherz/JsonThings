@@ -115,7 +115,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                             }
                             catch (Exception e)
                             {
-                                throw new ThingParseException("Exception while parsing nested food in " + builder.getRegistryName(), e);
+                                throw new ThingParseException("Exception while parsing nested food in " + builder.getRegistryName() + ": " + e.getMessage(), e);
                             }
                         }))
                         .typeError()

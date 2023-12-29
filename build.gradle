@@ -9,39 +9,38 @@ plugins {
 version = "0.9.1"
 group= "dev.gigaherz.jsonthings"
 
+Provider<String> minecraftVersion(Transformer<String, String> mapper) {
+    return project.userDevRuntime.runtimes.map(r -> r.values().first().specification.minecraftVersion).map(mapper)
+}
+
 base {
-    archivesName = "JsonThings-1.20.2"
+    archivesName = minecraftVersion { "JsonThings-${it}" }
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
 repositories {
-    //mavenLocal()
-
+    maven {
+        name = "Dogforce Games maven"
+        url 'https://www.dogforce-games.com/maven/'
+    }
     maven {
         url 'https://repo.spongepowered.org/repository/maven-public/'
         content {
             includeGroup "org.spongepowered"
         }
     }
-
     maven {
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
-
-
-    /*
-    flatDir {
-        dirs project.rootProject.file("./debugmods")
-    }
-     */
 }
 
 runs {
@@ -53,8 +52,6 @@ runs {
         //ideaModule "${project.name}.main"
 
         workingDirectory project.file('run')
-
-        //programArguments.addAll "--mixin=jsonthings.mixins.json"
 
         modSource project.sourceSets.main
     }
@@ -68,26 +65,33 @@ runs {
 
 minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
 
+jarJar.enable()
+
 dependencies {
-    implementation 'net.neoforged:neoforge:20.4.46-beta'
+    implementation 'net.neoforged:neoforge:20.4.60-beta'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
     //runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
     //runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
 
-    compileOnly 'curse.maven:rhino-416294:4805923'
+    //compileOnly 'curse.maven:rhino-416294:4805923'
+    compileOnly 'dev.gigaherz.rhinolib:rhino-lib:1.0-SNAPSHOT'
+    runtimeOnly 'dev.gigaherz.rhinolib:rhino-lib:1.0-SNAPSHOT'
+    jarJar(group:'dev.gigaherz.rhinolib', name:'rhino-lib', version:'[1.0-SNAPSHOT,)')  {
+
+    }
 
     /*library 'org.graalvm.regex:regex:22.0.0.2'
     library 'org.graalvm.sdk:graal-sdk:22.0.0.2'
     library 'org.graalvm.truffle:truffle-api:22.0.0.2'
     library 'org.graalvm.js:js:22.0.0.2'
     library 'org.graalvm.js:js-scriptengine:22.0.0.2'*/
-
-    annotationProcessor 'org.spongepowered:mixin:0.8.+:processor'
 }
 
-jar {
+tasks.named("jar") {
+    archiveClassifier = "slim"
+
     from('/') {
         include 'LICENSE.txt'
     }
@@ -105,6 +109,10 @@ jar {
     }
 }
 
+tasks.named("jarJar") {
+    archiveClassifier = ""
+}
+
 tasks.withType(GenerateModuleMetadata) {
     enabled = false
 }
@@ -117,6 +125,7 @@ project.afterEvaluate {
                 artifactId project.archivesBaseName
                 from components.java
 
+                jarJar.component(it)
                 //artifact sourceJar
 
                 pom.withXml {

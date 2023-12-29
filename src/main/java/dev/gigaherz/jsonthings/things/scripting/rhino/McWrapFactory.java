@@ -1,8 +1,8 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino;
 
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.Scriptable;
-import dev.latvian.mods.rhino.WrapFactory;
+import dev.gigaherz.rhinolib.Context;
+import dev.gigaherz.rhinolib.Scriptable;
+import dev.gigaherz.rhinolib.WrapFactory;
 import net.minecraft.Util;
 
 import javax.annotation.Nullable;

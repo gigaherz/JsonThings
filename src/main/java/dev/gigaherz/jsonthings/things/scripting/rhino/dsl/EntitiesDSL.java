@@ -1,7 +1,7 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
-import dev.latvian.mods.rhino.Context;
-import dev.latvian.mods.rhino.Scriptable;
+import dev.gigaherz.rhinolib.Context;
+import dev.gigaherz.rhinolib.Scriptable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 

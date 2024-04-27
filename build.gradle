@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.76'
+    id 'net.neoforged.gradle.userdev' version '7.0.86'
 }
 
 version = "0.10.0"
@@ -75,7 +75,7 @@ minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/
 jarJar.enable()
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.4.72-beta'
+    implementation 'net.neoforged:neoforge:20.4.147-beta'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")

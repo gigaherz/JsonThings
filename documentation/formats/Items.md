@@ -21,6 +21,7 @@ E.g.
     "saturation": 5
   },
   "container": "bowl",
+  "fire_resistant": true,
   "group": "decorations",
   "creative_menu_stacks": [
     {
@@ -174,3 +175,11 @@ Defines the amount of time this item can burn when used as fuel for a furnace.
 Optional. Default: use vanilla default handling (depends on item type).
 
 Must be an integer. A value of 0 prevents the item from being considered fuel.
+
+## "fire_resistant"
+
+Defines if the item can survive fire and lava.
+
+Optional. Default: false (item burns in lava and fire).
+
+Must be a boolean (`false`  or `true`).

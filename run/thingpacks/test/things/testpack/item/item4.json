@@ -12,6 +12,8 @@
     {
       "tabs": [ "tools_and_utilities" ]
     }
-  ]
+  ],
+
+  "fire_resistant": true
 
 }

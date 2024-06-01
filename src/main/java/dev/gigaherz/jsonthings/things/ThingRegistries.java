@@ -14,8 +14,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -28,7 +28,7 @@ public class ThingRegistries
     }
 
     public static final ResourceKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
-    public static final ResourceKey<Registry<ArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
+    public static final ResourceKey<Registry<Tier>> TIER_REGISTRY = createKey("jsonthings:tier");
     public static final ResourceKey<Registry<FoodProperties>> FOOD_REGISTRY = createKey("jsonthings:food");
     public static final ResourceKey<Registry<PropertyType>> PROPERTY_TYPE_REGISTRY = createKey("jsonthings:property_type");
     public static final ResourceKey<Registry<Property<?>>> PROPERTY_REGISTRY = createKey("jsonthings:property");
@@ -39,7 +39,7 @@ public class ThingRegistries
     public static final ResourceKey<Registry<FlexFluidType<?>>> FLUID_TYPE_REGISTRY = createKey("jsonthings:fluid_types");
 
     public static final Registry<Registry<?>> THING_REGISTRIES = new MappedRegistry<>(THING_REGISTRIES_REGISTRY, Lifecycle.experimental(), false);
-    public static final Registry<ArmorMaterial> ARMOR_MATERIALS = makeRegistry(ARMOR_MATERIAL_REGISTRY);
+    public static final Registry<Tier> TIERS = makeRegistry(TIER_REGISTRY);
     public static final Registry<FoodProperties> FOODS = makeRegistry(FOOD_REGISTRY);
     public static final Registry<PropertyType> PROPERTY_TYPES = makeRegistry(PROPERTY_TYPE_REGISTRY);
     public static final Registry<Property<?>> PROPERTIES = makeRegistry(PROPERTY_REGISTRY);
@@ -51,7 +51,7 @@ public class ThingRegistries
 
     static
     {
-        registerArmorMaterials();
+        registerTiers();
 
         registerFoods();
 
@@ -81,6 +81,14 @@ public class ThingRegistries
     {
         MappedRegistry<T> registry = new MappedRegistry<>(key, Lifecycle.experimental(), false);
         return Registry.register(THING_REGISTRIES, key.location().toString(), registry);
+    }
+
+    private static void registerTiers()
+    {
+        for (Tiers mat : Tiers.values())
+        {
+            Registry.register(TIERS, mat.name().toLowerCase(), mat);
+        }
     }
 
     private static void registerDynamicShapes()
@@ -243,14 +251,6 @@ public class ThingRegistries
         Registry.register(FOODS, "sweet_berries", Foods.SWEET_BERRIES);
         Registry.register(FOODS, "glow_berries", Foods.GLOW_BERRIES);
         Registry.register(FOODS, "tropical_fish", Foods.TROPICAL_FISH);
-    }
-
-    private static void registerArmorMaterials()
-    {
-        for (ArmorMaterials mat : ArmorMaterials.values())
-        {
-            Registry.register(ARMOR_MATERIALS, mat.getName(), mat);
-        }
     }
 
     private static void registerSoundTypes()

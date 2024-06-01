@@ -3,12 +3,12 @@ package dev.gigaherz.jsonthings.things.builders;
 import com.google.common.collect.Lists;
 import dev.gigaherz.jsonthings.things.misc.FlexEnchantment;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
@@ -22,16 +22,15 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, Enchantment
         return new EnchantmentBuilder(ownerParser, registryName);
     }
 
-    private Enchantment.Rarity rarity = Enchantment.Rarity.COMMON;
-    private EnchantmentCategory type = EnchantmentCategory.BREAKABLE;
+    private String itemCompatibilityTag;
+    private String primaryItemsTag;
     private EquipmentSlot[] slots = EquipmentSlot.values();
-    private int minLevel = 1;
+    private int weight;
     private int maxLevel = 1;
-    private int baseCost = 1;
-    private int perLevelCost = 10;
-    private int randomCost = 5;
+    private Enchantment.Cost minCost;
+    private Enchantment.Cost maxCost;
+    private int anvilCost = 1;
     private List<ResourceLocation> blackList = Lists.newArrayList();
-    private ItemPredicate itemCompatibility;
     private boolean isTreasure = false;
     private boolean isCurse = false;
     private boolean isTradeable = true;
@@ -49,19 +48,19 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, Enchantment
         return "Enchantment";
     }
 
-    public void setRarity(Enchantment.Rarity rarity)
+    public void setItemCompatibilityTag(String itemCompatibilityTag)
     {
-        this.rarity = rarity;
+        this.itemCompatibilityTag = itemCompatibilityTag;
     }
 
-    public void setEnchantmentType(EnchantmentCategory type)
+    public void setPrimaryItemsTag(String primaryItemsTag)
     {
-        this.type = type;
+        this.primaryItemsTag = primaryItemsTag;
     }
 
-    public void setMinLevel(int minLevel)
+    public void setWeight(int weight)
     {
-        this.minLevel = minLevel;
+        this.weight = weight;
     }
 
     public void setMaxLevel(int macLevel)
@@ -69,19 +68,19 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, Enchantment
         this.maxLevel = macLevel;
     }
 
-    public void setBaseCost(int baseCost)
+    public void setMinCost(Enchantment.Cost minCost)
     {
-        this.baseCost = baseCost;
+        this.minCost = minCost;
     }
 
-    public void setPerLevelCost(int perLevelCost)
+    public void setMaxCost(Enchantment.Cost maxCost)
     {
-        this.perLevelCost = perLevelCost;
+        this.maxCost = maxCost;
     }
 
-    public void setRandomCost(int randomCost)
+    public void setAnvilCost(int anvilCost)
     {
-        this.randomCost = randomCost;
+        this.anvilCost = anvilCost;
     }
 
     public void setIsTreasure(boolean treasure)
@@ -104,27 +103,39 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, Enchantment
         this.isDiscoverable = discoverable;
     }
 
-    public void setItemCompatibility(Optional<ItemPredicate> item_compatibility)
-    {
-        item_compatibility.ifPresent(itemPredicate -> this.itemCompatibility = itemPredicate);
-    }
-
     public void setBlacklist(List<ResourceLocation> blacklist)
     {
         this.blackList = blacklist;
     }
 
+    public void setIsAllowedOnBooks(boolean allow_on_books)
+    {
+        this.isAllowedOnBooks = allow_on_books;
+    }
+
+    public void setSlots(EquipmentSlot[] slots)
+    {
+        this.slots = slots;
+    }
+
     @Override
     protected FlexEnchantment buildInternal()
     {
-        FlexEnchantment flexEnchantment = new FlexEnchantment(rarity, type, slots);
+        Enchantment.EnchantmentDefinition definition = new Enchantment.EnchantmentDefinition(
+                TagKey.create(Registries.ITEM, new ResourceLocation(itemCompatibilityTag)),
+                primaryItemsTag != null ? Optional.of(TagKey.create(Registries.ITEM, new ResourceLocation(itemCompatibilityTag))) : Optional.empty(),
+                weight,
+                maxLevel,
+                minCost,
+                maxCost,
+                anvilCost,
+                FeatureFlagSet.of(),
+                slots
+        );
 
-        flexEnchantment.setMinLevel(minLevel);
-        flexEnchantment.setMaxLevel(maxLevel);
-        flexEnchantment.setBaseCost(baseCost);
-        flexEnchantment.setPerLevelCost(perLevelCost);
-        flexEnchantment.setRandomCost(randomCost);
-        flexEnchantment.setItemCompatibility(itemCompatibility);
+
+        FlexEnchantment flexEnchantment = new FlexEnchantment(definition);
+
         flexEnchantment.setTreasure(isTreasure);
         flexEnchantment.setCurse(isCurse);
         flexEnchantment.setTradeable(isTradeable);
@@ -139,11 +150,5 @@ public class EnchantmentBuilder extends BaseBuilder<FlexEnchantment, Enchantment
         constructEventHandlers(flexEnchantment);
 
         return flexEnchantment;
-    }
-
-    public EnchantmentBuilder setIsAllowedOnBooks(boolean allow_on_books)
-    {
-        this.isAllowedOnBooks = allow_on_books;
-        return this;
     }
 }

@@ -35,11 +35,11 @@ public class ItemsDSL
         {
             stack.setCount(((Number) args[1]).intValue());
         }
-        if (args.length >= 3)
+        /*if (args.length >= 3)
         {
             var tag = (CompoundTag) NbtDSL.wrapVanillaInternal(args[2]);
             stack.setTag(tag);
-        }
+        }*/
 
         return DSLHelpers.wrap(cx, scope, stack, ItemStack.class);
     }

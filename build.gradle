@@ -3,10 +3,10 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.86'
+    id 'net.neoforged.gradle.userdev' version '7.0.119'
 }
 
-version = "0.10.0"
+version = "0.11.0"
 group= "dev.gigaherz.jsonthings"
 
 Provider<String> minecraftVersion(Transformer<String, String> mapper) {
@@ -17,7 +17,7 @@ base {
     archivesName = minecraftVersion { "JsonThings-${it}" }
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 
 tasks.withType(JavaCompile).configureEach {
@@ -41,6 +41,7 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    mavenLocal()
 }
 
 runs {
@@ -65,8 +66,8 @@ runs {
 
 subsystems {
     parchment {
-        minecraftVersion="1.20.3"
-        mappingsVersion="2023.12.31"
+        minecraftVersion="1.20.6"
+        mappingsVersion="2024.05.01"
     }
 }
 
@@ -75,7 +76,7 @@ minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/
 jarJar.enable()
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.4.147-beta'
+    implementation 'net.neoforged:neoforge:20.6.22-beta'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
@@ -105,7 +106,7 @@ tasks.named("jar") {
 
     manifest {
         attributes([
-                "Specification-Title": "eyes",
+                "Specification-Title": "jsonthings",
                 "Specification-Vendor": "gigaherz",
                 "Specification-Version": "1", // We are version 1 of ourselves
                 "Implementation-Title": project.name,
@@ -132,7 +133,7 @@ project.afterEvaluate {
                 artifactId project.archivesBaseName
                 from components.java
 
-                jarJar.component(it)
+                //jarJar.component(it)
                 //artifact sourceJar
 
                 pom.withXml {

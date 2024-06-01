@@ -1,14 +1,11 @@
 package dev.gigaherz.jsonthings.things.items;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
-import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.Component;
@@ -17,28 +14,24 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ToolAction;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class FlexShovelItem extends ShovelItem implements IEventRunner
 {
-    public FlexShovelItem(Tier tier, float damage, float speed, Item.Properties properties, ItemBuilder builder)
+    public FlexShovelItem(Tier tier, Item.Properties properties, ItemBuilder builder)
     {
-        super(tier, damage, speed, properties);
+        super(tier, properties);
         this.useAction = builder.getUseAnim();
         this.useTime = builder.getUseTime();
         this.useFinishMode = builder.getUseFinishMode();
@@ -50,9 +43,10 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
     }
 
     //region IFlexItem
-    private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
+    @SuppressWarnings("rawtypes")
+    private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
-    private final Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> attributeModifiers;
+    private ItemAttributeModifiers attributeModifiers;
     private final UseAnim useAction;
     private final Integer useTime;
     private final UseFinishMode useFinishMode;
@@ -62,23 +56,34 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
 
     private void initializeFlex()
     {
-        for (EquipmentSlot slot1 : EquipmentSlot.values())
+        var builder = ItemAttributeModifiers.builder();
+        //noinspection deprecation
+        var defaults = super.getDefaultAttributeModifiers();
+        if (!defaults.modifiers().isEmpty())
         {
-            attributeModifiers.computeIfAbsent(slot1, key -> ArrayListMultimap.create())
-                    .putAll(super.getAttributeModifiers(slot1, ItemStack.EMPTY));
+            for (var mod : defaults.modifiers())
+            {
+                builder.add(mod.attribute(), mod.modifier(), mod.slot());
+            }
+            for (var mod : attributeModifiers.modifiers())
+            {
+                builder.add(mod.attribute(), mod.modifier(), mod.slot());
+            }
+            attributeModifiers = builder.build();
         }
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler eventHandler)
+    public <T> void addEventHandler(FlexEventType<T> event, FlexEventHandler<T> eventHandler)
     {
-        eventHandlers.put(eventName, eventHandler);
+        eventHandlers.put(event, eventHandler);
     }
 
     @Override
-    public FlexEventHandler getEventHandler(String eventName)
+    public <T> FlexEventHandler<T> getEventHandler(FlexEventType<T> event)
     {
-        return eventHandlers.get(eventName);
+        //noinspection unchecked
+        return eventHandlers.get(event);
     }
     //endregion
 
@@ -89,12 +94,12 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
     {
         ItemStack heldItem = playerIn.getItemInHand(handIn);
         if (useTime != null && useTime > 0)
-            return runEvent("begin_using", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> {
+            return runEvent(FlexEventType.BEGIN_USING_ITEM, FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> {
                 playerIn.startUsingItem(handIn);
-                return FlexEventResult.consume(heldItem);
-            }).holder();
+                return InteractionResultHolder.consume(heldItem);
+            });
         else
-            return runEvent("use_on_air", FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> FlexEventResult.of(super.use(worldIn, playerIn, handIn))).holder();
+            return runEvent(FlexEventType.USE_ITEM_ON_AIR, FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> super.use(worldIn, playerIn, handIn));
     }
 
     @Override
@@ -102,14 +107,14 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
     {
         ItemStack heldItem = context.getItemInHand();
 
-        FlexEventResult result = runEvent("use_on_block", FlexEventContext.of(context), () -> new FlexEventResult(super.useOn(context), heldItem));
+        var result = runEvent(FlexEventType.USE_ITEM_ON_BLOCK, FlexEventContext.of(context), () -> new InteractionResultHolder<>(super.useOn(context), heldItem));
 
-        if (result.stack() != heldItem && context.getPlayer() != null)
+        if (result.getObject() != heldItem && context.getPlayer() != null)
         {
-            context.getPlayer().setItemInHand(context.getHand(), result.stack());
+            context.getPlayer().setItemInHand(context.getHand(), result.getObject());
         }
 
-        return result.result();
+        return result.getResult();
     }
 
     @Override
@@ -135,52 +140,51 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
     @Override
     public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft)
     {
-        runEvent("stopped_using",
+        runEvent(FlexEventType.STOPPED_USING,
                 FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft),
                 () -> {
                     super.releaseUsing(stack, worldIn, entityLiving, timeLeft);
-                    return FlexEventResult.pass(stack);
+                    return null;
                 });
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack heldItem, Level worldIn, LivingEntity entityLiving)
     {
-        Supplier<FlexEventResult> resultSupplier = () -> FlexEventResult.success(super.finishUsingItem(heldItem, worldIn, entityLiving));
+        var result = runEvent(FlexEventType.END_USING, FlexEventContext.of(worldIn, entityLiving, heldItem), () -> InteractionResultHolder.success(super.finishUsingItem(heldItem, worldIn, entityLiving)));
+        if (result.getResult() != InteractionResult.SUCCESS)
+            return result.getObject();
 
-        FlexEventResult result = runEvent("end_using", FlexEventContext.of(worldIn, entityLiving, heldItem), resultSupplier);
-        if (result.result() != InteractionResult.SUCCESS)
-            return result.stack();
-
-        return runEvent("use", FlexEventContext.of(worldIn, entityLiving, heldItem), () -> FlexEventResult.success(result.stack())).stack();
+        return runEvent(FlexEventType.USE_ITEM_ON_AIR, FlexEventContext.of(worldIn, entityLiving, heldItem), () -> result).getObject();
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
     {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, context, tooltip, flagIn);
         if (lore != null) tooltip.addAll(lore);
     }
 
     @Override
     public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
-        FlexEventResult result = runEvent("update",
+        var result = runEvent(FlexEventType.UPDATE,
                 FlexEventContext.of(worldIn, entityIn, stack).with(FlexEventContext.SLOT, itemSlot).with(FlexEventContext.SELECTED, isSelected),
                 () -> {
                     super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
-                    return FlexEventResult.pass(stack);
+                    return stack;
                 });
-        if (result.stack() != stack)
+        if (result != stack)
         {
-            entityIn.getSlot(itemSlot).set(result.stack());
+            entityIn.getSlot(itemSlot).set(result);
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
+    public ItemAttributeModifiers getDefaultAttributeModifiers()
     {
-        return Utils.orElseGet(attributeModifiers.get(slot), HashMultimap::create);
+        return attributeModifiers;
     }
 
     @Override

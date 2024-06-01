@@ -7,7 +7,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.SimpleTier;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
@@ -17,15 +16,12 @@ public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
         return new TierBuilder(ownerParser, registryName);
     }
 
-    private int level = 0;
     private int uses;
     private float speed;
     private float attackDamageBonus;
     private int enchantmentValue;
     private TagKey<Block> tag;
     private Supplier<Ingredient> repairIngredient;
-    private List<Object> sortAfter;
-    private List<Object> sortBefore;
 
     private TierBuilder(ThingParser<TierBuilder> ownerParser, ResourceLocation registryName)
     {
@@ -36,11 +32,6 @@ public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
     protected String getThingTypeDisplayName()
     {
         return "Item Tier";
-    }
-
-    public void setLevel(int level)
-    {
-        this.level = level;
     }
 
     public void setUses(int uses)
@@ -73,29 +64,10 @@ public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
         this.repairIngredient = repairIngredient;
     }
 
-    public void setAfterDependencies(List<Object> sortAfter)
-    {
-        this.sortAfter = sortAfter;
-    }
-
-    public void setBeforeDependencies(List<Object> sortBefore)
-    {
-        this.sortBefore = sortBefore;
-    }
-
     @Override
     protected SimpleTier buildInternal()
     {
-        return new SimpleTier(level, uses, speed, attackDamageBonus, enchantmentValue, tag, repairIngredient);
+        return new SimpleTier(tag, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
     }
 
-    public List<Object> getSortAfter()
-    {
-        return sortAfter;
-    }
-
-    public List<Object> getSortBefore()
-    {
-        return sortBefore;
-    }
 }

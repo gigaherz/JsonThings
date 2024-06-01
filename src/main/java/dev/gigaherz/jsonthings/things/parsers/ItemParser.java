@@ -19,12 +19,13 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -145,7 +146,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         var lore = new ArrayList<MutableComponent>();
         for (JsonElement e : lines)
         {
-            lore.add(Component.Serializer.fromJson(e));
+            lore.add(Component.Serializer.fromJson(e, registryAccess()));
         }
         return lore;
     }
@@ -156,16 +157,11 @@ public class ItemParser extends ThingParser<ItemBuilder>
         {
             JsonObject item = e.getAsJsonObject();
 
-            EquipmentSlot slot;
+            EquipmentSlotGroup slot;
             if (item.has("slot"))
             {
                 var name = item.get("slot").getAsString();
-                var names = Arrays.stream(EquipmentSlot.values()).map(EquipmentSlot::getName).toList();
-                if (Strings.isNullOrEmpty(name) || !names.contains(name))
-                {
-                    throw new ThingParseException("Attribute modifier slot must be a valid equipment slot name: " + String.join(", ", names));
-                }
-                slot = EquipmentSlot.byName(name);
+                slot = EquipmentSlotGroup.bySlot(EquipmentSlot.byName(name));
             }
             else
             {
@@ -225,19 +221,14 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 throw new ThingParseException("Attribute modifier amount must be a floating point number.");
             }
 
-            int operation;
+            AttributeModifier.Operation operation;
             if (item.has("operation"))
             {
                 String opName = item.get("operation").getAsString();
                 Integer opInt = Ints.tryParse(opName);
-                if (opInt == null)
-                {
-                    operation = AttributeModifier.Operation.valueOf(opName.toUpperCase()).toValue();
-                }
-                else
-                {
-                    operation = opInt;
-                }
+                operation = opInt != null
+                        ? AttributeModifier.Operation.BY_ID.apply(opInt)
+                        : AttributeModifier.Operation.valueOf(opName.toUpperCase());
             }
             else
             {

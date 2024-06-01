@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
@@ -174,8 +175,9 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
         if (ScriptParser.isEnabled())
         {
             forEachEvent((key, list) -> {
+                var event = FlexEventType.byName(key);
                 ThingParser.processAndConsumeErrors(getParser().getThingType(), list, ev ->
-                                eventRunner.addEventHandler(key, ScriptParser.instance().getEvent(ev)),
+                                eventRunner.addEventHandler(event, ScriptParser.instance().getEvent(ev)),
                         (unused) -> getRegistryName());
             });
         }

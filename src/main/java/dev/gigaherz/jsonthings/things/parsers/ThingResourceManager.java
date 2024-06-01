@@ -12,6 +12,7 @@ import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
+import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
@@ -89,8 +90,14 @@ public class ThingResourceManager
         return (infoConsumer) -> folderPackFinder.loadPacks(pack -> {
             if (!disabledPacks.contains(pack.getId()))
             {
-                pack.id = "thingpack:" + pack.id;
-                pack.required = true;
+                var loc = pack.location;
+                pack.location = new PackLocationInfo(
+                        "thingpack:" + loc.id(),
+                        loc.title(),
+                        loc.source(),
+                        loc.knownPackInfo()
+                );
+                //pack.required = true;
                 infoConsumer.accept(pack);
             }
         }/*, (a, n, b, c, d, e, f, g) ->

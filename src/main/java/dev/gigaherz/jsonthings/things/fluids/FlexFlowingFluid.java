@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.IFlexFluid;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
-import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
@@ -70,7 +70,8 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     }
 
     //region IFlexFluid
-    private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
+    @SuppressWarnings("rawtypes")
+    private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
     private Supplier<Item> bucketItem = () -> Items.AIR;
     private Supplier<FluidType> fluidType;
@@ -93,15 +94,16 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler eventHandler)
+    public <T> void addEventHandler(FlexEventType<T> event, FlexEventHandler<T> eventHandler)
     {
-        eventHandlers.put(eventName, eventHandler);
+        eventHandlers.put(event, eventHandler);
     }
 
     @Override
-    public FlexEventHandler getEventHandler(String eventName)
+    public <T> FlexEventHandler<T> getEventHandler(FlexEventType<T> event)
     {
-        return eventHandlers.get(eventName);
+        //noinspection unchecked
+        return eventHandlers.get(event);
     }
 
     @Override
@@ -195,7 +197,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         InteractionResult result = InteractionResult.PASS;
         if (pLevel instanceof Level level)
         {
-            result = runEvent("before_destroy", FlexEventContext.of(level, pPos, pState), FlexEventResult::pass).result();
+            result = runEvent(FlexEventType.BEFORE_DESTROY, FlexEventContext.of(level, pPos, pState), () -> InteractionResult.PASS);
         }
         if (result == InteractionResult.PASS)
         {

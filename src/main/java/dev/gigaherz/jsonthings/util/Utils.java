@@ -1,6 +1,7 @@
 package dev.gigaherz.jsonthings.util;
 
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -52,6 +54,11 @@ public class Utils
         if (t == null)
             throw new KeyNotFoundException("No object with name " + name + " found in the registry " + registry);
         return t;
+    }
+
+    public static <T> Holder<T> getHolderOrCrash(Registry<T> registry, ResourceLocation name)
+    {
+        return registry.getHolder(name).orElseThrow(() -> new NoSuchElementException("Entry with name " + name + " not found in registry " + registry.key().location()));
     }
 
     public static <T> T getOrElse(Registry<T> registry, ResourceLocation name, T fallback)

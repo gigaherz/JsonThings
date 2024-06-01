@@ -1,7 +1,7 @@
 package dev.gigaherz.jsonthings.things;
 
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 public class StackContext
 {
     public final ResourceLocation item;
-    public CompoundTag tag = null;
     public int count = 1;
+    public DataComponentMap components = null;
 
     private Item theItem;
 
@@ -21,9 +21,9 @@ public class StackContext
         this.item = item;
     }
 
-    public StackContext withTag(CompoundTag tag)
+    public StackContext withComponents(DataComponentMap components)
     {
-        this.tag = tag;
+        this.components = components;
         return this;
     }
 
@@ -51,8 +51,8 @@ public class StackContext
             }
         }
         ItemStack stack = new ItemStack(theItem, count);
-        if (tag != null)
-            stack.setTag(tag);
+        if (components != null)
+            stack.applyComponents(components);
         return stack;
     }
 }

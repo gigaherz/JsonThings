@@ -17,17 +17,18 @@ import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.common.ToolAction;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
@@ -37,7 +38,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         return new ItemBuilder(ownerParser, registryName);
     }
 
-    private final Map<EquipmentSlot, Multimap<ResourceLocation, AttributeModifier>> attributeModifiers = Maps.newHashMap();
+    private final Map<EquipmentSlotGroup, Multimap<ResourceLocation, AttributeModifier>> attributeModifiers = Maps.newHashMap();
 
     private FlexItemType<?> itemType;
 
@@ -48,7 +49,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
     private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
 
-    private NonNullSupplier<FoodProperties> foodDefinition = null;
+    private Supplier<@NotNull FoodProperties> foodDefinition = null;
 
     public Integer useTime = null;
     public UseAnim useAnim = null;
@@ -104,12 +105,11 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         creativeMenuStacks.add(Pair.of(stackContext, tabs));
     }
 
-    public void withAttributeModifier(EquipmentSlot slot, ResourceLocation attribute, @Nullable UUID uuid, String name, double amount, int op)
+    public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, @Nullable UUID uuid, String name, double amount, AttributeModifier.Operation op)
     {
-        AttributeModifier.Operation operation = AttributeModifier.Operation.fromValue(op);
         var mod = uuid != null ?
-                new AttributeModifier(uuid, name, amount, operation) :
-                new AttributeModifier(name, amount, operation);
+                new AttributeModifier(uuid, name, amount, op) :
+                new AttributeModifier(name, amount, op);
         attributeModifiers.computeIfAbsent(slot, _slot -> ArrayListMultimap.create()).put(attribute, mod);
     }
 
@@ -211,7 +211,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
             properties = properties.craftRemainder(Utils.getOrCrash(BuiltInRegistries.ITEM, ci));
         }
 
-        NonNullSupplier<FoodProperties> foodDefinition = getFoodDefinition();
+        Supplier<@NotNull FoodProperties> foodDefinition = getFoodDefinition();
         if (foodDefinition != null)
         {
             properties = properties.food(foodDefinition.get());
@@ -267,7 +267,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     }
 
     @Nullable
-    public NonNullSupplier<FoodProperties> getFoodDefinition()
+    public Supplier<@NotNull FoodProperties> getFoodDefinition()
     {
         return getValue(foodDefinition, ItemBuilder::getFoodDefinition);
     }
@@ -329,28 +329,27 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         return getValue(burnDuration, ItemBuilder::getBurnDuration);
     }
 
-    public Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> getAttributeModifiers()
+    public ItemAttributeModifiers getAttributeModifiers()
     {
         var mods = getAttributeModifiersRaw();
-        if (mods == null) return Map.of();
+        if (mods == null) return ItemAttributeModifiers.EMPTY;
 
-        Map<EquipmentSlot, Multimap<Attribute, AttributeModifier>> modifiers = new HashMap<>();
+        var builder = ItemAttributeModifiers.builder();
 
-        for (var kv : mods.entrySet())
+        for (var slotEntries : mods.entrySet())
         {
-            var map = modifiers.computeIfAbsent(kv.getKey(), slot -> ArrayListMultimap.create());
-            for (var kv1 : kv.getValue().entries())
+            for (var attributeEntries : slotEntries.getValue().entries())
             {
-                var attr = Utils.getOrCrash(BuiltInRegistries.ATTRIBUTE, kv1.getKey());
-                map.put(attr, kv1.getValue());
+                var attr = Utils.getHolderOrCrash(BuiltInRegistries.ATTRIBUTE, attributeEntries.getKey());
+                builder.add(attr, attributeEntries.getValue(), slotEntries.getKey());
             }
         }
 
-        return modifiers;
+        return builder.build();
     }
 
     @Nullable
-    private Map<EquipmentSlot, Multimap<ResourceLocation, AttributeModifier>> getAttributeModifiersRaw()
+    private Map<EquipmentSlotGroup, Multimap<ResourceLocation, AttributeModifier>> getAttributeModifiersRaw()
     {
         return getValue(attributeModifiers, ItemBuilder::getAttributeModifiersRaw);
     }

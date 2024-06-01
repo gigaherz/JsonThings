@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.fluids;
 import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.IFlexFluid;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
+import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
@@ -31,7 +32,8 @@ public class FlexFluid extends Fluid implements IFlexFluid
     }
 
     //region IFlexFluid
-    private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
+    @SuppressWarnings("rawtypes")
+    private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
     private Supplier<Item> bucketItem = () -> Items.AIR;
     private Supplier<FluidType> fluidType;
@@ -54,17 +56,17 @@ public class FlexFluid extends Fluid implements IFlexFluid
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler eventHandler)
+    public <T> void addEventHandler(FlexEventType<T> event, FlexEventHandler<T> eventHandler)
     {
-        eventHandlers.put(eventName, eventHandler);
+        eventHandlers.put(event, eventHandler);
     }
 
     @Override
-    public FlexEventHandler getEventHandler(String eventName)
+    public <T> FlexEventHandler<T> getEventHandler(FlexEventType<T> event)
     {
-        return eventHandlers.get(eventName);
+        //noinspection unchecked
+        return eventHandlers.get(event);
     }
-
     @Override
     public void setBucketItem(Supplier<Item> bucketItem)
     {

@@ -83,8 +83,7 @@ public class DynamicShape
 
     public static DynamicShape fromJson(JsonElement data, @Nullable Property<Direction> facingProperty, Function<String, Property<?>> properties)
     {
-        IShapeProvider shape = SHAPE_CODEC.decode(JsonOps.INSTANCE, data).getOrThrow(false, str -> {
-        }).getFirst();
+        IShapeProvider shape = SHAPE_CODEC.decode(JsonOps.INSTANCE, data).getOrThrow().getFirst();
         shape = shape.bake(properties);
         return new DynamicShape(shape, facingProperty);
     }

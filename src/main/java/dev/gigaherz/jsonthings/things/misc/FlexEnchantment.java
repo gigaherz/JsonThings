@@ -3,15 +3,12 @@ package dev.gigaherz.jsonthings.things.misc;
 import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
-import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 import java.util.List;
 import java.util.Map;
@@ -19,60 +16,31 @@ import java.util.function.Predicate;
 
 public class FlexEnchantment extends Enchantment implements IEventRunner
 {
-    private final Map<String, FlexEventHandler> eventHandlers = Maps.newHashMap();
-    private int minLevel;
-    private int maxLevel;
-    private int baseCost;
-    private int perLevelCost;
-    private int randomCost;
+    @SuppressWarnings("rawtypes")
+    private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
     private List<Predicate<Enchantment>> blackList = List.of();
-    private ItemPredicate itemCompatibility;
     private boolean isTreasure;
     private boolean isCurse;
     private boolean isTradeable = true;
     private boolean isDiscoverable = true;
     private boolean isAllowedOnBooks = true;
 
-    public FlexEnchantment(Rarity rarity, EnchantmentCategory enchantmentCategory, EquipmentSlot[] slots)
+    public FlexEnchantment(EnchantmentDefinition definition)
     {
-        super(rarity, enchantmentCategory, slots);
+        super(definition);
     }
 
     @Override
-    public void addEventHandler(String eventName, FlexEventHandler eventHandler)
+    public <T> void addEventHandler(FlexEventType<T> event, FlexEventHandler<T> eventHandler)
     {
-        eventHandlers.put(eventName, eventHandler);
+        eventHandlers.put(event, eventHandler);
     }
 
     @Override
-    public FlexEventHandler getEventHandler(String eventName)
+    public <T> FlexEventHandler<T> getEventHandler(FlexEventType<T> event)
     {
-        return eventHandlers.get(eventName);
-    }
-
-    public void setMinLevel(int minLevel)
-    {
-        this.minLevel = minLevel;
-    }
-
-    public void setMaxLevel(int maxLevel)
-    {
-        this.maxLevel = maxLevel;
-    }
-
-    public void setBaseCost(int baseCost)
-    {
-        this.baseCost = baseCost;
-    }
-
-    public void setPerLevelCost(int perLevelCost)
-    {
-        this.perLevelCost = perLevelCost;
-    }
-
-    public void setRandomCost(int randomCost)
-    {
-        this.randomCost = randomCost;
+        //noinspection unchecked
+        return eventHandlers.get(event);
     }
 
     public void setTreasure(boolean treasure)
@@ -103,35 +71,6 @@ public class FlexEnchantment extends Enchantment implements IEventRunner
     public void setBlackList(List<Predicate<Enchantment>> blackList)
     {
         this.blackList = blackList;
-    }
-
-    public void setItemCompatibility(ItemPredicate itemCompatibility)
-    {
-        this.itemCompatibility = itemCompatibility;
-    }
-
-    @Override
-    public int getMinLevel()
-    {
-        return minLevel;
-    }
-
-    @Override
-    public int getMaxLevel()
-    {
-        return maxLevel;
-    }
-
-    @Override
-    public int getMinCost(int enchantmentLevel)
-    {
-        return baseCost * enchantmentLevel * perLevelCost;
-    }
-
-    @Override
-    public int getMaxCost(int enchantmentLevel)
-    {
-        return getMinCost(enchantmentLevel) + randomCost;
     }
 
     @Override
@@ -172,14 +111,6 @@ public class FlexEnchantment extends Enchantment implements IEventRunner
     }
 
     @Override
-    public boolean canEnchant(ItemStack stack)
-    {
-        if (itemCompatibility != null && !itemCompatibility.matches(stack))
-            return false;
-        return super.canEnchant(stack);
-    }
-
-    @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack)
     {
         return super.canApplyAtEnchantingTable(stack);
@@ -188,18 +119,16 @@ public class FlexEnchantment extends Enchantment implements IEventRunner
     @Override
     public void doPostAttack(LivingEntity user, Entity target, int level)
     {
-        runEvent("post_attack", FlexEventContext.of(this, level).with(FlexEventContext.ATTACKER, user).with(FlexEventContext.TARGET, target), () -> {
-            super.doPostAttack(user, target, level);
-            return FlexEventResult.success();
-        });
+        runEvent(FlexEventType.POST_ATTACK, FlexEventContext.of(this, level)
+                .with(FlexEventContext.ATTACKER, user)
+                .with(FlexEventContext.TARGET, target), () -> super.doPostAttack(user, target, level));
     }
 
     @Override
     public void doPostHurt(LivingEntity user, Entity attacker, int level)
     {
-        runEvent("post_hurt", FlexEventContext.of(this, level).with(FlexEventContext.ATTACKER, attacker).with(FlexEventContext.TARGET, user), () -> {
-            super.doPostHurt(user, attacker, level);
-            return FlexEventResult.success();
-        });
+        runEvent(FlexEventType.POST_HURT, FlexEventContext.of(this, level)
+                .with(FlexEventContext.ATTACKER, attacker)
+                .with(FlexEventContext.TARGET, user), () -> super.doPostHurt(user, attacker, level));
     }
 }

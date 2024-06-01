@@ -1,7 +1,5 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
@@ -9,21 +7,23 @@ import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.EnchantmentBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.item.HangingEntityItem;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -52,25 +52,19 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
     {
         final EnchantmentBuilder builder = EnchantmentBuilder.begin(this, key);
 
-        MutableInt minLevel = new MutableInt(1);
-
         JParse.begin(data)
-                .ifKey("rarity", val -> val.string().map(this::parseEnchantmentRarity).handle(builder::setRarity))
-                .ifKey("type", val -> val.string().map(this::parseEnchantmentType).handle(builder::setEnchantmentType))
-                .ifKey("min_level", val -> val.intValue().min(1).handle(num -> {
-                    minLevel.setValue(num);
-                    builder.setMinLevel(num);
-                }))
-                .ifKey("max_level", val -> val.intValue().min(minLevel.getValue()).handle(builder::setMaxLevel))
-                .ifKey("base_cost", val -> val.intValue().min(0).handle(builder::setBaseCost))
-                .ifKey("per_level_cost", val -> val.intValue().min(0).handle(builder::setPerLevelCost))
-                .ifKey("random_cost", val -> val.intValue().min(0).handle(builder::setRandomCost))
+                .key("supported_items", val -> val.string().handle(builder::setItemCompatibilityTag))
+                .key("weight", val -> val.intValue().min(1).handle(builder::setWeight))
+                .key("slots", val -> val.array().map(this::parseSlot).flatten(EquipmentSlot[]::new).handle(builder::setSlots))
+                .ifKey("max_level", val -> val.intValue().min(1).handle(builder::setMaxLevel))
+                .ifKey("min_cost", val -> val.map(this::parseCost).handle(builder::setMinCost))
+                .ifKey("max_cost", val -> val.map(this::parseCost).handle(builder::setMaxCost))
+                .ifKey("anvil_cost", val -> val.intValue().min(0).handle(builder::setAnvilCost))
                 .ifKey("treasure", val -> val.bool().handle(builder::setIsTreasure))
                 .ifKey("curse", val -> val.bool().handle(builder::setIsCurse))
                 .ifKey("tradeable", val -> val.bool().handle(builder::setIsTradeable))
                 .ifKey("discoverable", val -> val.bool().handle(builder::setIsDiscoverable))
                 .ifKey("allow_on_books", val -> val.bool().handle(builder::setIsAllowedOnBooks))
-                .ifKey("item_compatibility", val -> val.map(this::parseItemPredicate).handle(builder::setItemCompatibility))
                 .ifKey("disallow_enchants", val -> val.array().mapWhole(this::parseBlacklist).handle(builder::setBlacklist))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 
@@ -79,64 +73,30 @@ public class EnchantmentParser extends ThingParser<EnchantmentBuilder>
         return builder;
     }
 
-    private Optional<ItemPredicate> parseItemPredicate(JsonElement jsonElement)
+    private EquipmentSlot parseSlot(Any any)
     {
-        var r = ItemPredicate.CODEC.decode(JsonOps.INSTANCE, jsonElement);
-        return r.result().map(Pair::getFirst);
+        return any.string().map(EquipmentSlot::byName).value();
+    }
+
+    private Enchantment.Cost parseCost(Any val)
+    {
+        final var cost = new MutableObject<Enchantment.Cost>();
+        val
+                .ifInteger(ival -> ival.min(0).map(Enchantment::constantCost).handle(cost::setValue))
+                .ifObj(obj -> {
+                    var base = new MutableInt();
+                    var perLevel = new MutableInt(0);
+                    obj
+                            .key("base", val1 -> val1.intValue().min(0).handle(base::setValue))
+                            .ifKey("per_level_above_first", val1 -> val1.intValue().min(0).handle(perLevel::setValue));
+                    cost.setValue(Enchantment.dynamicCost(base.intValue(), perLevel.intValue()));
+                })
+                .typeError();
+        return cost.getValue();
     }
 
     private List<ResourceLocation> parseBlacklist(ArrayValue blacklist)
     {
         return blacklist.flatMap(entries -> entries.map(e -> new ResourceLocation(e.string().getAsString())).toList());
-    }
-
-    private EnchantmentCategory parseEnchantmentType(String str)
-    {
-        EnchantmentCategory type = types.get(str);
-        if (type == null) throw new ThingParseException("No enchantment type known with name " + str);
-        return type;
-    }
-
-    private Enchantment.Rarity parseEnchantmentRarity(String str)
-    {
-        Enchantment.Rarity rarity = rarities.get(str);
-        if (rarity == null) throw new ThingParseException("No enchantment rarity known with name " + str);
-        return rarity;
-    }
-
-    private static final Map<String, Enchantment.Rarity> rarities = ImmutableMap.<String, Enchantment.Rarity>builder()
-            .put("common", Enchantment.Rarity.COMMON)
-            .put("uncommon", Enchantment.Rarity.UNCOMMON)
-            .put("rare", Enchantment.Rarity.RARE)
-            .put("very_rare", Enchantment.Rarity.VERY_RARE)
-            .build();
-    private static final Map<String, EnchantmentCategory> types = buildTypesMap();
-
-    private static Map<String, EnchantmentCategory> buildTypesMap()
-    {
-        Map<String, EnchantmentCategory> entries = Maps.newHashMap();
-        entries.put("armor", EnchantmentCategory.ARMOR);
-        entries.put("armor_feet", EnchantmentCategory.ARMOR_FEET);
-        entries.put("armor_legs", EnchantmentCategory.ARMOR_LEGS);
-        entries.put("armor_chest", EnchantmentCategory.ARMOR_CHEST);
-        entries.put("armor_head", EnchantmentCategory.ARMOR_HEAD);
-        entries.put("weapon", EnchantmentCategory.WEAPON);
-        entries.put("digger", EnchantmentCategory.DIGGER);
-        entries.put("fishing_rod", EnchantmentCategory.FISHING_ROD);
-        entries.put("trident", EnchantmentCategory.TRIDENT);
-        entries.put("breakable", EnchantmentCategory.BREAKABLE);
-        entries.put("bow", EnchantmentCategory.BOW);
-        entries.put("wearable", EnchantmentCategory.WEARABLE);
-        entries.put("crossbow", EnchantmentCategory.CROSSBOW);
-        entries.put("vanishable", EnchantmentCategory.VANISHABLE);
-        for (EnchantmentCategory type : EnchantmentCategory.values())
-        {
-            if (!entries.containsValue(type))
-            {
-                String name = type.toString().toLowerCase(Locale.ROOT);
-                entries.put(name, type);
-            }
-        }
-        return entries;
     }
 }

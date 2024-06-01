@@ -18,7 +18,6 @@ public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
     private final List<Pair<MobEffectInstanceBuilder, Float>> effects = new ArrayList<>();
     private int nutrition;
     private float saturation;
-    private boolean isMeat;
     private boolean alwaysEat;
     private boolean fast;
 
@@ -43,11 +42,6 @@ public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
         this.saturation = num;
     }
 
-    public void setIsMeat(boolean isMeat)
-    {
-        this.isMeat = isMeat;
-    }
-
     public void setAlwaysEat(boolean alwaysEat)
     {
         this.alwaysEat = alwaysEat;
@@ -68,10 +62,9 @@ public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
     {
         var foodBuilder = new FoodProperties.Builder();
         foodBuilder.nutrition(nutrition);
-        foodBuilder.saturationMod(saturation);
-        if (isMeat) foodBuilder.meat();
+        foodBuilder.saturationModifier(saturation);
         if (fast) foodBuilder.fast();
-        if (alwaysEat) foodBuilder.alwaysEat();
+        if (alwaysEat) foodBuilder.alwaysEdible();
         effects.forEach(pair -> {
             foodBuilder.effect(pair.getFirst()::get, pair.getSecond());
         });

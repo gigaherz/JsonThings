@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
-import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -117,38 +116,17 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         };
     }, "solid", false, false, false, SlabBlock.TYPE, SlabBlock.WATERLOGGED);
 
-    public static final FlexBlockType<FlexStairsBlock> STAIRS = register("stairs", data -> {
-
-        MutableObject<ResourceLocation> parent = new MutableObject<>();
-
-        JParse.begin(data)
-                .ifKey("stairs_parent", val -> val.string().map(ResourceLocation::new).handle(parent::setValue));
-
-        return (props, builder) -> {
-
-            var parentName = parent.getValue();
-
-            if (parentName == null)
+    public static final FlexBlockType<FlexStairsBlock> STAIRS = register("stairs", data -> (props, builder) -> {
+        List<Property<?>> _properties = builder.getProperties();
+        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+        return new FlexStairsBlock(props, propertyDefaultValues)
+        {
+            @Override
+            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
             {
-                var parentBuilder = builder.getParent();
-                if (parentBuilder == null)
-                    throw new IllegalStateException("Stairs blocks need a parent block, but none has been declared.");
-                parentName = parentBuilder.getRegistryName();
+                super.createBlockStateDefinition(builder1);
+                _properties.forEach(builder1::add);
             }
-
-            var parentBlock = DeferredHolder.create(Registries.BLOCK, parentName);
-
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            return new FlexStairsBlock(props, propertyDefaultValues, () -> parentBlock.get().defaultBlockState())
-            {
-                @Override
-                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-                {
-                    super.createBlockStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
         };
     }, "solid", false, false, false, StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED);
 
@@ -266,13 +244,10 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var fluidName = fluid.getValue() != null ? fluid.getValue() : builder.getRegistryName();
-            var fluidSupplier = Lazy.<FlowingFluid>of(() -> {
-                var fluidObj = Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName);
-                if (!(fluidObj instanceof FlowingFluid flowing))
-                    throw new RuntimeException("LiquidBlock requires a flowing fluid");
-                return flowing;
-            });
-            return new FlexLiquidBlock(props.liquid(), propertyDefaultValues, fluidSupplier)
+            var fluidObj = Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName);
+            if (!(fluidObj instanceof FlowingFluid flowingFluid))
+                throw new RuntimeException("LiquidBlock requires a flowing fluid");
+            return new FlexLiquidBlock(props.liquid(), propertyDefaultValues, flowingFluid)
             {
                 @Override
                 protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)

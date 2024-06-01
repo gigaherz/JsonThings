@@ -1,18 +1,19 @@
 package dev.gigaherz.jsonthings.things.builders;
 
-import dev.gigaherz.jsonthings.things.misc.FlexArmorMaterial;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ArmorMaterialBuilder extends BaseBuilder<FlexArmorMaterial, ArmorMaterialBuilder>
+public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMaterialBuilder>
 {
     public static ArmorMaterialBuilder begin(ThingParser<ArmorMaterialBuilder> ownerParser, ResourceLocation registryName)
     {
@@ -74,9 +75,10 @@ public class ArmorMaterialBuilder extends BaseBuilder<FlexArmorMaterial, ArmorMa
     }
 
     @Override
-    protected FlexArmorMaterial buildInternal()
+    protected ArmorMaterial buildInternal()
     {
         var se = DeferredHolder.create(Registries.SOUND_EVENT, equipSound);
-        return new FlexArmorMaterial(getRegistryName().toString(), durability, defense, toughness, knockbackResistance, enchantmentValue, se, repairIngredient);
+        var defaultLayer = new ArmorMaterial.Layer(getRegistryName()); // FIXME: custom layers
+        return new ArmorMaterial(defense, enchantmentValue, se, repairIngredient, List.of(defaultLayer), toughness, knockbackResistance);
     }
 }

@@ -4,6 +4,6 @@
     {"item": "testpack:item2"}
   ],
   "result": {
-    "item": "minecraft:diamond"
+    "id": "minecraft:diamond"
   }
 }

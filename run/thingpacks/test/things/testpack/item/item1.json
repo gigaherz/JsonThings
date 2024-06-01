@@ -38,7 +38,7 @@
   },
 
   "attribute_modifiers": [
-    { "slot":"head", "attribute": "generic.armor", "name": "test", "amount": 2, "operation": "addition" }
+    { "slot":"head", "attribute": "generic.armor", "name": "test", "amount": 2, "operation": "add_value" }
   ],
 
   "events": {

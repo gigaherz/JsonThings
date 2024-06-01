@@ -2,7 +2,7 @@ package dev.gigaherz.jsonthings.things.scripting.rhino;
 
 import com.google.common.collect.Sets;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
-import dev.gigaherz.jsonthings.things.events.FlexEventResult;
+import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import dev.gigaherz.jsonthings.things.scripting.ThingScript;
 import dev.gigaherz.jsonthings.things.scripting.rhino.dsl.*;
 import dev.gigaherz.rhinolib.*;
@@ -61,24 +61,17 @@ public class RhinoThingScript extends ThingScript
     }
 
     @Override
-    public FlexEventResult apply(String eventName, FlexEventContext context)
+    public Object apply(FlexEventType event, FlexEventContext context)
     {
         Context cx = Context.enter();
         var wrappedContext = new FlexEventScriptable(scope, context, cx);
-        Object result = function.call(cx, scope, scope, new Object[]{eventName, wrappedContext});
-        return (FlexEventResult) ((NativeJavaObject) result).unwrap();
+        Object result = function.call(cx, scope, scope, new Object[]{event, wrappedContext});
+        return ((NativeJavaObject) result).unwrap();
     }
 
     private static Scriptable initDSL(Context cx, Scriptable _scope, Logger logger)
     {
         final var scope = _scope;
-        final var flex = new NativeJavaClass(cx, _scope, FlexEventResult.class);
-        scope.put(cx, "FlexEventResult", scope, flex);
-        for (var flexMethod : flex.getIds(cx))
-        {
-            String name = (String) flexMethod;
-            scope.put(cx, name, scope, flex.get(cx, name, flex));
-        }
         scope.put(cx, "Log", scope, new NativeJavaObject(scope, logger, Logger.class, cx));
         scope.put(cx, "Java", scope, new NativeJavaObject(scope, new JavaTypeAdapter(scope), JavaTypeAdapter.class, cx));
         scope.put(cx, "useClass", scope, new BaseFunction()

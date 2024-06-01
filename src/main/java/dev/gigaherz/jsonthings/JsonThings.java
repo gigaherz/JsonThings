@@ -21,12 +21,13 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
-import net.neoforged.neoforge.client.ConfigScreenHandler;
 import net.neoforged.neoforge.client.NamedRenderTypeManager;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
@@ -36,7 +37,7 @@ import org.slf4j.Logger;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-@Mod.EventBusSubscriber(modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
 @Mod(JsonThings.MODID)
 public class JsonThings
 {
@@ -78,7 +79,7 @@ public class JsonThings
         shapeParser = manager.registerParser(new ShapeParser());
         tierParser = manager.registerParser(new TierParser());
         fluidTypeParser = manager.registerParser(new FluidTypeParser(bus));
-        armorMaterialParser = manager.registerParser(new ArmorMaterialParser());
+        armorMaterialParser = manager.registerParser(new ArmorMaterialParser(bus));
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser(bus));
         mobEffectInstanceParser = manager.registerParser(new MobEffectInstanceParser());
         blockSetTypeParser = manager.registerParser(new BlockSetTypeParser());
@@ -94,7 +95,7 @@ public class JsonThings
         event.enqueueWork(() -> {
             ThingResourceManager instance = ThingResourceManager.instance();
 
-            ResourcePackLoader.loadResourcePacks(instance.getRepository(), map -> ResourcePackLoader.buildPackFinder(map, CustomPackType.THINGS));
+            ResourcePackLoader.populatePackRepository(instance.getRepository(), CustomPackType.THINGS);
 
             loaderFuture = instance.beginLoading();
         });
@@ -116,7 +117,7 @@ public class JsonThings
         loaderFuture = null;
     }
 
-    @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
     public static class ClientHandlers
     {
         private static void addClientPackFinder()
@@ -135,7 +136,7 @@ public class JsonThings
                 ItemColorHandler.init();
             });
 
-            ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory((mc, returnTo) -> {
+            ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class, () -> (mc, returnTo) -> {
                 var thingPackManager = ThingResourceManager.instance();
                 return new PackSelectionScreen(thingPackManager.getRepository(),
                         rpl -> {
@@ -143,7 +144,7 @@ public class JsonThings
                                 thingPackManager.onConfigScreenSave();
                         }, thingPackManager.getThingPacksLocation(),
                         Component.literal("Thing Packs"));
-            }));
+            });
         }
 
         @SubscribeEvent

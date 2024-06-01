@@ -6,24 +6,29 @@ import java.util.function.Supplier;
 
 public interface IEventRunner
 {
-    void addEventHandler(String eventName, FlexEventHandler eventHandler);
+    <T> void addEventHandler(FlexEventType<T> event, FlexEventHandler<T> eventHandler);
 
     @Nullable
-    FlexEventHandler getEventHandler(String eventName);
+    <T> FlexEventHandler<T> getEventHandler(FlexEventType<T> event);
 
-    default FlexEventResult runEvent(String eventName, FlexEventContext context, Supplier<FlexEventResult> defaultValue)
+    default void runEvent(FlexEventType<Void> event, FlexEventContext context, Runnable defaultValue)
     {
-        FlexEventHandler handler = getEventHandler(eventName);
+        runEvent(event, context, () -> { defaultValue.run(); return null; });
+    }
+
+    default <T> T runEvent(FlexEventType<T> event, FlexEventContext context, Supplier<T> defaultValue)
+    {
+        FlexEventHandler<T> handler = getEventHandler(event);
         if (handler != null)
-            return handler.apply(eventName, context);
+            return (T)handler.apply(event, context);
         return defaultValue.get();
     }
 
-    default FlexEventResult runEventThrowing(String eventName, FlexEventContext context, Callable<FlexEventResult> defaultValue) throws Exception
+    default <T> T runEventThrowing(FlexEventType<T> event, FlexEventContext context, Callable<T> defaultValue) throws Exception
     {
-        FlexEventHandler handler = getEventHandler(eventName);
+        FlexEventHandler<T> handler = getEventHandler(event);
         if (handler != null)
-            return handler.apply(eventName, context);
+            return (T)handler.apply(event, context);
         return defaultValue.call();
     }
 }

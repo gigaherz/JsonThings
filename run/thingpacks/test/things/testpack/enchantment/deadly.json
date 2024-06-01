@@ -1,4 +1,6 @@
 {
+  "supported_items": "minecraft:enchantable/sharp_weapon",
+  "weight": 5,
   "max_level": 3,
   "disallow_enchants": [
     "minecraft:smite", "minecraft:bane_of_arthropods"

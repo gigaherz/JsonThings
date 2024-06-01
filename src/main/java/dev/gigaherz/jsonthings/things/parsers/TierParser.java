@@ -1,16 +1,17 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
+import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.TierBuilder;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.TierSortingRegistry;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -28,7 +29,7 @@ public class TierParser extends ThingParser<TierBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        processAndConsumeErrors(getThingType(), getBuilders(), thing -> TierSortingRegistry.registerTier(thing.get(), thing.getRegistryName(), thing.getSortAfter(), thing.getSortBefore()), BaseBuilder::getRegistryName);
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.TIERS, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override
@@ -42,9 +43,7 @@ public class TierParser extends ThingParser<TierBuilder>
                 .key("attack_damage_bonus", val -> val.floatValue().min(1).handle(builder::setAttackDamageBonus))
                 .key("enchantment_value", val -> val.intValue().min(1).handle(builder::setEnchantmentValue))
                 .key("tag", val -> val.string().map(Utils::blockTag).handle(builder::setTag))
-                .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient))
-                .key("sort_after", val -> val.array().mapWhole(TierParser::parseDependencyList).handle(builder::setAfterDependencies))
-                .key("sort_before", val -> val.array().mapWhole(TierParser::parseDependencyList).handle(builder::setBeforeDependencies));
+                .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient));
 
         builderModification.accept(builder);
 

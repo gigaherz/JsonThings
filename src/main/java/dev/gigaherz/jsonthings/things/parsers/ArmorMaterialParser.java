@@ -1,14 +1,17 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
-import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.builders.ArmorMaterialBuilder;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,15 +19,20 @@ import java.util.function.Consumer;
 
 public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
 {
-    public ArmorMaterialParser()
+    public ArmorMaterialParser(IEventBus bus)
     {
         super(GSON, "armor_material");
+
+        bus.addListener(this::register);
     }
 
-    @Override
-    protected void finishLoadingInternal()
+    public void register(RegisterEvent event)
     {
-        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.ARMOR_MATERIALS, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
+        event.register(Registries.ARMOR_MATERIAL, helper -> {
+            LOGGER.info("Started registering ArmorMaterial things, errors about unexpected registry domains are harmless...");
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
+            LOGGER.info("Done processing thingpack ArmorMaterials.");
+        });
     }
 
     @Override

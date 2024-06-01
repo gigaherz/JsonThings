@@ -28,7 +28,7 @@ public class EffectsDSL
 
     private static Object makeEffectInstance(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
-        var effect = DSLHelpers.getRegistryEntry(args[0], BuiltInRegistries.MOB_EFFECT);
+        var effect = DSLHelpers.getRegistryHolder(args[0], BuiltInRegistries.MOB_EFFECT);
         var duration = DSLHelpers.getInt(args[1]);
         var amplifier = 0;
         var ambient = false;

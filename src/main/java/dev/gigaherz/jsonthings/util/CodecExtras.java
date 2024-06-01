@@ -112,7 +112,7 @@ public class CodecExtras
                     if (success.isPresent())
                         return DataResult.success(success.get());
                     final StringBuilder b = builder == null ? (builder = new StringBuilder()) : builder;
-                    Optional<DataResult.PartialResult<T1>> error = result.error();
+                    var error = result.error();
                     error.ifPresent(err -> {
                         b.append("\n");
                         b.append(err.message());

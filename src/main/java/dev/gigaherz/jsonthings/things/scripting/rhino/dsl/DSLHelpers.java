@@ -2,7 +2,10 @@ package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
 import com.mojang.logging.LogUtils;
 import dev.gigaherz.rhinolib.*;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,10 +42,28 @@ public class DSLHelpers
         return reg.get(rl);
     }
 
+    public static <T> Holder<T> findHolder(Registry<T> reg, String n)
+    {
+        var rl = new ResourceLocation(n);
+
+        if (!reg.containsKey(rl))
+            throw new RuntimeException("Cannot find effect with name " + rl);
+
+        //noinspection ConstantConditions
+        return reg.getHolder(rl).orElseThrow();
+    }
+
     public static <T> T getRegistryEntry(Object arg, Registry<T> reg)
     {
         return arg instanceof String str
                 ? DSLHelpers.find(reg, str)
+                : DSLHelpers.get(arg);
+    }
+
+    public static <T> Holder<T> getRegistryHolder(Object arg, Registry<T> reg)
+    {
+        return arg instanceof String str
+                ? DSLHelpers.findHolder(reg, str)
                 : DSLHelpers.get(arg);
     }
 
@@ -104,7 +125,10 @@ public class DSLHelpers
             return Component.literal(cs.toString());
 
         if (arg instanceof NativeObject obj)
-            return Component.Serializer.fromJson(NativeJSON.stringify(obj, null, 0, cx));
+        {
+            HolderLookup.Provider provider = RegistryAccess.EMPTY;
+            return Component.Serializer.fromJson(NativeJSON.stringify(obj, null, 0, cx), provider);
+        }
 
         return Component.literal("unknown");
     }

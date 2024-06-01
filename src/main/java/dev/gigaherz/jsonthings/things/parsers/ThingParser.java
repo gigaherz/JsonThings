@@ -6,14 +6,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -21,8 +24,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoader;
-import net.neoforged.fml.ModLoadingStage;
-import net.neoforged.fml.ModLoadingWarning;
+import net.neoforged.fml.ModLoadingIssue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -38,6 +40,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     public static final Logger LOGGER = LogUtils.getLogger();
 
     private static final Map<ResourceLocation, ThingCondition> CONDITIONS_REGISTRY = new HashMap<>();
+
     public synchronized static void registerCondition(ResourceLocation id, ThingCondition condition)
     {
         CONDITIONS_REGISTRY.put(id, condition);
@@ -103,13 +106,10 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
     public static void processParseException(String thingType, ResourceLocation key, Throwable e)
     {
-        var message = "Error parsing " + thingType + " with id '" + key + "': " + e.getMessage();
+        var message = String.format("[Json Things] Error parsing %s with id '%s': %s", thingType, key,  e.getMessage());
         LOGGER.error(message);
-        LOGGER.debug("Details for message above", e);
-        var modContainer = ModList.get().getModContainerById(key.getNamespace());
-        if (modContainer.isEmpty())
-            modContainer = ModList.get().getModContainerById("jsonthings");
-        ModLoader.get().addWarning(new ModLoadingWarning(modContainer.orElseThrow().getModInfo(), ModLoadingStage.ERROR, "Json Things: " + message));
+        LOGGER.trace("Details for message above", e);
+        ModLoader.addLoadingIssue(new ModLoadingIssue(ModLoadingIssue.Severity.WARNING, message, List.of()));
     }
 
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -118,12 +118,19 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     private final List<TBuilder> builders = Lists.newArrayList();
     private final String thingType;
     private final Gson gson;
+    private final RegistryAccess registryAccess;
 
     public ThingParser(Gson gson, String thingType)
     {
         super(gson, thingType);
         this.gson = gson;
         this.thingType = thingType;
+        this.registryAccess = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+    }
+
+    public final RegistryAccess registryAccess()
+    {
+        return registryAccess;
     }
 
     @Override
@@ -188,17 +195,13 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
             ctx = ctx.withCount(meta);
         }
 
-        if (item.has("nbt"))
+        if (item.has("components"))
         {
             try
             {
-                JsonElement element = item.get("nbt");
-                CompoundTag nbt;
-                if (element.isJsonObject())
-                    nbt = TagParser.parseTag(gson.toJson(element));
-                else
-                    nbt = TagParser.parseTag(element.getAsString());
-                ctx = ctx.withTag(nbt);
+                JsonElement element = item.getAsJsonObject("components");
+                var componentMap = DataComponentMap.CODEC.decode(JsonOps.INSTANCE, element).result().orElseThrow().getFirst();
+                ctx = ctx.withComponents(componentMap);
             }
             catch (Exception e)
             {

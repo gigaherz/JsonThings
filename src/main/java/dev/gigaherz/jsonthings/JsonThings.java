@@ -95,7 +95,7 @@ public class JsonThings
         event.enqueueWork(() -> {
             ThingResourceManager instance = ThingResourceManager.instance();
 
-            ResourcePackLoader.populatePackRepository(instance.getRepository(), CustomPackType.THINGS);
+            ResourcePackLoader.populatePackRepository(instance.getRepository(), CustomPackType.THINGS, false);
 
             loaderFuture = instance.beginLoading();
         });

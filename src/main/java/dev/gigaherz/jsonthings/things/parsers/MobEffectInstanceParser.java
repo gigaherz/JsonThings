@@ -19,7 +19,7 @@ public class MobEffectInstanceParser extends ThingParser<MobEffectInstanceBuilde
     {
         var builder = new MobEffectInstanceBuilder(this, key);
         JParse.begin(data)
-                .key("effect", val -> val.string().handle(str -> builder.setEffect(new ResourceLocation(str))))
+                .key("effect", val -> val.string().handle(str -> builder.setEffect(ResourceLocation.parse(str))))
                 .key("duration", val -> val.intValue().min(0).handle(builder::setDuration))
                 .ifKey("amplifier", val -> val.intValue().min(0).handle(builder::setAmplifier))
                 .ifKey("ambient", val -> val.bool().handle(builder::setAmbient))

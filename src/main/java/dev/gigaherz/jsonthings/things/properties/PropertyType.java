@@ -27,7 +27,7 @@ public abstract class PropertyType
     public static Property<?> deserialize(String name, JsonObject data)
     {
         String key = GsonHelper.getAsString(data, "type");
-        PropertyType prop = ThingRegistries.PROPERTY_TYPES.get(new ResourceLocation(key));
+        PropertyType prop = ThingRegistries.PROPERTY_TYPES.get(ResourceLocation.parse(key));
         if (prop == null)
             throw new IllegalStateException("Property type not found " + key);
         return prop.read(name, data);

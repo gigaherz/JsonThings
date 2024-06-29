@@ -61,7 +61,7 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
             var res = entry.getValue();
             var path = key.getPath();
             var cleanPath = path.substring(SCRIPTS_FOLDER_LENGTH + 1, path.length() - JS_EXTENSION_LENGTH);
-            var id = new ResourceLocation(key.getNamespace(), cleanPath);
+            var id = ResourceLocation.fromNamespaceAndPath(key.getNamespace(), cleanPath);
             try
             {
                 map.put(id, RhinoThingScript.fromResource(res, id.toString()));

@@ -23,7 +23,8 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.neoforge.common.ToolAction;
+import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -81,7 +82,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     public void setType(String typeName)
     {
         if (this.itemType != null) throw new RuntimeException("Item type already set.");
-        FlexItemType<?> itemType = ThingRegistries.ITEM_TYPES.get(new ResourceLocation(typeName));
+        FlexItemType<?> itemType = ThingRegistries.ITEM_TYPES.get(ResourceLocation.parse(typeName));
         if (itemType == null)
             throw new IllegalStateException("No known block type with name " + typeName);
         this.itemType = itemType;
@@ -105,11 +106,9 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         creativeMenuStacks.add(Pair.of(stackContext, tabs));
     }
 
-    public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, @Nullable UUID uuid, String name, double amount, AttributeModifier.Operation op)
+    public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, ResourceLocation id, double amount, AttributeModifier.Operation op)
     {
-        var mod = uuid != null ?
-                new AttributeModifier(uuid, name, amount, op) :
-                new AttributeModifier(name, amount, op);
+        var mod = new AttributeModifier(id, amount, op);
         attributeModifiers.computeIfAbsent(slot, _slot -> ArrayListMultimap.create()).put(attribute, mod);
     }
 
@@ -157,9 +156,9 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     public void makeContainer(String emptyItem)
     {
         if (emptyItem.contains(":"))
-            setContainerItem(new ResourceLocation(emptyItem));
+            setContainerItem(ResourceLocation.parse(emptyItem));
         else
-            setContainerItem(new ResourceLocation(getRegistryName().getNamespace(), emptyItem));
+            setContainerItem(ResourceLocation.fromNamespaceAndPath(getRegistryName().getNamespace(), emptyItem));
     }
 
     public void setContainerItem(ResourceLocation resourceLocation)
@@ -361,12 +360,12 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     }
 
     @Nullable
-    public Set<ToolAction> getToolActions()
+    public Set<ItemAbility> getToolActions()
     {
         var raw = getToolActionsRaw();
         if (raw == null)
             return null;
-        return Arrays.stream(raw).map(ToolAction::get).collect(Collectors.toSet());
+        return Arrays.stream(raw).map(ItemAbility::get).collect(Collectors.toSet());
     }
 }
 

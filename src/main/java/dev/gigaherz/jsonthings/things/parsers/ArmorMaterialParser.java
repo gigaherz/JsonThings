@@ -45,7 +45,7 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterialBuilder>
                 .key("knockback_resistance", val -> val.floatValue().min(0).handle(builder::setKnockbackResistance))
                 .key("enchantment_value", val -> val.intValue().min(0).handle(builder::setEnchantmentValue))
                 .key("repair_ingredient", val -> val.map(TierParser::parseMiniIngredient).handle(builder::setRepairIngredient))
-                .key("equip_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setEquipSound))
+                .key("equip_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setEquipSound))
                 .key("durability", val -> val.map(this::parseArmorType).handle(builder::setDurability))
                 .key("armor", val -> val.map(this::parseArmorType).handle(builder::setDefense));
 

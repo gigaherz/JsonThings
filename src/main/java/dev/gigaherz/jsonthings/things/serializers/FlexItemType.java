@@ -36,18 +36,16 @@ public class FlexItemType<T extends Item>
         final String name = GsonHelper.getAsString(data, "places", null);
         boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> {
-            ResourceLocation blockName = name != null ? new ResourceLocation(name) : builder.getRegistryName();
+            ResourceLocation blockName = name != null ? ResourceLocation.parse(name) : builder.getRegistryName();
             var block = Utils.getOrCrash(BuiltInRegistries.BLOCK, blockName);
             return new FlexBlockItem(block, useBlockName, props, builder);
         };
     });
 
-    public static final FlexItemType<FlexBowlFoodItem> FOOD_BOWL = register("food_bowl", (data) -> FlexBowlFoodItem::new);
-
     public static final FlexItemType<FlexDrinkableBottleItem> DRINKABLE_BOTTLE = register("drinkable_bottle", (data) -> {
         MutableObject<ResourceLocation> baseItemName = new MutableObject<>();
         JParse.begin(data)
-                .ifKey("base_item", val -> val.string().map(ResourceLocation::new).handle(baseItemName::setValue));
+                .ifKey("base_item", val -> val.string().map(ResourceLocation::parse).handle(baseItemName::setValue));
         return (props, builder) -> {
             Supplier<Item> baseItem = baseItemName.getValue() != null
                     ? DeferredHolder.create(Registries.ITEM, baseItemName.getValue())
@@ -63,14 +61,14 @@ public class FlexItemType<T extends Item>
             ResourceLocation fluidName;
             if (name != null)
             {
-                fluidName = new ResourceLocation(name);
+                fluidName = ResourceLocation.parse(name);
             }
             else
             {
                 var thisName = builder.getRegistryName();
                 var path = thisName.getPath();
                 if (path.endsWith("_bucket")) path = path.substring(0, path.length() - "_bucket".length());
-                fluidName = new ResourceLocation(thisName.getNamespace(), path);
+                fluidName = ResourceLocation.fromNamespaceAndPath(thisName.getNamespace(), path);
             }
             return new FlexBucketItem(Lazy.of(() -> Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName)), props, builder);
         };
@@ -85,7 +83,7 @@ public class FlexItemType<T extends Item>
                 .requireExactlyOne(List.of("equipment_slot", "armor_type"), () -> new JParseException("Amor item must have an 'armor_type' key, or for backward compatibility, a 'slotName' key."))
                 .ifKey("equipment_slot", val -> val.string().map(Utils::armorTypeByEquipmentSlotName).handle(armorType::setValue))
                 .ifKey("armor_type", val -> val.string().map(Utils::armorTypeByName).handle(armorType::setValue))
-                .key("material", val -> val.string().map(ResourceLocation::new).handle(materialName::setValue));
+                .key("material", val -> val.string().map(ResourceLocation::parse).handle(materialName::setValue));
 
         return (props, builder) -> {
             var material = Utils.getHolderOrCrash(BuiltInRegistries.ARMOR_MATERIAL, materialName.getValue());
@@ -166,7 +164,7 @@ public class FlexItemType<T extends Item>
 
     private static Tier getTier(String tierName)
     {
-        return Utils.getOrCrash(ThingRegistries.TIERS, new ResourceLocation(tierName));
+        return Utils.getOrCrash(ThingRegistries.TIERS, ResourceLocation.parse(tierName));
     }
 
     private static String parseTier(JsonObject data)
@@ -224,8 +222,7 @@ public class FlexItemType<T extends Item>
                 .add(
                         Attributes.ATTACK_DAMAGE,
                         new AttributeModifier(
-                                Item.BASE_ATTACK_DAMAGE_UUID,
-                                "Weapon modifier",
+                                Item.BASE_ATTACK_DAMAGE_ID,
                                 damage + tier.getAttackDamageBonus(),
                                 AttributeModifier.Operation.ADD_VALUE
                         ),
@@ -233,7 +230,7 @@ public class FlexItemType<T extends Item>
                 )
                 .add(
                         Attributes.ATTACK_SPEED,
-                        new AttributeModifier(Item.BASE_ATTACK_SPEED_UUID, "Weapon modifier", speed, AttributeModifier.Operation.ADD_VALUE),
+                        new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, speed, AttributeModifier.Operation.ADD_VALUE),
                         EquipmentSlotGroup.MAINHAND
                 )
                 .build();

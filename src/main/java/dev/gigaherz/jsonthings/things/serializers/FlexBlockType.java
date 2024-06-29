@@ -45,7 +45,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexSaplingBlock> SAPLING = register("sapling", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        var featureId = new ResourceLocation(GsonHelper.getAsString(data, "tree_feature"));
+        var featureId = ResourceLocation.parse(GsonHelper.getAsString(data, "tree_feature"));
         var featureKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, featureId);
         // TODO: "mega" tree, and flower of the TreeGrower?
         var treeGrower = new TreeGrower(builder.getRegistryName().toString(), Optional.empty(), Optional.of(featureKey), Optional.empty());
@@ -161,7 +161,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
         JParse.begin(data)
-                .key("wood_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
+                .key("wood_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
@@ -196,7 +196,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
         JParse.begin(data)
-                .key("block_set_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
+                .key("block_set_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
@@ -218,7 +218,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
         JParse.begin(data)
-            .key("block_set_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
+            .key("block_set_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
@@ -239,7 +239,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexLiquidBlock> LIQUID = register("liquid", data -> {
         var extras = JParse.begin(data);
         var fluid = new MutableObject<ResourceLocation>();
-        extras.key("fluid", any -> any.string().map(ResourceLocation::new).handle(fluid::setValue));
+        extras.key("fluid", any -> any.string().map(ResourceLocation::parse).handle(fluid::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();

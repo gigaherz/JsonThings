@@ -33,7 +33,7 @@ public class DSLHelpers
 
     public static <T> T find(Registry<T> reg, String n)
     {
-        var rl = new ResourceLocation(n);
+        var rl = ResourceLocation.parse(n);
 
         if (!reg.containsKey(rl))
             throw new RuntimeException("Cannot find effect with name " + rl);
@@ -44,7 +44,7 @@ public class DSLHelpers
 
     public static <T> Holder<T> findHolder(Registry<T> reg, String n)
     {
-        var rl = new ResourceLocation(n);
+        var rl = ResourceLocation.parse(n);
 
         if (!reg.containsKey(rl))
             throw new RuntimeException("Cannot find effect with name " + rl);

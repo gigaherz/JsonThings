@@ -3,10 +3,10 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.139'
+    id 'net.neoforged.gradle.userdev' version '7.0.146'
 }
 
-version = "0.11.2"
+version = "0.12.0"
 group= "dev.gigaherz.jsonthings"
 
 Provider<String> minecraftVersion(Transformer<String, String> mapper) {
@@ -66,8 +66,8 @@ runs {
 
 subsystems {
     parchment {
-        minecraftVersion="1.20.6"
-        mappingsVersion="2024.05.01"
+        minecraftVersion="1.21"
+        mappingsVersion="2024.06.23"
     }
 }
 
@@ -76,7 +76,7 @@ minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/
 jarJar.enable()
 
 dependencies {
-    implementation 'net.neoforged:neoforge:20.6.111-beta'
+    implementation 'net.neoforged:neoforge:21.0.42-beta'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")

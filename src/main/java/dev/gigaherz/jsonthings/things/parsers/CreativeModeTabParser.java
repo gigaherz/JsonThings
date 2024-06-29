@@ -59,7 +59,7 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
 
         JParse.begin(data)
                 .key("icon", val -> val
-                        .ifString(str -> str.map(ResourceLocation::new).map(StackContext::new).handle(builder::setIcon))
+                        .ifString(str -> str.map(ResourceLocation::parse).map(StackContext::new).handle(builder::setIcon))
                         .ifObj(str -> str.map((JsonObject name) -> parseStackContext(name, true, true)).handle(builder::setIcon))
                         .typeError()
                 )

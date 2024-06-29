@@ -181,7 +181,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     public ResourceLocation getDefaultRenderLayer()
     {
-        return new ResourceLocation(getFluidType().getDefaultLayer());
+        return ResourceLocation.parse(getFluidType().getDefaultLayer());
     }
 
     public void register(BiConsumer<ResourceLocation, Fluid> register)

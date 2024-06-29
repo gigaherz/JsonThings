@@ -58,8 +58,8 @@ public class BlockParser extends ThingParser<BlockBuilder>
         MutableObject<Property<Direction>> facingProperty = new MutableObject<>();
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
-                .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setBlockType))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::parse).handle(builder::setParent))
+                .ifKey("type", val -> val.string().map(ResourceLocation::parse).handle(builder::setBlockType))
                 .ifKey("map_color", val -> val
                         .ifString(str -> str.handle(name -> builder.setMaterialColor(MapColors.get(name))))
                         .ifInteger(num -> num.range(0, 64).handle(index -> builder.setMaterialColor(MapColor.MATERIAL_COLORS[index])))
@@ -75,7 +75,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
                 .ifKey("friction", val -> val.floatValue().range(0, 1).handle(builder::setFriction))
                 .ifKey("speed_factor", val -> val.floatValue().range(0, 1).handle(builder::setSpeedFactor))
                 .ifKey("jump_factor", val -> val.floatValue().range(0, 1).handle(builder::setJumpFactor))
-                .ifKey("sound_type", val -> val.string().map(ResourceLocation::new).handle(builder::setSoundType))
+                .ifKey("sound_type", val -> val.string().map(ResourceLocation::parse).handle(builder::setSoundType))
                 .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
                     propertiesByName.setValue(properties);
                     builder.setProperties(properties);
@@ -146,7 +146,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
         props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
-                    var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
+                    var property = ThingRegistries.PROPERTIES.get(ResourceLocation.parse(prop));
                     if (property == null)
                         throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
                     if (!property.getName().equals(name))

@@ -102,7 +102,6 @@ public class RhinoThingScript extends ThingScript
                     case "entities" -> EntitiesDSL.use(cx1, scope);
                     case "effects" -> EffectsDSL.use(cx1, scope);
                     case "attributes" -> AttributesDSL.use(cx1, scope);
-                    case "enchantments" -> EnchantmentsDSL.use(cx1, scope);
                 }
             }
             return Undefined.instance;

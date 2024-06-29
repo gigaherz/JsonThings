@@ -41,11 +41,11 @@ public class FluidTypeParser extends ThingParser<FluidTypeBuilder>
         final FluidTypeBuilder builder = FluidTypeBuilder.begin(this, key);
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::parse).handle(builder::setParent))
                 .ifKey("translation_key", val -> val.string().handle(builder::setTranslationKey))
-                .ifKey("still_texture", val -> val.string().map(ResourceLocation::new).handle(builder::setStillTexture))
-                .ifKey("flowing_texture", val -> val.string().map(ResourceLocation::new).handle(builder::setFlowingTexture))
-                .ifKey("side_texture", val -> val.string().map(ResourceLocation::new).handle(builder::setSideTexture))
+                .ifKey("still_texture", val -> val.string().map(ResourceLocation::parse).handle(builder::setStillTexture))
+                .ifKey("flowing_texture", val -> val.string().map(ResourceLocation::parse).handle(builder::setFlowingTexture))
+                .ifKey("side_texture", val -> val.string().map(ResourceLocation::parse).handle(builder::setSideTexture))
                 .ifKey("rarity", val -> val.string().map(ThingParser::parseRarity).handle(builder::setRarity))
                 .ifKey("color", val -> val
                         .ifObj(obj -> obj.map((ObjValueFunction<Integer>) ThingParser::parseColor).handle(builder::setColor))
@@ -73,9 +73,9 @@ public class FluidTypeParser extends ThingParser<FluidTypeBuilder>
                 //.ifKey canHydrate(boolean canHydrate)
 
                 .ifKey("sounds", val -> val.obj() // TODO: make dynamic
-                        .ifKey("bucket_fill", val1 -> val1.string().map(ResourceLocation::new).handle(builder::setFillSound))
-                        .ifKey("bucket_empty", val1 -> val1.string().map(ResourceLocation::new).handle(builder::setEmptySound))
-                        .ifKey("fluid_vaporize", val1 -> val1.string().map(ResourceLocation::new).handle(builder::setVaporizeSound))
+                        .ifKey("bucket_fill", val1 -> val1.string().map(ResourceLocation::parse).handle(builder::setFillSound))
+                        .ifKey("bucket_empty", val1 -> val1.string().map(ResourceLocation::parse).handle(builder::setEmptySound))
+                        .ifKey("fluid_vaporize", val1 -> val1.string().map(ResourceLocation::parse).handle(builder::setVaporizeSound))
                 )
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap));
 

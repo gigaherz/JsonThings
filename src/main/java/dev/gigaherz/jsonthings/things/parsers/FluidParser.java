@@ -58,8 +58,8 @@ public class FluidParser extends ThingParser<FluidBuilder>
 
         JParse.begin(data)
                 .ifKey("fluid_type", val -> parseFluidType(builder, val))
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
-                .ifKey("type", val -> val.string().map(ResourceLocation::new).handle(builder::setFluidType))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::parse).handle(builder::setParent))
+                .ifKey("type", val -> val.string().map(ResourceLocation::parse).handle(builder::setFluidType))
                 .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
                     propertiesByName.setValue(properties);
                     builder.setProperties(properties);
@@ -67,7 +67,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
                 .ifKey("default_state", val -> val.obj().raw(obj -> parseFluidState(obj, builder)))
                 .ifKey("bucket", val -> {
                     var thisName = builder.getRegistryName();
-                    var bucketName = new ResourceLocation(thisName.getNamespace(), thisName.getPath() + "_bucket");
+                    var bucketName = ResourceLocation.fromNamespaceAndPath(thisName.getNamespace(), thisName.getPath() + "_bucket");
                     val
                             .ifBool(v -> v.handle(b -> {
                                 if (b) createStockBucketItem(bucketName, builder, new JsonObject());
@@ -88,7 +88,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
     public static void parseFluidType(FluidBuilder builder, Any val)
     {
         val
-                .ifString(v -> v.map(ResourceLocation::new).handle(rl -> {
+                .ifString(v -> v.map(ResourceLocation::parse).handle(rl -> {
                     builder.setAttributesType(DeferredHolder.create(NeoForgeRegistries.Keys.FLUID_TYPES, rl));
                 }))
                 .ifObj(obj -> obj.raw((JsonObject item) -> {
@@ -127,7 +127,7 @@ public class FluidParser extends ThingParser<FluidBuilder>
 
         props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
-                    var property = ThingRegistries.PROPERTIES.get(new ResourceLocation(prop));
+                    var property = ThingRegistries.PROPERTIES.get(ResourceLocation.parse(prop));
                     if (property == null)
                         throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
                     if (!property.getName().equals(name))

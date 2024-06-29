@@ -74,7 +74,7 @@ public class ThingRegistries
 
     private static <T> ResourceKey<Registry<T>> createKey(String name)
     {
-        return ResourceKey.createRegistryKey(new ResourceLocation(name));
+        return ResourceKey.createRegistryKey(ResourceLocation.parse(name));
     }
 
     private static <T> Registry<T> makeRegistry(ResourceKey<Registry<T>> key)

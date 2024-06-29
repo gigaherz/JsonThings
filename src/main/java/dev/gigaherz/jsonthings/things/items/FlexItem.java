@@ -24,7 +24,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.ToolAction;
+import net.neoforged.neoforge.common.ItemAbility;
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class FlexItem extends Item implements IEventRunner
     private final Integer useTime;
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
-    private final Set<ToolAction> toolActions;
+    private final Set<ItemAbility> toolActions;
     private final int burnTime;
 
     private void initializeFlex()
@@ -127,9 +127,9 @@ public class FlexItem extends Item implements IEventRunner
     }
 
     @Override
-    public int getUseDuration(ItemStack stack)
+    public int getUseDuration(ItemStack stack, LivingEntity entity)
     {
-        return Utils.orElseGet(useTime, () -> super.getUseDuration(stack));
+        return Utils.orElseGet(useTime, () -> super.getUseDuration(stack, entity));
     }
 
     @Override
@@ -191,7 +191,7 @@ public class FlexItem extends Item implements IEventRunner
     }
 
     @Override
-    public boolean canPerformAction(ItemStack stack, ToolAction toolAction)
+    public boolean canPerformAction(ItemStack stack, ItemAbility toolAction)
     {
         if (toolActions != null) return toolActions.contains(toolAction);
         return super.canPerformAction(stack, toolAction);

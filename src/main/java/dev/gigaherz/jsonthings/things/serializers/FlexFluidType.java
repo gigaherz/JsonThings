@@ -128,7 +128,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                 {
                     register.accept(builder.getRegistryName(), builder.get().self());
 
-                    var flowingName = new ResourceLocation(builder.getRegistryName().getNamespace(), builder.getRegistryName().getPath() + "_flowing");
+                    var flowingName = ResourceLocation.fromNamespaceAndPath(builder.getRegistryName().getNamespace(), builder.getRegistryName().getPath() + "_flowing");
                     register.accept(flowingName, ((FlowingFluid) builder.get().self()).getFlowing());
                 }
             };

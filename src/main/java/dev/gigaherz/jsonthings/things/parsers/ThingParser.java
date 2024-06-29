@@ -63,7 +63,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean parseAndTestCondition(String thingType, ResourceLocation thingId, JsonObject condition)
     {
-        var type = new ResourceLocation(condition.get("type").getAsString());
+        var type = ResourceLocation.parse(condition.get("type").getAsString());
 
         var conditionHandler = CONDITIONS_REGISTRY.get(type);
 
@@ -74,8 +74,8 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     }
 
     static {
-        registerCondition(new ResourceLocation("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
-        registerCondition(new ResourceLocation("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
+        registerCondition(ResourceLocation.parse("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
+        registerCondition(ResourceLocation.parse("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
     }
 
     public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, ResourceLocation> keyGetter)
@@ -179,7 +179,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         {
             if (!allowItem)
                 throw new JsonParseException("'item' key provided in a context that doesn't allow customizing the item.");
-            itemName = new ResourceLocation(item.get("item").getAsString());
+            itemName = ResourceLocation.parse(item.get("item").getAsString());
         }
         else
         {
@@ -218,8 +218,8 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
         objValue.forEach((str, any) -> {
             any
-                    .ifString(val -> map.put(str, List.of(new ResourceLocation(val.getAsString()))))
-                    .ifArray(arr -> map.put(str, arr.flatMap(f -> f.map(val -> new ResourceLocation(val.string().getAsString())).toList())))
+                    .ifString(val -> map.put(str, List.of(ResourceLocation.parse(val.getAsString()))))
+                    .ifArray(arr -> map.put(str, arr.flatMap(f -> f.map(val -> ResourceLocation.parse(val.string().getAsString())).toList())))
                     .typeError();
         });
 

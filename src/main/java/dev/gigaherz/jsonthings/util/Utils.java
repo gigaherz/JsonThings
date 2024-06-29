@@ -23,12 +23,12 @@ public class Utils
 {
     public static TagKey<Item> itemTag(String pName)
     {
-        return TagKey.create(Registries.ITEM, new ResourceLocation(pName));
+        return TagKey.create(Registries.ITEM, ResourceLocation.parse(pName));
     }
 
     public static TagKey<Block> blockTag(String pName)
     {
-        return TagKey.create(Registries.BLOCK, new ResourceLocation(pName));
+        return TagKey.create(Registries.BLOCK, ResourceLocation.parse(pName));
     }
 
     public static <T extends Comparable<T>> T getPropertyValue(Property<T> prop, String value)

@@ -52,7 +52,6 @@ public class JsonThings
     public static BlockParser blockParser;
     public static ItemParser itemParser;
     public static FluidParser fluidParser;
-    public static EnchantmentParser enchantmentParser;
     public static FoodParser foodParser;
     public static ShapeParser shapeParser;
     public static TierParser tierParser;
@@ -74,7 +73,6 @@ public class JsonThings
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));
         fluidParser = manager.registerParser(new FluidParser(bus));
-        enchantmentParser = manager.registerParser(new EnchantmentParser(bus));
         foodParser = manager.registerParser(new FoodParser());
         shapeParser = manager.registerParser(new ShapeParser());
         tierParser = manager.registerParser(new TierParser());
@@ -150,7 +148,7 @@ public class JsonThings
         @SubscribeEvent
         public static void clientSetup(FMLClientSetupEvent event)
         {
-            final ResourceLocation solid = new ResourceLocation("solid");
+            final ResourceLocation solid = ResourceLocation.withDefaultNamespace("solid");
             JsonThings.blockParser.getBuilders().forEach(thing -> {
                 if (thing.isInErrorState()) return;
                 ResourceLocation layer = thing.getDefaultRenderLayer();

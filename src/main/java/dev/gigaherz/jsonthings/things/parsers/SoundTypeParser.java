@@ -31,10 +31,10 @@ public class SoundTypeParser extends ThingParser<SoundTypeBuilder>
         JParse.begin(data)
                 .ifKey("volume", val -> val.floatValue().range(0,1).handle(builder::setVolume))
                 .ifKey("pitch", val -> val.floatValue().min(0).handle(builder::setPitch))
-                .key("break_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setBreakSound))
-                .key("step_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setStepSound))
-                .key("hit_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setHitSound))
-                .key("fall_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setFallSound))
+                .key("break_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setBreakSound))
+                .key("step_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setStepSound))
+                .key("hit_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setHitSound))
+                .key("fall_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setFallSound))
         ;
 
         builderModification.accept(builder);

@@ -77,7 +77,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
             creativeStacks = new HashMap<>();
             for (var entry : map.entrySet())
             {
-                var tab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(entry.getKey()));
+                var tab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.parse(entry.getKey()));
                 creativeStacks.put(tab, entry.getValue());
             }
         }
@@ -93,7 +93,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         final ItemBuilder builder = ItemBuilder.begin(this, key);
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::new).handle(builder::setParent))
+                .ifKey("parent", val -> val.string().map(ResourceLocation::parse).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(List.of("group", "creative_menu_stacks"), () -> new ThingParseException("Cannot have group and creative_menu_stacks at the same time."))
@@ -106,7 +106,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("max_damage", val -> val.intValue().min(1).handle(builder::setMaxDamage))
                 .ifKey("fire_resistant", val -> val.bool().handle(builder::setFireResistant))
                 .ifKey("food", val -> val
-                        .ifString(str -> str.map(ResourceLocation::new).handle(builder::setFood))
+                        .ifString(str -> str.map(ResourceLocation::parse).handle(builder::setFood))
                         .ifObj(obj -> obj.raw(food -> {
                             try
                             {
@@ -121,7 +121,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                         }))
                         .typeError()
                 )
-                .ifKey("container", val -> val.string().map(ResourceLocation::new).handle(builder::setContainerItem))
+                .ifKey("container", val -> val.string().map(ResourceLocation::parse).handle(builder::setContainerItem))
                 .ifKey("delayed_use", val -> val.obj()
                         .key("duration", val1 -> val1.intValue().handle(builder::setUseTime))
                         .key("animation", val1 -> val1.string().map(str -> UseAnim.valueOf(str.toUpperCase())).handle(builder::setUseAnim))
@@ -176,39 +176,29 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 {
                     throw new ThingParseException("Attribute must be present and a valid resource location.");
                 }
-                attribute = new ResourceLocation(loc);
+                attribute = ResourceLocation.parse(loc);
             }
             else
             {
                 throw new ThingParseException("Attribute must be present and a valid resource location.");
             }
 
-            UUID uuid = null;
-            if (item.has("uuid"))
+            ResourceLocation id;
+            if (item.has("id"))
             {
-                String uuidString = item.get("uuid").getAsString();
+                String uuidString = item.get("id").getAsString();
                 if (!Strings.isNullOrEmpty(uuidString))
                 {
-                    uuid = UUID.fromString(uuidString);
+                    id = ResourceLocation.parse(uuidString);
                 }
                 else
                 {
-                    throw new ThingParseException("If present, uuid must be an UUID-formatted string.");
-                }
-            }
-
-            String name;
-            if (item.has("name"))
-            {
-                name = item.get("name").getAsString();
-                if (Strings.isNullOrEmpty(name))
-                {
-                    throw new ThingParseException("Attribute modifier name must be a non-empty string.");
+                    throw new ThingParseException("Attribute modifier id must be present and a valid resource location.");
                 }
             }
             else
             {
-                throw new ThingParseException("Attribute modifier name must be a non-empty string.");
+                throw new ThingParseException("Attribute modifier id must be present and a valid resource location.");
             }
 
             double amount;
@@ -235,7 +225,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 throw new ThingParseException("Attribute modifier amount must have an operation type.");
             }
 
-            builder.withAttributeModifier(slot, attribute, uuid, name, amount, operation);
+            builder.withAttributeModifier(slot, attribute, id, amount, operation);
         }
     }
 

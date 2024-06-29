@@ -213,7 +213,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
     public ResourceLocation getDefaultRenderLayer()
     {
-        return new ResourceLocation(getBlockType().getDefaultLayer());
+        return ResourceLocation.parse(getBlockType().getDefaultLayer());
     }
 
     public void setColorHandler(String colorHandler)

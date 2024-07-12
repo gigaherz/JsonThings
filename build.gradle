@@ -3,10 +3,10 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.146'
+    id 'net.neoforged.gradle.userdev' version '7.0.153'
 }
 
-version = "0.12.0"
+version = "0.12.1"
 group= "dev.gigaherz.jsonthings"
 
 Provider<String> minecraftVersion(Transformer<String, String> mapper) {
@@ -76,7 +76,7 @@ minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/
 jarJar.enable()
 
 dependencies {
-    implementation 'net.neoforged:neoforge:21.0.42-beta'
+    implementation 'net.neoforged:neoforge:21.0.86-beta'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
@@ -84,8 +84,8 @@ dependencies {
     //runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
 
     //compileOnly 'curse.maven:rhino-416294:4805923'
-    compileOnly 'dev.gigaherz.rhinolib:rhino-lib:1.0-SNAPSHOT'
-    runtimeOnly 'dev.gigaherz.rhinolib:rhino-lib:1.0-SNAPSHOT'
+    compileOnly 'dev.gigaherz.rhinolib:rhino-lib:1.0.1'
+    runtimeOnly 'dev.gigaherz.rhinolib:rhino-lib:1.0.1'
     jarJar(group:'dev.gigaherz.rhinolib', name:'rhino-lib', version:'[1.0-SNAPSHOT,)')  {
 
     }

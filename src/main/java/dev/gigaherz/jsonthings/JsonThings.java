@@ -100,19 +100,19 @@ public class JsonThings
     }
 
     @SubscribeEvent
+    public static void finishLoading(NewRegistryEvent event)
+    {
+        ThingResourceManager.instance().waitForLoading(loaderFuture);
+        loaderFuture = null;
+    }
+
+    @SubscribeEvent
     public static void packFinder(AddPackFindersEvent event)
     {
         if (event.getPackType() == PackType.SERVER_DATA)
         {
             event.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder());
         }
-    }
-
-    @SubscribeEvent
-    public static void finishLoading(NewRegistryEvent event)
-    {
-        ThingResourceManager.instance().waitForLoading(loaderFuture);
-        loaderFuture = null;
     }
 
     @EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)

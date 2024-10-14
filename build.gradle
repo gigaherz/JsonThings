@@ -6,7 +6,7 @@ plugins {
     id 'net.neoforged.gradle.userdev' version '7.0.153'
 }
 
-version = "0.12.1"
+version = "0.12.2"
 group= "dev.gigaherz.jsonthings"
 
 Provider<String> minecraftVersion(Transformer<String, String> mapper) {
@@ -97,6 +97,10 @@ dependencies {
     library 'org.graalvm.js:js-scriptengine:22.0.0.2'*/
 }
 
+java {
+    withSourcesJar()
+}
+
 tasks.named("jar") {
     archiveClassifier = "slim"
 
@@ -164,5 +168,13 @@ project.afterEvaluate {
                 }
             }
         }
+    }
+}
+
+// IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
     }
 }

@@ -14,6 +14,18 @@ Default render layer: solid.
 
 No default blockstate properties.
 
+## "falling"
+
+A plain block that falls when not supported by a block underneath.
+
+Default render layer: solid.
+
+No default blockstate properties.
+
+Parameters:
+* `"dust_color"`: The color of the dust particle that appears when the block is unsupported but not yet falling. Can be an integer or an object. If it's an object it must have `"r"`, `"g"`, `"b"` and optionally `"a"`.
+    * Optional. Default: white (r=g=b=255).
+
 ## "directional"
 
 A block that can be placed in multiple cardinal directions, including up and down.
@@ -103,3 +115,27 @@ A block that has the properties of a wooden trapdoor, including waterlogging.
 Default render layer: cutout. Also defaults to not solid.
 
 Default blockstate properties: open, half, powered, waterlogged
+
+## "sapling"
+
+A sapling for a tree. Only supports single sapling growth, no 2x2 "mega tree".
+
+Default render layer: cutout.
+
+No default blockstate properties.
+
+Parameters:
+* `"tree_feature"`: The registry name of the feature this sapling will spawn once it grows.
+    * Required.
+
+## "liquid"
+
+A block representing a fluid contained in the block grid.
+
+Default render layer: translucent.
+
+Default blockstate properties: level.
+
+Parameters:
+* `"fluid"`: The registry name of the contained fluid.
+    * Required.

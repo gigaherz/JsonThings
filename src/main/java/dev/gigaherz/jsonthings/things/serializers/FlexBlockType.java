@@ -12,6 +12,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ColorRGBA;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -41,6 +43,39 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             }
         };
     }, "solid", false, false, false);
+
+    public static final FlexBlockType<FlexFallingBlock> FALLING = register("falling", data -> {
+
+        MutableObject<ColorRGBA> dustColor = new MutableObject<>(new ColorRGBA(-1));
+
+        JParse.begin(data)
+                .ifKey("dust_color", val -> val
+                        .ifInteger(num -> num.handle(color -> dustColor.setValue(new ColorRGBA(color))))
+                        .ifObj(num -> num.map((JsonObject obj) -> {
+                            var r = GsonHelper.getAsInt(obj, "r");
+                            var g = GsonHelper.getAsInt(obj, "g");
+                            var b = GsonHelper.getAsInt(obj, "b");
+                            var a = GsonHelper.getAsInt(obj, "a", 255);
+                            return new ColorRGBA(FastColor.ARGB32.color(a,r,g,b));
+                        }).handle(dustColor::setValue))
+                        .typeError()
+                );
+
+        return (props, builder) -> {
+            List<Property<?>> _properties = builder.getProperties();
+            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+
+            return new FlexFallingBlock(dustColor.getValue(), props, propertyDefaultValues)
+            {
+                @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+                {
+                    super.createBlockStateDefinition(builder1);
+                    _properties.forEach(builder1::add);
+                }
+            };
+        };
+    }, "cutout", false, false, false);
 
     public static final FlexBlockType<FlexSaplingBlock> SAPLING = register("sapling", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -257,7 +292,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 }
             };
         };
-    }, "translucent", true, false, false);
+    }, "translucent", true, false, false, LiquidBlock.LEVEL);
 
     public static void init()
     {

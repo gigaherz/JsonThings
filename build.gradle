@@ -6,7 +6,7 @@ plugins {
     id 'net.neoforged.gradle.userdev' version '7.0.153'
 }
 
-version = "0.12.3"
+version = "0.13.0"
 group= "dev.gigaherz.jsonthings"
 
 Provider<String> minecraftVersion(Transformer<String, String> mapper) {

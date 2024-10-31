@@ -213,7 +213,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
     public ResourceLocation getDefaultRenderLayer()
     {
-        return ResourceLocation.parse(getBlockType().getDefaultLayer());
+        return ResourceLocation.parse(getBlockType().getDefaults().getDefaultLayer());
     }
 
     public void setColorHandler(String colorHandler)
@@ -422,11 +422,11 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
         var blockType = getBlockType();
         if (blockMaterialColor != null) props.mapColor(blockMaterialColor);
-        if (Utils.orElse(isSeeThrough(), blockType.isDefaultSeeThrough())) props.noOcclusion();
+        if (Utils.orElse(isSeeThrough(), blockType.getDefaults().isDefaultSeeThrough())) props.noOcclusion();
         if (Utils.orElse(requiresToolForDrops(), false)) props.requiresCorrectToolForDrops();
         if (Utils.orElse(getIsAir(), false)) props.air();
         if (!Utils.orElse(getHasCollision(), true)) props.noCollission();
-        if (Utils.orElse(getTicksRandom(), false)) props.randomTicks();
+        if (Utils.orElse(getTicksRandom(), blockType.getDefaults().isDefaultTicksRandomly())) props.randomTicks();
         if (Utils.orElse(getLightEmission(), 0) > 0) props.lightLevel(state -> getLightEmission());
         if (Utils.orElse(getExplosionResistance(), 0.0f) > 0.0f) props.explosionResistance(getExplosionResistance());
         if (Utils.orElse(getDestroyTime(), 0.0f) > 0.0f) props.destroyTime(getDestroyTime());
@@ -434,14 +434,14 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         if (Utils.orElse(getSpeedFactor(), 1.0f) != 1) props.speedFactor(getSpeedFactor());
         if (Utils.orElse(getJumpFactor(), 1.0f) != 1) props.jumpFactor(getSpeedFactor());
         if (Utils.orElse(getPushReaction(), PushReaction.NORMAL) != PushReaction.NORMAL) props.pushReaction(getPushReaction());
-        if (Utils.orElse(getIgnitedByLava(), blockType.isDefaultIgnitedByLava())) props.ignitedByLava();
-        if (Utils.orElse(getReplaceable(), blockType.isDefaultReplaceable())) props.replaceable();
+        if (Utils.orElse(getIgnitedByLava(), blockType.getDefaults().isDefaultIgnitedByLava())) props.ignitedByLava();
+        if (Utils.orElse(getReplaceable(), blockType.getDefaults().isDefaultReplaceable())) props.replaceable();
         if (Utils.orElse(getForceSolid(), false)) props.forceSolidOn();
         if (!Utils.orElse(getBlocksMotion(), true)) props.forceSolidOff();
 
         if (getSoundType() != null) props.sound(Utils.getOrCrash(ThingRegistries.SOUND_TYPES, getSoundType()));
 
-        final List<Property<?>> stockProperties = blockType.getStockProperties();
+        final List<Property<?>> stockProperties = blockType.getDefaults().getStockProperties();
 
         List<Property<?>> properties = getProperties();
         List<Property<?>> badProperties = properties.stream().filter(prop -> {

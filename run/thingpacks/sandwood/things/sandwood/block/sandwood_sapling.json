@@ -6,9 +6,6 @@
   "has_collision": false,
   "sound_type": "grass",
   "item": {
-    "group": "sandwood:sandwood",
-    "lore": [
-      {"text": "WARNING: Not implemented. It will NOT grow into a tree!", "italic": true, "color": "gray" }
-    ]
+    "group": "sandwood:sandwood"
   }
 }

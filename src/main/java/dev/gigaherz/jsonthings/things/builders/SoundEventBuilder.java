@@ -6,14 +6,14 @@ import net.minecraft.sounds.SoundEvent;
 
 public class SoundEventBuilder extends BaseBuilder<SoundEvent, SoundEventBuilder>
 {
-    public static SoundEventBuilder begin(ThingParser<SoundEventBuilder> ownerParser, ResourceLocation registryName)
+    public static SoundEventBuilder begin(ThingParser<SoundEvent, SoundEventBuilder> ownerParser, ResourceLocation registryName)
     {
         return new SoundEventBuilder(ownerParser, registryName);
     }
 
     private Float range;
 
-    private SoundEventBuilder(ThingParser<SoundEventBuilder> ownerParser, ResourceLocation registryName)
+    private SoundEventBuilder(ThingParser<SoundEvent, SoundEventBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }

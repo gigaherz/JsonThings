@@ -7,10 +7,11 @@ import dev.gigaherz.jsonthings.things.builders.SoundTypeBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.SoundType;
 
 import java.util.function.Consumer;
 
-public class SoundTypeParser extends ThingParser<SoundTypeBuilder>
+public class SoundTypeParser extends ThingParser<SoundType, SoundTypeBuilder>
 {
     public SoundTypeParser()
     {
@@ -20,7 +21,7 @@ public class SoundTypeParser extends ThingParser<SoundTypeBuilder>
     @Override
     protected void finishLoadingInternal()
     {
-        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.SOUND_TYPES, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> Registry.register(ThingRegistries.SOUND_TYPE, thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
     }
 
     @Override

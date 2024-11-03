@@ -4,10 +4,11 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
 
 import java.util.function.Consumer;
 
-public class MobEffectInstanceParser extends ThingParser<MobEffectInstanceBuilder>
+public class MobEffectInstanceParser extends ThingParser<MobEffectInstance, MobEffectInstanceBuilder>
 {
     public MobEffectInstanceParser()
     {

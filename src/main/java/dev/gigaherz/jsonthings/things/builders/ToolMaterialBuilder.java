@@ -3,17 +3,15 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.SimpleTier;
 
-import java.util.function.Supplier;
-
-public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
+public class ToolMaterialBuilder extends BaseBuilder<ToolMaterial, ToolMaterialBuilder>
 {
-    public static TierBuilder begin(ThingParser<TierBuilder> ownerParser, ResourceLocation registryName)
+    public static ToolMaterialBuilder begin(ThingParser<ToolMaterial, ToolMaterialBuilder> ownerParser, ResourceLocation registryName)
     {
-        return new TierBuilder(ownerParser, registryName);
+        return new ToolMaterialBuilder(ownerParser, registryName);
     }
 
     private int uses;
@@ -21,9 +19,9 @@ public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
     private float attackDamageBonus;
     private int enchantmentValue;
     private TagKey<Block> tag;
-    private Supplier<Ingredient> repairIngredient;
+    private TagKey<Item> repairIngredient;
 
-    private TierBuilder(ThingParser<TierBuilder> ownerParser, ResourceLocation registryName)
+    private ToolMaterialBuilder(ThingParser<ToolMaterial, ToolMaterialBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -59,15 +57,15 @@ public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
         this.tag = tag;
     }
 
-    public void setRepairIngredient(Supplier<Ingredient> repairIngredient)
+    public void setRepairIngredient(TagKey<Item> repairIngredient)
     {
         this.repairIngredient = repairIngredient;
     }
 
     @Override
-    protected SimpleTier buildInternal()
+    protected ToolMaterial buildInternal()
     {
-        return new SimpleTier(tag, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
+        return new ToolMaterial(tag, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
     }
 
 }

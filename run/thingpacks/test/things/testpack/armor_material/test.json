@@ -2,9 +2,7 @@
 "toughness":1,
 "knockback_resistance": 0,
 "enchantment_value": 1,
-"repair_ingredient": {
-  "item":"iron_ingot"
-},
+"repair_ingredient": "c:ingots/iron",
 "equip_sound": "minecraft:item.armor.equip_chain",
 "durability": 10,
 "armor": 1

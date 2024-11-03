@@ -13,29 +13,30 @@ import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Rarity;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.ModLoadingIssue;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
-public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> extends SimpleJsonResourceReloadListener
+public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, TBuilder>> extends SimpleJsonResourceReloadListener<JsonElement>
 {
     public static final Logger LOGGER = LogUtils.getLogger();
 
@@ -122,7 +123,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
     public ThingParser(Gson gson, String thingType)
     {
-        super(gson, thingType);
+        super(ExtraCodecs.JSON, thingType);
         this.gson = gson;
         this.thingType = thingType;
         this.registryAccess = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
@@ -132,6 +133,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     {
         return registryAccess;
     }
+
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
@@ -330,5 +332,24 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         if (!VALID_BLOCK_LAYERS.contains(layerName))
             throw new ThingParseException("Render layer " + layerName + " is not a valid block chunk layer.");
         return layerName;
+    }
+
+    protected void register(IEventBus modEventBus, ResourceKey<Registry<TThing>> registryKey)
+    {
+        register(modEventBus, registryKey, (thing, obj) -> obj);
+    }
+
+    protected <TReg> void register(IEventBus modEventBus, ResourceKey<Registry<TReg>> registryKey, Function<TThing, TReg> converter)
+    {
+        register(modEventBus, registryKey, (builder, thing) -> converter.apply(thing));
+    }
+
+    protected <TReg> void register(IEventBus modEventBus, ResourceKey<Registry<TReg>> registryKey, BiFunction<TBuilder, TThing, TReg> converter)
+    {
+        modEventBus.addListener(RegisterEvent.class, event -> {
+            event.register(registryKey, helper -> {
+                processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), converter.apply(thing, thing.get())), BaseBuilder::getRegistryName);
+            });
+        });
     }
 }

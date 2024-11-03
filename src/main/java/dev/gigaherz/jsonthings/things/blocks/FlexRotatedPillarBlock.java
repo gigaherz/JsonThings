@@ -9,7 +9,6 @@ import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -125,11 +124,11 @@ public class FlexRotatedPillarBlock extends RotatedPillarBlock implements IFlexB
 
     @Deprecated
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter worldIn, BlockPos pos)
+    public VoxelShape getOcclusionShape(BlockState state)
     {
         if (this.renderShape != null)
             return renderShape.getShape(state);
-        return super.getOcclusionShape(state, worldIn, pos);
+        return super.getOcclusionShape(state);
     }
 
     @Override
@@ -141,7 +140,7 @@ public class FlexRotatedPillarBlock extends RotatedPillarBlock implements IFlexB
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
     {
         return runEvent(FlexEventType.USE_BLOCK_WITH_ITEM, FlexEventContext.of(level, pos, state)
                 .with(FlexEventContext.USER, player)

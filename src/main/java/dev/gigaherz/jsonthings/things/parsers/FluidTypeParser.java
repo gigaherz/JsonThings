@@ -1,12 +1,12 @@
 package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
-import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FluidTypeBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.function.ObjValueFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.function.Consumer;
 
-public class FluidTypeParser extends ThingParser<FluidTypeBuilder>
+public class FluidTypeParser extends ThingParser<FluidType, FluidTypeBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -23,16 +23,7 @@ public class FluidTypeParser extends ThingParser<FluidTypeBuilder>
         super(GSON, "fluid_type");
 
 
-        bus.addListener(this::register);
-    }
-
-    public void register(RegisterEvent event)
-    {
-        event.register(NeoForgeRegistries.Keys.FLUID_TYPES, helper -> {
-            LOGGER.info("Started registering FluidType things, errors about unexpected registry domains are harmless...");
-            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
-            LOGGER.info("Done processing thingpack FluidTypes.");
-        });
+        register(bus, NeoForgeRegistries.Keys.FLUID_TYPES);
     }
 
     @Override

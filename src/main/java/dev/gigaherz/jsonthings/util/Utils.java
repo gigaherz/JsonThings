@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -50,34 +51,29 @@ public class Utils
 
     public static <T> T getOrCrash(Registry<T> registry, ResourceLocation name)
     {
-        T t = registry.get(name);
-        if (t == null)
-            throw new KeyNotFoundException("No object with name " + name + " found in the registry " + registry);
-        return t;
+        return registry.getOptional(name).orElseThrow(() -> new KeyNotFoundException("No object with name " + name + " found in the registry " + registry));
     }
 
     public static <T> Holder<T> getHolderOrCrash(Registry<T> registry, ResourceLocation name)
     {
-        return registry.getHolder(name).orElseThrow(() -> new NoSuchElementException("Entry with name " + name + " not found in registry " + registry.key().location()));
+        return registry.get(name).orElseThrow(() -> new NoSuchElementException("Entry with name " + name + " not found in registry " + registry.key().location()));
     }
 
     public static <T> T getOrElse(Registry<T> registry, ResourceLocation name, T fallback)
     {
-        if (!registry.containsKey(name))
-            return fallback;
-        return Objects.requireNonNull(registry.get(name));
+        return registry.getOptional(name).orElse(fallback);
     }
 
 
-    private static final Map<String, ArmorItem.Type> BACKWARD_COMPAT = ImmutableMap.<String, ArmorItem.Type>builder()
-            .put("head", ArmorItem.Type.HELMET)
-            .put("chest", ArmorItem.Type.CHESTPLATE)
-            .put("legs", ArmorItem.Type.LEGGINGS)
-            .put("feet", ArmorItem.Type.BOOTS)
+    private static final Map<String, ArmorType> BACKWARD_COMPAT = ImmutableMap.<String, ArmorType>builder()
+            .put("head", ArmorType.HELMET)
+            .put("chest", ArmorType.CHESTPLATE)
+            .put("legs", ArmorType.LEGGINGS)
+            .put("feet", ArmorType.BOOTS)
         .build();
 
-    public static ArmorItem.Type armorTypeByEquipmentSlotName(String name) {
-        ArmorItem.Type backwardCompat = BACKWARD_COMPAT.get(name);
+    public static ArmorType armorTypeByEquipmentSlotName(String name) {
+        ArmorType backwardCompat = BACKWARD_COMPAT.get(name);
 
         if (backwardCompat != null)
             return backwardCompat;
@@ -85,9 +81,9 @@ public class Utils
         throw new IllegalArgumentException("Invalid armor type '" + name + "'");
     }
 
-    public static ArmorItem.Type armorTypeByName(String name) {
+    public static ArmorType armorTypeByName(String name) {
 
-        for(ArmorItem.Type equipmentslot : ArmorItem.Type.values()) {
+        for(ArmorType equipmentslot : ArmorType.values()) {
             if (equipmentslot.getName().equals(name)) {
                 return equipmentslot;
             }

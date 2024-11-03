@@ -51,10 +51,8 @@ public class DynamicShape
         if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString())
         {
             String name = element.getAsString();
-            DynamicShape shape = ThingRegistries.DYNAMIC_SHAPES.get(ResourceLocation.parse(name));
-            if (shape == null)
-                throw new IllegalStateException("No shape known with name " + name);
-            return shape;
+            return ThingRegistries.DYNAMIC_SHAPE.getOptional(ResourceLocation.parse(name))
+                    .orElseThrow(() -> new IllegalStateException("No shape known with name " + name));
         }
         else
         {

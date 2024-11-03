@@ -64,8 +64,8 @@ public class ThingResourceManager
     private final RepositorySource folderPackFinder;
     private final PackRepository packList;
 
-    private final List<ThingParser<?>> thingParsers = Lists.newArrayList();
-    private final Map<String, ThingParser<?>> parsersMap = Maps.newHashMap();
+    private final List<ThingParser<?, ?>> thingParsers = Lists.newArrayList();
+    private final Map<String, ThingParser<?, ?>> parsersMap = Maps.newHashMap();
 
     private ThingResourceManager()
     {
@@ -74,7 +74,7 @@ public class ThingResourceManager
         packList = new PackRepository(folderPackFinder);
     }
 
-    public synchronized <TParser extends ThingParser<?>> TParser registerParser(TParser parser)
+    public synchronized <TParser extends ThingParser<?, ?>> TParser registerParser(TParser parser)
     {
         if (parsersMap.containsKey(parser.getThingType()))
             throw new IllegalStateException("There is already a parser registered for type " + parser.getThingType());

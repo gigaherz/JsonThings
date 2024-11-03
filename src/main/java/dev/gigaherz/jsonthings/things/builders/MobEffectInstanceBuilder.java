@@ -16,9 +16,9 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
     private boolean isAmbient = false;
     private boolean showParticles = true;
     private boolean showIcon = true;
-    private FoodBuilder owner;
+    private FoodPropertiesBuilder owner;
 
-    public MobEffectInstanceBuilder(ThingParser<MobEffectInstanceBuilder> ownerParser, ResourceLocation name)
+    public MobEffectInstanceBuilder(ThingParser<MobEffectInstance, MobEffectInstanceBuilder> ownerParser, ResourceLocation name)
     {
         super(ownerParser, name);
     }
@@ -37,12 +37,12 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
         return reportCategory;
     }
 
-    public void setOwner(FoodBuilder owner)
+    public void setOwner(FoodPropertiesBuilder owner)
     {
         this.owner = owner;
     }
 
-    public FoodBuilder getOwner()
+    public FoodPropertiesBuilder getOwner()
     {
         return owner;
     }

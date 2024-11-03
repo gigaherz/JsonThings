@@ -3,8 +3,8 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
+import dev.gigaherz.jsonthings.things.IFlexFluid;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
-import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class FluidParser extends ThingParser<FluidBuilder>
+public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -35,17 +35,13 @@ public class FluidParser extends ThingParser<FluidBuilder>
         super(GSON, "fluid");
 
 
-        bus.addListener(this::register);
+        bus.addListener(this::registerEvent);
     }
 
-    public void register(RegisterEvent event)
+    public void registerEvent(RegisterEvent event)
     {
         event.register(Registries.FLUID, helper -> {
-            LOGGER.info("Started registering Fluid things, errors about unexpected registry domains are harmless...");
-            processAndConsumeErrors(getThingType(), getBuilders(), thing ->
-                            thing.register(helper::register),
-                    BaseBuilder::getRegistryName);
-            LOGGER.info("Done processing thingpack Fluids.");
+            processAndConsumeErrors(getThingType(), getBuilders(), thing -> thing.register(helper::register), FluidBuilder::getRegistryName);
         });
     }
 
@@ -127,9 +123,8 @@ public class FluidParser extends ThingParser<FluidBuilder>
 
         props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
-                    var property = ThingRegistries.PROPERTIES.get(ResourceLocation.parse(prop));
-                    if (property == null)
-                        throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
+                    var property = ThingRegistries.PROPERTY.getOptional(ResourceLocation.parse(prop))
+                            .orElseThrow(() -> new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES"));
                     if (!property.getName().equals(name))
                         throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
                     map.put(name, property);

@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 
 import java.util.function.Consumer;
 
-public class BlockSetTypeParser extends ThingParser<BlockSetTypeBuilder>
+public class BlockSetTypeParser extends ThingParser<BlockSetType, BlockSetTypeBuilder>
 {
     public BlockSetTypeParser()
     {

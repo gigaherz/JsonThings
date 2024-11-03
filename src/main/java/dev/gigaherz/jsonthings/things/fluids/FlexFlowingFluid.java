@@ -7,6 +7,7 @@ import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -186,7 +187,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     }
 
     @Override
-    protected boolean canConvertToSource(Level level)
+    protected boolean canConvertToSource(ServerLevel level)
     {
         return canConvertToSource;
     }
@@ -324,7 +325,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         }
 
         @Override
-        protected boolean canConvertToSource(Level level)
+        protected boolean canConvertToSource(ServerLevel level)
         {
             return parent.canConvertToSource(level);
         }

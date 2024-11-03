@@ -1,27 +1,21 @@
 package dev.gigaherz.jsonthings.things.builders;
 
-import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
+public class FoodPropertiesBuilder extends BaseBuilder<FoodProperties, FoodPropertiesBuilder>
 {
-    public static FoodBuilder begin(ThingParser<FoodBuilder> ownerParser, ResourceLocation registryName)
+    public static FoodPropertiesBuilder begin(ThingParser<FoodProperties, FoodPropertiesBuilder> ownerParser, ResourceLocation registryName)
     {
-        return new FoodBuilder(ownerParser, registryName);
+        return new FoodPropertiesBuilder(ownerParser, registryName);
     }
 
-    private final List<Pair<MobEffectInstanceBuilder, Float>> effects = new ArrayList<>();
     private int nutrition;
     private float saturation;
     private boolean alwaysEat;
-    private boolean fast;
 
-    private FoodBuilder(ThingParser<FoodBuilder> ownerParser, ResourceLocation registryName)
+    private FoodPropertiesBuilder(ThingParser<FoodProperties, FoodPropertiesBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -47,27 +41,13 @@ public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
         this.alwaysEat = alwaysEat;
     }
 
-    public void setFast(boolean fast)
-    {
-        this.fast = fast;
-    }
-
-    public void effect(MobEffectInstanceBuilder effect, float probability)
-    {
-        effects.add(Pair.of(effect, probability));
-    }
-
     @Override
     protected FoodProperties buildInternal()
     {
         var foodBuilder = new FoodProperties.Builder();
         foodBuilder.nutrition(nutrition);
         foodBuilder.saturationModifier(saturation);
-        if (fast) foodBuilder.fast();
         if (alwaysEat) foodBuilder.alwaysEdible();
-        effects.forEach(pair -> {
-            foodBuilder.effect(pair.getFirst()::get, pair.getSecond());
-        });
         return foodBuilder.build();
     }
 }

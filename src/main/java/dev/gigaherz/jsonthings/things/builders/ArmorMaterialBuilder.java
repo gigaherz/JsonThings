@@ -3,32 +3,31 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMaterialBuilder>
 {
-    public static ArmorMaterialBuilder begin(ThingParser<ArmorMaterialBuilder> ownerParser, ResourceLocation registryName)
+    public static ArmorMaterialBuilder begin(ThingParser<ArmorMaterial, ArmorMaterialBuilder> ownerParser, ResourceLocation registryName)
     {
         return new ArmorMaterialBuilder(ownerParser, registryName);
     }
 
-    private final Map<ArmorItem.Type, Integer> durability = new HashMap<>();
-    private final Map<ArmorItem.Type, Integer> defense = new HashMap<>();
+    private Integer durability;
+    private final Map<ArmorType, Integer> defense = new HashMap<>();
     private float toughness;
     private float knockbackResistance;
     private int enchantmentValue;
     private ResourceLocation equipSound;
-    private Supplier<Ingredient> repairIngredient;
+    private TagKey<Item> repairIngredient;
 
-    private ArmorMaterialBuilder(ThingParser<ArmorMaterialBuilder> ownerParser, ResourceLocation registryName)
+    private ArmorMaterialBuilder(ThingParser<ArmorMaterial, ArmorMaterialBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -39,12 +38,12 @@ public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMateri
         return "Armor Material";
     }
 
-    public void setDurability(Map<ArmorItem.Type, Integer> durability)
+    public void setDurability(int durability)
     {
-        this.durability.putAll(durability);
+        this.durability = durability;
     }
 
-    public void setDefense(Map<ArmorItem.Type, Integer> defense)
+    public void setDefense(Map<ArmorType, Integer> defense)
     {
         this.defense.putAll(defense);
     }
@@ -69,7 +68,7 @@ public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMateri
         this.equipSound = equipSound;
     }
 
-    public void setRepairIngredient(Supplier<Ingredient> repairIngredient)
+    public void setRepairIngredient(TagKey<Item> repairIngredient)
     {
         this.repairIngredient = repairIngredient;
     }
@@ -78,7 +77,6 @@ public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMateri
     protected ArmorMaterial buildInternal()
     {
         var se = DeferredHolder.create(Registries.SOUND_EVENT, equipSound);
-        var defaultLayer = new ArmorMaterial.Layer(getRegistryName()); // FIXME: custom layers
-        return new ArmorMaterial(defense, enchantmentValue, se, repairIngredient, List.of(defaultLayer), toughness, knockbackResistance);
+        return new ArmorMaterial(durability, defense, enchantmentValue, se, toughness, knockbackResistance, repairIngredient, getRegistryName());
     }
 }

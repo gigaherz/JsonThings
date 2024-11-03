@@ -36,10 +36,10 @@ public class DSLHelpers
         var rl = ResourceLocation.parse(n);
 
         if (!reg.containsKey(rl))
-            throw new RuntimeException("Cannot find effect with name " + rl);
+            throw new RuntimeException("Cannot find element with name " + rl);
 
         //noinspection ConstantConditions
-        return reg.get(rl);
+        return reg.getOptional(rl).orElseThrow();
     }
 
     public static <T> Holder<T> findHolder(Registry<T> reg, String n)
@@ -47,10 +47,10 @@ public class DSLHelpers
         var rl = ResourceLocation.parse(n);
 
         if (!reg.containsKey(rl))
-            throw new RuntimeException("Cannot find effect with name " + rl);
+            throw new RuntimeException("Cannot find element with name " + rl);
 
         //noinspection ConstantConditions
-        return reg.getHolder(rl).orElseThrow();
+        return reg.get(rl).orElseThrow();
     }
 
     public static <T> T getRegistryEntry(Object arg, Registry<T> reg)

@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
 {
-    public static SoundTypeBuilder begin(ThingParser<SoundTypeBuilder> ownerParser, ResourceLocation registryName)
+    public static SoundTypeBuilder begin(ThingParser<SoundType, SoundTypeBuilder> ownerParser, ResourceLocation registryName)
     {
         return new SoundTypeBuilder(ownerParser, registryName);
     }
@@ -22,7 +22,7 @@ public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
     private ResourceLocation hitSound;
     private ResourceLocation fallSound;
 
-    private SoundTypeBuilder(ThingParser<SoundTypeBuilder> ownerParser, ResourceLocation registryName)
+    private SoundTypeBuilder(ThingParser<SoundType, SoundTypeBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }

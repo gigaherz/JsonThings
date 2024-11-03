@@ -14,7 +14,7 @@ public class PropertyTypes
 
     public static PropertyType register(String name, PropertyType propertyType)
     {
-        return Registry.register(ThingRegistries.PROPERTY_TYPES, name, propertyType);
+        return Registry.register(ThingRegistries.PROPERTY_TYPE, name, propertyType);
     }
 
     public static void init()

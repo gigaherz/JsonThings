@@ -12,8 +12,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.ColorRGBA;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
@@ -57,7 +56,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                             var g = GsonHelper.getAsInt(obj, "g");
                             var b = GsonHelper.getAsInt(obj, "b");
                             var a = GsonHelper.getAsInt(obj, "a", 255);
-                            return new ColorRGBA(FastColor.ARGB32.color(a,r,g,b));
+                            return new ColorRGBA(ARGB.color(a,r,g,b));
                         }).handle(dustColor::setValue))
                         .typeError()
                 );
@@ -302,7 +301,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
 
     public static <T extends Block & IFlexBlock> FlexBlockType<T> register(String name, IBlockSerializer<T> factory, DefaultTypeProperties defaults)
     {
-        return Registry.register(ThingRegistries.BLOCK_TYPES, name, new FlexBlockType<>(factory, defaults));
+        return Registry.register(ThingRegistries.BLOCK_TYPE, name, new FlexBlockType<>(factory, defaults));
     }
 
     private final IBlockSerializer<T> factory;
@@ -326,7 +325,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
 
     public String toString()
     {
-        return "BlockType{" + ThingRegistries.BLOCK_TYPES.getKey(this) + "}";
+        return "BlockType{" + ThingRegistries.BLOCK_TYPE.getKey(this) + "}";
     }
 
     public static final class DefaultTypeProperties

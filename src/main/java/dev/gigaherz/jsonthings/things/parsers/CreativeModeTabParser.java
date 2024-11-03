@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
+import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.function.Consumer;
 
-public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
+public class CreativeModeTabParser extends ThingParser<FlexCreativeModeTab, CreativeModeTabBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -24,26 +25,7 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
     {
         super(GSON, "creative_mode_tab");
 
-        modBus.addListener(this::registerTabs);
-    }
-
-    public void registerTabs(RegisterEvent event)
-    {
-        event.register(Registries.CREATIVE_MODE_TAB, helper -> {
-            LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
-            processAndConsumeErrors(getThingType(), getBuilders(), thing -> {
-                var tab = thing.get();
-                var icon = tab.icon();
-                var name = tab.name();
-                helper.register(thing.getRegistryName(), new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0).icon(() -> icon.toStack(null)).title(Component.translatable(name)).displayItems((parameters, output) -> {
-                    for(var stackContext : thing.getItems())
-                    {
-                        output.accept(stackContext.toStack(null));
-                    }
-                }).build());
-            }, BaseBuilder::getRegistryName);
-            LOGGER.info("Done processing thingpack CreativeModeTabs.");
-        });
+        register(modBus, Registries.CREATIVE_MODE_TAB, CreativeModeTabBuilder::buildTab);
     }
 
     @Override

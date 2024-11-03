@@ -39,9 +39,7 @@ public class StackContext
         {
             if (this.item != null)
             {
-                if (!BuiltInRegistries.ITEM.containsKey(this.item))
-                    throw new RuntimeException(String.format("The item '%s' is not registered.", this.item));
-                theItem = BuiltInRegistries.ITEM.get(this.item);
+                theItem = BuiltInRegistries.ITEM.getOptional(this.item).orElseThrow(() -> new RuntimeException(String.format("The item '%s' is not registered.", this.item)));
             }
             else
             {

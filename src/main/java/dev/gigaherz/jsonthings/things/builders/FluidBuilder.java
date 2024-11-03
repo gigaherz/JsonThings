@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 {
-    public static FluidBuilder begin(ThingParser<FluidBuilder> ownerParser, ResourceLocation registryName)
+    public static FluidBuilder begin(ThingParser<IFlexFluid, FluidBuilder> ownerParser, ResourceLocation registryName)
     {
         return new FluidBuilder(ownerParser, registryName);
     }
@@ -41,7 +41,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     private IFluidFactory<? extends Fluid> factory;
 
-    private FluidBuilder(ThingParser<FluidBuilder> ownerParser, ResourceLocation registryName)
+    private FluidBuilder(ThingParser<IFlexFluid, FluidBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -54,10 +54,8 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     public void setFluidType(ResourceLocation typeName)
     {
-        FlexFluidType<?> FluidType = ThingRegistries.FLUID_TYPES.get(typeName);
-        if (FluidType == null)
-            throw new IllegalStateException("No known Fluid type with name " + typeName);
-        this.fluidType = FluidType;
+        this.fluidType = ThingRegistries.FLUID_TYPE.getOptional(typeName)
+                .orElseThrow(() -> new IllegalStateException("No known Fluid type with name " + typeName));
     }
 
     public void setBucket(ItemBuilder itemBuilder)

@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 
 public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeBuilder>
 {
-    public static BlockSetTypeBuilder begin(ThingParser<BlockSetTypeBuilder> ownerParser, ResourceLocation registryName)
+    public static BlockSetTypeBuilder begin(ThingParser<BlockSetType, BlockSetTypeBuilder> ownerParser, ResourceLocation registryName)
     {
         return new BlockSetTypeBuilder(ownerParser, registryName);
     }
@@ -36,7 +36,7 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
     private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
 
 
-    private BlockSetTypeBuilder(ThingParser<BlockSetTypeBuilder> ownerParser, ResourceLocation registryName)
+    private BlockSetTypeBuilder(ThingParser<BlockSetType, BlockSetTypeBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -133,7 +133,7 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
     @Override
     protected BlockSetType buildInternal()
     {
-        var soundTypeObj = Utils.getOrElse(ThingRegistries.SOUND_TYPES, soundType, SoundType.WOOD);
+        var soundTypeObj = Utils.getOrElse(ThingRegistries.SOUND_TYPE, soundType, SoundType.WOOD);
         var doorCloseEvent = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, doorClose, SoundEvents.WOODEN_DOOR_CLOSE);
         var doorOpenEvent = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, doorOpen, SoundEvents.WOODEN_DOOR_OPEN);
         var trapdoorCloseEvent = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, trapdoorClose, SoundEvents.WOODEN_TRAPDOOR_CLOSE);
@@ -154,7 +154,7 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
 
     public WoodType buildWoodType(BlockSetType setType)
     {
-        var hangingSignSoundType = Utils.getOrElse(ThingRegistries.SOUND_TYPES, pressurePlateOn, SoundType.HANGING_SIGN);
+        var hangingSignSoundType = Utils.getOrElse(ThingRegistries.SOUND_TYPE, pressurePlateOn, SoundType.HANGING_SIGN);
         var fenceGateClose = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, this.fenceGateClose, SoundEvents.FENCE_GATE_CLOSE);
         var fenceGateOpen = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, this.fenceGateOpen, SoundEvents.FENCE_GATE_OPEN);
         return new WoodType(getRegistryName().toString(), setType, setType.soundType(), hangingSignSoundType, fenceGateClose, fenceGateOpen);

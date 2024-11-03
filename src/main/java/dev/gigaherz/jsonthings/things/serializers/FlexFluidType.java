@@ -142,7 +142,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
 
     public static <T extends Fluid & IFlexFluid> FlexFluidType<T> register(String name, IFluidSerializer<T> factory, String defaultLayer, Property<?>... stockProperties)
     {
-        return Registry.register(ThingRegistries.FLUID_TYPES, name, new FlexFluidType<>(factory, defaultLayer, Arrays.asList(stockProperties)));
+        return Registry.register(ThingRegistries.FLUID_TYPE, name, new FlexFluidType<>(factory, defaultLayer, Arrays.asList(stockProperties)));
     }
 
     private final IFluidSerializer<T> factory;
@@ -168,7 +168,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
 
     public String toString()
     {
-        return "FluidType{" + ThingRegistries.FLUID_TYPES.getKey(this) + "}";
+        return "FluidType{" + ThingRegistries.FLUID_TYPE.getKey(this) + "}";
     }
 
     public String getDefaultLayer()

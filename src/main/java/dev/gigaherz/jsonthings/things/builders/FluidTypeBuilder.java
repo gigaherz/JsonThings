@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
 {
-    public static FluidTypeBuilder begin(ThingParser<FluidTypeBuilder> ownerParser, ResourceLocation registryName)
+    public static FluidTypeBuilder begin(ThingParser<FluidType, FluidTypeBuilder> ownerParser, ResourceLocation registryName)
     {
         return new FluidTypeBuilder(ownerParser, registryName);
     }
@@ -44,7 +44,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     private Boolean supportsBoating;
 
 
-    private FluidTypeBuilder(ThingParser<FluidTypeBuilder> ownerParser, ResourceLocation registryName)
+    private FluidTypeBuilder(ThingParser<FluidType, FluidTypeBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -61,7 +61,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     }
 
     @Nullable
-    private ResourceLocation getStillTexture()
+    public ResourceLocation getStillTexture()
     {
         return getValue(stillTexture, FluidTypeBuilder::getStillTexture);
     }
@@ -72,7 +72,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     }
 
     @Nullable
-    private ResourceLocation getFlowingTexture()
+    public ResourceLocation getFlowingTexture()
     {
         return getValue(flowingTexture, FluidTypeBuilder::getFlowingTexture);
     }
@@ -83,7 +83,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     }
 
     @Nullable
-    private ResourceLocation getSideTexture()
+    public ResourceLocation getSideTexture()
     {
         return getValue(sideTexture, FluidTypeBuilder::getSideTexture);
     }
@@ -105,7 +105,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     }
 
     @Nullable
-    private Integer getColor()
+    public Integer getColor()
     {
         return getValue(color, FluidTypeBuilder::getColor);
     }
@@ -348,38 +348,6 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         if (flowingTexture == null)
             throw new IllegalStateException("FluidType requires a flowing_texture value");
 
-        return new FluidType(props)
-        {
-            @Override
-            public void initializeClient(Consumer<IClientFluidTypeExtensions> consumer)
-            {
-                consumer.accept(new IClientFluidTypeExtensions()
-                {
-                    @Override
-                    public int getTintColor()
-                    {
-                        return color;
-                    }
-
-                    @Override
-                    public ResourceLocation getStillTexture()
-                    {
-                        return stillTexture;
-                    }
-
-                    @Override
-                    public ResourceLocation getFlowingTexture()
-                    {
-                        return flowingTexture;
-                    }
-
-                    @Override
-                    public @Nullable ResourceLocation getOverlayTexture()
-                    {
-                        return sideTexture;
-                    }
-                });
-            }
-        };
+        return new FluidType(props);
     }
 }

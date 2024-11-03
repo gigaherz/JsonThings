@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -27,15 +26,14 @@ public abstract class PropertyType
     public static Property<?> deserialize(String name, JsonObject data)
     {
         String key = GsonHelper.getAsString(data, "type");
-        PropertyType prop = ThingRegistries.PROPERTY_TYPES.get(ResourceLocation.parse(key));
-        if (prop == null)
-            throw new IllegalStateException("Property type not found " + key);
+        PropertyType prop = ThingRegistries.PROPERTY_TYPE.getOptional(ResourceLocation.parse(key))
+                .orElseThrow(() -> new IllegalStateException("Property type not found " + key));
         return prop.read(name, data);
     }
 
     public static JsonObject serialize(Property<?> property)
     {
-        for (Map.Entry<ResourceKey<PropertyType>, PropertyType> entry : ThingRegistries.PROPERTY_TYPES.entrySet())
+        for (Map.Entry<ResourceKey<PropertyType>, PropertyType> entry : ThingRegistries.PROPERTY_TYPE.entrySet())
         {
             String key = entry.getKey().location().toString();
             PropertyType prop = entry.getValue();
@@ -58,7 +56,7 @@ public abstract class PropertyType
 
     public String toString()
     {
-        return "PropertyType{" + ThingRegistries.PROPERTY_TYPES.getKey(this) + "}";
+        return "PropertyType{" + ThingRegistries.PROPERTY_TYPE.getKey(this) + "}";
     }
 
     public static class BoolType extends PropertyType
@@ -178,15 +176,16 @@ public abstract class PropertyType
                     String val = e.getAsJsonPrimitive().getAsString();
                     valid_values.add(Direction.byName(val));
                 }
-                return DirectionProperty.create(name, valid_values);
+                return EnumProperty.create(name, Direction.class, valid_values);
             }
-            return DirectionProperty.create(name);
+            return EnumProperty.create(name, Direction.class);
         }
 
         @Override
         public void write(JsonObject data, Property<?> property)
         {
-            Collection<Direction> valid_values = ((DirectionProperty) property).getPossibleValues();
+            //noinspection unchecked
+            Collection<Direction> valid_values = ((EnumProperty<Direction>) property).getPossibleValues();
             Direction[] values = Direction.values();
             if (values.length > valid_values.size())
             {

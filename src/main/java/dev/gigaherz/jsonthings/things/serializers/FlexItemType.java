@@ -14,11 +14,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -38,7 +36,9 @@ public class FlexItemType<T extends Item>
         return (props, builder) -> {
             ResourceLocation blockName = name != null ? ResourceLocation.parse(name) : builder.getRegistryName();
             var block = Utils.getOrCrash(BuiltInRegistries.BLOCK, blockName);
-            return new FlexBlockItem(block, useBlockName, props, builder);
+            if (useBlockName)
+                props.useBlockDescriptionPrefix();
+            return new FlexBlockItem(block, props, builder);
         };
     });
 
@@ -76,7 +76,7 @@ public class FlexItemType<T extends Item>
 
     public static final FlexItemType<FlexArmorItem> ARMOR = register("armor", data -> {
 
-        MutableObject<ArmorItem.Type> armorType = new MutableObject<>();
+        MutableObject<ArmorType> armorType = new MutableObject<>();
         MutableObject<ResourceLocation> materialName = new MutableObject<>();
 
         JParse.begin(data)
@@ -86,7 +86,7 @@ public class FlexItemType<T extends Item>
                 .key("material", val -> val.string().map(ResourceLocation::parse).handle(materialName::setValue));
 
         return (props, builder) -> {
-            var material = Utils.getHolderOrCrash(BuiltInRegistries.ARMOR_MATERIAL, materialName.getValue());
+            ArmorMaterial material = Utils.getOrCrash(ThingRegistries.ARMOR_MATERIAL, materialName.getValue());
             return new FlexArmorItem(material, armorType.getValue(), props, builder);
         };
     });
@@ -110,12 +110,11 @@ public class FlexItemType<T extends Item>
 
         return (props, builder) -> {
             var tier_ = getTier(tier);
-            props = props.attributes(createToolAttributes(tier_, damage, speed));
-            return new FlexDiggerItem(getTier(tier), tag, props, builder);
+            return new FlexDiggerItem(getTier(tier), damage, speed, tag, props, builder);
         };
     });
 
-    private static <T extends TieredItem> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
+    private static <T extends Item> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
     {
         return data -> {
 
@@ -126,45 +125,20 @@ public class FlexItemType<T extends Item>
 
             return (props, builder) -> {
                 var tier_ = getTier(tier);
-                props = props.attributes(createToolAttributes(tier_, damage, speed));
-                return factory.create(getTier(tier), props, builder);
+                return factory.create(getTier(tier), damage, speed, props, builder);
             };
         };
     }
 
-    public static final FlexItemType<FlexTieredItem> TIERED = register("tiered", makeTieredSerializer(FlexTieredItem::new));
-
-    private static <T extends TieredItem> IItemSerializer<T> makeTieredSerializer(TieredFactory<T> factory)
-    {
-        return data -> {
-
-            String tier = parseTier(data);
-
-            return (props, builder) -> factory.create(getTier(tier), props, builder);
-        };
-    }
-
     @FunctionalInterface
-    public interface DiggerFactory<T extends TieredItem>
+    public interface DiggerFactory<T extends Item>
     {
-        T create(Tier tier, Item.Properties properties, ItemBuilder builder);
+        T create(ToolMaterial material, float attackDamage, float attackSpeed, Item.Properties properties, ItemBuilder builder);
     }
 
-    @FunctionalInterface
-    public interface DiggerFactory2<T extends TieredItem>
+    private static ToolMaterial getTier(String tierName)
     {
-        T create(Tier tier, Item.Properties properties, ItemBuilder builder);
-    }
-
-    @FunctionalInterface
-    public interface TieredFactory<T extends TieredItem>
-    {
-        T create(Tier tier, Item.Properties properties, ItemBuilder builder);
-    }
-
-    private static Tier getTier(String tierName)
-    {
-        return Utils.getOrCrash(ThingRegistries.TIERS, ResourceLocation.parse(tierName));
+        return Utils.getOrCrash(ThingRegistries.TOOL_MATERIAL, ResourceLocation.parse(tierName));
     }
 
     private static String parseTier(JsonObject data)
@@ -197,7 +171,7 @@ public class FlexItemType<T extends Item>
 
     public static <T extends Item> FlexItemType<T> register(String name, IItemSerializer<T> factory)
     {
-        return Registry.register(ThingRegistries.ITEM_TYPES, name, new FlexItemType<>(factory));
+        return Registry.register(ThingRegistries.ITEM_TYPE, name, new FlexItemType<>(factory));
     }
 
     private final IItemSerializer<T> factory;
@@ -214,26 +188,7 @@ public class FlexItemType<T extends Item>
 
     public String toString()
     {
-        return "ItemType{" + ThingRegistries.ITEM_TYPES.getKey(this) + "}";
-    }
-
-    public static ItemAttributeModifiers createToolAttributes(Tier tier, float damage, float speed) {
-        return ItemAttributeModifiers.builder()
-                .add(
-                        Attributes.ATTACK_DAMAGE,
-                        new AttributeModifier(
-                                Item.BASE_ATTACK_DAMAGE_ID,
-                                damage + tier.getAttackDamageBonus(),
-                                AttributeModifier.Operation.ADD_VALUE
-                        ),
-                        EquipmentSlotGroup.MAINHAND
-                )
-                .add(
-                        Attributes.ATTACK_SPEED,
-                        new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, speed, AttributeModifier.Operation.ADD_VALUE),
-                        EquipmentSlotGroup.MAINHAND
-                )
-                .build();
+        return "ItemType{" + ThingRegistries.ITEM_TYPE.getKey(this) + "}";
     }
 
 }

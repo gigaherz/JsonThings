@@ -1,8 +1,6 @@
 package dev.gigaherz.jsonthings.things.events;
 
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
@@ -16,14 +14,14 @@ public record FlexEventType<T>(String name)
 
     // Blocks
     public static final FlexEventType<InteractionResult> USE_BLOCK_WITHOUT_ITEM = new FlexEventType<>("use_without_item");
-    public static final FlexEventType<ItemInteractionResult> USE_BLOCK_WITH_ITEM = new FlexEventType<>("use_item_on");
+    public static final FlexEventType<InteractionResult> USE_BLOCK_WITH_ITEM = new FlexEventType<>("use_item_on");
 
     // Items
-    public static final FlexEventType<InteractionResultHolder<ItemStack>> USE_ITEM_ON_AIR = new FlexEventType<>("use_item");
-    public static final FlexEventType<InteractionResultHolder<ItemStack>> USE_ITEM_ON_BLOCK = new FlexEventType<>("use_item_on");
-    public static final FlexEventType<InteractionResultHolder<ItemStack>> BEGIN_USING_ITEM = new FlexEventType<>("begin_using");
-    public static final FlexEventType<Void> STOPPED_USING = new FlexEventType<>("stopped_using");
-    public static final FlexEventType<InteractionResultHolder<ItemStack>> END_USING = new FlexEventType<>("end_using");
+    public static final FlexEventType<InteractionResult> USE_ITEM_ON_AIR = new FlexEventType<>("use_item");
+    public static final FlexEventType<InteractionResult> USE_ITEM_ON_BLOCK = new FlexEventType<>("use_item_on");
+    public static final FlexEventType<InteractionResult> BEGIN_USING_ITEM = new FlexEventType<>("begin_using");
+    public static final FlexEventType<Boolean> STOPPED_USING = new FlexEventType<>("stopped_using");
+    public static final FlexEventType<InteractionResult> END_USING = new FlexEventType<>("end_using");
     public static final FlexEventType<ItemStack> UPDATE = new FlexEventType<>("update");
 
     // Enchantments

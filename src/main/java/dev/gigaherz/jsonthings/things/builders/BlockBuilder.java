@@ -8,6 +8,8 @@ import dev.gigaherz.jsonthings.things.serializers.FlexBlockType;
 import dev.gigaherz.jsonthings.things.serializers.IBlockFactory;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
 
 public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 {
-    public static BlockBuilder begin(ThingParser<BlockBuilder> ownerParser, ResourceLocation registryName)
+    public static BlockBuilder begin(ThingParser<IFlexBlock, BlockBuilder> ownerParser, ResourceLocation registryName)
     {
         return new BlockBuilder(ownerParser, registryName);
     }
@@ -63,7 +65,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
     private IBlockFactory<? extends Block> factory;
 
-    private BlockBuilder(ThingParser<BlockBuilder> ownerParser, ResourceLocation registryName)
+    private BlockBuilder(ThingParser<IFlexBlock, BlockBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -77,15 +79,12 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
     public void setBlockType(ResourceLocation typeName)
     {
-        FlexBlockType<?> blockType = ThingRegistries.BLOCK_TYPES.get(typeName);
-        if (blockType == null)
-            throw new IllegalStateException("No known block type with name " + typeName);
-        this.blockType = blockType;
+        this.blockType = ThingRegistries.BLOCK_TYPE.getOptional(typeName).orElseThrow(() -> new IllegalStateException("No known block type with name " + typeName));
     }
 
     public void setBlockType(FlexBlockType<?> type)
     {
-        if (ThingRegistries.BLOCK_TYPES.getKey(type) == null)
+        if (ThingRegistries.BLOCK_TYPE.getKey(type) == null)
             throw new IllegalStateException("Block type not registered!");
         this.blockType = type;
     }
@@ -419,6 +418,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     {
         MapColor blockMaterialColor = getMaterialColor();
         Block.Properties props = Block.Properties.of();
+        props.setId(ResourceKey.create(Registries.BLOCK, getRegistryName()));
 
         var blockType = getBlockType();
         if (blockMaterialColor != null) props.mapColor(blockMaterialColor);
@@ -439,7 +439,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         if (Utils.orElse(getForceSolid(), false)) props.forceSolidOn();
         if (!Utils.orElse(getBlocksMotion(), true)) props.forceSolidOff();
 
-        if (getSoundType() != null) props.sound(Utils.getOrCrash(ThingRegistries.SOUND_TYPES, getSoundType()));
+        if (getSoundType() != null) props.sound(Utils.getOrCrash(ThingRegistries.SOUND_TYPE, getSoundType()));
 
         final List<Property<?>> stockProperties = blockType.getDefaults().getStockProperties();
 

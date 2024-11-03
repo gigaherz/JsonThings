@@ -27,11 +27,14 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.client.NamedRenderTypeManager;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.resource.ResourcePackLoader;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.concurrent.CompletableFuture;
@@ -52,9 +55,9 @@ public class JsonThings
     public static BlockParser blockParser;
     public static ItemParser itemParser;
     public static FluidParser fluidParser;
-    public static FoodParser foodParser;
+    public static FoodPropertiesParser foodPropertiesParser;
     public static ShapeParser shapeParser;
-    public static TierParser tierParser;
+    public static ToolMaterialParser toolMaterialParser;
     public static FluidTypeParser fluidTypeParser;
     public static ArmorMaterialParser armorMaterialParser;
     public static CreativeModeTabParser creativeModeTabParser;
@@ -73,9 +76,9 @@ public class JsonThings
         blockParser = manager.registerParser(new BlockParser(bus));
         itemParser = manager.registerParser(new ItemParser(bus));
         fluidParser = manager.registerParser(new FluidParser(bus));
-        foodParser = manager.registerParser(new FoodParser());
+        foodPropertiesParser = manager.registerParser(new FoodPropertiesParser());
         shapeParser = manager.registerParser(new ShapeParser());
-        tierParser = manager.registerParser(new TierParser());
+        toolMaterialParser = manager.registerParser(new ToolMaterialParser());
         fluidTypeParser = manager.registerParser(new FluidTypeParser(bus));
         armorMaterialParser = manager.registerParser(new ArmorMaterialParser(bus));
         creativeModeTabParser = manager.registerParser(new CreativeModeTabParser(bus));
@@ -195,6 +198,44 @@ public class JsonThings
                     ItemColor ic = handler.apply(event.getBlockColors());
                     event.register(ic, thing.get());
                 }
+            });
+        }
+
+        @SubscribeEvent
+        public static void clientProperties(RegisterClientExtensionsEvent event)
+        {
+            JsonThings.fluidTypeParser.getBuilders().forEach(thing -> {
+                var color = thing.getColor();
+                var stillTexture = thing.getStillTexture();
+                var flowingTexture = thing.getFlowingTexture();
+                var sideTexture = thing.getSideTexture();
+
+                event.registerFluidType(new IClientFluidTypeExtensions()
+                {
+                    @Override
+                    public int getTintColor()
+                    {
+                        return color;
+                    }
+
+                    @Override
+                    public ResourceLocation getStillTexture()
+                    {
+                        return stillTexture;
+                    }
+
+                    @Override
+                    public ResourceLocation getFlowingTexture()
+                    {
+                        return flowingTexture;
+                    }
+
+                    @Override
+                    public @Nullable ResourceLocation getOverlayTexture()
+                    {
+                        return sideTexture;
+                    }
+                }, thing.get());
             });
         }
     }

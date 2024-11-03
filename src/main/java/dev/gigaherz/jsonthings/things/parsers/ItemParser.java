@@ -7,8 +7,7 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
-import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
-import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
+import dev.gigaherz.jsonthings.things.builders.FoodPropertiesBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.StringValue;
@@ -22,8 +21,9 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class ItemParser extends ThingParser<ItemBuilder>
+public class ItemParser extends ThingParser<Item, ItemBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -43,17 +43,9 @@ public class ItemParser extends ThingParser<ItemBuilder>
     {
         super(GSON, "item");
 
-        bus.addListener(this::register);
-        bus.addListener(this::addToTabs);
-    }
+        register(bus, Registries.ITEM);
 
-    public void register(RegisterEvent event)
-    {
-        event.register(Registries.ITEM, helper -> {
-            LOGGER.info("Started registering Item things, errors about unexpected registry domains are harmless...");
-            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get()), BaseBuilder::getRegistryName);
-            LOGGER.info("Done processing thingpack Items.");
-        });
+        bus.addListener(this::addToTabs);
     }
 
     public void addToTabs(BuildCreativeModeTabContentsEvent event)
@@ -110,9 +102,9 @@ public class ItemParser extends ThingParser<ItemBuilder>
                         .ifObj(obj -> obj.raw(food -> {
                             try
                             {
-                                FoodBuilder foodBuilder = JsonThings.foodParser.parseFromElement(builder.getRegistryName(), food);
-                                if (foodBuilder != null)
-                                    builder.setFood(foodBuilder.get());
+                                FoodPropertiesBuilder foodPropertiesBuilder = JsonThings.foodPropertiesParser.parseFromElement(builder.getRegistryName(), food);
+                                if (foodPropertiesBuilder != null)
+                                    builder.setFood(foodPropertiesBuilder.get());
                             }
                             catch (Exception e)
                             {
@@ -124,7 +116,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("container", val -> val.string().map(ResourceLocation::parse).handle(builder::setContainerItem))
                 .ifKey("delayed_use", val -> val.obj()
                         .key("duration", val1 -> val1.intValue().handle(builder::setUseTime))
-                        .key("animation", val1 -> val1.string().map(str -> UseAnim.valueOf(str.toUpperCase())).handle(builder::setUseAnim))
+                        .key("animation", val1 -> val1.string().map(str -> ItemUseAnimation.valueOf(str.toUpperCase())).handle(builder::setUseAnim))
                         .ifKey("on_complete", val1 -> val1.string().map(str -> UseFinishMode.valueOf(str.toUpperCase())).handle(builder::setUseFinishMode)
                         )
                 )

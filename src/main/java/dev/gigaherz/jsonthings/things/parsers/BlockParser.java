@@ -3,8 +3,8 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
+import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
-import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.properties.PropertyType;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class BlockParser extends ThingParser<BlockBuilder>
+public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -37,16 +36,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
     {
         super(GSON, "block");
 
-        bus.addListener(this::register);
-    }
-
-    public void register(RegisterEvent event)
-    {
-        event.register(Registries.BLOCK, helper -> {
-            LOGGER.info("Started registering Block things, errors about unexpected registry domains are harmless...");
-            processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), thing.get().self()), BaseBuilder::getRegistryName);
-            LOGGER.info("Done processing thingpack Blocks.");
-        });
+        register(bus, Registries.BLOCK, IFlexBlock::self);
     }
 
     @Override
@@ -146,9 +136,7 @@ public class BlockParser extends ThingParser<BlockBuilder>
 
         props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
-                    var property = ThingRegistries.PROPERTIES.get(ResourceLocation.parse(prop));
-                    if (property == null)
-                        throw new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES");
+                    var property = ThingRegistries.PROPERTY.getOptional(ResourceLocation.parse(prop)).orElseThrow(() -> new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES"));
                     if (!property.getName().equals(name))
                         throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
                     map.put(name, property);

@@ -12,21 +12,22 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.neoforged.neoforge.common.ItemAbility;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -35,10 +36,9 @@ import java.util.Set;
 public class FlexBlockItem extends BlockItem implements IEventRunner
 {
 
-    public FlexBlockItem(Block block, boolean useBlockName, Properties properties, ItemBuilder builder)
+    public FlexBlockItem(Block block, Properties properties, ItemBuilder builder)
     {
         super(block, properties);
-        this.useBlockName = useBlockName;
         this.useAction = builder.getUseAnim();
         this.useTime = builder.getUseTime();
         this.useFinishMode = builder.getUseFinishMode();
@@ -50,14 +50,6 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
     }
 
     //region BlockItem
-    private final boolean useBlockName;
-
-    // Recreation of ItemNameBlockItem's function
-    @Override
-    public String getDescriptionId()
-    {
-        return useBlockName ? getBlock().getDescriptionId() : super.getOrCreateDescriptionId();
-    }
 
     public boolean canFitInsideContainerItems()
     {
@@ -74,7 +66,7 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
     private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
 
     private ItemAttributeModifiers attributeModifiers;
-    private final UseAnim useAction;
+    private final ItemUseAnimation useAction;
     private final Integer useTime;
     private final UseFinishMode useFinishMode;
     private final List<MutableComponent> lore;
@@ -84,8 +76,7 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
     private void initializeFlex()
     {
         var builder = ItemAttributeModifiers.builder();
-        //noinspection deprecation
-        var defaults = super.getDefaultAttributeModifiers();
+        var defaults = super.getDefaultAttributeModifiers(new ItemStack(this));
         if (!defaults.modifiers().isEmpty())
         {
             for (var mod : defaults.modifiers())
@@ -117,13 +108,13 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
     //region Item
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
+    public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn)
     {
         ItemStack heldItem = playerIn.getItemInHand(handIn);
         if (useTime != null && useTime > 0)
             return runEvent(FlexEventType.BEGIN_USING_ITEM, FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> {
                 playerIn.startUsingItem(handIn);
-                return InteractionResultHolder.consume(heldItem);
+                return InteractionResult.CONSUME;
             });
         else
             return runEvent(FlexEventType.USE_ITEM_ON_AIR, FlexEventContext.of(worldIn, playerIn, handIn, heldItem), () -> super.use(worldIn, playerIn, handIn));
@@ -134,18 +125,23 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
     {
         ItemStack heldItem = context.getItemInHand();
 
-        var result = runEvent(FlexEventType.USE_ITEM_ON_BLOCK, FlexEventContext.of(context), () -> new InteractionResultHolder<>(super.useOn(context), heldItem));
+        var result = runEvent(FlexEventType.USE_ITEM_ON_BLOCK, FlexEventContext.of(context), () -> super.useOn(context));
 
-        if (result.getObject() != heldItem && context.getPlayer() != null)
+        // Maybe not needed, test.
+        if (result instanceof InteractionResult.Success success
+                && success.heldItemTransformedTo() != null
+                && success.heldItemTransformedTo() != heldItem && context.getPlayer() != null)
         {
-            context.getPlayer().setItemInHand(context.getHand(), result.getObject());
+            context.getPlayer().setItemInHand(context.getHand(), success.heldItemTransformedTo());
         }
 
-        return result.getResult();
+        return result;
     }
 
+
+
     @Override
-    public UseAnim getUseAnimation(ItemStack stack)
+    public ItemUseAnimation getUseAnimation(ItemStack stack)
     {
         return Utils.orElseGet(useAction, () -> super.getUseAnimation(stack));
     }
@@ -165,24 +161,26 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
     }
 
     @Override
-    public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft)
+    public boolean releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft)
     {
-        runEvent(FlexEventType.STOPPED_USING,
+        return runEvent(FlexEventType.STOPPED_USING,
                 FlexEventContext.of(worldIn, entityLiving, stack).with(FlexEventContext.TIME_LEFT, timeLeft),
-                () -> {
-                    super.releaseUsing(stack, worldIn, entityLiving, timeLeft);
-                    return null;
-                });
+                () -> super.releaseUsing(stack, worldIn, entityLiving, timeLeft));
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack heldItem, Level worldIn, LivingEntity entityLiving)
     {
-        var result = runEvent(FlexEventType.END_USING, FlexEventContext.of(worldIn, entityLiving, heldItem), () -> InteractionResultHolder.success(super.finishUsingItem(heldItem, worldIn, entityLiving)));
-        if (result.getResult() != InteractionResult.SUCCESS)
-            return result.getObject();
+        var result = runEvent(FlexEventType.END_USING, FlexEventContext.of(worldIn, entityLiving, heldItem),
+                () -> InteractionResult.SUCCESS.heldItemTransformedTo(super.finishUsingItem(heldItem, worldIn, entityLiving)));
+        if (!(result instanceof InteractionResult.Success))
+            return heldItem;
 
-        return runEvent(FlexEventType.USE_ITEM_ON_AIR, FlexEventContext.of(worldIn, entityLiving, heldItem), () -> result).getObject();
+        var result2 = runEvent(FlexEventType.USE_ITEM_ON_AIR, FlexEventContext.of(worldIn, entityLiving, heldItem), () -> result);
+        if (result2 instanceof InteractionResult.Success success)
+            return Utils.orElse(success.heldItemTransformedTo(), heldItem);
+
+        return heldItem;
     }
 
     @Override
@@ -207,9 +205,8 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public ItemAttributeModifiers getDefaultAttributeModifiers()
+    public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack)
     {
         return attributeModifiers;
     }
@@ -222,7 +219,7 @@ public class FlexBlockItem extends BlockItem implements IEventRunner
     }
 
     @Override
-    public int getBurnTime(ItemStack itemStack, @org.jetbrains.annotations.Nullable RecipeType<?> recipeType)
+    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues)
     {
         return burnTime;
     }

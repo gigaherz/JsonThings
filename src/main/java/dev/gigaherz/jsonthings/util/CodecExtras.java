@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 public class CodecExtras
 {
-    public static final Codec<Property<?>> PROPERTY_CODEC = registryNameCodec(ThingRegistries.PROPERTIES);
+    public static final Codec<Property<?>> PROPERTY_CODEC = registryNameCodec(ThingRegistries.PROPERTY);
 
     public static final Codec<DoubleStream> DOUBLE_STREAM = Codec.DOUBLE.listOf().xmap(
             list -> list.stream().mapToDouble(d -> d),
@@ -71,7 +71,7 @@ public class CodecExtras
 
     public static <T> Codec<T> registryNameCodec(Registry<T> registry)
     {
-        return mappingCodec(ResourceLocation.CODEC, registry::get, registry::getKey);
+        return mappingCodec(ResourceLocation.CODEC, name -> registry.getOptional(name).orElse(null), registry::getKey);
     }
 
     public static <R, T extends R> Codec<R> toSubclass(Codec<T> codec, Class<T> subclass)

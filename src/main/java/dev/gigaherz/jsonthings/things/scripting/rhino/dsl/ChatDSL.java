@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
+import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.rhinolib.Context;
 import dev.gigaherz.rhinolib.Scriptable;
 import dev.gigaherz.rhinolib.Undefined;
@@ -20,8 +21,9 @@ public class ChatDSL
     private static Object sendSystemMessage(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         Player player = DSLHelpers.get(args[0]);
+        boolean useActionBar = Utils.orElse(args.length > 2 ? DSLHelpers.get(args[2]) : null, true);
 
-        player.sendSystemMessage(DSLHelpers.getComponent(cx, args[1]));
+        player.displayClientMessage(DSLHelpers.getComponent(cx, args[1]), useActionBar);
 
         return Undefined.instance;
     }

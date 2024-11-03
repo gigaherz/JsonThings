@@ -15,16 +15,18 @@ import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 {
-    public static ItemBuilder begin(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
+    public static ItemBuilder begin(ThingParser<Item, ItemBuilder> ownerParser, ResourceLocation registryName)
     {
         return new ItemBuilder(ownerParser, registryName);
     }
@@ -53,7 +55,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     private Supplier<@NotNull FoodProperties> foodDefinition = null;
 
     public Integer useTime = null;
-    public UseAnim useAnim = null;
+    public ItemUseAnimation useAnim = null;
     public UseFinishMode useFinishMode = null;
 
     private ResourceLocation containerItem = null;
@@ -68,7 +70,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
     private IItemFactory<? extends Item> factory;
 
-    private ItemBuilder(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
+    private ItemBuilder(ThingParser<Item, ItemBuilder> ownerParser, ResourceLocation registryName)
     {
         super(ownerParser, registryName);
     }
@@ -82,15 +84,12 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     public void setType(String typeName)
     {
         if (this.itemType != null) throw new RuntimeException("Item type already set.");
-        FlexItemType<?> itemType = ThingRegistries.ITEM_TYPES.get(ResourceLocation.parse(typeName));
-        if (itemType == null)
-            throw new IllegalStateException("No known block type with name " + typeName);
-        this.itemType = itemType;
+        this.itemType = ThingRegistries.ITEM_TYPE.getOptional(ResourceLocation.parse(typeName)).orElseThrow(() -> new IllegalStateException("No known block type with name " + typeName));
     }
 
     public void setType(FlexItemType<?> type)
     {
-        if (ThingRegistries.ITEM_TYPES.getKey(type) == null)
+        if (ThingRegistries.ITEM_TYPE.getKey(type) == null)
             throw new IllegalStateException("Item type not registered!");
         this.itemType = type;
     }
@@ -126,9 +125,9 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     public void setFood(ResourceLocation foodName)
     {
         if (this.foodDefinition != null) throw new RuntimeException("Food info already set.");
-        this.foodDefinition = () -> ThingRegistries.FOODS
+        this.foodDefinition = () -> ThingRegistries.FOOD
                 .getOptional(foodName)
-                .orElseGet(() -> JsonThings.foodParser.getOrCrash(foodName).get());
+                .orElseGet(() -> JsonThings.foodPropertiesParser.getOrCrash(foodName).get());
     }
 
     public void setFood(FoodProperties food)
@@ -142,7 +141,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         this.useTime = useTime;
     }
 
-    public void setUseAnim(UseAnim useAnim)
+    public void setUseAnim(ItemUseAnimation useAnim)
     {
         this.useAnim = useAnim;
     }
@@ -191,6 +190,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     protected Item buildInternal()
     {
         Item.Properties properties = new Item.Properties();
+        properties.setId(ResourceKey.create(Registries.ITEM, getRegistryName()));
 
         var ms = getMaxStackSize();
         if (ms != null)
@@ -299,7 +299,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     }
 
     @Nullable
-    public UseAnim getUseAnim()
+    public ItemUseAnimation getUseAnim()
     {
         return getValue(useAnim, ItemBuilder::getUseAnim);
     }
@@ -339,7 +339,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         {
             for (var attributeEntries : slotEntries.getValue().entries())
             {
-                var attr = Utils.getHolderOrCrash(BuiltInRegistries.ATTRIBUTE, attributeEntries.getKey());
+                var attr = DeferredHolder.create(Registries.ATTRIBUTE, attributeEntries.getKey()); // Utils.getHolderOrCrash(BuiltInRegistries.ATTRIBUTE, attributeEntries.getKey());
                 builder.add(attr, attributeEntries.getValue(), slotEntries.getKey());
             }
         }

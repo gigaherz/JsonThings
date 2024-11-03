@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 
 public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
 {
-    private final ThingParser<B> ownerParser;
+    private final ThingParser<T, B> ownerParser;
     private final ResourceLocation registryName;
     private ResourceLocation parentBuilderName;
     private B parentBuilder;
@@ -26,7 +26,7 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
     private Map<String, List<ResourceLocation>> eventMap;
     private Throwable errorState = null;
 
-    protected BaseBuilder(ThingParser<B> ownerParser, ResourceLocation registryName)
+    protected BaseBuilder(ThingParser<T, B> ownerParser, ResourceLocation registryName)
     {
         this.ownerParser = ownerParser;
         this.registryName = registryName;
@@ -76,7 +76,7 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
         return registryName;
     }
 
-    protected final ThingParser<B> getParser()
+    protected final ThingParser<T, B> getParser()
     {
         return ownerParser;
     }

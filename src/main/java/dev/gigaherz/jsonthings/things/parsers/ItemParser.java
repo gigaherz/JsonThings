@@ -96,7 +96,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(List.of("group", "creative_menu_stacks"), () -> new ThingParseException("Cannot have group and creative_menu_stacks at the same time."))
-                .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
+                .ifKey("group", val -> val.string().map(ResourceLocation::new).handle(builder::setGroup))
                 .ifKey("creative_menu_stacks", val -> val
                         .array().forEach((i, entry) -> entry
                                 .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item, false, false), parseTabsList(item))))
@@ -248,20 +248,20 @@ public class ItemParser extends ThingParser<ItemBuilder>
         }
     }
 
-    public static String[] parseTabsList(JsonObject stackEntry)
+    public static ResourceLocation[] parseTabsList(JsonObject stackEntry)
     {
         if (stackEntry.has("tabs"))
         {
             JsonArray tabs = stackEntry.get("tabs").getAsJsonArray();
 
-            String[] tabsArray = new String[tabs.size()];
+            ResourceLocation[] tabsArray = new ResourceLocation[tabs.size()];
             int tabIndex = 0;
             for (JsonElement e : tabs)
             {
                 String str = e.getAsString();
                 if (!Strings.isNullOrEmpty(str))
                 {
-                    tabsArray[tabIndex++] = str;
+                    tabsArray[tabIndex++] = new ResourceLocation(str);
                 }
                 else
                 {

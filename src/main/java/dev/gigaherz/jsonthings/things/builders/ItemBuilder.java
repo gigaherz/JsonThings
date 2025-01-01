@@ -16,13 +16,17 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -30,6 +34,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 // TODO: replace generic parameter with Item
@@ -49,7 +54,10 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
     private Boolean isFireResistant;
 
-    private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
+    private ResourceLocation group = null;
+    private final Multimap<ResourceKey<CreativeModeTab>, StackContext> creativeMenuStacks = ArrayListMultimap.create();
+
+    private final List<Pair<StackContext, String[]>> oldCreativeMenuStacks = Lists.newArrayList();
 
     private NonNullSupplier<FoodProperties> foodDefinition = null;
 
@@ -102,9 +110,26 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.maxStackSize = maxStackSize;
     }
 
+    public void setGroup(ResourceLocation group) {
+        if (!this.creativeMenuStacks.isEmpty()) throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
+        this.group = group;
+    }
+
+    @Deprecated(forRemoval = true)
     public void withCreativeMenuStack(StackContext stackContext, String[] tabs)
     {
-        creativeMenuStacks.add(Pair.of(stackContext, tabs));
+        if (this.group != null) throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
+        for(var tab : tabs)
+            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(tab)), stackContext);
+        oldCreativeMenuStacks.add(Pair.of(stackContext, tabs));
+    }
+
+    public void withCreativeMenuStack(StackContext stackContext, ResourceLocation[] tabs)
+    {
+        if (this.group != null) throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
+        for(var tab : tabs)
+            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);
+        oldCreativeMenuStacks.add(Pair.of(stackContext, Arrays.stream(tabs).map(ResourceLocation::toString).toArray(String[]::new)));
     }
 
     public void withAttributeModifier(EquipmentSlot slot, ResourceLocation attribute, @Nullable UUID uuid, String name, double amount, int op)
@@ -259,15 +284,44 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         };
     }
 
+    public void fillItemVariants(ResourceKey<CreativeModeTab> tabName, ItemBuilder context, Consumer<ItemStack> stacks) {
+        if (group != null)
+        {
+            if (group.equals(tabName))
+            {
+                factory.provideVariants(context, stacks);
+            }
+            return;
+        }
+
+        if (!creativeMenuStacks.isEmpty())
+        {
+            creativeMenuStacks.get(tabName).forEach(stack -> stacks.accept(stack.toStack(context.get().self())));
+        }
+
+        if (getParent() != null)
+        {
+            getParent().fillItemVariants(tabName, context, stacks);
+        }
+    }
+
+    @Deprecated(forRemoval = true)
     public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
     {
-        if (creativeMenuStacks.size() > 0)
-            return creativeMenuStacks;
+        if (group != null)
+        {
+            return List.of(Pair.of(new StackContext(null), new String[]{group.toString()}));
+        }
+
+        if (!oldCreativeMenuStacks.isEmpty())
+        {
+            return oldCreativeMenuStacks;
+        }
 
         if (getParent() != null)
             return getParent().getCreativeMenuStacks();
 
-        return creativeMenuStacks;
+        return oldCreativeMenuStacks;
     }
 
     @Nullable

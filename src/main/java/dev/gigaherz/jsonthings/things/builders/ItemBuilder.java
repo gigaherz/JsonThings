@@ -48,7 +48,8 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
     private Boolean isFireResistant;
 
-    private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
+    private ResourceKey<CreativeModeTab> group = null;
+    private final Multimap<ResourceKey<CreativeModeTab>, StackContext> creativeMenuStacks = ArrayListMultimap.create();
 
     private Supplier<@NotNull FoodProperties> foodDefinition = null;
 
@@ -101,6 +102,12 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         this.maxStackSize = maxStackSize;
     }
 
+    public void setGroup(ResourceLocation group) {
+        if (!this.creativeMenuStacks.isEmpty()) throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
+        this.group = ResourceKey.create(Registries.CREATIVE_MODE_TAB, group);
+    }
+
+    @Deprecated(forRemoval = true)
     public void withCreativeMenuStack(StackContext stackContext, String[] tabs)
     {
         creativeMenuStacks.add(Pair.of(stackContext, tabs));
@@ -230,6 +237,29 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         return item;
     }
 
+    public void fillItemVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
+    {
+        if (group != null)
+        {
+            if (group.equals(event.getTabKey()))
+            {
+                factory.provideVariants(event, context);
+            }
+            return;
+        }
+
+        if (!creativeMenuStacks.isEmpty())
+        {
+            creativeMenuStacks.get(event.getTabKey()).forEach(stack -> event.accept(stack.toStack(context.get().self())));
+        }
+
+        if (getParent() != null)
+        {
+            getParent().fillItemVariants(event, context);
+        }
+    }
+
+    @Deprecated(forRemoval = true)
     public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
     {
         if (creativeMenuStacks.size() > 0)

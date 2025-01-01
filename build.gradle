@@ -21,7 +21,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'maven-publish'
 
-version = "0.9.5"
+version = "0.9.7"
 group= "dev.gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "JsonThings-UNKNOWN"
 

@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.util.NonNullSupplier;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -54,7 +55,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
     private Boolean isFireResistant;
 
-    private ResourceLocation group = null;
+    private ResourceKey<CreativeModeTab> group = null;
     private final Multimap<ResourceKey<CreativeModeTab>, StackContext> creativeMenuStacks = ArrayListMultimap.create();
 
     private final List<Pair<StackContext, String[]>> oldCreativeMenuStacks = Lists.newArrayList();
@@ -112,7 +113,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 
     public void setGroup(ResourceLocation group) {
         if (!this.creativeMenuStacks.isEmpty()) throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
-        this.group = group;
+        this.group = ResourceKey.create(Registries.CREATIVE_MODE_TAB, group);
     }
 
     @Deprecated(forRemoval = true)
@@ -284,24 +285,26 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         };
     }
 
-    public void fillItemVariants(ResourceKey<CreativeModeTab> tabName, ItemBuilder context, Consumer<ItemStack> stacks) {
+
+    public void fillItemVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
+    {
         if (group != null)
         {
-            if (group.equals(tabName))
+            if (group.equals(event.getTabKey()))
             {
-                factory.provideVariants(context, stacks);
+                factory.provideVariants(event, context);
             }
             return;
         }
 
         if (!creativeMenuStacks.isEmpty())
         {
-            creativeMenuStacks.get(tabName).forEach(stack -> stacks.accept(stack.toStack(context.get().self())));
+            creativeMenuStacks.get(event.getTabKey()).forEach(stack -> event.accept(stack.toStack(context.get().self())));
         }
 
         if (getParent() != null)
         {
-            getParent().fillItemVariants(tabName, context, stacks);
+            getParent().fillItemVariants(event, context);
         }
     }
 

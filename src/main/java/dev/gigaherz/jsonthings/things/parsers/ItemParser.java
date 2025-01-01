@@ -36,8 +36,6 @@ public class ItemParser extends ThingParser<ItemBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
-    private Map<ResourceKey<CreativeModeTab>, List<ItemStack>> creativeStacks;
-
     public ItemParser(IEventBus bus)
     {
         super(GSON, "item");
@@ -57,33 +55,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
 
     public void addToTabs(BuildCreativeModeTabContentsEvent event)
     {
-        if (creativeStacks == null)
-        {
-            Map<String, List<ItemStack>> map = new HashMap<>();
-            getBuilders().forEach(thing ->
-            {
-                for (var entry : thing.getCreativeMenuStacks())
-                {
-                    var stack = entry.getFirst();
-                    for (var tab : entry.getSecond())
-                    {
-                        var list = map.computeIfAbsent(tab, key -> new ArrayList<>());
-                        list.add(stack.toStack(thing.get().self()));
-                    }
-                }
-            });
-
-            creativeStacks = new HashMap<>();
-            for (var entry : map.entrySet())
-            {
-                var tab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(entry.getKey()));
-                creativeStacks.put(tab, entry.getValue());
-            }
-        }
-
-        var list = creativeStacks.get(event.getTabKey());
-        if (list != null)
-            event.acceptAll(list);
+        getBuilders().forEach(thing -> thing.fillItemVariants(event, thing));
     }
 
     @Override

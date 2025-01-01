@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.serializers;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 
 import java.util.function.Consumer;
 
@@ -10,9 +11,9 @@ public interface IItemFactory<T extends Item>
 {
     T construct(Item.Properties properties, ItemBuilder builder);
 
-    default void provideVariants(ItemBuilder builder, Consumer<ItemStack> stackConsumer)
+    default void provideVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
     {
-        stackConsumer.accept(builder.get().self().getDefaultInstance());
+        event.accept(context.get().self().getDefaultInstance());
     }
 
     class WithVariants<T extends Item> implements IItemFactory<T>
@@ -33,14 +34,14 @@ public interface IItemFactory<T extends Item>
         }
 
         @Override
-        public void provideVariants(ItemBuilder builder, Consumer<ItemStack> stackConsumer)
+        public void provideVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
         {
-            stackProvider.provideVariants(builder, stackConsumer);
+            stackProvider.provideVariants(event, context);
         }
     }
 
     @FunctionalInterface
     interface VariantProvider {
-        void provideVariants(ItemBuilder builder, Consumer<ItemStack> stackConsumer);
+        void provideVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context);
     }
 }

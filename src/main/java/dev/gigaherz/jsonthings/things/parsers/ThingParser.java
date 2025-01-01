@@ -38,6 +38,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     public static final Logger LOGGER = LogUtils.getLogger();
 
     private static final Map<ResourceLocation, ThingCondition> CONDITIONS_REGISTRY = new HashMap<>();
+
     public synchronized static void registerCondition(ResourceLocation id, ThingCondition condition)
     {
         CONDITIONS_REGISTRY.put(id, condition);
@@ -49,7 +50,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         if (conditions == null)
             return true;
         var conditionArray = conditions.getAsJsonArray();
-        for(var e : conditionArray)
+        for (var e : conditionArray)
         {
             if (!parseAndTestCondition(thingType, thingId, e.getAsJsonObject()))
                 return false;
@@ -70,7 +71,8 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         return conditionHandler.test(thingType, thingId, condition);
     }
 
-    static {
+    static
+    {
         registerCondition(new ResourceLocation("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
         registerCondition(new ResourceLocation("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
     }

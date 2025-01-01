@@ -3,7 +3,6 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
-import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;

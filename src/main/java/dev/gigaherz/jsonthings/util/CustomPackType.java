@@ -9,7 +9,8 @@ public class CustomPackType
 {
     public static PackType THINGS;
 
-    static { // make sure the field has been initialized.
+    static
+    { // make sure the field has been initialized.
         //noinspection ResultOfMethodCallIgnored
         PackType.values();
     }

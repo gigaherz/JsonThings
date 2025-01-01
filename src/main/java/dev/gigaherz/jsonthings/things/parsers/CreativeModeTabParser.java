@@ -35,8 +35,8 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
                 var tab = thing.get();
                 var icon = tab.icon();
                 var name = tab.name();
-                helper.register(thing.getRegistryName(), new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0).icon(() -> icon.toStack(null)).title(Component.translatable(name)).displayItems((parameters, output) -> {
-                    for(var stackContext : thing.getItems())
+                helper.register(thing.getRegistryName(), new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0).icon(() -> icon.toStack(null)).title(Component.translatable(name)).displayItems((parameters, output) -> {
+                    for (var stackContext : thing.getItems())
                     {
                         output.accept(stackContext.toStack(null));
                     }
@@ -63,7 +63,7 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
                         .ifObj(str -> str.map((JsonObject name) -> parseStackContext(name, true, true)).handle(builder::setIcon))
                         .typeError()
                 )
-                .ifKey("items", val -> val.array().forEach((index,entry) -> entry.obj()
+                .ifKey("items", val -> val.array().forEach((index, entry) -> entry.obj()
                         .map((JsonObject name) -> parseStackContext(name, true, true))
                         .handle(builder::addItem)));
 

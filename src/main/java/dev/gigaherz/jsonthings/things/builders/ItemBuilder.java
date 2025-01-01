@@ -26,7 +26,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -35,7 +34,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 // TODO: replace generic parameter with Item
@@ -111,25 +109,29 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         this.maxStackSize = maxStackSize;
     }
 
-    public void setGroup(ResourceLocation group) {
-        if (!this.creativeMenuStacks.isEmpty()) throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
+    public void setGroup(ResourceLocation group)
+    {
+        if (!this.creativeMenuStacks.isEmpty())
+            throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
         this.group = ResourceKey.create(Registries.CREATIVE_MODE_TAB, group);
     }
 
     @Deprecated(forRemoval = true)
     public void withCreativeMenuStack(StackContext stackContext, String[] tabs)
     {
-        if (this.group != null) throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
-        for(var tab : tabs)
-            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(tab)), stackContext);
+        if (this.group != null)
+            throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
+        for (var tab : tabs)
+        {creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(tab)), stackContext);}
         oldCreativeMenuStacks.add(Pair.of(stackContext, tabs));
     }
 
     public void withCreativeMenuStack(StackContext stackContext, ResourceLocation[] tabs)
     {
-        if (this.group != null) throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
-        for(var tab : tabs)
-            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);
+        if (this.group != null)
+            throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
+        for (var tab : tabs)
+        {creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);}
         oldCreativeMenuStacks.add(Pair.of(stackContext, Arrays.stream(tabs).map(ResourceLocation::toString).toArray(String[]::new)));
     }
 

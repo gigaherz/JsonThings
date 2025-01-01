@@ -29,7 +29,7 @@ public class SoundTypeParser extends ThingParser<SoundTypeBuilder>
         final SoundTypeBuilder builder = SoundTypeBuilder.begin(this, key);
 
         JParse.begin(data)
-                .ifKey("volume", val -> val.floatValue().range(0,1).handle(builder::setVolume))
+                .ifKey("volume", val -> val.floatValue().range(0, 1).handle(builder::setVolume))
                 .ifKey("pitch", val -> val.floatValue().min(0).handle(builder::setPitch))
                 .key("break_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setBreakSound))
                 .key("step_sound", val -> val.string().map(ResourceLocation::new).handle(builder::setStepSound))

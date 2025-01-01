@@ -385,6 +385,7 @@ public class JParse
 
     private static final Pattern INTEGER_PATTERN = Pattern.compile("^-?[0-9]+$");
     private static final Pattern FLOAT = Pattern.compile("^-?(([0-9]+)|([0-9]*\\.[0-9]+))([eEfFdD][+-]?[0-9]+)$");
+
     private boolean isNumberInt(Number number)
     {
         var text = number.toString();
@@ -395,6 +396,7 @@ public class JParse
         }
         return false;
     }
+
     private boolean isNumberLong(Number number)
     {
         var text = number.toString();
@@ -406,16 +408,18 @@ public class JParse
         }
         return false;
     }
+
     private boolean isNumberFloat(Number number)
     {
         var text = number.toString();
         if (FLOAT.matcher(text).matches())
         {
             var num = Double.parseDouble(text);
-            return ((double)(float)num) == num;
+            return ((double) (float) num) == num;
         }
         return false;
     }
+
     private boolean isNumberDouble(Number number)
     {
         var text = number.toString();

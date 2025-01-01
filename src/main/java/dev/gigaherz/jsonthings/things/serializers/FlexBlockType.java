@@ -59,7 +59,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                             var g = GsonHelper.getAsInt(obj, "g");
                             var b = GsonHelper.getAsInt(obj, "b");
                             var a = GsonHelper.getAsInt(obj, "a", 255);
-                            return FastColor.ARGB32.color(a,r,g,b);
+                            return FastColor.ARGB32.color(a, r, g, b);
                         }).handle(dustColor::setValue))
                         .typeError()
                 );
@@ -224,7 +224,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var woodTypeName = blockSetType.getValue().toString();
-            var woodType = WoodType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            var woodType = WoodType.values().filter(w -> Objects.equals(w.name(), woodTypeName)).findFirst().orElseThrow();
             return new FlexFenceGateBlock(props, woodType, propertyDefaultValues)
             {
                 @Override
@@ -259,7 +259,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var woodTypeName = blockSetType.getValue().toString();
-            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(), woodTypeName)).findFirst().orElseThrow();
             return new FlexDoorBlock(props, woodType, propertyDefaultValues)
             {
                 @Override
@@ -275,12 +275,12 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
         JParse.begin(data)
-            .key("block_set_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
+                .key("block_set_type", any -> any.string().map(ResourceLocation::new).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var woodTypeName = blockSetType.getValue().toString();
-            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(), woodTypeName)).findFirst().orElseThrow();
             return new FlexTrapdoorBlock(props, woodType, propertyDefaultValues)
             {
                 @Override

@@ -21,7 +21,7 @@ public class ResourcePackTypeExtender
     @Mutable
     private static PackType[] $VALUES;
 
-    @Invoker(value="<init>")
+    @Invoker(value = "<init>")
     private static PackType create(String name, int ordinal, String directoryName)
     {
         throw new IllegalStateException("Unreachable");
@@ -35,6 +35,6 @@ public class ResourcePackTypeExtender
         CustomPackType.THINGS = entry;
 
         $VALUES = Arrays.copyOf($VALUES, $VALUES.length + 1);
-        $VALUES[$VALUES.length-1] = entry;
+        $VALUES[$VALUES.length - 1] = entry;
     }
 }

@@ -96,9 +96,10 @@ public class Utils
             .put("chest", ArmorItem.Type.CHESTPLATE)
             .put("legs", ArmorItem.Type.LEGGINGS)
             .put("feet", ArmorItem.Type.BOOTS)
-        .build();
+            .build();
 
-    public static ArmorItem.Type armorTypeByEquipmentSlotName(String name) {
+    public static ArmorItem.Type armorTypeByEquipmentSlotName(String name)
+    {
         ArmorItem.Type backwardCompat = BACKWARD_COMPAT.get(name);
 
         if (backwardCompat != null)
@@ -107,10 +108,13 @@ public class Utils
         throw new IllegalArgumentException("Invalid armor type '" + name + "'");
     }
 
-    public static ArmorItem.Type armorTypeByName(String name) {
+    public static ArmorItem.Type armorTypeByName(String name)
+    {
 
-        for(ArmorItem.Type equipmentslot : ArmorItem.Type.values()) {
-            if (equipmentslot.getName().equals(name)) {
+        for (ArmorItem.Type equipmentslot : ArmorItem.Type.values())
+        {
+            if (equipmentslot.getName().equals(name))
+            {
                 return equipmentslot;
             }
         }

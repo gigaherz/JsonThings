@@ -128,7 +128,7 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
         var buttonOnEvent = Utils.getOrElse(ForgeRegistries.SOUND_EVENTS, buttonOn, SoundEvents.WOODEN_BUTTON_CLICK_ON);
         return new BlockSetType(getRegistryName().toString(), canOpenByHand, soundTypeObj,
                 doorCloseEvent, doorOpenEvent, trapdoorCloseEvent, trapdoorOpenEvent,
-                pressurePlateOffEvent, pressurePlateOnEvent, buttonOffEvent,buttonOnEvent);
+                pressurePlateOffEvent, pressurePlateOnEvent, buttonOffEvent, buttonOnEvent);
     }
 
     public boolean isWood()

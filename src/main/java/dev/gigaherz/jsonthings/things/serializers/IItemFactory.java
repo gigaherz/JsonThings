@@ -2,10 +2,7 @@ package dev.gigaherz.jsonthings.things.serializers;
 
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-
-import java.util.function.Consumer;
 
 public interface IItemFactory<T extends Item>
 {
@@ -41,7 +38,8 @@ public interface IItemFactory<T extends Item>
     }
 
     @FunctionalInterface
-    interface VariantProvider {
+    interface VariantProvider
+    {
         void provideVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context);
     }
 }

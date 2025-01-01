@@ -9,9 +9,13 @@ public interface NumberValue
     NumberValue range(Number min, Number maxExclusive);
 
     Number getNumber();
+
     int getAsInt();
+
     long getAsLong();
+
     float getAsFloat();
+
     double getAsDouble();
 
     default <T> MappedValue<T> map(NumberFunction<T> mapping)

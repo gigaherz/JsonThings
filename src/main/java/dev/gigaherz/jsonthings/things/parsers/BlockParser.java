@@ -110,14 +110,15 @@ public class BlockParser extends ThingParser<BlockBuilder>
     private static PushReaction parsePushReaction(String s)
     {
         return switch (s)
-                {
-                    case "block" -> PushReaction.BLOCK;
-                    case "destroy" -> PushReaction.DESTROY;
-                    case "ignore" -> PushReaction.IGNORE;
-                    case "push_only" -> PushReaction.PUSH_ONLY;
-                    case "normal" -> PushReaction.NORMAL;
-                    default -> throw new ThingParseException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
-                };
+        {
+            case "block" -> PushReaction.BLOCK;
+            case "destroy" -> PushReaction.DESTROY;
+            case "ignore" -> PushReaction.IGNORE;
+            case "push_only" -> PushReaction.PUSH_ONLY;
+            case "normal" -> PushReaction.NORMAL;
+            default ->
+                    throw new ThingParseException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
+        };
     }
 
     private Property<?> getRotationProperty(MutableObject<Map<String, Property<?>>> propertiesByName, String name)

@@ -354,6 +354,6 @@ public class ThingRegistries
         Registry.register(SOUND_TYPES, "cherry_wood_hanging_sign", SoundType.CHERRY_WOOD_HANGING_SIGN);
         Registry.register(SOUND_TYPES, "chiseled_bookshelf", SoundType.CHISELED_BOOKSHELF);
         Registry.register(SOUND_TYPES, "suspicious_sand", SoundType.SUSPICIOUS_SAND);
-        Registry.register(SOUND_TYPES, "decorated_pot", SoundType.DECORATED_POT);        
+        Registry.register(SOUND_TYPES, "decorated_pot", SoundType.DECORATED_POT);
     }
 }

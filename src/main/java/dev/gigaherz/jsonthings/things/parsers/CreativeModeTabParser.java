@@ -6,6 +6,7 @@ import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -45,9 +46,13 @@ public class CreativeModeTabParser extends ThingParser<FlexCreativeModeTab, Crea
                         .ifObj(str -> str.map((JsonObject name) -> parseStackContext(name, true, true)).handle(builder::setIcon))
                         .typeError()
                 )
-                .ifKey("items", val -> val.array().forEach((index,entry) -> entry.obj()
+                .ifKey("translation_key", val -> val.string().handle(builder::setTranslationKey))
+                .ifKey("right_side", val -> val.bool().handle(builder::setRightSide))
+                .ifKey("items", val -> val.array().forEach((index, entry) -> entry.obj()
                         .map((JsonObject name) -> parseStackContext(name, true, true))
-                        .handle(builder::addItem)));
+                        .handle(builder::addItem)))
+                .ifKey("before", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setBefore))
+                .ifKey("after", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setAfter));
 
         builderModification.accept(builder);
 

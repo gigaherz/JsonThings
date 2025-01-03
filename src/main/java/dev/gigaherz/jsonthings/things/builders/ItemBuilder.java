@@ -118,7 +118,9 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         if (this.group != null)
             throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
         for (var tab : tabs)
+        {
             creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);
+        }
     }
     public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, ResourceLocation id, double amount, AttributeModifier.Operation op)
     {
@@ -235,7 +237,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
         return item;
     }
-    
+
     public void fillItemVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
     {
         if (group != null)

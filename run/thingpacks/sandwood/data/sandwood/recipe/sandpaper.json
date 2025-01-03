@@ -4,9 +4,7 @@
     "##"
   ],
   "key": {
-    "#": {
-      "item": "sandwood:sandwood_planks"
-    }
+    "#": "sandwood:sandwood_planks"
   },
   "result": {
     "id": "sandwood:sandpaper",

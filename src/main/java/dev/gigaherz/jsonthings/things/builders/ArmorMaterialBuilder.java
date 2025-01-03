@@ -2,11 +2,14 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.HashMap;
@@ -77,6 +80,6 @@ public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMateri
     protected ArmorMaterial buildInternal()
     {
         var se = DeferredHolder.create(Registries.SOUND_EVENT, equipSound);
-        return new ArmorMaterial(durability, defense, enchantmentValue, se, toughness, knockbackResistance, repairIngredient, getRegistryName());
+        return new ArmorMaterial(durability, defense, enchantmentValue, se, toughness, knockbackResistance, repairIngredient, ResourceKey.create(EquipmentAssets.ROOT_ID, getRegistryName()));
     }
 }

@@ -17,6 +17,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -123,7 +124,7 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
 
     public ThingParser(Gson gson, String thingType)
     {
-        super(ExtraCodecs.JSON, thingType);
+        super(ExtraCodecs.JSON, FileToIdConverter.json(thingType));
         this.gson = gson;
         this.thingType = thingType;
         this.registryAccess = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);

@@ -26,7 +26,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,7 +36,7 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
-    private Map<ResourceKey<CreativeModeTab>, List<ItemStack>> creativeStacks;
+    private final Map<ResourceKey<CreativeModeTab>, List<ItemStack>> creativeStacks = new HashMap<>();
 
     public ItemParser(IEventBus bus)
     {
@@ -50,33 +49,7 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
 
     public void addToTabs(BuildCreativeModeTabContentsEvent event)
     {
-        if (creativeStacks == null)
-        {
-            Map<String, List<ItemStack>> map = new HashMap<>();
-            getBuilders().forEach(thing ->
-            {
-                for (var entry : thing.getCreativeMenuStacks())
-                {
-                    var stack = entry.getFirst();
-                    for (var tab : entry.getSecond())
-                    {
-                        var list = map.computeIfAbsent(tab, key -> new ArrayList<>());
-                        list.add(stack.toStack(thing.get()));
-                    }
-                }
-            });
-
-            creativeStacks = new HashMap<>();
-            for (var entry : map.entrySet())
-            {
-                var tab = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.parse(entry.getKey()));
-                creativeStacks.put(tab, entry.getValue());
-            }
-        }
-
-        var list = creativeStacks.get(event.getTabKey());
-        if (list != null)
-            event.acceptAll(list);
+        getBuilders().forEach(thing -> thing.fillItemVariants(event, thing));
     }
 
     @Override
@@ -89,7 +62,7 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(List.of("group", "creative_menu_stacks"), () -> new ThingParseException("Cannot have group and creative_menu_stacks at the same time."))
-                .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
+                .ifKey("group", val -> val.string().map(ResourceLocation::parse).handle(builder::setGroup))
                 .ifKey("creative_menu_stacks", val -> val
                         .array().forEach((i, entry) -> entry
                                 .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item, false, false), parseTabsList(item))))
@@ -221,20 +194,20 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
         }
     }
 
-    public static String[] parseTabsList(JsonObject stackEntry)
+    public static ResourceLocation[] parseTabsList(JsonObject stackEntry)
     {
         if (stackEntry.has("tabs"))
         {
             JsonArray tabs = stackEntry.get("tabs").getAsJsonArray();
 
-            String[] tabsArray = new String[tabs.size()];
+            ResourceLocation[] tabsArray = new ResourceLocation[tabs.size()];
             int tabIndex = 0;
             for (JsonElement e : tabs)
             {
                 String str = e.getAsString();
                 if (!Strings.isNullOrEmpty(str))
                 {
-                    tabsArray[tabIndex++] = str;
+                    tabsArray[tabIndex++] = ResourceLocation.parse(str);
                 }
                 else
                 {

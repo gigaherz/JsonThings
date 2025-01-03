@@ -3,14 +3,12 @@ package dev.gigaherz.jsonthings;
 import com.mojang.logging.LogUtils;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
-import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.network.chat.Component;
@@ -56,6 +54,7 @@ public class JsonThings
     public static ItemParser itemParser;
     public static FluidParser fluidParser;
     public static FoodPropertiesParser foodPropertiesParser;
+    public static ConsumableParser consumableParser;
     public static ShapeParser shapeParser;
     public static ToolMaterialParser toolMaterialParser;
     public static FluidTypeParser fluidTypeParser;
@@ -77,6 +76,7 @@ public class JsonThings
         itemParser = manager.registerParser(new ItemParser(bus));
         fluidParser = manager.registerParser(new FluidParser(bus));
         foodPropertiesParser = manager.registerParser(new FoodPropertiesParser());
+        consumableParser = manager.registerParser(new ConsumableParser());
         shapeParser = manager.registerParser(new ShapeParser());
         toolMaterialParser = manager.registerParser(new ToolMaterialParser());
         fluidTypeParser = manager.registerParser(new FluidTypeParser(bus));
@@ -134,7 +134,6 @@ public class JsonThings
             event.enqueueWork(() -> {
                 ClientHandlers.addClientPackFinder();
                 BlockColorHandler.init();
-                ItemColorHandler.init();
             });
 
             ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class, () -> (mc, returnTo) -> {
@@ -174,7 +173,7 @@ public class JsonThings
         }
 
         @SubscribeEvent
-        public static void itemColorHandlers(RegisterColorHandlersEvent.Block event)
+        public static void blockColorHandlers(RegisterColorHandlersEvent.Block event)
         {
             JsonThings.blockParser.getBuilders().forEach(thing -> {
                 String handlerName = thing.getColorHandler();
@@ -182,21 +181,6 @@ public class JsonThings
                 {
                     BlockColor bc = BlockColorHandler.get(handlerName);
                     event.register(bc, thing.get().self());
-                }
-            });
-        }
-
-        @SubscribeEvent
-        public static void itemColorHandlers(RegisterColorHandlersEvent.Item event)
-        {
-            JsonThings.itemParser.getBuilders().forEach(thing -> {
-                if (thing.isInErrorState()) return;
-                String handlerName = thing.getColorHandler();
-                if (handlerName != null)
-                {
-                    Function<BlockColors, ItemColor> handler = ItemColorHandler.get(handlerName);
-                    ItemColor ic = handler.apply(event.getBlockColors());
-                    event.register(ic, thing.get());
                 }
             });
         }

@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.42-beta'
+    id 'net.neoforged.moddev' version '2.0.63-beta'
 }
 
 version = "0.13.0"
@@ -37,7 +37,7 @@ repositories {
 }
 
 neoForge {
-    version = "21.3.8-beta"
+    version = "21.4.47-beta"
 
     runs {
         // applies to all the run configs below
@@ -62,8 +62,8 @@ neoForge {
     }
 
     parchment {
-        minecraftVersion = "1.21"
-        mappingsVersion = "2024.07.07"
+        minecraftVersion = "1.21.4"
+        mappingsVersion = "2024.12.29"
     }
 }
 
@@ -94,9 +94,7 @@ java {
 tasks.named("jar") {
     archiveClassifier = "slim"
 
-    from('/') {
-        include 'LICENSE.txt'
-    }
+    from(files('LICENSE.txt'))
 
     manifest {
         attributes([

@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "group": "planks",
   "ingredients": [
-    {
-      "tag": "sandwood:sandwood_logs"
-    }
+    "#sandwood:sandwood_logs"
   ],
   "result": {
     "id": "sandwood:sandwood_planks",

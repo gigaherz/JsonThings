@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
@@ -22,17 +21,23 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.common.ItemAbility;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 {
@@ -50,7 +55,8 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
     private Boolean isFireResistant;
 
-    private final List<Pair<StackContext, String[]>> creativeMenuStacks = Lists.newArrayList();
+    private ResourceKey<CreativeModeTab> group = null;
+    private final Multimap<ResourceKey<CreativeModeTab>, StackContext> creativeMenuStacks = ArrayListMultimap.create();
 
     private Supplier<@NotNull FoodProperties> foodDefinition = null;
 
@@ -100,11 +106,20 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         this.maxStackSize = maxStackSize;
     }
 
-    public void withCreativeMenuStack(StackContext stackContext, String[] tabs)
+    public void setGroup(ResourceLocation group)
     {
-        creativeMenuStacks.add(Pair.of(stackContext, tabs));
+        if (!this.creativeMenuStacks.isEmpty())
+            throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
+        this.group = ResourceKey.create(Registries.CREATIVE_MODE_TAB, group);
     }
 
+    public void withCreativeMenuStack(StackContext stackContext, ResourceLocation[] tabs)
+    {
+        if (this.group != null)
+            throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
+        for (var tab : tabs)
+            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);
+    }
     public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, ResourceLocation id, double amount, AttributeModifier.Operation op)
     {
         var mod = new AttributeModifier(id, amount, op);
@@ -149,15 +164,6 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     public void setUseFinishMode(UseFinishMode finishMode)
     {
         this.useFinishMode = finishMode;
-    }
-
-    @Deprecated
-    public void makeContainer(String emptyItem)
-    {
-        if (emptyItem.contains(":"))
-            setContainerItem(ResourceLocation.parse(emptyItem));
-        else
-            setContainerItem(ResourceLocation.fromNamespaceAndPath(getRegistryName().getNamespace(), emptyItem));
     }
 
     public void setContainerItem(ResourceLocation resourceLocation)
@@ -229,16 +235,27 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
         return item;
     }
-
-    public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
+    
+    public void fillItemVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
     {
-        if (creativeMenuStacks.size() > 0)
-            return creativeMenuStacks;
+        if (group != null)
+        {
+            if (group.equals(event.getTabKey()))
+            {
+                factory.provideVariants(event, context);
+            }
+            return;
+        }
+
+        if (!creativeMenuStacks.isEmpty())
+        {
+            creativeMenuStacks.get(event.getTabKey()).forEach(stack -> event.accept(stack.toStack(context.get())));
+        }
 
         if (getParent() != null)
-            return getParent().getCreativeMenuStacks();
-
-        return creativeMenuStacks;
+        {
+            getParent().fillItemVariants(event, context);
+        }
     }
 
     @Nullable

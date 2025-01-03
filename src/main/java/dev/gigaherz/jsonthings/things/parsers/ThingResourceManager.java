@@ -50,12 +50,6 @@ public class ThingResourceManager
         return InstanceHolder.instance;
     }
 
-    @Deprecated(forRemoval = true)
-    public static ThingResourceManager initialize(IEventBus modBusEvent)
-    {
-        return InstanceHolder.instance;
-    }
-
     private static final Set<String> disabledPacks = Sets.newHashSet();
 
     private RunnableQueue mainThreadExecutor;

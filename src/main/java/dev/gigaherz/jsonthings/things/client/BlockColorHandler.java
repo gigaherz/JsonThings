@@ -25,14 +25,13 @@ public class BlockColorHandler
                 reader != null && pos != null
                         ? BiomeColors.getAverageGrassColor(reader, pos)
                         : GrassColor.get(0.5D, 1.0D));
-        register("spruce", (state, reader, pos, color) ->
-                FoliageColor.getEvergreenColor());
-        register("birch", (state, reader, pos, color) ->
-                FoliageColor.getBirchColor());
+        register("spruce", (state, reader, pos, color) -> FoliageColor.FOLIAGE_EVERGREEN);
+        register("birch", (state, reader, pos, color) -> FoliageColor.FOLIAGE_BIRCH);
+        register("mangrove", (state, reader, pos, color) -> FoliageColor.FOLIAGE_MANGROVE);
         register("foliage", (state, reader, pos, color) ->
                 reader != null && pos != null
                         ? BiomeColors.getAverageFoliageColor(reader, pos)
-                        : FoliageColor.getDefaultColor());
+                        : FoliageColor.FOLIAGE_DEFAULT);
         register("water", (state, reader, pos, color) -> reader != null && pos != null
                 ? BiomeColors.getAverageWaterColor(reader, pos)
                 : -1);

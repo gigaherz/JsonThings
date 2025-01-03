@@ -5,6 +5,7 @@ import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -35,12 +36,21 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
                 var tab = thing.get();
                 var icon = tab.icon();
                 var name = tab.name();
-                helper.register(thing.getRegistryName(), new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0).icon(() -> icon.toStack(null)).title(Component.translatable(name)).displayItems((parameters, output) -> {
-                    for (var stackContext : thing.getItems())
-                    {
-                        output.accept(stackContext.toStack(null));
-                    }
-                }).build());
+                var builder = new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0).icon(() -> icon.toStack(null))
+                        .title(Component.translatable(name))
+                        .displayItems((parameters, output) -> {
+                            for (var stackContext : thing.getItems())
+                            {
+                                output.accept(stackContext.toStack(null));
+                            }
+                        });
+                if (thing.getBefore() != null)
+                    builder = builder.withTabsBefore(thing.getBefore());
+                if (thing.getAfter() != null)
+                    builder = builder.withTabsAfter(thing.getAfter());
+                if (thing.getRightSide())
+                    builder = builder.alignedRight();
+                helper.register(thing.getRegistryName(), builder.build());
             }, BaseBuilder::getRegistryName);
             LOGGER.info("Done processing thingpack CreativeModeTabs.");
         });
@@ -63,9 +73,13 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
                         .ifObj(str -> str.map((JsonObject name) -> parseStackContext(name, true, true)).handle(builder::setIcon))
                         .typeError()
                 )
+                .ifKey("translation_key", val -> val.string().handle(builder::setTranslationKey))
+                .ifKey("right_side", val -> val.bool().handle(builder::setRightSide))
                 .ifKey("items", val -> val.array().forEach((index, entry) -> entry.obj()
                         .map((JsonObject name) -> parseStackContext(name, true, true))
-                        .handle(builder::addItem)));
+                        .handle(builder::addItem)))
+                .ifKey("before", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setBefore))
+                .ifKey("after", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setAfter));
 
         builderModification.accept(builder);
 

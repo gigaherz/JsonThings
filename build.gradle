@@ -1,139 +1,82 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
-}
-
 plugins {
     id 'idea'
+    id 'maven-publish'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.72'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'maven-publish'
+version = "0.9.8"
+group= "dev.gigaherz.jsonthings"
 
-version = "0.9.7"
-group= "dev.gigaherz.jsonthings" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "JsonThings-UNKNOWN"
-
-project.afterEvaluate {
-    archivesBaseName = "JsonThings-${project.MC_VERSION}"
+base {
+    archivesName = "JsonThings-1.20.1"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
-    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven {
+        url 'https://repo.spongepowered.org/repository/maven-public/'
+        content {
+            includeGroup "org.spongepowered"
+        }
+    }
     maven {
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
-}
 
-mixin {
-    add sourceSets.main, "jsonthings.refmap.json"
-}
-
-minecraft {
-    //mappings channel: 'official', version: '1.19.4'
-    mappings channel: 'parchment', version: '2023.08.06-1.20.1'
-
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', ''
-            property 'forge.logging.console.level', 'debug'
-
-            arg "--mixin=jsonthings.mixins.json"
-
-            ideaModule "${project.name}.main"
-
-            mods {
-                thismod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', ''
-            property 'forge.logging.console.level', 'debug'
-
-            arg "--mixin=jsonthings.mixins.json"
-
-            ideaModule "${project.name}.main"
-
-            mods {
-                thismod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', ''
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'jsonthings', '--all', '--output', file('src/main/generated_resources/'), '--existing', file('src/main/resources/')
-
-            arg "--mixin=jsonthings.mixins.json"
-
-            mods {
-                thismod {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-}
-
-repositories {
     flatDir {
         dirs project.rootProject.file("./debugmods")
     }
 }
 
-java {
-    withSourcesJar()
-}
+legacyForge {
+    version = "1.20.1-47.3.22"
 
-/*configurations {
-    library
-    implementation.extendsFrom library
-}
-minecraft.runs.all {
-    lazyToken('minecraft_classpath') {
-        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    mixin {
+        add sourceSets.main, "jsonthings.refmap.json"
+        config "jsonthings.mixins.json"
     }
-}*/
+
+    runs {
+        // applies to all the run configs below
+        configureEach {
+            gameDirectory = project.file('run')
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+
+        client {
+            client()
+        }
+
+        server {
+            server()
+        }
+    }
+
+    mods {
+        thismod {
+            sourceSet(sourceSets.main)
+        }
+    }
+
+    parchment {
+        minecraftVersion = "1.20.1"
+        mappingsVersion = "2023.09.03"
+    }
+}
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.3.5'
+    compileOnly 'org.jetbrains:annotations:24.0.1'
 
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
     //runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
     //runtimeOnly fg.deobf("useless:Patchouli:1.18.2.69")
 
-    implementation fg.deobf("curse.maven:rhino-416294:4085695")
+    modImplementation "curse.maven:rhino-416294:4085695"
 
     /*library 'org.graalvm.regex:regex:22.0.0.2'
     library 'org.graalvm.sdk:graal-sdk:22.0.0.2'
@@ -144,14 +87,17 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.+:processor'
 }
 
-jar {
-    from('/') {
-        include 'LICENSE.txt'
-    }
+java {
+    withSourcesJar()
+}
+
+tasks.named("jar") {
+
+    from(files('LICENSE.txt'))
 
     manifest {
         attributes([
-                "Specification-Title": "eyes",
+                "Specification-Title": "jsonthings",
                 "Specification-Vendor": "gigaherz",
                 "Specification-Version": "1", // We are version 1 of ourselves
                 "Implementation-Title": project.name,
@@ -174,8 +120,6 @@ project.afterEvaluate {
             mavenJava(MavenPublication) {
                 artifactId project.archivesBaseName
                 from components.java
-
-                //artifact sourceJar
 
                 pom.withXml {
                     asNode().dependencies.dependency.each { dep ->
@@ -206,6 +150,10 @@ project.afterEvaluate {
             }
         }
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.

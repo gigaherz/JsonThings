@@ -37,6 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 // TODO: replace generic parameter with Item
+@SuppressWarnings("removal")
 public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
 {
     public static ItemBuilder begin(ThingParser<ItemBuilder> ownerParser, ResourceLocation registryName)
@@ -122,7 +123,9 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         if (this.group != null)
             throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
         for (var tab : tabs)
-        {creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(tab)), stackContext);}
+        {
+            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(tab)), stackContext);
+        }
         oldCreativeMenuStacks.add(Pair.of(stackContext, tabs));
     }
 
@@ -131,7 +134,9 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         if (this.group != null)
             throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
         for (var tab : tabs)
-        {creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);}
+        {
+            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);
+        }
         oldCreativeMenuStacks.add(Pair.of(stackContext, Arrays.stream(tabs).map(ResourceLocation::toString).toArray(String[]::new)));
     }
 
@@ -220,6 +225,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
     }
 
     // TODO: change to return Item
+    @SuppressWarnings("removal")
     @Override
     protected IFlexItem buildInternal()
     {
@@ -287,6 +293,10 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder>
         };
     }
 
+    @SuppressWarnings("removal")
+    public Item getItem() {
+        return get().self();
+    }
 
     public void fillItemVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
     {

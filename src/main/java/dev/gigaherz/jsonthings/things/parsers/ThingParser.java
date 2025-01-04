@@ -13,7 +13,6 @@ import dev.gigaherz.jsonthings.util.KeyNotFoundException;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -52,7 +51,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         if (conditions == null)
             return true;
         var conditionArray = conditions.getAsJsonArray();
-        for(var e : conditionArray)
+        for (var e : conditionArray)
         {
             if (!parseAndTestCondition(thingType, thingId, e.getAsJsonObject()))
                 return false;
@@ -73,7 +72,8 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
         return conditionHandler.test(thingType, thingId, condition);
     }
 
-    static {
+    static
+    {
         registerCondition(ResourceLocation.parse("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
         registerCondition(ResourceLocation.parse("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
     }
@@ -106,7 +106,7 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
 
     public static void processParseException(String thingType, ResourceLocation key, Throwable e)
     {
-        var message = String.format("[Json Things] Error parsing %s with id '%s': %s", thingType, key,  e.getMessage());
+        var message = String.format("[Json Things] Error parsing %s with id '%s': %s", thingType, key, e.getMessage());
         LOGGER.error(message);
         LOGGER.trace("Details for message above", e);
         ModLoader.addLoadingIssue(new ModLoadingIssue(ModLoadingIssue.Severity.WARNING, message, List.of()));

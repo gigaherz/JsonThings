@@ -1,6 +1,5 @@
 package dev.gigaherz.jsonthings.util.parse.value;
 
-import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.function.IntObjBiConsumer;
 import dev.gigaherz.jsonthings.util.parse.function.MappedArrayValueFunction;
 

@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
@@ -43,7 +42,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    },  DefaultTypeProperties.builder());
+    }, DefaultTypeProperties.builder());
 
     public static final FlexBlockType<FlexFallingBlock> FALLING = register("falling", data -> {
 
@@ -57,7 +56,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                             var g = GsonHelper.getAsInt(obj, "g");
                             var b = GsonHelper.getAsInt(obj, "b");
                             var a = GsonHelper.getAsInt(obj, "a", 255);
-                            return new ColorRGBA(FastColor.ARGB32.color(a,r,g,b));
+                            return new ColorRGBA(FastColor.ARGB32.color(a, r, g, b));
                         }).handle(dustColor::setValue))
                         .typeError()
                 );
@@ -94,7 +93,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    },  DefaultTypeProperties.builder().defaultLayer("cutout").defaultTicksRandomly(true));
+    }, DefaultTypeProperties.builder().defaultLayer("cutout").defaultTicksRandomly(true));
 
     public static final FlexBlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -108,7 +107,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    },  DefaultTypeProperties.builder().stockProperties(DirectionalBlock.FACING));
+    }, DefaultTypeProperties.builder().stockProperties(DirectionalBlock.FACING));
 
     public static final FlexBlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -202,7 +201,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var woodTypeName = blockSetType.getValue().toString();
-            var woodType = WoodType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            var woodType = WoodType.values().filter(w -> Objects.equals(w.name(), woodTypeName)).findFirst().orElseThrow();
             return new FlexFenceGateBlock(props, woodType, propertyDefaultValues)
             {
                 @Override
@@ -237,7 +236,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var woodTypeName = blockSetType.getValue().toString();
-            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst()
+            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(), woodTypeName)).findFirst()
                     .orElseThrow(() -> new ThingParseException("Block set type not found: " + woodTypeName));
             return new FlexDoorBlock(props, woodType, propertyDefaultValues)
             {
@@ -254,12 +253,12 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> {
         var blockSetType = new MutableObject<ResourceLocation>();
         JParse.begin(data)
-            .key("block_set_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
+                .key("block_set_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var woodTypeName = blockSetType.getValue().toString();
-            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
+            var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(), woodTypeName)).findFirst().orElseThrow();
             return new FlexTrapdoorBlock(props, woodType, propertyDefaultValues)
             {
                 @Override
@@ -331,7 +330,10 @@ public class FlexBlockType<T extends Block & IFlexBlock>
 
     public static final class DefaultTypeProperties
     {
-        public static DefaultTypeProperties builder() { return new DefaultTypeProperties(); }
+        public static DefaultTypeProperties builder()
+        {
+            return new DefaultTypeProperties();
+        }
 
         private String defaultLayer = "solid";
         private boolean defaultSeeThrough = false;

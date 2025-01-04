@@ -7,8 +7,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import java.util.Arrays;
-
 @Mixin(PackType.class)
 public class ResourcePackTypeExtender
 {
@@ -17,7 +15,7 @@ public class ResourcePackTypeExtender
     private static PackType[] $VALUES;
 
     @SuppressWarnings("SameParameterValue")
-    @Invoker(value="<init>")
+    @Invoker(value = "<init>")
     private static PackType create(String name, int ordinal, String directoryName)
     {
         throw new IllegalStateException("Unreachable");

@@ -11,5 +11,5 @@
   "block.sandwood.sandwood_trapdoor": "Sandwood Trapdoor",
   "block.sandwood.sandwood_sapling": "Sandwood Sapling",
   "item.sandwood.sandpaper": "Sandpaper",
-  "itemGroup.sandwood.sandwood": "Sandwood Items"
+  "sandwood.sandwood": "Sandwood Items"
 }

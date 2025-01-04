@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.JsonThings;
-import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
@@ -16,13 +15,10 @@ import joptsimple.internal.Strings;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -30,7 +26,8 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class ItemParser extends ThingParser<ItemBuilder>
@@ -69,7 +66,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(List.of("group", "creative_menu_stacks"), () -> new ThingParseException("Cannot have group and creative_menu_stacks at the same time."))
-                .ifKey("group", val -> val.string().handle(name -> builder.withCreativeMenuStack(new StackContext(null), new String[]{name})))
+                .ifKey("group", val -> val.string().map(ResourceLocation::parse).handle(builder::setGroup))
                 .ifKey("creative_menu_stacks", val -> val
                         .array().forEach((i, entry) -> entry
                                 .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item, false, false), parseTabsList(item))))
@@ -201,20 +198,20 @@ public class ItemParser extends ThingParser<ItemBuilder>
         }
     }
 
-    public static String[] parseTabsList(JsonObject stackEntry)
+    public static ResourceLocation[] parseTabsList(JsonObject stackEntry)
     {
         if (stackEntry.has("tabs"))
         {
             JsonArray tabs = stackEntry.get("tabs").getAsJsonArray();
 
-            String[] tabsArray = new String[tabs.size()];
+            ResourceLocation[] tabsArray = new ResourceLocation[tabs.size()];
             int tabIndex = 0;
             for (JsonElement e : tabs)
             {
                 String str = e.getAsString();
                 if (!Strings.isNullOrEmpty(str))
                 {
-                    tabsArray[tabIndex++] = str;
+                    tabsArray[tabIndex++] = ResourceLocation.parse(str);
                 }
                 else
                 {

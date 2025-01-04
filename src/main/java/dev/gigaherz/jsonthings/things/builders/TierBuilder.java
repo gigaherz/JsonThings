@@ -69,5 +69,4 @@ public class TierBuilder extends BaseBuilder<SimpleTier, TierBuilder>
     {
         return new SimpleTier(tag, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
     }
-
 }

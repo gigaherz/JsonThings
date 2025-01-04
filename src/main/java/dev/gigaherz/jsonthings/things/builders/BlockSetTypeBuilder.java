@@ -111,14 +111,17 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
     {
         canOpenByHand = b;
     }
+
     public void setCanOpenByWindCharge(boolean b)
     {
         canOpenByWindCharge = b;
     }
+
     public void setCanButtonBeActivatedByArrowsd(boolean b)
     {
         canButtonBeActivatedByArrows = b;
     }
+
     public void setPressurePlateSensitivity(BlockSetType.PressurePlateSensitivity sensitivity)
     {
         pressurePlateSensitivity = sensitivity;
@@ -144,7 +147,7 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
         var buttonOnEvent = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, buttonOn, SoundEvents.WOODEN_BUTTON_CLICK_ON);
         return new BlockSetType(getRegistryName().toString(), canOpenByHand, canOpenByWindCharge, canButtonBeActivatedByArrows, pressurePlateSensitivity, soundTypeObj,
                 doorCloseEvent, doorOpenEvent, trapdoorCloseEvent, trapdoorOpenEvent,
-                pressurePlateOffEvent, pressurePlateOnEvent, buttonOffEvent,buttonOnEvent);
+                pressurePlateOffEvent, pressurePlateOnEvent, buttonOffEvent, buttonOnEvent);
     }
 
     public boolean isWood()

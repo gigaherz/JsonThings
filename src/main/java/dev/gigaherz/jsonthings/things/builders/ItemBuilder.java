@@ -15,20 +15,26 @@ import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -50,6 +56,8 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
     private ResourceKey<CreativeModeTab> group = null;
     private final Multimap<ResourceKey<CreativeModeTab>, StackContext> creativeMenuStacks = ArrayListMultimap.create();
+
+    private final List<Pair<StackContext, String[]>> oldCreativeMenuStacks = Lists.newArrayList();
 
     private Supplier<@NotNull FoodProperties> foodDefinition = null;
 
@@ -102,15 +110,34 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         this.maxStackSize = maxStackSize;
     }
 
-    public void setGroup(ResourceLocation group) {
-        if (!this.creativeMenuStacks.isEmpty()) throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
+    public void setGroup(ResourceLocation group)
+    {
+        if (!this.creativeMenuStacks.isEmpty())
+            throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
         this.group = ResourceKey.create(Registries.CREATIVE_MODE_TAB, group);
     }
 
     @Deprecated(forRemoval = true)
     public void withCreativeMenuStack(StackContext stackContext, String[] tabs)
     {
-        creativeMenuStacks.add(Pair.of(stackContext, tabs));
+        if (this.group != null)
+            throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
+        for (var tab : tabs)
+        {
+            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.parse(tab)), stackContext);
+        }
+        oldCreativeMenuStacks.add(Pair.of(stackContext, tabs));
+    }
+
+    public void withCreativeMenuStack(StackContext stackContext, ResourceLocation[] tabs)
+    {
+        if (this.group != null)
+            throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
+        for (var tab : tabs)
+        {
+            creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);
+        }
+        oldCreativeMenuStacks.add(Pair.of(stackContext, Arrays.stream(tabs).map(ResourceLocation::toString).toArray(String[]::new)));
     }
 
     public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, ResourceLocation id, double amount, AttributeModifier.Operation op)
@@ -250,7 +277,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
 
         if (!creativeMenuStacks.isEmpty())
         {
-            creativeMenuStacks.get(event.getTabKey()).forEach(stack -> event.accept(stack.toStack(context.get().self())));
+            creativeMenuStacks.get(event.getTabKey()).forEach(stack -> event.accept(stack.toStack(context.get())));
         }
 
         if (getParent() != null)
@@ -262,13 +289,20 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
     @Deprecated(forRemoval = true)
     public List<Pair<StackContext, String[]>> getCreativeMenuStacks()
     {
-        if (creativeMenuStacks.size() > 0)
-            return creativeMenuStacks;
+        if (group != null)
+        {
+            return List.of(Pair.of(new StackContext(null), new String[]{group.toString()}));
+        }
+
+        if (!oldCreativeMenuStacks.isEmpty())
+        {
+            return oldCreativeMenuStacks;
+        }
 
         if (getParent() != null)
             return getParent().getCreativeMenuStacks();
 
-        return creativeMenuStacks;
+        return oldCreativeMenuStacks;
     }
 
     @Nullable

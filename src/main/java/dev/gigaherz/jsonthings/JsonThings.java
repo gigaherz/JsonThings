@@ -138,8 +138,8 @@ public class JsonThings
                 var thingPackManager = ThingResourceManager.instance();
                 return new PackSelectionScreen(thingPackManager.getRepository(),
                         rpl -> {
-                                Minecraft.getInstance().setScreen(returnTo);
-                                thingPackManager.onConfigScreenSave();
+                            Minecraft.getInstance().setScreen(returnTo);
+                            thingPackManager.onConfigScreenSave();
                         }, thingPackManager.getThingPacksLocation(),
                         Component.literal("Thing Packs"));
             });

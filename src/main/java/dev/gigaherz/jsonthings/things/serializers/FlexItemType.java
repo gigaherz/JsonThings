@@ -217,7 +217,8 @@ public class FlexItemType<T extends Item>
         return "ItemType{" + ThingRegistries.ITEM_TYPES.getKey(this) + "}";
     }
 
-    public static ItemAttributeModifiers createToolAttributes(Tier tier, float damage, float speed) {
+    public static ItemAttributeModifiers createToolAttributes(Tier tier, float damage, float speed)
+    {
         return ItemAttributeModifiers.builder()
                 .add(
                         Attributes.ATTACK_DAMAGE,
@@ -235,5 +236,4 @@ public class FlexItemType<T extends Item>
                 )
                 .build();
     }
-
 }

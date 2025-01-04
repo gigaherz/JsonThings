@@ -13,14 +13,17 @@ public interface IEventRunner
 
     default void runEvent(FlexEventType<Void> event, FlexEventContext context, Runnable defaultValue)
     {
-        runEvent(event, context, () -> { defaultValue.run(); return null; });
+        runEvent(event, context, () -> {
+            defaultValue.run();
+            return null;
+        });
     }
 
     default <T> T runEvent(FlexEventType<T> event, FlexEventContext context, Supplier<T> defaultValue)
     {
         FlexEventHandler<T> handler = getEventHandler(event);
         if (handler != null)
-            return (T)handler.apply(event, context);
+            return (T) handler.apply(event, context);
         return defaultValue.get();
     }
 
@@ -28,7 +31,7 @@ public interface IEventRunner
     {
         FlexEventHandler<T> handler = getEventHandler(event);
         if (handler != null)
-            return (T)handler.apply(event, context);
+            return (T) handler.apply(event, context);
         return defaultValue.call();
     }
 }

@@ -67,6 +67,7 @@ public class FlexFluid extends Fluid implements IFlexFluid
         //noinspection unchecked
         return eventHandlers.get(event);
     }
+
     @Override
     public void setBucketItem(Supplier<Item> bucketItem)
     {

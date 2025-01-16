@@ -8,6 +8,7 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.IEventBus;
@@ -39,15 +40,17 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
                 var builder = new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0).icon(() -> icon.toStack(null))
                         .title(Component.translatable(name))
                         .displayItems((parameters, output) -> {
-                            for (var stackContext : thing.getItems())
+                            for (var variantProvider : thing.getVariantProviders())
                             {
-                                output.accept(stackContext.toStack(null));
+                                variantProvider.provideVariants(
+                                        ResourceKey.create(Registries.CREATIVE_MODE_TAB, thing.getRegistryName()),
+                                        output, parameters, null, true);
                             }
                         });
                 if (thing.getBefore() != null)
-                    builder = builder.withTabsBefore(thing.getBefore());
+                    builder = builder.withTabsAfter(thing.getBefore());
                 if (thing.getAfter() != null)
-                    builder = builder.withTabsAfter(thing.getAfter());
+                    builder = builder.withTabsBefore(thing.getAfter());
                 if (thing.getRightSide())
                     builder = builder.alignedRight();
                 helper.register(thing.getRegistryName(), builder.build());
@@ -75,9 +78,11 @@ public class CreativeModeTabParser extends ThingParser<CreativeModeTabBuilder>
                 )
                 .ifKey("translation_key", val -> val.string().handle(builder::setTranslationKey))
                 .ifKey("right_side", val -> val.bool().handle(builder::setRightSide))
-                .ifKey("items", val -> val.array().forEach((index, entry) -> entry.obj()
-                        .map((JsonObject name) -> parseStackContext(name, true, true))
-                        .handle(builder::addItem)))
+                .ifKey("items", val -> val.array().forEach((index, entry) -> entry
+                        .ifString(str -> str.map(ResourceLocation::parse).handle(builder::addItem))
+                        .ifObj(obj -> obj.map((JsonObject name) -> parseStackContext(name, true, true)).handle(builder::addItem))
+                        .typeError()
+                ))
                 .ifKey("before", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setBefore))
                 .ifKey("after", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setAfter));
 

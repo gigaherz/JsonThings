@@ -1,14 +1,20 @@
 package dev.gigaherz.jsonthings.things.builders;
 
+import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
+import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
+import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, CreativeModeTabBuilder>
 {
@@ -18,7 +24,7 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
     }
 
     private StackContext iconItem;
-    private final ArrayList<StackContext> items = new ArrayList<>();
+    private final ArrayList<ItemVariantProvider> items = new ArrayList<>();
     private ResourceLocation[] before;
     private ResourceLocation[] after;
     private String translation_key;
@@ -67,6 +73,45 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
         return new FlexCreativeModeTab( translation_key != null ? translation_key : registryName.getNamespace() + "." + registryName.getPath().replace("/", "."), iconItem);
     }
 
+    public void addItem(ResourceLocation item)
+    {
+        this.items.add(new ItemVariantProvider()
+        {
+            final ResourceLocation itemName = item;
+            private ItemVariantProvider actualVariant;
+
+            final
+            @Override
+            public void provideVariants(ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @Nullable ItemBuilder context, boolean explicit)
+            {
+                if (actualVariant == null)
+                {
+                    var builder = JsonThings.itemParser.getBuildersMap().get(itemName);
+                    if (builder != null)
+                    {
+                        actualVariant = builder;
+                    }
+                    else
+                    {
+                        var item = Utils.getOrCrash(BuiltInRegistries.ITEM, itemName);
+                        if (item instanceof ItemVariantProvider provider)
+                        {
+                            actualVariant = provider;
+                        }
+                        else
+                        {
+                            actualVariant = (tabKey1, output1, parameters1, context1, explicit1) -> {
+                                output1.accept(item.getDefaultInstance());
+                            };
+                        }
+                    }
+                }
+
+                actualVariant.provideVariants(tabKey, output, parameters, context, explicit);
+            }
+        });
+    }
+
     public void addItem(StackContext stackContext)
     {
         this.items.add(stackContext);
@@ -74,9 +119,13 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
 
     public List<StackContext> getItems()
     {
-        return Collections.unmodifiableList(items);
+        return items.stream().filter(t -> t instanceof StackContext).map(t -> (StackContext)t).toList();
     }
 
+    public List<ItemVariantProvider> getVariantProviders()
+    {
+        return items;
+    }
 
     public ResourceLocation @Nullable[] getBefore()
     {

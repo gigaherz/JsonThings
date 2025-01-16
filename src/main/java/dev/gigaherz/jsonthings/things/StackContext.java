@@ -1,14 +1,18 @@
 package dev.gigaherz.jsonthings.things;
 
+import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
+import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
-public class StackContext
+public class StackContext implements ItemVariantProvider
 {
     public final ResourceLocation item;
     public int count = 1;
@@ -53,4 +57,10 @@ public class StackContext
             stack.applyComponents(components);
         return stack;
     }
+
+    @Override
+    public void provideVariants(ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @Nullable ItemBuilder context, boolean explicit)
+    {
+        output.accept(toStack(null));
+}
 }

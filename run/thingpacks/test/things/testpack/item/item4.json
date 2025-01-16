@@ -8,12 +8,6 @@
 
   "max_stack_size": 1,
 
-  "creative_menu_stacks": [
-    {
-      "tabs": [ "tools_and_utilities" ]
-    }
-  ],
-
   "fire_resistant": true
 
 }

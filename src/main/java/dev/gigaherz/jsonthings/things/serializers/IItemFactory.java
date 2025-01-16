@@ -1,24 +1,33 @@
 package dev.gigaherz.jsonthings.things.serializers;
 
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import org.jetbrains.annotations.Nullable;
 
-public interface IItemFactory<T extends Item>
+import java.util.Objects;
+
+public interface IItemFactory<T extends Item> extends ItemVariantProvider
 {
     T construct(Item.Properties properties, ItemBuilder builder);
 
-    default void provideVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
+    @Override
+    default void provideVariants(ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @Nullable ItemBuilder context, boolean explicit)
     {
-        event.accept(context.get().getDefaultInstance());
+        var item = Objects.requireNonNull(context).get();
+        if (item instanceof ItemVariantProvider provider)
+            provider.provideVariants(tabKey, output, parameters, context, explicit);
+        else
+            output.accept(item.getDefaultInstance());
     }
 
     class WithVariants<T extends Item> implements IItemFactory<T>
     {
         private final IItemFactory<T> innerFactory;
-        private final VariantProvider stackProvider;
+        private final ItemVariantProvider stackProvider;
 
-        public WithVariants(IItemFactory<T> innerFactory, VariantProvider stackProvider)
+        public WithVariants(IItemFactory<T> innerFactory, ItemVariantProvider stackProvider)
         {
             this.innerFactory = innerFactory;
             this.stackProvider = stackProvider;
@@ -31,15 +40,9 @@ public interface IItemFactory<T extends Item>
         }
 
         @Override
-        public void provideVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
+        public void provideVariants(ResourceKey<CreativeModeTab> tabKey,CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @Nullable ItemBuilder context, boolean explicit)
         {
-            stackProvider.provideVariants(event, context);
+            stackProvider.provideVariants(tabKey, output, parameters, context, explicit);
         }
     }
-
-    @FunctionalInterface
-    interface VariantProvider
-    {
-        void provideVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context);
     }
-}

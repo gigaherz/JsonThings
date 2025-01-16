@@ -12,6 +12,7 @@ import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
+import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -31,15 +32,15 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
+public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemVariantProvider
 {
     public static ItemBuilder begin(ThingParser<Item, ItemBuilder> ownerParser, ResourceLocation registryName)
     {
@@ -239,25 +240,28 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
         return item;
     }
 
-    public void fillItemVariants(BuildCreativeModeTabContentsEvent event, ItemBuilder context)
+    public void provideVariants(ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @Nullable ItemBuilder _context, boolean explicit)
     {
-        if (group != null)
+        var context = Objects.requireNonNullElse(_context, this);
+
+        if(explicit)
         {
-            if (group.equals(event.getTabKey()))
+            factory.provideVariants(tabKey, output, parameters, context, explicit);
+        }
+        else if (group != null)
             {
-                factory.provideVariants(event, context);
+            if (group.equals(tabKey))
+            {
+                factory.provideVariants(tabKey, output, parameters, context, explicit);
             }
-            return;
         }
-
-        if (!creativeMenuStacks.isEmpty())
+        else if (!creativeMenuStacks.isEmpty())
         {
-            creativeMenuStacks.get(event.getTabKey()).forEach(stack -> event.accept(stack.toStack(context.get())));
+            creativeMenuStacks.get(tabKey).forEach(stack -> output.accept(stack.toStack(context.get())));
         }
-
-        if (getParent() != null)
+        else if (getParent() != null)
         {
-            getParent().fillItemVariants(event, context);
+            getParent().provideVariants(tabKey, output, parameters, context, explicit);
         }
     }
 

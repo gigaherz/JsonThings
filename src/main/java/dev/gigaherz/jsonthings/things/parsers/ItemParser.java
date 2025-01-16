@@ -49,7 +49,7 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
 
     public void addToTabs(BuildCreativeModeTabContentsEvent event)
     {
-        getBuilders().forEach(thing -> thing.fillItemVariants(event, thing));
+        getBuilders().forEach(thing -> thing.provideVariants(event.getTabKey(), event, event.getParameters(), thing, false));
     }
 
     @Override

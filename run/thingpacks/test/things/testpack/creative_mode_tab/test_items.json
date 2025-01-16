@@ -6,6 +6,6 @@
     {"item": "testpack:item1"},
     {"item": "testpack:item2"},
     {"item": "testpack:item3"},
-    {"item": "testpack:item4"}
+    "testpack:item4"
   ]
 }

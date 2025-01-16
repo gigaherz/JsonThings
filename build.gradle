@@ -4,7 +4,7 @@ plugins {
     id 'net.neoforged.moddev.legacyforge' version '2.0.72'
 }
 
-version = "0.9.8"
+version = "0.9.9-beta"
 group= "dev.gigaherz.jsonthings"
 
 base {

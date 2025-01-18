@@ -31,8 +31,8 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -296,7 +296,7 @@ public class ItemBuilder extends BaseBuilder<IFlexItem, ItemBuilder> implements 
         return get().self();
     }
 
-    public void provideVariants(ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @org.jetbrains.annotations.Nullable ItemBuilder _context, boolean explicit)
+    public void provideVariants(ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @Nullable ItemBuilder _context, boolean explicit)
     {
         var context = Objects.requireNonNullElse(_context, this);
 

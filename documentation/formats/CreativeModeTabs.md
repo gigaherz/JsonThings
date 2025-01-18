@@ -20,5 +20,30 @@ Defines the item to be used as the icon for the tab.
 
 Required.
 
-Must be a resource location string like `"string"`, or `"minecraft:stick"`. Like on model jsons and other vanilla files,
+Must be a resource location string like `"string"`, or `"minecraft:stick"`, or a json object (`{}`) containing a stack definition.
+
+## "items"
+
+Defines the contents of the tab. Additional json items can add themselves to a tab via their own json files. 
+
+Required.
+
+Must be a list of item stacks. Each entry must be either resource location strings like `"string"`, or `"minecraft:stick"`, or a json object (`{}`) containing a stack definition.
+
+## "before"
+
+Lists creative mode tabs that must be placed to the right of this tab.
+
+Required.
+
+Must be a list of resource location strings like `"string"`, or `"minecraft:stick"`. Like on model jsons and other vanilla files,
+if the namespace (the part before the colon) is missing "minecraft" is implied.
+
+## "after"
+
+Lists creative mode tabs that must be placed to the left of this tab.
+
+Required.
+
+Must be a list of resource location strings like `"string"`, or `"minecraft:stick"`. Like on model jsons and other vanilla files,
 if the namespace (the part before the colon) is missing "minecraft" is implied.

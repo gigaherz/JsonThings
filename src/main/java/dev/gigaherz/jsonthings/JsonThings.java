@@ -8,7 +8,6 @@ import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.network.chat.Component;
@@ -36,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 @EventBusSubscriber(modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
 @Mod(JsonThings.MODID)

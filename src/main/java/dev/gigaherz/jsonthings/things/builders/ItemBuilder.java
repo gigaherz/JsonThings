@@ -122,6 +122,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder>
             creativeMenuStacks.put(ResourceKey.create(Registries.CREATIVE_MODE_TAB, tab), stackContext);
         }
     }
+
     public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, ResourceLocation id, double amount, AttributeModifier.Operation op)
     {
         var mod = new AttributeModifier(id, amount, op);

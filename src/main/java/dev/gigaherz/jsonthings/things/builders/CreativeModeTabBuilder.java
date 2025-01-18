@@ -92,14 +92,13 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
                             }
                         });
                 if (getBefore() != null)
-                    builder = builder.withTabsBefore(getBefore());
+                    builder = builder.withTabsAfter(getBefore());
                 if (getAfter() != null)
-                    builder = builder.withTabsAfter(getAfter());
+                    builder = builder.withTabsBefore(getAfter());
                 if (getRightSide())
                     builder = builder.alignedRight();
         return builder.build();
     }
-
 
     public ResourceLocation @Nullable[] getBefore()
     {

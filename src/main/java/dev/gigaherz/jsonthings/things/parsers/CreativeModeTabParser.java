@@ -48,9 +48,11 @@ public class CreativeModeTabParser extends ThingParser<FlexCreativeModeTab, Crea
                 )
                 .ifKey("translation_key", val -> val.string().handle(builder::setTranslationKey))
                 .ifKey("right_side", val -> val.bool().handle(builder::setRightSide))
-                .ifKey("items", val -> val.array().forEach((index, entry) -> entry.obj()
-                        .map((JsonObject name) -> parseStackContext(name, true, true))
-                        .handle(builder::addItem)))
+                .ifKey("items", val -> val.array().forEach((index, entry) -> entry
+                        .ifString(str -> str.map(ResourceLocation::parse).map(StackContext::new).handle(builder::addItem))
+                        .ifObj(obj -> obj.map((JsonObject name) -> parseStackContext(name, true, true)).handle(builder::addItem))
+                        .typeError())
+                )
                 .ifKey("before", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setBefore))
                 .ifKey("after", val -> val.array().flatten(e -> e.string().map(ResourceLocation::parse).value(), ResourceLocation[]::new).handle(builder::setAfter));
 

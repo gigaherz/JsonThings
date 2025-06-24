@@ -36,6 +36,7 @@ import net.neoforged.neoforge.resource.ResourcePackLoader;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -112,9 +113,10 @@ public class JsonThings
     @SubscribeEvent
     public static void packFinder(AddPackFindersEvent event)
     {
-        if (event.getPackType() == PackType.SERVER_DATA)
+        switch (event.getPackType())
         {
-            event.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder());
+            case CLIENT_RESOURCES, SERVER_DATA -> event.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder(event.getPackType()));
+            default -> {}
         }
     }
 
@@ -124,31 +126,16 @@ public class JsonThings
         ThingResourceManager.instance().validateAll();
     }
 
-    @EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID)
     public static class ClientHandlers
     {
-        private static void addClientPackFinder()
-        {
-        }
-
-        @SubscribeEvent
-        public static void mc(AddPackFindersEvent ev)
-        {
-            if (ev.getPackType() == PackType.CLIENT_RESOURCES)
-            {
-                ev.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder());
-            }
-        }
 
         @SubscribeEvent
         public static void constructMod(FMLConstructModEvent event)
         {
             if (DatagenModLoader.isRunningDataGen()) return;
 
-            event.enqueueWork(() -> {
-                ClientHandlers.addClientPackFinder();
-                BlockColorHandler.init();
-            });
+            event.enqueueWork(BlockColorHandler::init);
 
             ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class, () -> (mc, returnTo) -> {
                 var thingPackManager = ThingResourceManager.instance();
@@ -170,6 +157,7 @@ public class JsonThings
                 ResourceLocation layer = thing.getDefaultRenderLayer();
                 if (!layer.equals(solid))
                 {
+                    //noinspection deprecation
                     ItemBlockRenderTypes.setRenderLayer(thing.get().self(), NamedRenderTypeManager.get(layer).block());
                 }
             });
@@ -203,7 +191,7 @@ public class JsonThings
         public static void clientProperties(RegisterClientExtensionsEvent event)
         {
             JsonThings.fluidTypeParser.getBuilders().forEach(thing -> {
-                var color = thing.getColor();
+                var color = Objects.requireNonNullElse(thing.getColor(), 0xFFFFFFFF);
                 var stillTexture = thing.getStillTexture();
                 var flowingTexture = thing.getFlowingTexture();
                 var sideTexture = thing.getSideTexture();

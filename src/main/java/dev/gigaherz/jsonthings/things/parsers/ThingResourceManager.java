@@ -13,26 +13,26 @@ import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.server.packs.PackLocationInfo;
-import net.minecraft.server.packs.repository.FolderRepositorySource;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.server.packs.repository.RepositorySource;
+import net.minecraft.server.packs.PackSelectionConfig;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.*;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
+import net.neoforged.neoforgespi.language.IModInfo;
 import org.slf4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -78,24 +78,24 @@ public class ThingResourceManager
         return parser;
     }
 
-    public RepositorySource getWrappedPackFinder()
+    public RepositorySource getWrappedPackFinder(PackType packType)
     {
-        // TODO: Reconsider how to do this right
         return (infoConsumer) -> folderPackFinder.loadPacks(pack -> {
             if (!disabledPacks.contains(pack.getId()))
             {
-                var loc = pack.location;
-                pack.location = new PackLocationInfo(
-                        "thingpack:" + loc.id(),
-                        loc.title(),
-                        loc.source(),
-                        loc.knownPackInfo()
-                );
-                //pack.required = true;
-                infoConsumer.accept(pack);
+                infoConsumer.accept(Pack.readMetaAndCreate(
+                        new PackLocationInfo(
+                                "thingpack:" + pack.location.id(),
+                                pack.location.title(),
+                                pack.location.source(),
+                                pack.location.knownPackInfo()
+                        ),
+                        pack.resources,
+                        packType,
+                        new PackSelectionConfig(true, Pack.Position.TOP, false)
+                ));
             }
-        }/*, (a, n, b, c, d, e, f, g) ->
-                infoFactory.create("thingpack:" + a, n, true, c, d, e, f, g)*/);
+        });
     }
 
     public Path getThingPacksLocation()

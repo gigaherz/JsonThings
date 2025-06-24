@@ -1,8 +1,6 @@
 {
     "pack": {
         "description": "Sandwood: An Example ThingPack",
-        "pack_format": 13,
-        "forge:assets_pack_format": 13,
-        "forge:data_pack_format": 12
+        "pack_format": 55
     }
 }

@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings;
 
+import com.google.common.eventbus.Subscribe;
 import com.mojang.logging.LogUtils;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
@@ -21,6 +22,7 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.client.NamedRenderTypeManager;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -116,12 +118,26 @@ public class JsonThings
         }
     }
 
+    @SubscribeEvent
+    public static void validateThings(FMLCommonSetupEvent event)
+    {
+        ThingResourceManager.instance().validateAll();
+    }
+
     @EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
     public static class ClientHandlers
     {
         private static void addClientPackFinder()
         {
-            Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.instance().getWrappedPackFinder());
+        }
+
+        @SubscribeEvent
+        public static void mc(AddPackFindersEvent ev)
+        {
+            if (ev.getPackType() == PackType.CLIENT_RESOURCES)
+            {
+                ev.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder());
+            }
         }
 
         @SubscribeEvent

@@ -50,4 +50,9 @@ public class FoodPropertiesBuilder extends BaseBuilder<FoodProperties, FoodPrope
         if (alwaysEat) foodBuilder.alwaysEdible();
         return foodBuilder.build();
     }
+
+    @Override
+    public void validate()
+    {
+    }
 }

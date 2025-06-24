@@ -100,7 +100,7 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
         {
             r.run();
         }
-        catch (JsonParseException | KeyNotFoundException | ThingParseException | IllegalStateException e)
+        catch (JsonParseException | KeyNotFoundException | ThingParseException | IllegalStateException | NullPointerException e)
         {
             processParseException(thingType, keyGetter.get(), e);
         }
@@ -110,7 +110,7 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
     {
         var message = String.format("[Json Things] Error parsing %s with id '%s': %s", thingType, key,  e.getMessage());
         LOGGER.error(message);
-        LOGGER.trace("Details for message above", e);
+        LOGGER.debug("Details for message above", e);
         ModLoader.addLoadingIssue(new ModLoadingIssue(ModLoadingIssue.Severity.WARNING, message, List.of()));
     }
 
@@ -352,5 +352,10 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
                 processAndConsumeErrors(getThingType(), getBuilders(), thing -> helper.register(thing.getRegistryName(), converter.apply(thing, thing.get())), BaseBuilder::getRegistryName);
             });
         });
+    }
+
+    public void validateBuilders()
+    {
+        processAndConsumeErrors(getThingType(), getBuilders(), BaseBuilder::validate, BaseBuilder::getRegistryName);
     }
 }

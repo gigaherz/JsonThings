@@ -68,4 +68,8 @@ public class ToolMaterialBuilder extends BaseBuilder<ToolMaterial, ToolMaterialB
         return new ToolMaterial(tag, uses, speed, attackDamageBonus, enchantmentValue, repairIngredient);
     }
 
+    @Override
+    public void validate()
+    {
+    }
 }

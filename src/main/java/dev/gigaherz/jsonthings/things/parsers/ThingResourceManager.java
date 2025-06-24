@@ -177,6 +177,11 @@ public class ThingResourceManager
         thingParsers.forEach(ThingParser::finishLoading);
     }
 
+    public void validateAll()
+    {
+        thingParsers.forEach(ThingParser::validateBuilders);
+    }
+
     public PackRepository getRepository()
     {
         return packList;

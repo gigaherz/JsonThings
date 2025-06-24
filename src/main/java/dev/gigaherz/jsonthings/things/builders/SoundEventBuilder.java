@@ -36,4 +36,9 @@ public class SoundEventBuilder extends BaseBuilder<SoundEvent, SoundEventBuilder
                 ? SoundEvent.createFixedRangeEvent(getRegistryName(), range)
                 : SoundEvent.createVariableRangeEvent(getRegistryName());
     }
+
+    @Override
+    public void validate()
+    {
+    }
 }

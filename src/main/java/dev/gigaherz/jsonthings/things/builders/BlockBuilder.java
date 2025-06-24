@@ -484,4 +484,9 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     {
         this.factory = factory;
     }
+
+    @Override
+    public void validate()
+    {
+    }
 }

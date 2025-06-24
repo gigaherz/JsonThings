@@ -4,14 +4,15 @@ import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.JsonThings;
-import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.builders.FoodPropertiesBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.StringValue;
 import joptsimple.internal.Strings;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -97,7 +99,8 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
                 .ifKey("lore", val -> val.array().unwrapRaw(this::parseLore).handle(builder::setLore))
                 .ifKey("tool_actions", val -> val.array().strings().flatten(StringValue::getAsString, String[]::new).handle(builder::setToolActions))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap))
-                .ifKey("burn_duration", val -> val.intValue().min(1).handle(builder::setBurnDuration));
+                .ifKey("burn_duration", val -> val.intValue().min(1).handle(builder::setBurnDuration))
+                .ifKey("components", val -> val.obj().raw(builder::setComponents));
 
         builderModification.accept(builder);
 

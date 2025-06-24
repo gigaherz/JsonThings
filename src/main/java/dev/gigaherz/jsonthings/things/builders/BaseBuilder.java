@@ -182,4 +182,6 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
             });
         }
     }
+
+    public abstract void validate();
 }

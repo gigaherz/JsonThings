@@ -4,6 +4,7 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterial;
@@ -79,7 +80,15 @@ public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMateri
     @Override
     protected ArmorMaterial buildInternal()
     {
-        var se = DeferredHolder.create(Registries.SOUND_EVENT, equipSound);
-        return new ArmorMaterial(durability, defense, enchantmentValue, se, toughness, knockbackResistance, repairIngredient, ResourceKey.create(EquipmentAssets.ROOT_ID, getRegistryName()));
+        soundEvent = DeferredHolder.create(Registries.SOUND_EVENT, equipSound);
+        return new ArmorMaterial(durability, defense, enchantmentValue, soundEvent, toughness, knockbackResistance, repairIngredient, ResourceKey.create(EquipmentAssets.ROOT_ID, getRegistryName()));
+    }
+
+    private DeferredHolder<SoundEvent, SoundEvent> soundEvent;
+
+    @Override
+    public void validate()
+    {
+        if (soundEvent != null) soundEvent.value();
     }
 }

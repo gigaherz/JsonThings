@@ -68,8 +68,16 @@ public class ConsumableBuilder extends BaseBuilder<Consumable, ConsumableBuilder
     @Override
     protected Consumable buildInternal()
     {
-        var soundEvent = DeferredHolder.create(Registries.SOUND_EVENT, sound);
+        soundEvent = DeferredHolder.create(Registries.SOUND_EVENT, sound);
         var consumeEffects = Arrays.stream(onConsumeEffects).map(e -> ConsumeEffect.CODEC.decode(JsonOps.INSTANCE, e).getOrThrow(JParseException::new).getFirst()).toList();
         return new Consumable(consumeSeconds, animation, soundEvent, hasConsumeParticles, consumeEffects);
+    }
+
+    private DeferredHolder<SoundEvent, SoundEvent> soundEvent;
+
+    @Override
+    public void validate()
+    {
+        if (soundEvent != null) soundEvent.value();
     }
 }

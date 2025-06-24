@@ -4,11 +4,14 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeBuilder>
 {
@@ -158,5 +161,11 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
         var fenceGateClose = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, this.fenceGateClose, SoundEvents.FENCE_GATE_CLOSE);
         var fenceGateOpen = Utils.getOrElse(BuiltInRegistries.SOUND_EVENT, this.fenceGateOpen, SoundEvents.FENCE_GATE_OPEN);
         return new WoodType(getRegistryName().toString(), setType, setType.soundType(), hangingSignSoundType, fenceGateClose, fenceGateOpen);
+    }
+
+    @Override
+    public void validate()
+    {
+
     }
 }

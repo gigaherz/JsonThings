@@ -350,4 +350,9 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
 
         return new FluidType(props);
     }
+
+    @Override
+    public void validate()
+    {
+    }
 }

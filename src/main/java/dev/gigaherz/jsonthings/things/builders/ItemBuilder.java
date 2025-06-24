@@ -3,7 +3,9 @@ package dev.gigaherz.jsonthings.things.builders;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.mojang.datafixers.util.Pair;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Lifecycle;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
@@ -14,31 +16,35 @@ import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
 import dev.gigaherz.jsonthings.util.Utils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.*;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.neoforged.fml.util.thread.EffectiveSide;
 import net.neoforged.neoforge.common.ItemAbility;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemVariantProvider
 {
@@ -74,6 +80,8 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     private List<MutableComponent> lore;
 
     private Integer burnDuration;
+
+    private JsonObject components;
 
     private IItemFactory<? extends Item> factory;
 
@@ -196,6 +204,11 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         this.burnDuration = burnTime;
     }
 
+    public void setComponents(JsonObject dataComponentPatch)
+    {
+        this.components = dataComponentPatch;
+    }
+
     @Override
     protected Item buildInternal()
     {
@@ -232,12 +245,87 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
             properties = properties.fireResistant();
         }
 
+        var components = getComponents();
+        if (components != null)
+        {
+            var parsedComponents = parseDataComponents(components);
+            var props = properties;
+            for(var entry : parsedComponents.entrySet())
+            {
+                @SuppressWarnings("rawtypes")
+                DataComponentType key = entry.getKey();
+                entry.getValue().ifPresent(value -> {
+                    //noinspection unchecked
+                    props.component(key, value);
+                });
+            }
+        }
+
         Item item = factory.construct(properties, this);
 
         if (item instanceof IEventRunner eventRunner)
             constructEventHandlers(eventRunner);
 
         return item;
+    }
+
+    private DataComponentPatch parseDataComponents(JsonObject components)
+    {
+        return DataComponentPatch.CODEC.decode(RegistryOps.create(JsonOps.INSTANCE, getLookup()), components).getOrThrow().getFirst();
+    }
+
+    private RegistryOps.RegistryInfoLookup getLookup()
+    {
+        //Holder.Reference.createStandAlone
+
+        return new RegistryOps.RegistryInfoLookup()
+        {
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            @Override
+            public <T> Optional<RegistryOps.RegistryInfo<T>> lookup(ResourceKey<? extends Registry<? extends T>> registryKey)
+            {
+                var registry = (WritableRegistry<T>) BuiltInRegistries.REGISTRY.getValueOrThrow((ResourceKey) registryKey);
+                return Optional.of(new RegistryOps.RegistryInfo(registry, new HolderGetter<T>()
+                {
+                    @Override
+                    public Optional<Holder.Reference<T>> get(ResourceKey<T> resourceKey)
+                    {
+                        Optional<T> optional = registry.getOptional(resourceKey);
+                        Holder.Reference<T> holder = optional.map(obj -> (Holder.Reference<T>)registry.wrapAsHolder(obj))
+                                .orElseGet(() -> {
+                                    var holder1 = DeferredHolder.create(resourceKey);
+                                    validationPending.add(holder1);
+                                    return wrapAsReference(registry, holder1);
+                                });
+                        return Optional.of(holder);
+                    }
+
+                    @Override
+                    public Optional<HolderSet.Named<T>> get(TagKey tagKey)
+                    {
+                        return Optional.empty();
+                    }
+                }, registry.registryLifecycle()));
+            }
+        };
+    }
+
+    private <T> Holder.Reference<T> wrapAsReference(HolderOwner<T> owner, DeferredHolder<T, T> holder1)
+    {
+        return new Holder.Reference<>(Holder.Reference.Type.STAND_ALONE, owner, holder1.getKey(), null)
+        {
+            @Override
+            public ResourceKey<T> key()
+            {
+                return holder1.getKey();
+            }
+
+            @Override
+            public T value()
+            {
+                return holder1.value();
+            }
+        };
     }
 
     public void provideVariants(ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.Output output, CreativeModeTab.ItemDisplayParameters parameters, @Nullable ItemBuilder _context, boolean explicit)
@@ -363,7 +451,8 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         {
             for (var attributeEntries : slotEntries.getValue().entries())
             {
-                var attr = DeferredHolder.create(Registries.ATTRIBUTE, attributeEntries.getKey()); // Utils.getHolderOrCrash(BuiltInRegistries.ATTRIBUTE, attributeEntries.getKey());
+                var attr = DeferredHolder.create(Registries.ATTRIBUTE, attributeEntries.getKey());
+                validationPending.add(attr);
                 builder.add(attr, attributeEntries.getValue(), slotEntries.getKey());
             }
         }
@@ -390,6 +479,24 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         if (raw == null)
             return null;
         return Arrays.stream(raw).map(ItemAbility::get).collect(Collectors.toSet());
+    }
+
+    @Nullable
+    public JsonObject getComponents()
+    {
+        return getValue(components, ItemBuilder::getComponents);
+    }
+
+    private Queue<Holder> validationPending = new ArrayDeque<>();
+
+    @Override
+    public void validate()
+    {
+        while(!validationPending.isEmpty())
+        {
+            var holder = validationPending.remove();
+            holder.value();
+        }
     }
 }
 

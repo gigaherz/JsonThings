@@ -92,4 +92,9 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
     {
         return new MobEffectInstance(Utils.getHolderOrCrash(BuiltInRegistries.MOB_EFFECT, effect), duration, amplifier, isAmbient, showParticles, showIcon);
     }
+
+    @Override
+    public void validate()
+    {
+    }
 }

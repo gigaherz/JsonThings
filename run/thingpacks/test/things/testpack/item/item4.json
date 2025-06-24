@@ -1,6 +1,6 @@
 {
 
-  "type": "sword",
+  "_type": "sword",
   "tier": "iron",
   "damage": 1,
   "speed": 1,

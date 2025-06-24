@@ -30,4 +30,9 @@ public class ShapeBuilder extends BaseBuilder<DynamicShape, ShapeBuilder>
     {
         return dynamicShape;
     }
+
+    @Override
+    public void validate()
+    {
+    }
 }

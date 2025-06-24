@@ -123,4 +123,9 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
     {
         return rightSide;
     }
+
+    @Override
+    public void validate()
+    {
+    }
 }

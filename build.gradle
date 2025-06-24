@@ -1,18 +1,14 @@
 plugins {
     id 'java-library'
-    id 'eclipse'
-    id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.63-beta'
+    id 'idea'
+    id 'net.neoforged.moddev' version '2.0.80'
 }
 
+neoForge.version = "21.5.22-beta"
 version = "0.14.0"
 group= "dev.gigaherz.jsonthings"
-
-var minecraftVersionResolver = project.neoForge.version.map { "1." + (it =~ /^(\d+(?:\.[1-9]\d*|))\./)[0][1] }
-base {
-    archivesName = minecraftVersionResolver.map { "JsonThings-${it}" }
-}
+base.archivesName = "JsonThings-${neoForge.minecraftVersion}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
@@ -37,7 +33,6 @@ repositories {
 }
 
 neoForge {
-    version = "21.4.47-beta"
 
     runs {
         // applies to all the run configs below
@@ -63,7 +58,7 @@ neoForge {
 
     parchment {
         minecraftVersion = "1.21.4"
-        mappingsVersion = "2024.12.29"
+        mappingsVersion = "2025.01.19"
     }
 }
 
@@ -107,10 +102,6 @@ tasks.named("jar") {
     }
 }
 
-tasks.withType(GenerateModuleMetadata) {
-    enabled = false
-}
-
 project.afterEvaluate {
     publish.dependsOn('build')
     publishing {
@@ -119,16 +110,6 @@ project.afterEvaluate {
                 artifactId project.archivesBaseName
                 from components.java
 
-                //jarJar.component(it)
-                //artifact sourceJar
-
-                pom.withXml {
-                    asNode().dependencies.dependency.each { dep ->
-                        if (dep.version.last().value().last().contains("mapped")) {
-                            assert dep.parent().remove(dep)
-                        }
-                    }
-                }
             }
         }
 

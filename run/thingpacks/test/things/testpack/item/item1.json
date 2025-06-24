@@ -38,7 +38,7 @@
   },
 
   "attribute_modifiers": [
-    { "slot":"head", "attribute": "generic.armor", "id": "test:test1", "amount": 2, "operation": "add_value" }
+    { "slot":"head", "attribute": "minecraft:armor", "id": "test:test1", "amount": 2, "operation": "add_value" }
   ],
 
   "events": {

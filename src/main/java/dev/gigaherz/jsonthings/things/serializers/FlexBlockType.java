@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
@@ -177,7 +178,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 _properties.forEach(builder1::add);
             }
         };
-    }, DefaultTypeProperties.builder().stockProperties(WallBlock.UP, WallBlock.EAST_WALL, WallBlock.NORTH_WALL, WallBlock.SOUTH_WALL, WallBlock.WEST_WALL, WallBlock.WATERLOGGED));
+    }, DefaultTypeProperties.builder().stockProperties(WallBlock.UP, WallBlock.EAST, WallBlock.NORTH, WallBlock.SOUTH, WallBlock.WEST, WallBlock.WATERLOGGED));
 
     public static final FlexBlockType<FlexFenceBlock> FENCE = register("fence", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
@@ -214,17 +215,22 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         };
     }, DefaultTypeProperties.builder().stockProperties(FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL));
 
-    public static final FlexBlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexLeavesBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+    public static final FlexBlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> {
+        var leafChance = new MutableFloat(0);
+        JParse.begin(data)
+                .ifKey("leaf_chance", any -> any.floatValue().handle(leafChance::setValue));
+        return (props, builder) -> {
+            List<Property<?>> _properties = builder.getProperties();
+            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+            return new FlexLeavesBlock(leafChance.getValue(), props, propertyDefaultValues)
             {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
+                @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+                {
+                    super.createBlockStateDefinition(builder1);
+                    _properties.forEach(builder1::add);
+                }
+            };
         };
     }, DefaultTypeProperties.builder().defaultLayer("cutout_mipped").defaultSeeThrough(true).stockProperties(LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT));
 

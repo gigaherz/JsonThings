@@ -1,9 +1,9 @@
 {
-  "type": "armor",
+  "_type": "armor",
   "material": "testpack:test",
   "equipment_slot": "head",
 
-  "max_stack_size": 64,
+  "max_stack_size": 1,
 
   "group": "combat",
 
@@ -12,10 +12,23 @@
   },
 
   "attribute_modifiers": [
-    { "slot":"head", "attribute": "generic.armor", "id": "test:test", "amount": 2, "operation": "add_value" }
+    { "slot":"head", "attribute": "minecraft:armor", "id": "test:test", "amount": 2, "operation": "add_value" }
   ],
 
   "events": {
     "use_on_block": "testpack:test"
+  },
+
+  "components": {
+    "minecraft:max_damage" : 55,
+    "minecraft:repairable" : {
+      "items" : [ "testpack:item4" ]
+    },
+    "minecraft:equippable" : {
+      "slot" : "head"
+    },
+    "minecraft:enchantable" : {
+      "value" : 15
+    }
   }
 }

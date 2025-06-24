@@ -50,13 +50,13 @@ public class NbtDSL
 
         if (arg0 instanceof TagProxy<?> t) return t;
 
-        if (arg0 instanceof ByteTag b) return new ByteTagProxy(b.getAsByte());
-        if (arg0 instanceof ShortTag s) return new ShortTagProxy(s.getAsShort());
-        if (arg0 instanceof IntTag i) return new IntTagProxy(i.getAsInt());
-        if (arg0 instanceof LongTag l) return new LongTagProxy(l.getAsLong());
-        if (arg0 instanceof FloatTag f) return new FloatTagProxy(f.getAsFloat());
-        if (arg0 instanceof DoubleTag d) return new DoubleTagProxy(d.getAsDouble());
-        if (arg0 instanceof StringTag s) return new StringTagProxy(s.getAsString());
+        if (arg0 instanceof ByteTag b) return new ByteTagProxy(b.byteValue());
+        if (arg0 instanceof ShortTag s) return new ShortTagProxy(s.shortValue());
+        if (arg0 instanceof IntTag i) return new IntTagProxy(i.intValue());
+        if (arg0 instanceof LongTag l) return new LongTagProxy(l.longValue());
+        if (arg0 instanceof FloatTag f) return new FloatTagProxy(f.floatValue());
+        if (arg0 instanceof DoubleTag d) return new DoubleTagProxy(d.doubleValue());
+        if (arg0 instanceof StringTag s) return new StringTagProxy(s.value());
         if (arg0 instanceof ListTag l) return new ListTagProxy(l);
         if (arg0 instanceof CompoundTag c) return new CompoundTagProxy(c);
 
@@ -107,56 +107,56 @@ public class NbtDSL
     private static Object makeBoolTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof ByteTag b) ? b.getAsByte() != 0 : (boolean) arg0;
+        var value = (arg0 instanceof ByteTag(byte value1)) ? value1 != 0 : (boolean) arg0;
         return DSLHelpers.wrap(cx, scope, new BooleanTagProxy(value), TagProxy.class);
     }
 
     private static Object makeByteTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof ByteTag b) ? b.getAsByte() : (byte) arg0;
+        var value = (arg0 instanceof ByteTag(byte value1)) ? value1 : (byte) arg0;
         return DSLHelpers.wrap(cx, scope, new ByteTagProxy(value), TagProxy.class);
     }
 
     private static Object makeShortTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof ShortTag b) ? b.getAsShort() : (short) arg0;
+        var value = (arg0 instanceof ShortTag(short value1)) ? value1 : (short) arg0;
         return DSLHelpers.wrap(cx, scope, new ShortTagProxy(value), TagProxy.class);
     }
 
     private static Object makeIntTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof IntTag b) ? b.getAsInt() : (int) arg0;
+        var value = (arg0 instanceof IntTag(int value1)) ? value1 : (int) arg0;
         return DSLHelpers.wrap(cx, scope, new IntTagProxy(value), TagProxy.class);
     }
 
     private static Object makeLongTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof LongTag b) ? b.getAsLong() : (long) arg0;
+        var value = (arg0 instanceof LongTag(long value1)) ? value1 : (long) arg0;
         return DSLHelpers.wrap(cx, scope, new LongTagProxy(value), TagProxy.class);
     }
 
     private static Object makeFloatTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof FloatTag b) ? b.getAsFloat() : (float) arg0;
+        var value = (arg0 instanceof FloatTag(float value1)) ? value1 : (float) arg0;
         return DSLHelpers.wrap(cx, scope, new FloatTagProxy(value), TagProxy.class);
     }
 
     private static Object makeDoubleTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof DoubleTag b) ? b.getAsDouble() : (double) arg0;
+        var value = (arg0 instanceof DoubleTag(double value1)) ? value1 : (double) arg0;
         return DSLHelpers.wrap(cx, scope, new DoubleTagProxy(value), TagProxy.class);
     }
 
     private static Object makeStringTag(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         var arg0 = args[0];
-        var value = (arg0 instanceof StringTag b) ? b.getAsString() : (String) arg0;
+        var value = (arg0 instanceof StringTag(String value1)) ? value1 : (String) arg0;
         return DSLHelpers.wrap(cx, scope, new StringTagProxy(value), TagProxy.class);
     }
 

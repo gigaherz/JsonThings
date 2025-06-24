@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -16,6 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +34,7 @@ public class FlexEventContext
     public static final ContextValue<Vec3> HIT_VEC = ContextValue.create("hitVec", Vec3.class);
     public static final ContextValue<Boolean> HIT_INSIDE = ContextValue.create("hitInside", Boolean.class);
     public static final ContextValue<Entity> HIT_ENTITY = ContextValue.create("hitEntity", Entity.class);
-    public static final ContextValue<Integer> SLOT = ContextValue.create("slot", Integer.class);
+    public static final ContextValue<EquipmentSlot> SLOT = ContextValue.create("slot", EquipmentSlot.class);
     public static final ContextValue<Boolean> SELECTED = ContextValue.create("selected", Boolean.class);
     public static final ContextValue<Entity> OTHER_USER = ContextValue.create("other_user", Entity.class);
     public static final ContextValue<Integer> TIME_LEFT = ContextValue.create("timeLeft", Integer.class);

@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.SoundType;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -66,11 +67,27 @@ public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
     @Override
     protected SoundType buildInternal()
     {
-        var breakSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, breakSound);
-        var stepSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, stepSound);
-        var placeSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, placeSound);
-        var hitSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, hitSound);
-        var fallSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, fallSound);
+        breakSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, breakSound);
+        stepSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, stepSound);
+        placeSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, placeSound);
+        hitSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, hitSound);
+        fallSoundEvent = DeferredHolder.create(Registries.SOUND_EVENT, fallSound);
         return new DeferredSoundType(volume, pitch, breakSoundEvent, stepSoundEvent, placeSoundEvent, hitSoundEvent, fallSoundEvent);
+    }
+
+    private DeferredHolder<SoundEvent, SoundEvent> breakSoundEvent;
+    private DeferredHolder<SoundEvent, SoundEvent> stepSoundEvent;
+    private DeferredHolder<SoundEvent, SoundEvent> placeSoundEvent;
+    private DeferredHolder<SoundEvent, SoundEvent> hitSoundEvent;
+    private DeferredHolder<SoundEvent, SoundEvent> fallSoundEvent;
+
+    @Override
+    public void validate()
+    {
+        if (breakSoundEvent != null) breakSoundEvent.value();
+        if (stepSoundEvent != null) stepSoundEvent.value();
+        if (placeSoundEvent != null) placeSoundEvent.value();
+        if (hitSoundEvent != null) hitSoundEvent.value();
+        if (fallSoundEvent != null) fallSoundEvent.value();
     }
 }

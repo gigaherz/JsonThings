@@ -76,7 +76,7 @@ public class FlexItemType<T extends Item>
         };
     });
 
-    public static final FlexItemType<FlexArmorItem> ARMOR = register("armor", data -> {
+    /*public static final FlexItemType<FlexArmorItem> ARMOR = register("armor", data -> {
 
         MutableObject<ArmorType> armorType = new MutableObject<>();
         MutableObject<ResourceLocation> materialName = new MutableObject<>();
@@ -91,15 +91,15 @@ public class FlexItemType<T extends Item>
             ArmorMaterial material = Utils.getOrCrash(ThingRegistries.ARMOR_MATERIAL, materialName.getValue());
             return new FlexArmorItem(material, armorType.getValue(), props, builder);
         };
-    });
+    });*/
 
-    public static final FlexItemType<FlexSwordItem> SWORD = register("sword", makeToolSerializer(FlexSwordItem::new));
+    //public static final FlexItemType<FlexSwordItem> SWORD = register("sword", makeToolSerializer(FlexSwordItem::new));
     public static final FlexItemType<FlexShovelItem> SHOVEL = register("shovel", makeToolSerializer(FlexShovelItem::new));
     public static final FlexItemType<FlexAxeItem> AXE = register("axe", makeToolSerializer(FlexAxeItem::new));
-    public static final FlexItemType<FlexPickaxeItem> PICKAXE = register("pickaxe", makeToolSerializer(FlexPickaxeItem::new));
+    //public static final FlexItemType<FlexPickaxeItem> PICKAXE = register("pickaxe", makeToolSerializer(FlexPickaxeItem::new));
     public static final FlexItemType<FlexHoeItem> HOE = register("hoe", makeToolSerializer(FlexHoeItem::new));
 
-    public static final FlexItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
+    /*public static final FlexItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
 
         String tier = parseTier(data);
 
@@ -114,7 +114,7 @@ public class FlexItemType<T extends Item>
             var tier_ = getTier(tier);
             return new FlexDiggerItem(getTier(tier), damage, speed, tag, props, builder);
         };
-    });
+    });*/
 
     private static <T extends Item> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
     {

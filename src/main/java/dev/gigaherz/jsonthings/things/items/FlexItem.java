@@ -60,7 +60,7 @@ public class FlexItem extends Item implements IEventRunner
     private final ItemUseAnimation useAction;
     private final Integer useTime;
     private final UseFinishMode useFinishMode;
-    private final List<MutableComponent> lore;
+    private final List<Component> lore;
     private final Set<ItemAbility> toolActions;
     private final int burnTime;
 

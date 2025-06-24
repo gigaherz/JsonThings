@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-@EventBusSubscriber(modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = JsonThings.MODID)
 @Mod(JsonThings.MODID)
 public class JsonThings
 {

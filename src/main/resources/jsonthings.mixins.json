@@ -5,10 +5,10 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "jsonthings.refmap.json",
   "mixins": [
-    "ResourcePackTypeExtender"
+    "ResourcePackTypeExtender", "WorldVersion$SimpleMixin"
   ],
-  "client": [],
-  "server": [],
+  "client": [ ],
+  "server": [ ],
   "injectors": {
     "defaultRequire": 1
   }

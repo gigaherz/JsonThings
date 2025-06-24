@@ -11,21 +11,19 @@ import dev.gigaherz.jsonthings.RunnableQueue;
 import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.server.packs.PackLocationInfo;
-import net.minecraft.server.packs.PackSelectionConfig;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.*;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.*;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.util.InclusiveRange;
 import net.minecraft.util.Unit;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforgespi.language.IModInfo;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -73,6 +71,7 @@ public class ThingResourceManager
         if (parsersMap.containsKey(parser.getThingType()))
             throw new IllegalStateException("There is already a parser registered for type " + parser.getThingType());
         thingParsers.add(parser);
+        //noinspection deprecation
         resourceManager.registerReloadListener(parser);
         parsersMap.put(parser.getThingType(), parser);
         return parser;
@@ -83,17 +82,21 @@ public class ThingResourceManager
         return (infoConsumer) -> folderPackFinder.loadPacks(pack -> {
             if (!disabledPacks.contains(pack.getId()))
             {
-                infoConsumer.accept(Pack.readMetaAndCreate(
-                        new PackLocationInfo(
-                                "thingpack:" + pack.location.id(),
-                                pack.location.title(),
-                                pack.location.source(),
-                                pack.location.knownPackInfo()
-                        ),
-                        pack.resources,
-                        packType,
-                        new PackSelectionConfig(true, Pack.Position.TOP, false)
-                ));
+                var location = new PackLocationInfo(
+                        "thingpack:" + pack.location.id(),
+                        Component.translatable("text.jsonthings.wrappedpack." + packType.getSerializedName() + ".prefix").append(pack.location.title()),
+                        pack.location.source(),
+                        pack.location.knownPackInfo()
+                );
+                var metadata = new Pack.Metadata(
+                        Component.translatable("text.jsonthings.wrappedpack.description"),
+                        pack.metadata.compatibility(),
+                        pack.metadata.requestedFeatures(),
+                        pack.metadata.overlays(),
+                        pack.metadata.isHidden()
+                );
+                var selectionConfig = new PackSelectionConfig(true, Pack.Position.TOP, false);
+                infoConsumer.accept(new Pack(location, pack.resources, metadata, selectionConfig));
             }
         });
     }

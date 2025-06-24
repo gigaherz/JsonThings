@@ -4,6 +4,7 @@ import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
@@ -15,6 +16,7 @@ import joptsimple.internal.Strings;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -109,14 +111,10 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
         return builder;
     }
 
-    private List<MutableComponent> parseLore(JsonArray lines)
+    private static final Codec<List<Component>> LORE_CODEC = ComponentSerialization.CODEC.listOf();
+    private List<Component> parseLore(JsonArray lines)
     {
-        var lore = new ArrayList<MutableComponent>();
-        for (JsonElement e : lines)
-        {
-            lore.add(Component.Serializer.fromJson(e, registryAccess()));
-        }
-        return lore;
+        return LORE_CODEC.decode(JsonOps.INSTANCE, lines).getOrThrow(ThingParseException::new).getFirst();
     }
 
     private void parseAttributeModifiers(JsonArray list, ItemBuilder builder)

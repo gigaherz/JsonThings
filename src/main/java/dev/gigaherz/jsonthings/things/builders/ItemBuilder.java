@@ -22,6 +22,7 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
@@ -77,7 +78,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
 
     private String[] toolActions;
 
-    private List<MutableComponent> lore;
+    private List<Component> lore;
 
     private Integer burnDuration;
 
@@ -194,7 +195,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         this.colorHandler = colorHandler;
     }
 
-    public void setLore(List<MutableComponent> lore)
+    public void setLore(List<Component> lore)
     {
         this.lore = lore;
     }
@@ -429,7 +430,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     }
 
     @Nullable
-    public List<MutableComponent> getLore()
+    public List<Component> getLore()
     {
         return getValueOrElseGet(lore, ItemBuilder::getLore, List::of);
     }

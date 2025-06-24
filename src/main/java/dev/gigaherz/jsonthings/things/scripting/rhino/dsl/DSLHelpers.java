@@ -1,6 +1,8 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
+import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.JsonOps;
 import dev.gigaherz.rhinolib.*;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -8,6 +10,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -127,7 +131,9 @@ public class DSLHelpers
         if (arg instanceof NativeObject obj)
         {
             HolderLookup.Provider provider = RegistryAccess.EMPTY;
-            return Component.Serializer.fromJson(NativeJSON.stringify(obj, null, 0, cx), provider);
+            return ComponentSerialization.CODEC
+                    .decode(RegistryOps.create(JsonOps.INSTANCE, provider), JsonParser.parseString(NativeJSON.stringify(obj, null, 0, cx)))
+                    .getOrThrow().getFirst();
         }
 
         return Component.literal("unknown");

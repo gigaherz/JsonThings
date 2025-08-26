@@ -14,6 +14,7 @@ import net.minecraftforge.common.util.Lazy;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -58,9 +59,9 @@ public class TierParser extends ThingParser<TierBuilder>
                 .noKey("type", () -> new ThingParseException("Custom ingredients not supported yet. Please use an 'item' or 'tag' ingredient."))
                 .mutex(List.of("item", "tag"), () -> new ThingParseException("Cannot have both 'tag' and 'item' in the ingredient at the same time."))
                 .ifKey("tag", val -> val.string().map(Utils::itemTag).handle(tag -> out.setValue(Lazy.of(() -> Ingredient.of(tag)))))
-                .ifKey("tag", val -> val.string().map(ResourceLocation::new).handle(item -> out.setValue(Lazy.of(() -> Ingredient.of(Utils.getItemOrCrash(item))))));
+                .ifKey("item", val -> val.string().map(ResourceLocation::new).handle(item -> out.setValue(Lazy.of(() -> Ingredient.of(Utils.getItemOrCrash(item))))));
 
-        return out.getValue();
+        return Objects.requireNonNull(out.getValue(), "Invalid state, parsing should never return null here.";
     }
 
     private static List<Object> parseDependencyList(ArrayValue array)

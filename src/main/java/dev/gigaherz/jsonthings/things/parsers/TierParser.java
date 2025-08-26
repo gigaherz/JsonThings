@@ -61,7 +61,7 @@ public class TierParser extends ThingParser<TierBuilder>
                 .ifKey("tag", val -> val.string().map(Utils::itemTag).handle(tag -> out.setValue(Lazy.of(() -> Ingredient.of(tag)))))
                 .ifKey("item", val -> val.string().map(ResourceLocation::new).handle(item -> out.setValue(Lazy.of(() -> Ingredient.of(Utils.getItemOrCrash(item))))));
 
-        return Objects.requireNonNull(out.getValue(), "Invalid state, parsing should never return null here.";
+        return Objects.requireNonNull(out.getValue(), "Invalid state, parsing should never return null here.");
     }
 
     private static List<Object> parseDependencyList(ArrayValue array)

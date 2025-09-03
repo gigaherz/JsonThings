@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DirectionalBlock;
@@ -29,6 +30,13 @@ public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
         super(properties);
         initializeFlex(propertyDefaultValues);
     }
+
+    //region special handling for FlexDirectionalBlock
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+    }
+    //endregion
 
     //region IFlexBlock
     private DynamicShape generalShape;

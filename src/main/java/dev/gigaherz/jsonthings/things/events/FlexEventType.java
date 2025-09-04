@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.events;
 
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ public record FlexEventType<T>(String name)
     // Blocks
     public static final FlexEventType<InteractionResult> USE_BLOCK_WITHOUT_ITEM = new FlexEventType<>("use_without_item");
     public static final FlexEventType<InteractionResult> USE_BLOCK_WITH_ITEM = new FlexEventType<>("use_item_on");
+    public static final FlexEventType<BlockState> GET_STATE_FOR_PLACEMENT = new FlexEventType<>("get_state_for_placement");
 
     // Items
     public static final FlexEventType<InteractionResult> USE_ITEM_ON_AIR = new FlexEventType<>("use_item");

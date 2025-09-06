@@ -12,10 +12,12 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.Block;
 
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +44,8 @@ public class FlexEventContext
     public static final ContextValue<Entity> TARGET = ContextValue.create("target", Entity.class);
     public static final ContextValue<Enchantment> ENCHANTMENT = ContextValue.create("enchantment", Enchantment.class);
     public static final ContextValue<Integer> ENCHANTMENT_LEVEL = ContextValue.create("enchantment_level", Integer.class);
+    public static final ContextValue<UseOnContext> USE_CONTEXT = ContextValue.create("use_context", UseOnContext.class);
+    public static final ContextValue<StateDefinition> STATE_DEFINITION = ContextValue.create("state_definition", StateDefinition.class);
 
     private final Map<ContextValue<?>, Object> parameters = Maps.newHashMap();
 

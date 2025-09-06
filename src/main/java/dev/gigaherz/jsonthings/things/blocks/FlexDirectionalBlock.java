@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DirectionalBlock;
@@ -156,6 +157,13 @@ public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
         return runEvent(FlexEventType.USE_BLOCK_WITH_ITEM, FlexEventContext.of(level, pos, state)
                 .with(FlexEventContext.USER, player)
                 .withRayTrace(hitResult), () -> super.useItemOn(stack, state, level, pos, player, hand, hitResult));
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return runEvent(FlexEventType.GET_STATE_FOR_PLACEMENT, FlexEventContext.of(context.getLevel(), context.getClickedPos(), this.defaultBlockState())
+                .with(FlexEventContext.USER, context.getPlayer()).with(FlexEventContext.USE_CONTEXT, context).with(FlexEventContext.STATE_DEFINITION, this.stateDefinition)
+                , () -> this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite()));
     }
 
     //endregion

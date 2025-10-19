@@ -20,6 +20,7 @@ NOTE: Food definitions **do not** automatically create an item. You must define 
   "meat": false,
   "fast": false,
   "always_eat": false,
+  "convert_to":"minecraft:bowl",
   "effects": [
     
   ]  
@@ -65,6 +66,14 @@ Defines if the food can be eaten with a full stomach. Should only be used for sn
 Optional. Default: false.
 
 Must be a boolean (`false` or `true`).
+
+## "convert_to"
+
+Defines what will be left after eating it.
+
+Optional. Default: No ("minecraft:air").
+
+Must be a string.
 
 ## "effects"
 

@@ -38,6 +38,7 @@ public class FoodParser extends ThingParser<FoodBuilder>
                 .key("saturation", val -> val.floatValue().min(0).handle(builder::setSaturation))
                 .ifKey("fast", val -> val.bool().handle(builder::setFast))
                 .ifKey("always_eat", val -> val.bool().handle(builder::setAlwaysEat))
+                .ifKey("convert_to", val -> val.string().handle(builder::setConvertTo))
                 .ifKey("effects", val -> val.array().forEach((i, entry) -> {
                     var probability = new MutableFloat(1.0f);
                     var effectBuilder = parseEffectInstance(entry.obj()

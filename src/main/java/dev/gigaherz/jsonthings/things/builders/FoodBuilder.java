@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import com.mojang.datafixers.util.Pair;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 
@@ -20,6 +21,7 @@ public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
     private float saturation;
     private boolean alwaysEat;
     private boolean fast;
+    private String convertTo;
 
     private FoodBuilder(ThingParser<FoodBuilder> ownerParser, ResourceLocation registryName)
     {
@@ -57,6 +59,11 @@ public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
         effects.add(Pair.of(effect, probability));
     }
 
+    public void setConvertTo(String convertTo)
+    {
+        this.convertTo = convertTo;
+    }
+
     @Override
     protected FoodProperties buildInternal()
     {
@@ -65,6 +72,7 @@ public class FoodBuilder extends BaseBuilder<FoodProperties, FoodBuilder>
         foodBuilder.saturationModifier(saturation);
         if (fast) foodBuilder.fast();
         if (alwaysEat) foodBuilder.alwaysEdible();
+        if (convertTo != null) foodBuilder.usingConvertsTo(BuiltInRegistries.ITEM.get(ResourceLocation.parse(convertTo)));
         effects.forEach(pair -> {
             foodBuilder.effect(pair.getFirst()::get, pair.getSecond());
         });

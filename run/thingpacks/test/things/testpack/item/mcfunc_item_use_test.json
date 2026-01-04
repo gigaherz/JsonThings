@@ -1,0 +1,27 @@
+{
+  "delayed_use": {
+    "duration": 20,
+    "animation": "drink",
+    "on_complete": "use_item"
+  },
+  "food": {
+    "nutrition": 9,
+    "saturation": 1,
+    "meat": false,
+    "fast": false,
+    "always_eat": false,
+    "effects": [
+      {
+        "effect": "jump_boost",
+        "duration": 1200,
+        "amplifier": 1,
+        "visible": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "events": {
+    "end_using": "testpack:test_mcfunction1"
+  }
+}

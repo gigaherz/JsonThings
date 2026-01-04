@@ -6,6 +6,7 @@ import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.client.ItemColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
+import dev.gigaherz.jsonthings.things.scripting.client.IClientLogic;
 import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
@@ -62,6 +63,7 @@ public class JsonThings
     public static BlockSetTypeParser blockSetTypeParser;
     public static SoundEventParser soundEventParser;
     public static SoundTypeParser soundTypeParser;
+    public static McFunctionScriptParser mcFunctionScriptParser;
 
     public JsonThings(IEventBus bus)
     {
@@ -83,6 +85,8 @@ public class JsonThings
         blockSetTypeParser = manager.registerParser(new BlockSetTypeParser());
         soundEventParser = manager.registerParser(new SoundEventParser(bus));
         soundTypeParser = manager.registerParser(new SoundTypeParser());
+        mcFunctionScriptParser = manager.registerParser(new McFunctionScriptParser());
+        IClientLogic.setup();
     }
 
     private static CompletableFuture<ThingResourceManager> loaderFuture;

@@ -1,0 +1,6 @@
+{
+  "events": {
+    "use_item_on": "testpack:test_mcfunction1",
+    "use_without_item": "testpack:test_mcfunction1"
+  }
+}

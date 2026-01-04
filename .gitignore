@@ -28,3 +28,4 @@ run/thingpacks/*
 !run/thingpacks/test
 
 /.vs
+/.vscode

@@ -1,6 +1,9 @@
 package dev.gigaherz.jsonthings.things.events;
 
 import javax.annotation.Nullable;
+
+import static dev.gigaherz.jsonthings.things.scripting.McFunctionScript.orElse;
+
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
@@ -23,7 +26,7 @@ public interface IEventRunner
     {
         FlexEventHandler<T> handler = getEventHandler(event);
         if (handler != null)
-            return (T) handler.apply(event, context);
+            return (T) orElse(handler.apply(event, context), defaultValue.get());
         return defaultValue.get();
     }
 
@@ -31,7 +34,7 @@ public interface IEventRunner
     {
         FlexEventHandler<T> handler = getEventHandler(event);
         if (handler != null)
-            return (T) handler.apply(event, context);
+            return (T) orElse(handler.apply(event, context), defaultValue.call());
         return defaultValue.call();
     }
 }

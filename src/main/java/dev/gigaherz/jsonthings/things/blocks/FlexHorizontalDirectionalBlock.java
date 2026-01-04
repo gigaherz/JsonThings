@@ -155,7 +155,7 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
     {
         return runEvent(FlexEventType.USE_BLOCK_WITH_ITEM, FlexEventContext.of(level, pos, state)
-                .with(FlexEventContext.USER, player)
+                .withHand(player, hand)
                 .withRayTrace(hitResult), () -> super.useItemOn(stack, state, level, pos, player, hand, hitResult));
     }
 

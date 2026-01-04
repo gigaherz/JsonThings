@@ -7,7 +7,7 @@ import dev.gigaherz.jsonthings.things.builders.ToolMaterialBuilder;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ToolMaterial;
 
 import java.util.function.Consumer;
@@ -26,7 +26,7 @@ public class ToolMaterialParser extends ThingParser<ToolMaterial, ToolMaterialBu
     }
 
     @Override
-    public ToolMaterialBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ToolMaterialBuilder> builderModification)
+    public ToolMaterialBuilder processThing(Identifier key, JsonObject data, Consumer<ToolMaterialBuilder> builderModification)
     {
         final ToolMaterialBuilder builder = ToolMaterialBuilder.begin(this, key);
 

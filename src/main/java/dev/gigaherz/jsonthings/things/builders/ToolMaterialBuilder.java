@@ -1,7 +1,7 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ToolMaterial;
@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.Block;
 
 public class ToolMaterialBuilder extends BaseBuilder<ToolMaterial, ToolMaterialBuilder>
 {
-    public static ToolMaterialBuilder begin(ThingParser<ToolMaterial, ToolMaterialBuilder> ownerParser, ResourceLocation registryName)
+    public static ToolMaterialBuilder begin(ThingParser<ToolMaterial, ToolMaterialBuilder> ownerParser, Identifier registryName)
     {
         return new ToolMaterialBuilder(ownerParser, registryName);
     }
@@ -21,7 +21,7 @@ public class ToolMaterialBuilder extends BaseBuilder<ToolMaterial, ToolMaterialB
     private TagKey<Block> tag;
     private TagKey<Item> repairIngredient;
 
-    private ToolMaterialBuilder(ThingParser<ToolMaterial, ToolMaterialBuilder> ownerParser, ResourceLocation registryName)
+    private ToolMaterialBuilder(ThingParser<ToolMaterial, ToolMaterialBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }

@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.parsers;
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.builders.MobEffectInstanceBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffectInstance;
 
 import java.util.function.Consumer;
@@ -16,11 +16,11 @@ public class MobEffectInstanceParser extends ThingParser<MobEffectInstance, MobE
     }
 
     @Override
-    protected MobEffectInstanceBuilder processThing(ResourceLocation key, JsonObject data, Consumer<MobEffectInstanceBuilder> builderModification)
+    protected MobEffectInstanceBuilder processThing(Identifier key, JsonObject data, Consumer<MobEffectInstanceBuilder> builderModification)
     {
         var builder = new MobEffectInstanceBuilder(this, key);
         JParse.begin(data)
-                .key("effect", val -> val.string().handle(str -> builder.setEffect(ResourceLocation.parse(str))))
+                .key("effect", val -> val.string().handle(str -> builder.setEffect(Identifier.parse(str))))
                 .key("duration", val -> val.intValue().min(0).handle(builder::setDuration))
                 .ifKey("amplifier", val -> val.intValue().min(0).handle(builder::setAmplifier))
                 .ifKey("ambient", val -> val.bool().handle(builder::setAmbient))

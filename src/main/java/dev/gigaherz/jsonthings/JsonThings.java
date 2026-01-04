@@ -11,7 +11,7 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -149,10 +149,10 @@ public class JsonThings
         @SubscribeEvent
         public static void clientSetup(FMLClientSetupEvent event)
         {
-            final ResourceLocation solid = ResourceLocation.withDefaultNamespace("solid");
+            final Identifier solid = Identifier.withDefaultNamespace("solid");
             JsonThings.blockParser.getBuilders().forEach(thing -> {
                 if (thing.isInErrorState()) return;
-                ResourceLocation layer = thing.getDefaultRenderLayer();
+                Identifier layer = thing.getDefaultRenderLayer();
                 if (!layer.equals(solid))
                 {
                     //noinspection deprecation
@@ -161,7 +161,7 @@ public class JsonThings
             });
             JsonThings.fluidParser.getBuilders().forEach(thing -> {
                 if (thing.isInErrorState()) return;
-                ResourceLocation layer = thing.getDefaultRenderLayer();
+                Identifier layer = thing.getDefaultRenderLayer();
                 for (var fluid : thing.getAllSiblings())
                 {
                     if (!layer.equals(solid))
@@ -203,19 +203,19 @@ public class JsonThings
                     }
 
                     @Override
-                    public ResourceLocation getStillTexture()
+                    public Identifier getStillTexture()
                     {
                         return stillTexture;
                     }
 
                     @Override
-                    public ResourceLocation getFlowingTexture()
+                    public Identifier getFlowingTexture()
                     {
                         return flowingTexture;
                     }
 
                     @Override
-                    public @Nullable ResourceLocation getOverlayTexture()
+                    public @Nullable Identifier getOverlayTexture()
                     {
                         return sideTexture;
                     }

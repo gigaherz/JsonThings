@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.scripting;
 import dev.gigaherz.jsonthings.things.parsers.ThingResourceManager;
 import dev.gigaherz.jsonthings.things.scripting.rhino.RhinoThingScript;
 import dev.gigaherz.jsonthings.util.KeyNotFoundException;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLocation, ThingScript>>
+public class ScriptParser extends SimplePreparableReloadListener<Map<Identifier, ThingScript>>
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
@@ -47,21 +47,21 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
         return enabled;
     }
 
-    private Map<ResourceLocation, ThingScript> scripts = new HashMap<>();
+    private Map<Identifier, ThingScript> scripts = new HashMap<>();
 
     @Override
-    protected Map<ResourceLocation, ThingScript> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler)
+    protected Map<Identifier, ThingScript> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler)
     {
         var resources = pResourceManager.listResources(SCRIPTS_FOLDER, t -> t.getPath().endsWith(JS_EXTENSION));
 
-        var map = new HashMap<ResourceLocation, ThingScript>();
+        var map = new HashMap<Identifier, ThingScript>();
         for (var entry : resources.entrySet())
         {
             var key = entry.getKey();
             var res = entry.getValue();
             var path = key.getPath();
             var cleanPath = path.substring(SCRIPTS_FOLDER_LENGTH + 1, path.length() - JS_EXTENSION_LENGTH);
-            var id = ResourceLocation.fromNamespaceAndPath(key.getNamespace(), cleanPath);
+            var id = Identifier.fromNamespaceAndPath(key.getNamespace(), cleanPath);
             try
             {
                 map.put(id, RhinoThingScript.fromResource(res, id.toString()));
@@ -76,13 +76,13 @@ public class ScriptParser extends SimplePreparableReloadListener<Map<ResourceLoc
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, ThingScript> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler)
+    protected void apply(Map<Identifier, ThingScript> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler)
     {
         scripts = pObject;
     }
 
     @Nonnull
-    public ThingScript getEvent(ResourceLocation id)
+    public ThingScript getEvent(Identifier id)
     {
         if (!scripts.containsKey(id))
             throw new KeyNotFoundException("Script with id " + id + " not found.");

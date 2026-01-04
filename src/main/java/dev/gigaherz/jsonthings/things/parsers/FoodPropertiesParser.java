@@ -6,7 +6,7 @@ import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodPropertiesBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.food.FoodProperties;
 
 import java.util.function.Consumer;
@@ -25,7 +25,7 @@ public class FoodPropertiesParser extends ThingParser<FoodProperties, FoodProper
     }
 
     @Override
-    public FoodPropertiesBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FoodPropertiesBuilder> builderModification)
+    public FoodPropertiesBuilder processThing(Identifier key, JsonObject data, Consumer<FoodPropertiesBuilder> builderModification)
     {
         final FoodPropertiesBuilder builder = FoodPropertiesBuilder.begin(this, key);
 

@@ -5,8 +5,8 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.137'
 }
 
-neoForge.version = "21.10.64"
-version = "0.16.0"
+neoForge.version = "21.11.23-beta"
+version = "0.17.0"
 group= "dev.gigaherz.jsonthings"
 base.archivesName = "JsonThings-${neoForge.minecraftVersion}"
 

@@ -1,12 +1,12 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.food.FoodProperties;
 
 public class FoodPropertiesBuilder extends BaseBuilder<FoodProperties, FoodPropertiesBuilder>
 {
-    public static FoodPropertiesBuilder begin(ThingParser<FoodProperties, FoodPropertiesBuilder> ownerParser, ResourceLocation registryName)
+    public static FoodPropertiesBuilder begin(ThingParser<FoodProperties, FoodPropertiesBuilder> ownerParser, Identifier registryName)
     {
         return new FoodPropertiesBuilder(ownerParser, registryName);
     }
@@ -15,7 +15,7 @@ public class FoodPropertiesBuilder extends BaseBuilder<FoodProperties, FoodPrope
     private float saturation;
     private boolean alwaysEat;
 
-    private FoodPropertiesBuilder(ThingParser<FoodProperties, FoodPropertiesBuilder> ownerParser, ResourceLocation registryName)
+    private FoodPropertiesBuilder(ThingParser<FoodProperties, FoodPropertiesBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }

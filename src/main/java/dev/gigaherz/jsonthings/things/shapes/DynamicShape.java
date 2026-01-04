@@ -7,7 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.util.CodecExtras;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -51,7 +51,7 @@ public class DynamicShape
         if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString())
         {
             String name = element.getAsString();
-            return ThingRegistries.DYNAMIC_SHAPE.getOptional(ResourceLocation.parse(name))
+            return ThingRegistries.DYNAMIC_SHAPE.getOptional(Identifier.parse(name))
                     .orElseThrow(() -> new IllegalStateException("No shape known with name " + name));
         }
         else

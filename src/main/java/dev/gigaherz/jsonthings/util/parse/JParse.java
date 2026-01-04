@@ -10,8 +10,8 @@ import dev.gigaherz.jsonthings.util.parse.function.JsonObjectConsumer;
 import dev.gigaherz.jsonthings.util.parse.value.*;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
-import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

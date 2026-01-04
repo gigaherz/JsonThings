@@ -12,7 +12,7 @@ import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -46,7 +46,7 @@ public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
     }
 
     @Override
-    public FluidBuilder processThing(ResourceLocation key, JsonObject data, Consumer<FluidBuilder> builderModification)
+    public FluidBuilder processThing(Identifier key, JsonObject data, Consumer<FluidBuilder> builderModification)
     {
         final FluidBuilder builder = FluidBuilder.begin(this, key);
 
@@ -54,8 +54,8 @@ public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
 
         JParse.begin(data)
                 .ifKey("fluid_type", val -> parseFluidType(builder, val))
-                .ifKey("parent", val -> val.string().map(ResourceLocation::parse).handle(builder::setParent))
-                .ifKey("type", val -> val.string().map(ResourceLocation::parse).handle(builder::setFluidType))
+                .ifKey("parent", val -> val.string().map(Identifier::parse).handle(builder::setParent))
+                .ifKey("type", val -> val.string().map(Identifier::parse).handle(builder::setFluidType))
                 .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
                     propertiesByName.setValue(properties);
                     builder.setProperties(properties);
@@ -63,7 +63,7 @@ public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
                 .ifKey("default_state", val -> val.obj().raw(obj -> parseFluidState(obj, builder)))
                 .ifKey("bucket", val -> {
                     var thisName = builder.getRegistryName();
-                    var bucketName = ResourceLocation.fromNamespaceAndPath(thisName.getNamespace(), thisName.getPath() + "_bucket");
+                    var bucketName = Identifier.fromNamespaceAndPath(thisName.getNamespace(), thisName.getPath() + "_bucket");
                     val
                             .ifBool(v -> v.handle(b -> {
                                 if (b) createStockBucketItem(bucketName, builder, new JsonObject());
@@ -84,7 +84,7 @@ public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
     public static void parseFluidType(FluidBuilder builder, Any val)
     {
         val
-                .ifString(v -> v.map(ResourceLocation::parse).handle(rl -> {
+                .ifString(v -> v.map(Identifier::parse).handle(rl -> {
                     builder.setAttributesType(DeferredHolder.create(NeoForgeRegistries.Keys.FLUID_TYPES, rl));
                 }))
                 .ifObj(obj -> obj.raw((JsonObject item) -> {
@@ -123,7 +123,7 @@ public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
 
         props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
-                    var property = ThingRegistries.PROPERTY.getOptional(ResourceLocation.parse(prop))
+                    var property = ThingRegistries.PROPERTY.getOptional(Identifier.parse(prop))
                             .orElseThrow(() -> new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES"));
                     if (!property.getName().equals(name))
                         throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
@@ -134,7 +134,7 @@ public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
         return map;
     }
 
-    private void createStockBucketItem(ResourceLocation bucketName, FluidBuilder builder, JsonObject jsonObject)
+    private void createStockBucketItem(Identifier bucketName, FluidBuilder builder, JsonObject jsonObject)
     {
         try
         {

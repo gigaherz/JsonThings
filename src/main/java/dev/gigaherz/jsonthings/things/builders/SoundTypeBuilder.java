@@ -2,7 +2,7 @@ package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.SoundType;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
@@ -10,20 +10,20 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
 {
-    public static SoundTypeBuilder begin(ThingParser<SoundType, SoundTypeBuilder> ownerParser, ResourceLocation registryName)
+    public static SoundTypeBuilder begin(ThingParser<SoundType, SoundTypeBuilder> ownerParser, Identifier registryName)
     {
         return new SoundTypeBuilder(ownerParser, registryName);
     }
 
     private float volume = 1.0f;
     private float pitch = 1.0f;
-    private ResourceLocation breakSound;
-    private ResourceLocation stepSound;
-    private ResourceLocation placeSound;
-    private ResourceLocation hitSound;
-    private ResourceLocation fallSound;
+    private Identifier breakSound;
+    private Identifier stepSound;
+    private Identifier placeSound;
+    private Identifier hitSound;
+    private Identifier fallSound;
 
-    private SoundTypeBuilder(ThingParser<SoundType, SoundTypeBuilder> ownerParser, ResourceLocation registryName)
+    private SoundTypeBuilder(ThingParser<SoundType, SoundTypeBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -38,22 +38,22 @@ public class SoundTypeBuilder extends BaseBuilder<SoundType, SoundTypeBuilder>
         this.pitch = pitch;
     }
 
-    public void setBreakSound(ResourceLocation resourceLocation)
+    public void setBreakSound(Identifier resourceLocation)
     {
         breakSound = resourceLocation;
     }
 
-    public void setStepSound(ResourceLocation resourceLocation)
+    public void setStepSound(Identifier resourceLocation)
     {
         stepSound = resourceLocation;
     }
 
-    public void setHitSound(ResourceLocation resourceLocation)
+    public void setHitSound(Identifier resourceLocation)
     {
         hitSound = resourceLocation;
     }
 
-    public void setFallSound(ResourceLocation resourceLocation)
+    public void setFallSound(Identifier resourceLocation)
     {
         fallSound = resourceLocation;
     }

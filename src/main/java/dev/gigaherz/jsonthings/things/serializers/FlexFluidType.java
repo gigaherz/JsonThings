@@ -11,7 +11,7 @@ import dev.gigaherz.jsonthings.things.fluids.FlexFluid;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -54,7 +54,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
 
     public static final FlexFluidType<FlexFlowingFluid> FLOWING = register("flowing", new IFluidSerializer<FlexFlowingFluid>()
     {
-        private static void parseLiquidBlock(ResourceLocation name, Any val, Consumer<BlockBuilder> blockConsumer)
+        private static void parseLiquidBlock(Identifier name, Any val, Consumer<BlockBuilder> blockConsumer)
         {
             val
                     .ifBool(v -> v.handle(b -> {
@@ -66,7 +66,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                     .typeError();
         }
 
-        private static void createLiquidBlock(ResourceLocation name, JsonObject obj, Consumer<BlockBuilder> blockConsumer)
+        private static void createLiquidBlock(Identifier name, JsonObject obj, Consumer<BlockBuilder> blockConsumer)
         {
             obj.addProperty("fluid", name.toString());
             var blockBuilder = JsonThings.blockParser.parseFromElement(name, obj, b -> {
@@ -77,7 +77,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
         }
 
         @Override
-        public IFluidFactory<FlexFlowingFluid> createFactory(ResourceLocation name, JsonObject data)
+        public IFluidFactory<FlexFlowingFluid> createFactory(Identifier name, JsonObject data)
         {
             var slopeDistance = new MutableObject<>(4);
             var dropOff = new MutableObject<>(1);
@@ -124,11 +124,11 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                 }
 
                 @Override
-                public void register(FluidBuilder builder, BiConsumer<ResourceLocation, Fluid> register)
+                public void register(FluidBuilder builder, BiConsumer<Identifier, Fluid> register)
                 {
                     register.accept(builder.getRegistryName(), builder.get().self());
 
-                    var flowingName = ResourceLocation.fromNamespaceAndPath(builder.getRegistryName().getNamespace(), builder.getRegistryName().getPath() + "_flowing");
+                    var flowingName = Identifier.fromNamespaceAndPath(builder.getRegistryName().getNamespace(), builder.getRegistryName().getPath() + "_flowing");
                     register.accept(flowingName, ((FlowingFluid) builder.get().self()).getFlowing());
                 }
             };
@@ -156,7 +156,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
         this.stockProperties = stockProperties;
     }
 
-    public IFluidFactory<T> getFactory(ResourceLocation name, JsonObject data)
+    public IFluidFactory<T> getFactory(Identifier name, JsonObject data)
     {
         return factory.createFactory(name, data);
     }

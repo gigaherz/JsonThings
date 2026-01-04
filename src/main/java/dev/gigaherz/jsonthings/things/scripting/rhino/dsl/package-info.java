@@ -2,6 +2,6 @@
 @ParametersAreNonnullByDefault
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

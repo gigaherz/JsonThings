@@ -6,7 +6,7 @@ import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.SoundTypeBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.SoundType;
 
 import java.util.function.Consumer;
@@ -25,17 +25,17 @@ public class SoundTypeParser extends ThingParser<SoundType, SoundTypeBuilder>
     }
 
     @Override
-    public SoundTypeBuilder processThing(ResourceLocation key, JsonObject data, Consumer<SoundTypeBuilder> builderModification)
+    public SoundTypeBuilder processThing(Identifier key, JsonObject data, Consumer<SoundTypeBuilder> builderModification)
     {
         final SoundTypeBuilder builder = SoundTypeBuilder.begin(this, key);
 
         JParse.begin(data)
                 .ifKey("volume", val -> val.floatValue().range(0,1).handle(builder::setVolume))
                 .ifKey("pitch", val -> val.floatValue().min(0).handle(builder::setPitch))
-                .key("break_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setBreakSound))
-                .key("step_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setStepSound))
-                .key("hit_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setHitSound))
-                .key("fall_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setFallSound))
+                .key("break_sound", val -> val.string().map(Identifier::parse).handle(builder::setBreakSound))
+                .key("step_sound", val -> val.string().map(Identifier::parse).handle(builder::setStepSound))
+                .key("hit_sound", val -> val.string().map(Identifier::parse).handle(builder::setHitSound))
+                .key("fall_sound", val -> val.string().map(Identifier::parse).handle(builder::setFallSound))
         ;
 
         builderModification.accept(builder);

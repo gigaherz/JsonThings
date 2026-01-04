@@ -8,7 +8,7 @@ import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,19 +17,19 @@ import java.util.List;
 
 public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, CreativeModeTabBuilder>
 {
-    public static CreativeModeTabBuilder begin(ThingParser<FlexCreativeModeTab, CreativeModeTabBuilder> ownerParser, ResourceLocation registryName)
+    public static CreativeModeTabBuilder begin(ThingParser<FlexCreativeModeTab, CreativeModeTabBuilder> ownerParser, Identifier registryName)
     {
         return new CreativeModeTabBuilder(ownerParser, registryName);
     }
 
     private StackContext iconItem;
     private final ArrayList<ItemVariantProvider> items = new ArrayList<>();
-    private ResourceLocation[] before;
-    private ResourceLocation[] after;
+    private Identifier[] before;
+    private Identifier[] after;
     private String translation_key;
     private boolean rightSide;
 
-    private CreativeModeTabBuilder(ThingParser<FlexCreativeModeTab, CreativeModeTabBuilder> ownerParser, ResourceLocation registryName)
+    private CreativeModeTabBuilder(ThingParser<FlexCreativeModeTab, CreativeModeTabBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -45,12 +45,12 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
         this.iconItem = stackContext;
     }
 
-    public void setBefore(ResourceLocation... before)
+    public void setBefore(Identifier... before)
     {
         this.before = before;
     }
 
-    public void setAfter(ResourceLocation... after)
+    public void setAfter(Identifier... after)
     {
         this.after = after;
     }
@@ -68,11 +68,11 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
     @Override
     protected FlexCreativeModeTab buildInternal()
     {
-        ResourceLocation registryName = getRegistryName();
+        Identifier registryName = getRegistryName();
         return new FlexCreativeModeTab( translation_key != null ? translation_key : registryName.getNamespace() + "." + registryName.getPath().replace("/", "."), iconItem);
     }
 
-    public void addItem(ResourceLocation item)
+    public void addItem(Identifier item)
     {
         this.items.add(new DelayedVariantProvider(item));
     }
@@ -109,12 +109,12 @@ public class CreativeModeTabBuilder extends BaseBuilder<FlexCreativeModeTab, Cre
         return builder.build();
     }
 
-    public ResourceLocation @Nullable[] getBefore()
+    public Identifier @Nullable[] getBefore()
     {
         return before;
     }
 
-    public ResourceLocation @Nullable[] getAfter()
+    public Identifier @Nullable[] getAfter()
     {
         return after;
     }

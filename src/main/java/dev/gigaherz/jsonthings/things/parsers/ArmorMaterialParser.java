@@ -8,7 +8,7 @@ import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.neoforged.bus.api.IEventBus;
@@ -31,7 +31,7 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterial, ArmorMateria
     }
 
     @Override
-    public ArmorMaterialBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ArmorMaterialBuilder> builderModification)
+    public ArmorMaterialBuilder processThing(Identifier key, JsonObject data, Consumer<ArmorMaterialBuilder> builderModification)
     {
         final ArmorMaterialBuilder builder = ArmorMaterialBuilder.begin(this, key);
 
@@ -40,7 +40,7 @@ public class ArmorMaterialParser extends ThingParser<ArmorMaterial, ArmorMateria
                 .key("knockback_resistance", val -> val.floatValue().min(0).handle(builder::setKnockbackResistance))
                 .key("enchantment_value", val -> val.intValue().min(0).handle(builder::setEnchantmentValue))
                 .key("repair_ingredient", val -> val.string().map(Utils::itemTag).handle(builder::setRepairIngredient))
-                .key("equip_sound", val -> val.string().map(ResourceLocation::parse).handle(builder::setEquipSound))
+                .key("equip_sound", val -> val.string().map(Identifier::parse).handle(builder::setEquipSound))
                 .key("durability", val -> val.intValue().handle(builder::setDurability))
                 .key("armor", val -> val.map(this::parseArmorType).handle(builder::setDefense));
 

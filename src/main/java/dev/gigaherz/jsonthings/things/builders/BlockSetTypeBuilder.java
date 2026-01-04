@@ -4,7 +4,7 @@ import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -12,77 +12,77 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 
 public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeBuilder>
 {
-    public static BlockSetTypeBuilder begin(ThingParser<BlockSetType, BlockSetTypeBuilder> ownerParser, ResourceLocation registryName)
+    public static BlockSetTypeBuilder begin(ThingParser<BlockSetType, BlockSetTypeBuilder> ownerParser, Identifier registryName)
     {
         return new BlockSetTypeBuilder(ownerParser, registryName);
     }
 
-    private ResourceLocation soundType;
-    private ResourceLocation doorClose;
-    private ResourceLocation doorOpen;
-    private ResourceLocation trapdoorClose;
-    private ResourceLocation trapdoorOpen;
-    private ResourceLocation pressurePlateOff;
-    private ResourceLocation pressurePlateOn;
-    private ResourceLocation buttonOff;
-    private ResourceLocation buttonOn;
+    private Identifier soundType;
+    private Identifier doorClose;
+    private Identifier doorOpen;
+    private Identifier trapdoorClose;
+    private Identifier trapdoorOpen;
+    private Identifier pressurePlateOff;
+    private Identifier pressurePlateOn;
+    private Identifier buttonOff;
+    private Identifier buttonOn;
     private boolean isWood;
-    private ResourceLocation hangingSignSoundType;
-    private ResourceLocation fenceGateClose;
-    private ResourceLocation fenceGateOpen;
+    private Identifier hangingSignSoundType;
+    private Identifier fenceGateClose;
+    private Identifier fenceGateOpen;
     private boolean canOpenByHand = true;
     private boolean canOpenByWindCharge = true;
     private boolean canButtonBeActivatedByArrows = true;
     private BlockSetType.PressurePlateSensitivity pressurePlateSensitivity = BlockSetType.PressurePlateSensitivity.EVERYTHING;
 
 
-    private BlockSetTypeBuilder(ThingParser<BlockSetType, BlockSetTypeBuilder> ownerParser, ResourceLocation registryName)
+    private BlockSetTypeBuilder(ThingParser<BlockSetType, BlockSetTypeBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
 
 
-    public void setSoundType(ResourceLocation resourceLocation)
+    public void setSoundType(Identifier resourceLocation)
     {
         soundType = resourceLocation;
     }
 
-    public void setDoorClose(ResourceLocation resourceLocation)
+    public void setDoorClose(Identifier resourceLocation)
     {
         doorClose = resourceLocation;
     }
 
-    public void setDoorOpen(ResourceLocation resourceLocation)
+    public void setDoorOpen(Identifier resourceLocation)
     {
         doorOpen = resourceLocation;
     }
 
-    public void setTrapdoorClose(ResourceLocation resourceLocation)
+    public void setTrapdoorClose(Identifier resourceLocation)
     {
         trapdoorClose = resourceLocation;
     }
 
-    public void setTrapdoorOpen(ResourceLocation resourceLocation)
+    public void setTrapdoorOpen(Identifier resourceLocation)
     {
         trapdoorOpen = resourceLocation;
     }
 
-    public void setPressurePlateOff(ResourceLocation resourceLocation)
+    public void setPressurePlateOff(Identifier resourceLocation)
     {
         pressurePlateOff = resourceLocation;
     }
 
-    public void setPressurePlateOn(ResourceLocation resourceLocation)
+    public void setPressurePlateOn(Identifier resourceLocation)
     {
         pressurePlateOn = resourceLocation;
     }
 
-    public void setButtonOff(ResourceLocation resourceLocation)
+    public void setButtonOff(Identifier resourceLocation)
     {
         buttonOff = resourceLocation;
     }
 
-    public void setButtonOn(ResourceLocation resourceLocation)
+    public void setButtonOn(Identifier resourceLocation)
     {
         buttonOn = resourceLocation;
     }
@@ -92,17 +92,17 @@ public class BlockSetTypeBuilder extends BaseBuilder<BlockSetType, BlockSetTypeB
         isWood = b;
     }
 
-    public void setHangingSignSoundType(ResourceLocation resourceLocation)
+    public void setHangingSignSoundType(Identifier resourceLocation)
     {
         hangingSignSoundType = resourceLocation;
     }
 
-    public void setFenceGateClose(ResourceLocation resourceLocation)
+    public void setFenceGateClose(Identifier resourceLocation)
     {
         fenceGateClose = resourceLocation;
     }
 
-    public void setFenceGateOpen(ResourceLocation resourceLocation)
+    public void setFenceGateOpen(Identifier resourceLocation)
     {
         fenceGateOpen = resourceLocation;
     }

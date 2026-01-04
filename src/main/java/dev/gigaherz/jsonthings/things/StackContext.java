@@ -5,7 +5,7 @@ import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -14,13 +14,13 @@ import javax.annotation.Nullable;
 
 public class StackContext implements ItemVariantProvider
 {
-    public final ResourceLocation item;
+    public final Identifier item;
     public int count = 1;
     public DataComponentMap components = null;
 
     private Item theItem;
 
-    public StackContext(@Nullable ResourceLocation item)
+    public StackContext(@Nullable Identifier item)
     {
         this.item = item;
     }

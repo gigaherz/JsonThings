@@ -11,7 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.GsonHelper;
@@ -66,7 +66,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
 
-            return new FlexFallingBlock(dustColor.getValue(), props, propertyDefaultValues)
+            return new FlexFallingBlock(dustColor.get(), props, propertyDefaultValues)
             {
                 @Override
                 protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
@@ -81,7 +81,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     public static final FlexBlockType<FlexSaplingBlock> SAPLING = register("sapling", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        var featureId = ResourceLocation.parse(GsonHelper.getAsString(data, "tree_feature"));
+        var featureId = Identifier.parse(GsonHelper.getAsString(data, "tree_feature"));
         var featureKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, featureId);
         // TODO: "mega" tree, and flower of the TreeGrower?
         var treeGrower = new TreeGrower(builder.getRegistryName().toString(), Optional.empty(), Optional.of(featureKey), Optional.empty());
@@ -195,13 +195,13 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, DefaultTypeProperties.builder().stockProperties(FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED));
 
     public static final FlexBlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> {
-        var blockSetType = new MutableObject<ResourceLocation>();
+        var blockSetType = new MutableObject<Identifier>();
         JParse.begin(data)
-                .key("wood_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
+                .key("wood_type", any -> any.string().map(Identifier::parse).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            var woodTypeName = blockSetType.getValue().toString();
+            var woodTypeName = blockSetType.get().toString();
             var woodType = WoodType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
             return new FlexFenceGateBlock(props, woodType, propertyDefaultValues)
             {
@@ -222,7 +222,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            return new FlexLeavesBlock(leafChance.getValue(), props, propertyDefaultValues)
+            return new FlexLeavesBlock(leafChance.floatValue(), props, propertyDefaultValues)
             {
                 @Override
                 protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
@@ -235,13 +235,13 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, DefaultTypeProperties.builder().defaultLayer("cutout_mipped").defaultSeeThrough(true).stockProperties(LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT));
 
     public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {
-        var blockSetType = new MutableObject<ResourceLocation>();
+        var blockSetType = new MutableObject<Identifier>();
         JParse.begin(data)
-                .key("block_set_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
+                .key("block_set_type", any -> any.string().map(Identifier::parse).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            var woodTypeName = blockSetType.getValue().toString();
+            var woodTypeName = blockSetType.get().toString();
             var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst()
                     .orElseThrow(() -> new ThingParseException("Block set type not found: " + woodTypeName));
             return new FlexDoorBlock(props, woodType, propertyDefaultValues)
@@ -257,13 +257,13 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, DefaultTypeProperties.builder().defaultLayer("cutout").defaultSeeThrough(true).stockProperties(DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF));
 
     public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> {
-        var blockSetType = new MutableObject<ResourceLocation>();
+        var blockSetType = new MutableObject<Identifier>();
         JParse.begin(data)
-            .key("block_set_type", any -> any.string().map(ResourceLocation::parse).handle(blockSetType::setValue));
+            .key("block_set_type", any -> any.string().map(Identifier::parse).handle(blockSetType::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            var woodTypeName = blockSetType.getValue().toString();
+            var woodTypeName = blockSetType.get().toString();
             var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
             return new FlexTrapdoorBlock(props, woodType, propertyDefaultValues)
             {
@@ -279,12 +279,12 @@ public class FlexBlockType<T extends Block & IFlexBlock>
 
     public static final FlexBlockType<FlexLiquidBlock> LIQUID = register("liquid", data -> {
         var extras = JParse.begin(data);
-        var fluid = new MutableObject<ResourceLocation>();
-        extras.key("fluid", any -> any.string().map(ResourceLocation::parse).handle(fluid::setValue));
+        var fluid = new MutableObject<Identifier>();
+        extras.key("fluid", any -> any.string().map(Identifier::parse).handle(fluid::setValue));
         return (props, builder) -> {
             List<Property<?>> _properties = builder.getProperties();
             Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            var fluidName = fluid.getValue() != null ? fluid.getValue() : builder.getRegistryName();
+            var fluidName = fluid.get() != null ? fluid.get() : builder.getRegistryName();
             var fluidObj = Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName);
             if (!(fluidObj instanceof FlowingFluid flowingFluid))
                 throw new RuntimeException("LiquidBlock requires a flowing fluid");

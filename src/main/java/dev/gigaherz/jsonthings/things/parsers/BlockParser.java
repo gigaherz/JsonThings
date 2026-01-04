@@ -15,7 +15,7 @@ import dev.gigaherz.jsonthings.util.parse.value.Any;
 import dev.gigaherz.jsonthings.util.parse.value.ObjValue;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -40,7 +40,7 @@ public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
     }
 
     @Override
-    public BlockBuilder processThing(ResourceLocation key, JsonObject data, Consumer<BlockBuilder> builderModification)
+    public BlockBuilder processThing(Identifier key, JsonObject data, Consumer<BlockBuilder> builderModification)
     {
         final BlockBuilder builder = BlockBuilder.begin(this, key);
 
@@ -48,8 +48,8 @@ public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
         MutableObject<Property<Direction>> facingProperty = new MutableObject<>();
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::parse).handle(builder::setParent))
-                .ifKey("type", val -> val.string().map(ResourceLocation::parse).handle(builder::setBlockType))
+                .ifKey("parent", val -> val.string().map(Identifier::parse).handle(builder::setParent))
+                .ifKey("type", val -> val.string().map(Identifier::parse).handle(builder::setBlockType))
                 .ifKey("map_color", val -> val
                         .ifString(str -> str.handle(name -> builder.setMaterialColor(MapColors.get(name))))
                         .ifInteger(num -> num.range(0, 64).handle(index -> builder.setMaterialColor(MapColor.MATERIAL_COLORS[index])))
@@ -65,7 +65,7 @@ public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
                 .ifKey("friction", val -> val.floatValue().range(0, 1).handle(builder::setFriction))
                 .ifKey("speed_factor", val -> val.floatValue().range(0, 1).handle(builder::setSpeedFactor))
                 .ifKey("jump_factor", val -> val.floatValue().range(0, 1).handle(builder::setJumpFactor))
-                .ifKey("sound_type", val -> val.string().map(ResourceLocation::parse).handle(builder::setSoundType))
+                .ifKey("sound_type", val -> val.string().map(Identifier::parse).handle(builder::setSoundType))
                 .ifKey("properties", val -> val.obj().map(this::parseProperties).handle(properties -> {
                     propertiesByName.setValue(properties);
                     builder.setProperties(properties);
@@ -76,10 +76,10 @@ public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
                     //noinspection unchecked
                     facingProperty.setValue((Property<Direction>) prop);
                 }))
-                .ifKey("shape", val -> val.raw(obj -> builder.setGeneralShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("collision_shape", val -> val.raw(obj -> builder.setCollisionShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("raytrace_shape", val -> val.raw(obj -> builder.setRaytraceShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
-                .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(DynamicShape.parseShape(obj, facingProperty.getValue(), propertiesByName.getValue()))))
+                .ifKey("shape", val -> val.raw(obj -> builder.setGeneralShape(DynamicShape.parseShape(obj, facingProperty.get(), propertiesByName.get()))))
+                .ifKey("collision_shape", val -> val.raw(obj -> builder.setCollisionShape(DynamicShape.parseShape(obj, facingProperty.get(), propertiesByName.get()))))
+                .ifKey("raytrace_shape", val -> val.raw(obj -> builder.setRaytraceShape(DynamicShape.parseShape(obj, facingProperty.get(), propertiesByName.get()))))
+                .ifKey("render_shape", val -> val.raw(obj -> builder.setRenderShape(DynamicShape.parseShape(obj, facingProperty.get(), propertiesByName.get()))))
                 .ifKey("not_solid", val -> val.bool().handle(builder::setSeeThrough))
                 .ifKey("color_handler", val -> val.string().handle(builder::setColorHandler))
                 .ifKey("ignited_by_lava", val -> val.bool().handle(builder::setIgnitedByLava))
@@ -112,7 +112,7 @@ public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
 
     private Property<?> getRotationProperty(MutableObject<Map<String, Property<?>>> propertiesByName, String name)
     {
-        Property<?> prop = propertiesByName.getValue().get(name);
+        Property<?> prop = propertiesByName.get().get(name);
         if (prop == null)
             throw new ThingParseException("No property with name '" + name + "' declared in block.");
         if (prop.getValueClass() != Direction.class)
@@ -136,7 +136,7 @@ public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
 
         props.forEach((name, val) -> val
                 .ifString(str -> str.handle(prop -> {
-                    var property = ThingRegistries.PROPERTY.getOptional(ResourceLocation.parse(prop)).orElseThrow(() -> new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES"));
+                    var property = ThingRegistries.PROPERTY.getOptional(Identifier.parse(prop)).orElseThrow(() -> new ThingParseException("Property with name " + prop + " not found in ThingRegistries.PROPERTIES"));
                     if (!property.getName().equals(name))
                         throw new ThingParseException("The stock property '" + prop + "' does not have the expected name '" + name + "' != '" + property.getName() + "'");
                     map.put(name, property);

@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.scripting.rhino;
 import dev.gigaherz.rhinolib.Context;
 import dev.gigaherz.rhinolib.Scriptable;
 import dev.gigaherz.rhinolib.WrapFactory;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 
 import javax.annotation.Nullable;
 import java.util.IdentityHashMap;

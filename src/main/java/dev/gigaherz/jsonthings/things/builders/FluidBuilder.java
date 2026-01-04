@@ -7,7 +7,7 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.serializers.FlexFluidType;
 import dev.gigaherz.jsonthings.things.serializers.IFluidFactory;
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 {
-    public static FluidBuilder begin(ThingParser<IFlexFluid, FluidBuilder> ownerParser, ResourceLocation registryName)
+    public static FluidBuilder begin(ThingParser<IFlexFluid, FluidBuilder> ownerParser, Identifier registryName)
     {
         return new FluidBuilder(ownerParser, registryName);
     }
@@ -41,7 +41,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     private IFluidFactory<? extends Fluid> factory;
 
-    private FluidBuilder(ThingParser<IFlexFluid, FluidBuilder> ownerParser, ResourceLocation registryName)
+    private FluidBuilder(ThingParser<IFlexFluid, FluidBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -52,7 +52,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         return "Fluid";
     }
 
-    public void setFluidType(ResourceLocation typeName)
+    public void setFluidType(Identifier typeName)
     {
         this.fluidType = ThingRegistries.FLUID_TYPE.getOptional(typeName)
                 .orElseThrow(() -> new IllegalStateException("No known Fluid type with name " + typeName));
@@ -177,12 +177,12 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         return val;
     }
 
-    public ResourceLocation getDefaultRenderLayer()
+    public Identifier getDefaultRenderLayer()
     {
-        return ResourceLocation.parse(getFluidType().getDefaultLayer());
+        return Identifier.parse(getFluidType().getDefaultLayer());
     }
 
-    public void register(BiConsumer<ResourceLocation, Fluid> register)
+    public void register(BiConsumer<Identifier, Fluid> register)
     {
         if (isInErrorState()) return;
         get();

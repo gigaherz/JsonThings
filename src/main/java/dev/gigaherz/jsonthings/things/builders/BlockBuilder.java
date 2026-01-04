@@ -10,7 +10,7 @@ import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.MapColor;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 {
-    public static BlockBuilder begin(ThingParser<IFlexBlock, BlockBuilder> ownerParser, ResourceLocation registryName)
+    public static BlockBuilder begin(ThingParser<IFlexBlock, BlockBuilder> ownerParser, Identifier registryName)
     {
         return new BlockBuilder(ownerParser, registryName);
     }
@@ -55,7 +55,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     private Float friction;
     private Float speedFactor;
     private Float jumpFactor;
-    private ResourceLocation soundType;
+    private Identifier soundType;
     private Boolean blocksMotion;
     private Boolean ignitedByLava;
     private Boolean liquid;
@@ -65,7 +65,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
 
     private IBlockFactory<? extends Block> factory;
 
-    private BlockBuilder(ThingParser<IFlexBlock, BlockBuilder> ownerParser, ResourceLocation registryName)
+    private BlockBuilder(ThingParser<IFlexBlock, BlockBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -77,7 +77,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
     }
 
 
-    public void setBlockType(ResourceLocation typeName)
+    public void setBlockType(Identifier typeName)
     {
         this.blockType = ThingRegistries.BLOCK_TYPE.getOptional(typeName).orElseThrow(() -> new IllegalStateException("No known block type with name " + typeName));
     }
@@ -210,9 +210,9 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         return getValue(renderShape, BlockBuilder::getRenderShape);
     }
 
-    public ResourceLocation getDefaultRenderLayer()
+    public Identifier getDefaultRenderLayer()
     {
-        return ResourceLocation.parse(getBlockType().getDefaults().getDefaultLayer());
+        return Identifier.parse(getBlockType().getDefaults().getDefaultLayer());
     }
 
     public void setColorHandler(String colorHandler)
@@ -347,13 +347,13 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         return getValue(jumpFactor, BlockBuilder::getJumpFactor);
     }
 
-    public void setSoundType(ResourceLocation loc)
+    public void setSoundType(Identifier loc)
     {
         this.soundType = loc;
     }
 
     @Nullable
-    public ResourceLocation getSoundType()
+    public Identifier getSoundType()
     {
         return getValue(soundType, BlockBuilder::getSoundType);
     }

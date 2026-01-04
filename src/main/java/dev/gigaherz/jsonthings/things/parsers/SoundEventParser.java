@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.builders.SoundEventBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.bus.api.IEventBus;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +24,7 @@ public class SoundEventParser extends ThingParser<SoundEvent, SoundEventBuilder>
     }
 
     @Override
-    public SoundEventBuilder processThing(ResourceLocation key, JsonObject data, Consumer<SoundEventBuilder> builderModification)
+    public SoundEventBuilder processThing(Identifier key, JsonObject data, Consumer<SoundEventBuilder> builderModification)
     {
         final SoundEventBuilder builder = SoundEventBuilder.begin(this, key);
 

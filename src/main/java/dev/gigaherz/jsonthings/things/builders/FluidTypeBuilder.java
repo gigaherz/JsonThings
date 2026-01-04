@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -11,14 +11,14 @@ import org.jetbrains.annotations.Nullable;
 
 public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
 {
-    public static FluidTypeBuilder begin(ThingParser<FluidType, FluidTypeBuilder> ownerParser, ResourceLocation registryName)
+    public static FluidTypeBuilder begin(ThingParser<FluidType, FluidTypeBuilder> ownerParser, Identifier registryName)
     {
         return new FluidTypeBuilder(ownerParser, registryName);
     }
 
-    private ResourceLocation stillTexture;
-    private ResourceLocation flowingTexture;
-    private ResourceLocation sideTexture;
+    private Identifier stillTexture;
+    private Identifier flowingTexture;
+    private Identifier sideTexture;
     private Rarity rarity = Rarity.COMMON;
     private Integer color;
     private Integer density;
@@ -27,9 +27,9 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     private Integer viscosity;
     private String translationKey;
     private Boolean isGaseous;
-    private ResourceLocation fillSound;
-    private ResourceLocation emptySound;
-    private ResourceLocation vaporizeSound;
+    private Identifier fillSound;
+    private Identifier emptySound;
+    private Identifier vaporizeSound;
     private Double motionScale;
     private Float fallDistanceModifier;
     private Boolean canPushEntity;
@@ -41,7 +41,7 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
     private Boolean supportsBoating;
 
 
-    private FluidTypeBuilder(ThingParser<FluidType, FluidTypeBuilder> ownerParser, ResourceLocation registryName)
+    private FluidTypeBuilder(ThingParser<FluidType, FluidTypeBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -52,35 +52,35 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         return "Fluid";
     }
 
-    public void setStillTexture(ResourceLocation stillTexture)
+    public void setStillTexture(Identifier stillTexture)
     {
         this.stillTexture = stillTexture;
     }
 
     @Nullable
-    public ResourceLocation getStillTexture()
+    public Identifier getStillTexture()
     {
         return getValue(stillTexture, FluidTypeBuilder::getStillTexture);
     }
 
-    public void setFlowingTexture(ResourceLocation flowingTexture)
+    public void setFlowingTexture(Identifier flowingTexture)
     {
         this.flowingTexture = flowingTexture;
     }
 
     @Nullable
-    public ResourceLocation getFlowingTexture()
+    public Identifier getFlowingTexture()
     {
         return getValue(flowingTexture, FluidTypeBuilder::getFlowingTexture);
     }
 
-    public void setSideTexture(ResourceLocation overlay)
+    public void setSideTexture(Identifier overlay)
     {
         this.sideTexture = overlay;
     }
 
     @Nullable
-    public ResourceLocation getSideTexture()
+    public Identifier getSideTexture()
     {
         return getValue(sideTexture, FluidTypeBuilder::getSideTexture);
     }
@@ -173,35 +173,35 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         return getValue(isGaseous, FluidTypeBuilder::getIsGaseous);
     }
 
-    public void setFillSound(ResourceLocation fillSound)
+    public void setFillSound(Identifier fillSound)
     {
         this.fillSound = fillSound;
     }
 
     @Nullable
-    private ResourceLocation getFillSound()
+    private Identifier getFillSound()
     {
         return getValue(fillSound, FluidTypeBuilder::getFillSound);
     }
 
-    public void setEmptySound(ResourceLocation emptySound)
+    public void setEmptySound(Identifier emptySound)
     {
         this.emptySound = emptySound;
     }
 
     @Nullable
-    private ResourceLocation getEmptySound()
+    private Identifier getEmptySound()
     {
         return getValue(emptySound, FluidTypeBuilder::getEmptySound);
     }
 
-    public void setVaporizeSound(ResourceLocation vaporizeSound)
+    public void setVaporizeSound(Identifier vaporizeSound)
     {
         this.vaporizeSound = vaporizeSound;
     }
 
     @Nullable
-    private ResourceLocation getVaporizeSound()
+    private Identifier getVaporizeSound()
     {
         return getValue(vaporizeSound, FluidTypeBuilder::getVaporizeSound);
     }
@@ -336,9 +336,9 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         //if (getAdjacentPathType() != null) props.adjacentPathType(@org.jetbrains.annotations.Nullable BlockPathTypes adjacentPathType)
 
         final int color = getColor() != null ? getColor() : 0xFFFFFFFF;
-        final ResourceLocation stillTexture = getStillTexture();
-        final ResourceLocation flowingTexture = getFlowingTexture();
-        final ResourceLocation sideTexture = getSideTexture();
+        final Identifier stillTexture = getStillTexture();
+        final Identifier flowingTexture = getFlowingTexture();
+        final Identifier sideTexture = getSideTexture();
 
         if (stillTexture == null)
             throw new IllegalStateException("FluidType requires a still_texture value");

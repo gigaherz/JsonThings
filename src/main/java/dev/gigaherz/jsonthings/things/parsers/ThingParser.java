@@ -19,7 +19,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.ExtraCodecs;
@@ -41,14 +41,14 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
 {
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final Map<ResourceLocation, ThingCondition> CONDITIONS_REGISTRY = new HashMap<>();
+    private static final Map<Identifier, ThingCondition> CONDITIONS_REGISTRY = new HashMap<>();
 
-    public synchronized static void registerCondition(ResourceLocation id, ThingCondition condition)
+    public synchronized static void registerCondition(Identifier id, ThingCondition condition)
     {
         CONDITIONS_REGISTRY.put(id, condition);
     }
 
-    public static boolean parseAndTestConditions(String thingType, ResourceLocation thingId, JsonElement json)
+    public static boolean parseAndTestConditions(String thingType, Identifier thingId, JsonElement json)
     {
         var conditions = json.getAsJsonObject().get("conditions");
         if (conditions == null)
@@ -63,9 +63,9 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean parseAndTestCondition(String thingType, ResourceLocation thingId, JsonObject condition)
+    public static boolean parseAndTestCondition(String thingType, Identifier thingId, JsonObject condition)
     {
-        var type = ResourceLocation.parse(condition.get("type").getAsString());
+        var type = Identifier.parse(condition.get("type").getAsString());
 
         var conditionHandler = CONDITIONS_REGISTRY.get(type);
 
@@ -76,25 +76,25 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
     }
 
     static {
-        registerCondition(ResourceLocation.parse("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
-        registerCondition(ResourceLocation.parse("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
+        registerCondition(Identifier.parse("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
+        registerCondition(Identifier.parse("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
     }
 
-    public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, ResourceLocation> keyGetter)
+    public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, Identifier> keyGetter)
     {
         list.forEach((thing) -> {
             processAndConsumeErrors(thingType, () -> consumer.accept(thing), () -> keyGetter.apply(thing));
         });
     }
 
-    public static <K, V> void processAndConsumeErrors(String thingType, Map<K, V> list, BiConsumer<K, V> consumer, Function<K, ResourceLocation> keyGetter)
+    public static <K, V> void processAndConsumeErrors(String thingType, Map<K, V> list, BiConsumer<K, V> consumer, Function<K, Identifier> keyGetter)
     {
         list.forEach((key, value) -> {
             processAndConsumeErrors(thingType, () -> consumer.accept(key, value), () -> keyGetter.apply(key));
         });
     }
 
-    public static void processAndConsumeErrors(String thingType, Runnable r, Supplier<ResourceLocation> keyGetter)
+    public static void processAndConsumeErrors(String thingType, Runnable r, Supplier<Identifier> keyGetter)
     {
         try
         {
@@ -106,7 +106,7 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
         }
     }
 
-    public static void processParseException(String thingType, ResourceLocation key, Throwable e)
+    public static void processParseException(String thingType, Identifier key, Throwable e)
     {
         var message = String.format("[Json Things] Error parsing %s with id '%s': %s", thingType, key,  e.getMessage());
         LOGGER.error(message);
@@ -116,7 +116,7 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
 
     protected static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    private final Map<ResourceLocation, @NotNull TBuilder> buildersByName = Maps.newHashMap();
+    private final Map<Identifier, @NotNull TBuilder> buildersByName = Maps.newHashMap();
     private final List<TBuilder> builders = Lists.newArrayList();
     private final String thingType;
     private final Gson gson;
@@ -137,7 +137,7 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
 
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
+    protected void apply(Map<Identifier, JsonElement> objectIn, ResourceManager resourceManager, ProfilerFiller profilerIn)
     {
         processAndConsumeErrors(thingType, objectIn, (key, json) -> {
             var builder = parseFromElement(key, json);
@@ -146,17 +146,17 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
         }, Function.identity());
     }
 
-    protected abstract TBuilder processThing(ResourceLocation key, JsonObject data, Consumer<TBuilder> builderModification);
+    protected abstract TBuilder processThing(Identifier key, JsonObject data, Consumer<TBuilder> builderModification);
 
     @Nullable
-    public TBuilder parseFromElement(ResourceLocation key, JsonElement json)
+    public TBuilder parseFromElement(Identifier key, JsonElement json)
     {
         return parseFromElement(key, json, (b) -> {
         });
     }
 
     @Nullable
-    public TBuilder parseFromElement(ResourceLocation thingId, JsonElement json, Consumer<TBuilder> builderModification)
+    public TBuilder parseFromElement(Identifier thingId, JsonElement json, Consumer<TBuilder> builderModification)
     {
         if (!parseAndTestConditions(thingType, thingId, json)) return null;
 
@@ -170,19 +170,19 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
         return Collections.unmodifiableList(builders);
     }
 
-    public Map<ResourceLocation, TBuilder> getBuildersMap()
+    public Map<Identifier, TBuilder> getBuildersMap()
     {
         return Collections.unmodifiableMap(buildersByName);
     }
 
     protected StackContext parseStackContext(JsonObject item, boolean allowItem, boolean requireItem)
     {
-        ResourceLocation itemName = null;
+        Identifier itemName = null;
         if (item.has("item"))
         {
             if (!allowItem)
                 throw new JsonParseException("'item' key provided in a context that doesn't allow customizing the item.");
-            itemName = ResourceLocation.parse(item.get("item").getAsString());
+            itemName = Identifier.parse(item.get("item").getAsString());
         }
         else
         {
@@ -215,14 +215,14 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
         return ctx;
     }
 
-    protected Map<String, List<ResourceLocation>> parseEvents(ObjValue objValue)
+    protected Map<String, List<Identifier>> parseEvents(ObjValue objValue)
     {
-        var map = new HashMap<String, List<ResourceLocation>>();
+        var map = new HashMap<String, List<Identifier>>();
 
         objValue.forEach((str, any) -> {
             any
-                    .ifString(val -> map.put(str, List.of(ResourceLocation.parse(val.getAsString()))))
-                    .ifArray(arr -> map.put(str, arr.flatMap(f -> f.map(val -> ResourceLocation.parse(val.string().getAsString())).toList())))
+                    .ifString(val -> map.put(str, List.of(Identifier.parse(val.getAsString()))))
+                    .ifArray(arr -> map.put(str, arr.flatMap(f -> f.map(val -> Identifier.parse(val.string().getAsString())).toList())))
                     .typeError();
         });
 
@@ -257,7 +257,7 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
         return thingType;
     }
 
-    public TBuilder getOrCrash(ResourceLocation name)
+    public TBuilder getOrCrash(Identifier name)
     {
         TBuilder b = buildersByName.get(name);
         if (b == null)

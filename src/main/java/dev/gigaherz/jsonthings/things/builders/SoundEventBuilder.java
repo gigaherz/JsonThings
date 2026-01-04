@@ -1,19 +1,19 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
 public class SoundEventBuilder extends BaseBuilder<SoundEvent, SoundEventBuilder>
 {
-    public static SoundEventBuilder begin(ThingParser<SoundEvent, SoundEventBuilder> ownerParser, ResourceLocation registryName)
+    public static SoundEventBuilder begin(ThingParser<SoundEvent, SoundEventBuilder> ownerParser, Identifier registryName)
     {
         return new SoundEventBuilder(ownerParser, registryName);
     }
 
     private Float range;
 
-    private SoundEventBuilder(ThingParser<SoundEvent, SoundEventBuilder> ownerParser, ResourceLocation registryName)
+    private SoundEventBuilder(ThingParser<SoundEvent, SoundEventBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }

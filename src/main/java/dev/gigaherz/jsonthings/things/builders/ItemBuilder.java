@@ -28,7 +28,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -49,12 +49,12 @@ import java.util.stream.Collectors;
 
 public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemVariantProvider
 {
-    public static ItemBuilder begin(ThingParser<Item, ItemBuilder> ownerParser, ResourceLocation registryName)
+    public static ItemBuilder begin(ThingParser<Item, ItemBuilder> ownerParser, Identifier registryName)
     {
         return new ItemBuilder(ownerParser, registryName);
     }
 
-    private final Map<EquipmentSlotGroup, Multimap<ResourceLocation, AttributeModifier>> attributeModifiers = Maps.newHashMap();
+    private final Map<EquipmentSlotGroup, Multimap<Identifier, AttributeModifier>> attributeModifiers = Maps.newHashMap();
 
     private FlexItemType<?> itemType;
 
@@ -72,7 +72,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     public ItemUseAnimation useAnim = null;
     public UseFinishMode useFinishMode = null;
 
-    private ResourceLocation containerItem = null;
+    private Identifier containerItem = null;
 
     private String colorHandler = null;
 
@@ -84,7 +84,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
 
     private IItemFactory<? extends Item> factory;
 
-    private ItemBuilder(ThingParser<Item, ItemBuilder> ownerParser, ResourceLocation registryName)
+    private ItemBuilder(ThingParser<Item, ItemBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -98,7 +98,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     public void setType(String typeName)
     {
         if (this.itemType != null) throw new RuntimeException("Item type already set.");
-        this.itemType = ThingRegistries.ITEM_TYPE.getOptional(ResourceLocation.parse(typeName)).orElseThrow(() -> new IllegalStateException("No known block type with name " + typeName));
+        this.itemType = ThingRegistries.ITEM_TYPE.getOptional(Identifier.parse(typeName)).orElseThrow(() -> new IllegalStateException("No known block type with name " + typeName));
     }
 
     public void setType(FlexItemType<?> type)
@@ -114,14 +114,14 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         this.maxStackSize = maxStackSize;
     }
 
-    public void setGroup(ResourceLocation group)
+    public void setGroup(Identifier group)
     {
         if (!this.creativeMenuStacks.isEmpty())
             throw new RuntimeException("Creative menu stacks have been added, do not call setGroup if you intend on adding creative menu stacks.");
         this.group = ResourceKey.create(Registries.CREATIVE_MODE_TAB, group);
     }
 
-    public void withCreativeMenuStack(StackContext stackContext, ResourceLocation[] tabs)
+    public void withCreativeMenuStack(StackContext stackContext, Identifier[] tabs)
     {
         if (this.group != null)
             throw new RuntimeException("An item group name has been defined, do not call setGroup if you intend on adding creative menu stacks.");
@@ -131,7 +131,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         }
     }
 
-    public void withAttributeModifier(EquipmentSlotGroup slot, ResourceLocation attribute, ResourceLocation id, double amount, AttributeModifier.Operation op)
+    public void withAttributeModifier(EquipmentSlotGroup slot, Identifier attribute, Identifier id, double amount, AttributeModifier.Operation op)
     {
         var mod = new AttributeModifier(id, amount, op);
         attributeModifiers.computeIfAbsent(slot, _slot -> ArrayListMultimap.create()).put(attribute, mod);
@@ -148,7 +148,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         this.isFireResistant = isFireResistant;
     }
 
-    public void setFood(ResourceLocation foodName)
+    public void setFood(Identifier foodName)
     {
         if (this.foodDefinition != null) throw new RuntimeException("Food info already set.");
         this.foodDefinition = () -> ThingRegistries.FOOD
@@ -177,7 +177,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         this.useFinishMode = finishMode;
     }
 
-    public void setContainerItem(ResourceLocation resourceLocation)
+    public void setContainerItem(Identifier resourceLocation)
     {
         if (this.containerItem != null) throw new RuntimeException("Container Item already set.");
         this.containerItem = resourceLocation;
@@ -375,7 +375,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     }
 
     @Nullable
-    public ResourceLocation getContainerItem()
+    public Identifier getContainerItem()
     {
         return getValue(containerItem, ItemBuilder::getContainerItem);
     }
@@ -458,7 +458,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     }
 
     @Nullable
-    private Map<EquipmentSlotGroup, Multimap<ResourceLocation, AttributeModifier>> getAttributeModifiersRaw()
+    private Map<EquipmentSlotGroup, Multimap<Identifier, AttributeModifier>> getAttributeModifiersRaw()
     {
         return getValue(attributeModifiers, ItemBuilder::getAttributeModifiersRaw);
     }

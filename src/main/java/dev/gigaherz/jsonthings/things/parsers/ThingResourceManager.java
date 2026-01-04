@@ -11,7 +11,7 @@ import dev.gigaherz.jsonthings.RunnableQueue;
 import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackSelectionConfig;

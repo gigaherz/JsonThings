@@ -10,7 +10,7 @@ import joptsimple.internal.Strings;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -30,7 +30,7 @@ public class FlexItemType<T extends Item>
         final String name = GsonHelper.getAsString(data, "places", null);
         boolean useBlockName = GsonHelper.getAsBoolean(data, "use_block_name", true);
         return (props, builder) -> {
-            ResourceLocation blockName = name != null ? ResourceLocation.parse(name) : builder.getRegistryName();
+            Identifier blockName = name != null ? Identifier.parse(name) : builder.getRegistryName();
             var block = Utils.getOrCrash(BuiltInRegistries.BLOCK, blockName);
             if (useBlockName)
                 props.useBlockDescriptionPrefix();
@@ -39,9 +39,9 @@ public class FlexItemType<T extends Item>
     });
 
     public static final FlexItemType<FlexDrinkableBottleItem> DRINKABLE_BOTTLE = register("drinkable_bottle", (data) -> {
-        MutableObject<ResourceLocation> baseItemName = new MutableObject<>();
+        MutableObject<Identifier> baseItemName = new MutableObject<>();
         JParse.begin(data)
-                .ifKey("base_item", val -> val.string().map(ResourceLocation::parse).handle(baseItemName::setValue));
+                .ifKey("base_item", val -> val.string().map(Identifier::parse).handle(baseItemName::setValue));
         return (props, builder) -> {
             Supplier<Item> baseItem = baseItemName.getValue() != null
                     ? DeferredHolder.create(Registries.ITEM, baseItemName.getValue())
@@ -54,17 +54,17 @@ public class FlexItemType<T extends Item>
         String name = GsonHelper.getAsString(data, "fluid", null);
         return (props, builder) ->
         {
-            ResourceLocation fluidName;
+            Identifier fluidName;
             if (name != null)
             {
-                fluidName = ResourceLocation.parse(name);
+                fluidName = Identifier.parse(name);
             }
             else
             {
                 var thisName = builder.getRegistryName();
                 var path = thisName.getPath();
                 if (path.endsWith("_bucket")) path = path.substring(0, path.length() - "_bucket".length());
-                fluidName = ResourceLocation.fromNamespaceAndPath(thisName.getNamespace(), path);
+                fluidName = Identifier.fromNamespaceAndPath(thisName.getNamespace(), path);
             }
             return new FlexBucketItem(Lazy.of(() -> Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName)), props, builder);
         };
@@ -73,13 +73,13 @@ public class FlexItemType<T extends Item>
     /*public static final FlexItemType<FlexArmorItem> ARMOR = register("armor", data -> {
 
         MutableObject<ArmorType> armorType = new MutableObject<>();
-        MutableObject<ResourceLocation> materialName = new MutableObject<>();
+        MutableObject<Identifier> materialName = new MutableObject<>();
 
         JParse.begin(data)
                 .requireExactlyOne(List.of("equipment_slot", "armor_type"), () -> new JParseException("Amor item must have an 'armor_type' key, or for backward compatibility, a 'slotName' key."))
                 .ifKey("equipment_slot", val -> val.string().map(Utils::armorTypeByEquipmentSlotName).handle(armorType::setValue))
                 .ifKey("armor_type", val -> val.string().map(Utils::armorTypeByName).handle(armorType::setValue))
-                .key("material", val -> val.string().map(ResourceLocation::parse).handle(materialName::setValue));
+                .key("material", val -> val.string().map(Identifier::parse).handle(materialName::setValue));
 
         return (props, builder) -> {
             ArmorMaterial material = Utils.getOrCrash(ThingRegistries.ARMOR_MATERIAL, materialName.getValue());
@@ -134,7 +134,7 @@ public class FlexItemType<T extends Item>
 
     private static ToolMaterial getTier(String tierName)
     {
-        return Utils.getOrCrash(ThingRegistries.TOOL_MATERIAL, ResourceLocation.parse(tierName));
+        return Utils.getOrCrash(ThingRegistries.TOOL_MATERIAL, Identifier.parse(tierName));
     }
 
     private static String parseTier(JsonObject data)

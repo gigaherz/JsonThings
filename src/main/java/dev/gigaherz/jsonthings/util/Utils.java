@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -22,12 +22,12 @@ public class Utils
 {
     public static TagKey<Item> itemTag(String pName)
     {
-        return TagKey.create(Registries.ITEM, ResourceLocation.parse(pName));
+        return TagKey.create(Registries.ITEM, Identifier.parse(pName));
     }
 
     public static TagKey<Block> blockTag(String pName)
     {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.parse(pName));
+        return TagKey.create(Registries.BLOCK, Identifier.parse(pName));
     }
 
     public static <T extends Comparable<T>> T getPropertyValue(Property<T> prop, String value)
@@ -47,17 +47,17 @@ public class Utils
         return val != null ? val : def.get();
     }
 
-    public static <T> T getOrCrash(Registry<T> registry, ResourceLocation name)
+    public static <T> T getOrCrash(Registry<T> registry, Identifier name)
     {
         return registry.getOptional(name).orElseThrow(() -> new KeyNotFoundException("No object with name " + name + " found in the registry " + registry));
     }
 
-    public static <T> Holder<T> getHolderOrCrash(Registry<T> registry, ResourceLocation name)
+    public static <T> Holder<T> getHolderOrCrash(Registry<T> registry, Identifier name)
     {
-        return registry.get(name).orElseThrow(() -> new NoSuchElementException("Entry with name " + name + " not found in registry " + registry.key().location()));
+        return registry.get(name).orElseThrow(() -> new NoSuchElementException("Entry with name " + name + " not found in registry " + registry.key().identifier()));
     }
 
-    public static <T> T getOrElse(Registry<T> registry, ResourceLocation name, T fallback)
+    public static <T> T getOrElse(Registry<T> registry, Identifier name, T fallback)
     {
         return registry.getOptional(name).orElse(fallback);
     }

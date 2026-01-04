@@ -5,7 +5,7 @@ import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.parse.JParseException;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.Consumable;
@@ -16,18 +16,18 @@ import java.util.Arrays;
 
 public class ConsumableBuilder extends BaseBuilder<Consumable, ConsumableBuilder>
 {
-    public static ConsumableBuilder begin(ThingParser<Consumable, ConsumableBuilder> ownerParser, ResourceLocation registryName)
+    public static ConsumableBuilder begin(ThingParser<Consumable, ConsumableBuilder> ownerParser, Identifier registryName)
     {
         return new ConsumableBuilder(ownerParser, registryName);
     }
 
     private float consumeSeconds;
     private ItemUseAnimation animation;
-    private ResourceLocation sound;
+    private Identifier sound;
     private boolean hasConsumeParticles;
     private JsonElement[] onConsumeEffects;
 
-    private ConsumableBuilder(ThingParser<Consumable, ConsumableBuilder> ownerParser, ResourceLocation registryName)
+    private ConsumableBuilder(ThingParser<Consumable, ConsumableBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -46,7 +46,7 @@ public class ConsumableBuilder extends BaseBuilder<Consumable, ConsumableBuilder
     {
         this.animation = animation;
     }
-    public void setSound(ResourceLocation sound)
+    public void setSound(Identifier sound)
     {
         this.sound = sound;
     }

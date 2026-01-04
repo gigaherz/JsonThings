@@ -11,7 +11,7 @@ import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.ToolMaterial;
@@ -81,13 +81,13 @@ public class ThingRegistries
 
     private static <T> ResourceKey<Registry<T>> createKey(String name)
     {
-        return ResourceKey.createRegistryKey(ResourceLocation.parse(name));
+        return ResourceKey.createRegistryKey(Identifier.parse(name));
     }
 
     private static <T> Registry<T> makeRegistry(ResourceKey<Registry<T>> key)
     {
         MappedRegistry<T> registry = new MappedRegistry<>(key, Lifecycle.experimental(), false);
-        return Registry.register(THING_REGISTRIES, key.location().toString(), registry);
+        return Registry.register(THING_REGISTRIES, key.identifier().toString(), registry);
     }
 
     private static void registerToolMaterials()

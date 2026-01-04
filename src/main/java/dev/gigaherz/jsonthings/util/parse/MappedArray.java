@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.util.parse;
 import dev.gigaherz.jsonthings.util.parse.function.IntObjBiConsumer;
 import dev.gigaherz.jsonthings.util.parse.value.MappedArrayValue;
 import dev.gigaherz.jsonthings.util.parse.value.MappedValue;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;

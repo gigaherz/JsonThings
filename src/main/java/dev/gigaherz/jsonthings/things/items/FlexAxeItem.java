@@ -203,7 +203,11 @@ public class FlexAxeItem extends AxeItem implements IEventRunner
 
             if (slotIdx >= 0)
             {
-                slotAccess = SlotAccess.forContainer(inv, slotIdx);
+                final int idx = slotIdx;
+                slotAccess = SlotAccess.of(
+                        () -> inv.getItem(idx),
+                        stack0 -> inv.setItem(idx, stack0)
+                );
             }
         }
 

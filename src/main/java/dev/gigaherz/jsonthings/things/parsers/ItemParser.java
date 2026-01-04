@@ -21,7 +21,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -74,16 +74,16 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
     }
 
     @Override
-    public ItemBuilder processThing(ResourceLocation key, JsonObject data, Consumer<ItemBuilder> builderModification)
+    public ItemBuilder processThing(Identifier key, JsonObject data, Consumer<ItemBuilder> builderModification)
     {
         final ItemBuilder builder = ItemBuilder.begin(this, key);
 
         JParse.begin(data)
-                .ifKey("parent", val -> val.string().map(ResourceLocation::parse).handle(builder::setParent))
+                .ifKey("parent", val -> val.string().map(Identifier::parse).handle(builder::setParent))
                 .ifKey("type", val -> val.string().handle(builder::setType))
                 .ifKey("max_stack_size", val -> val.intValue().range(1, 128).handle(builder::setMaxStackSize))
                 .mutex(List.of("group", "creative_menu_stacks"), () -> new ThingParseException("Cannot have group and creative_menu_stacks at the same time."))
-                .ifKey("group", val -> val.string().map(ResourceLocation::parse).handle(builder::setGroup))
+                .ifKey("group", val -> val.string().map(Identifier::parse).handle(builder::setGroup))
                 .ifKey("creative_menu_stacks", val -> val
                         .array().forEach((i, entry) -> entry
                                 .obj().raw(item -> builder.withCreativeMenuStack(parseStackContext(item, false, false), parseTabsList(item))))
@@ -92,7 +92,7 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
                 .ifKey("max_damage", val -> val.intValue().min(1).handle(builder::setMaxDamage))
                 .ifKey("fire_resistant", val -> val.bool().handle(builder::setFireResistant))
                 .ifKey("food", val -> val
-                        .ifString(str -> str.map(ResourceLocation::parse).handle(builder::setFood))
+                        .ifString(str -> str.map(Identifier::parse).handle(builder::setFood))
                         .ifObj(obj -> obj.raw(food -> {
                             try
                             {
@@ -107,7 +107,7 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
                         }))
                         .typeError()
                 )
-                .ifKey("container", val -> val.string().map(ResourceLocation::parse).handle(builder::setContainerItem))
+                .ifKey("container", val -> val.string().map(Identifier::parse).handle(builder::setContainerItem))
                 .ifKey("delayed_use", val -> val.obj()
                         .key("duration", val1 -> val1.intValue().handle(builder::setUseTime))
                         .key("animation", val1 -> val1.string().map(str -> ItemUseAnimation.valueOf(str.toUpperCase())).handle(builder::setUseAnim))
@@ -150,7 +150,7 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
                 throw new ThingParseException("Attribute modifier slot must be a non-empty string.");
             }
 
-            ResourceLocation attribute;
+            Identifier attribute;
             if (item.has("attribute"))
             {
                 var loc = item.get("attribute").getAsString();
@@ -158,20 +158,20 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
                 {
                     throw new ThingParseException("Attribute must be present and a valid resource location.");
                 }
-                attribute = ResourceLocation.parse(loc);
+                attribute = Identifier.parse(loc);
             }
             else
             {
                 throw new ThingParseException("Attribute must be present and a valid resource location.");
             }
 
-            ResourceLocation id;
+            Identifier id;
             if (item.has("id"))
             {
                 String uuidString = item.get("id").getAsString();
                 if (!Strings.isNullOrEmpty(uuidString))
                 {
-                    id = ResourceLocation.parse(uuidString);
+                    id = Identifier.parse(uuidString);
                 }
                 else
                 {
@@ -211,20 +211,20 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
         }
     }
 
-    public static ResourceLocation[] parseTabsList(JsonObject stackEntry)
+    public static Identifier[] parseTabsList(JsonObject stackEntry)
     {
         if (stackEntry.has("tabs"))
         {
             JsonArray tabs = stackEntry.get("tabs").getAsJsonArray();
 
-            ResourceLocation[] tabsArray = new ResourceLocation[tabs.size()];
+            Identifier[] tabsArray = new Identifier[tabs.size()];
             int tabIndex = 0;
             for (JsonElement e : tabs)
             {
                 String str = e.getAsString();
                 if (!Strings.isNullOrEmpty(str))
                 {
-                    tabsArray[tabIndex++] = ResourceLocation.parse(str);
+                    tabsArray[tabIndex++] = Identifier.parse(str);
                 }
                 else
                 {

@@ -6,7 +6,7 @@ import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
@@ -19,14 +19,14 @@ import java.util.function.Supplier;
 public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
 {
     private final ThingParser<T, B> ownerParser;
-    private final ResourceLocation registryName;
-    private ResourceLocation parentBuilderName;
+    private final Identifier registryName;
+    private Identifier parentBuilderName;
     private B parentBuilder;
     private T builtThing;
-    private Map<String, List<ResourceLocation>> eventMap;
+    private Map<String, List<Identifier>> eventMap;
     private Throwable errorState = null;
 
-    protected BaseBuilder(ThingParser<T, B> ownerParser, ResourceLocation registryName)
+    protected BaseBuilder(ThingParser<T, B> ownerParser, Identifier registryName)
     {
         this.ownerParser = ownerParser;
         this.registryName = registryName;
@@ -71,7 +71,7 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
         return errorState != null;
     }
 
-    public final ResourceLocation getRegistryName()
+    public final Identifier getRegistryName()
     {
         return registryName;
     }
@@ -81,7 +81,7 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
         return ownerParser;
     }
 
-    public void setParent(ResourceLocation parentBuilder)
+    public void setParent(Identifier parentBuilder)
     {
         this.parentBuilderName = parentBuilder;
     }
@@ -148,17 +148,17 @@ public abstract class BaseBuilder<T, B extends BaseBuilder<T, B>>
     }
 
     @Nullable
-    protected final Map<String, List<ResourceLocation>> getEventMap()
+    protected final Map<String, List<Identifier>> getEventMap()
     {
         return eventMap;
     }
 
-    public void setEventMap(Map<String, List<ResourceLocation>> eventMap)
+    public void setEventMap(Map<String, List<Identifier>> eventMap)
     {
         this.eventMap = eventMap;
     }
 
-    protected void forEachEvent(BiConsumer<String, List<ResourceLocation>> consumer)
+    protected void forEachEvent(BiConsumer<String, List<Identifier>> consumer)
     {
         var ev = getEventMap();
         if (ev != null)

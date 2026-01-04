@@ -5,16 +5,16 @@ import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.Nullable;
 
 public class DelayedVariantProvider implements ItemVariantProvider
 {
-    private final ResourceLocation itemName;
+    private final Identifier itemName;
     private ItemVariantProvider actualVariant;
 
-    public DelayedVariantProvider(ResourceLocation item)
+    public DelayedVariantProvider(Identifier item)
     {
         itemName = item;
     }

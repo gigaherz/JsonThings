@@ -8,7 +8,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.Arrays;
@@ -71,7 +71,7 @@ public class CodecExtras
 
     public static <T> Codec<T> registryNameCodec(Registry<T> registry)
     {
-        return mappingCodec(ResourceLocation.CODEC, name -> registry.getOptional(name).orElse(null), registry::getKey);
+        return mappingCodec(Identifier.CODEC, name -> registry.getOptional(name).orElse(null), registry::getKey);
     }
 
     public static <R, T extends R> Codec<R> toSubclass(Codec<T> codec, Class<T> subclass)

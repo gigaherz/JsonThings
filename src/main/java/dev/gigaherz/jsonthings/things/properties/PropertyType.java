@@ -8,7 +8,7 @@ import com.mojang.datafixers.util.Function3;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -26,7 +26,7 @@ public abstract class PropertyType
     public static Property<?> deserialize(String name, JsonObject data)
     {
         String key = GsonHelper.getAsString(data, "type");
-        PropertyType prop = ThingRegistries.PROPERTY_TYPE.getOptional(ResourceLocation.parse(key))
+        PropertyType prop = ThingRegistries.PROPERTY_TYPE.getOptional(Identifier.parse(key))
                 .orElseThrow(() -> new IllegalStateException("Property type not found " + key));
         return prop.read(name, data);
     }
@@ -35,7 +35,7 @@ public abstract class PropertyType
     {
         for (Map.Entry<ResourceKey<PropertyType>, PropertyType> entry : ThingRegistries.PROPERTY_TYPE.entrySet())
         {
-            String key = entry.getKey().location().toString();
+            String key = entry.getKey().identifier().toString();
             PropertyType prop = entry.getValue();
             if (prop.handles(property))
             {

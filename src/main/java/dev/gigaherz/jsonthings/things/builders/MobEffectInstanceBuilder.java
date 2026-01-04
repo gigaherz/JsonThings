@@ -5,12 +5,12 @@ import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffectInstance;
 
 public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, MobEffectInstanceBuilder>
 {
-    private ResourceLocation effect;
+    private Identifier effect;
     private int duration;
     private int amplifier = 0;
     private boolean isAmbient = false;
@@ -18,7 +18,7 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
     private boolean showIcon = true;
     private FoodPropertiesBuilder owner;
 
-    public MobEffectInstanceBuilder(ThingParser<MobEffectInstance, MobEffectInstanceBuilder> ownerParser, ResourceLocation name)
+    public MobEffectInstanceBuilder(ThingParser<MobEffectInstance, MobEffectInstanceBuilder> ownerParser, Identifier name)
     {
         super(ownerParser, name);
     }
@@ -47,12 +47,12 @@ public class MobEffectInstanceBuilder extends BaseBuilder<MobEffectInstance, Mob
         return owner;
     }
 
-    public ResourceLocation getEffect()
+    public Identifier getEffect()
     {
         return effect;
     }
 
-    public void setEffect(ResourceLocation effect)
+    public void setEffect(Identifier effect)
     {
         this.effect = effect;
     }

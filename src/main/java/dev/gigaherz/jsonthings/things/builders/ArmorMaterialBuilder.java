@@ -3,7 +3,7 @@ package dev.gigaherz.jsonthings.things.builders;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMaterialBuilder>
 {
-    public static ArmorMaterialBuilder begin(ThingParser<ArmorMaterial, ArmorMaterialBuilder> ownerParser, ResourceLocation registryName)
+    public static ArmorMaterialBuilder begin(ThingParser<ArmorMaterial, ArmorMaterialBuilder> ownerParser, Identifier registryName)
     {
         return new ArmorMaterialBuilder(ownerParser, registryName);
     }
@@ -27,10 +27,10 @@ public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMateri
     private float toughness;
     private float knockbackResistance;
     private int enchantmentValue;
-    private ResourceLocation equipSound;
+    private Identifier equipSound;
     private TagKey<Item> repairIngredient;
 
-    private ArmorMaterialBuilder(ThingParser<ArmorMaterial, ArmorMaterialBuilder> ownerParser, ResourceLocation registryName)
+    private ArmorMaterialBuilder(ThingParser<ArmorMaterial, ArmorMaterialBuilder> ownerParser, Identifier registryName)
     {
         super(ownerParser, registryName);
     }
@@ -66,7 +66,7 @@ public class ArmorMaterialBuilder extends BaseBuilder<ArmorMaterial, ArmorMateri
         this.enchantmentValue = enchantmentValue;
     }
 
-    public void setEquipSound(ResourceLocation equipSound)
+    public void setEquipSound(Identifier equipSound)
     {
         this.equipSound = equipSound;
     }

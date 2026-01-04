@@ -12,7 +12,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -37,7 +37,7 @@ public class DSLHelpers
 
     public static <T> T find(Registry<T> reg, String n)
     {
-        var rl = ResourceLocation.parse(n);
+        var rl = Identifier.parse(n);
 
         if (!reg.containsKey(rl))
             throw new RuntimeException("Cannot find element with name " + rl);
@@ -48,7 +48,7 @@ public class DSLHelpers
 
     public static <T> Holder<T> findHolder(Registry<T> reg, String n)
     {
-        var rl = ResourceLocation.parse(n);
+        var rl = Identifier.parse(n);
 
         if (!reg.containsKey(rl))
             throw new RuntimeException("Cannot find element with name " + rl);

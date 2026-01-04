@@ -1,12 +1,12 @@
-# Food Definitions
+# Shape Definitions
 
-Food definitions let you define the properties of food items. They can be defined by name, or included directly in an item's `"food"` key.
+Shape definitions let you define the collision of blocks in different states. They can be defined by name, or included directly in a block's shape key.
 
-Named food definitions go in the `food` directory in the thing pack.
+As I am not gigaherz, I'm not sure if you can put named shape definitions in the `shape` directory in the thing pack.
 
 E.g.
 ```
-/things/examplepack/food/stick.json
+/things/examplepack/shape/state.json
 ```
 
 ## Basic structure of the JSON file

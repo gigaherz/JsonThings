@@ -1,4 +1,4 @@
-# Sound Type Definitions
+# Block Set Type Definitions
 
 EXPERIMENTAL.
 
@@ -8,7 +8,7 @@ Sound Type definitions go in the `sound_type` directory in the thing pack.
 
 E.g.
 ```
-/things/examplepack/sound_event/scream.json
+/things/examplepack/block_set_type/scream.json
 ```
 
 ## Basic structure of the JSON file
@@ -27,7 +27,11 @@ E.g.
   "is_wood": true,
   "hanging_sign_sound_type": "some:sound_type",
   "fence_gate_close": "some:sound_event",
-  "fence_gate_open": "some:sound_event"
+  "fence_gate_open": "some:sound_event",
+  "can_open_by_hand": true,
+  "can_open_by_wind_charge": true,
+  "can_botton_be_activated_by_arrows": true,
+  "pressure_plate_sensitivity":"mobs"
 }
 ```
 

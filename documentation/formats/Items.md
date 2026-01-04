@@ -39,7 +39,12 @@ E.g.
     {"text": "Hi", "italic": true, "color": "gray" }
   ],
   "tool_actions": ["shovel_dig"],
-  "burn_duration": 20
+  "burn_duration": 20,
+  "delayed_use": {
+    "duration": 20,
+    "animation": "EAT",
+    "on_complete": "USE_ITEM"
+  }
 }
 ```
 
@@ -175,6 +180,7 @@ Defines the amount of time this item can burn when used as fuel for a furnace.
 Optional. Default: use vanilla default handling (depends on item type).
 
 Must be an integer. A value of 0 prevents the item from being considered fuel.
+(a value of 0 makes game crash exactly)
 
 ## "fire_resistant"
 
@@ -183,3 +189,28 @@ Defines if the item can survive fire and lava.
 Optional. Default: false (item burns in lava and fire).
 
 Must be a boolean (`false`  or `true`).
+
+## "delayed_use"
+
+EXPERIMENTAL.
+
+Defines if you can use the item continuously.
+
+Optional.
+
+'"duration"' is required, difines how many ticks you should use.
+'"animation"' is required. Allowed values:     
+    NONE,
+    EAT,
+    DRINK,
+    BLOCK,
+    BOW,
+    SPEAR,
+    CROSSBOW,
+    SPYGLASS,
+    TOOT_HORN,
+    BRUSH,
+    CUSTOM
+'"on_complete"' is optional. Allowed values: 
+  USE_ITEM,       (like food)
+  CONTINUE        (like a bow)

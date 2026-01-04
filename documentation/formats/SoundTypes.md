@@ -8,7 +8,7 @@ Sound Type definitions go in the `sound_type` directory in the thing pack.
 
 E.g.
 ```
-/things/examplepack/sound_event/scream.json
+/things/examplepack/sound_type/scream.json
 ```
 
 ## Basic structure of the JSON file

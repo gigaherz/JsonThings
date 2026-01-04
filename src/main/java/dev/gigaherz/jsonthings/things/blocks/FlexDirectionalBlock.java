@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.things.blocks;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
+import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventType;
@@ -14,36 +15,38 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
 {
-    private static final MapCodec<FlexDirectionalBlock> CODEC = simpleCodec(props -> new FlexDirectionalBlock(props, Collections.emptyMap()));
-
-    public FlexDirectionalBlock(Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexDirectionalBlock(Properties properties, BlockBuilder builder)
     {
+        this.stateProperties = builder.getProperties();
         super(properties);
-        initializeFlex(propertyDefaultValues);
+        initializeFlex(builder.getPropertyDefaultValues());
     }
 
     @Override
-    protected MapCodec<? extends DirectionalBlock> codec()
+    public MapCodec<? extends DirectionalBlock> codec()
     {
-        return CODEC;
+        throw new RuntimeException("Not implemented");
     }
 
     //region IFlexBlock
     @SuppressWarnings("rawtypes")
     private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
+    private final List<Property<?>> stateProperties;
     private DynamicShape generalShape;
     private DynamicShape collisionShape;
     private DynamicShape raytraceShape;
@@ -105,6 +108,13 @@ public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
     //endregion
 
     //region Block
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+    {
+        super.createBlockStateDefinition(builder1);
+        stateProperties.forEach(builder1::add);
+    }
+
     @Deprecated
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context)

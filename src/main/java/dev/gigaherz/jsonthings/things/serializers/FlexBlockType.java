@@ -17,8 +17,6 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WoodType;
@@ -31,187 +29,74 @@ import java.util.*;
 public class FlexBlockType<T extends Block & IFlexBlock>
 {
 
-    public static final FlexBlockType<FlexBlock> PLAIN = register("plain", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    },  DefaultTypeProperties.builder());
+    public static final FlexBlockType<FlexBlock> PLAIN = register("plain", _ -> FlexBlock::new, DefaultTypeProperties.builder());
 
-    public static final FlexBlockType<FlexFallingBlock> FALLING = register("falling", data -> {
+    public static final FlexBlockType<FlexFallingBlock> FALLING = register("falling",
+            data -> {
+                MutableObject<ColorRGBA> dustColor = new MutableObject<>(new ColorRGBA(-1));
+                JParse.begin(data)
+                        .ifKey("dust_color", val -> val
+                                .ifInteger(num -> num.handle(color -> dustColor.setValue(new ColorRGBA(color))))
+                                .ifObj(num -> num.map((JsonObject obj) -> {
+                                    var r = GsonHelper.getAsInt(obj, "r");
+                                    var g = GsonHelper.getAsInt(obj, "g");
+                                    var b = GsonHelper.getAsInt(obj, "b");
+                                    var a = GsonHelper.getAsInt(obj, "a", 255);
+                                    return new ColorRGBA(ARGB.color(a,r,g,b));
+                                }).handle(dustColor::setValue))
+                                .typeError()
+                        );
+                var color = dustColor.get();
+                return (props, builder) -> new FlexFallingBlock(props, builder, color);
+            },
+            DefaultTypeProperties.builder().defaultLayer("cutout"));
 
-        MutableObject<ColorRGBA> dustColor = new MutableObject<>(new ColorRGBA(-1));
+    public static final FlexBlockType<FlexSaplingBlock> SAPLING = register("sapling",
+            data -> (props, builder) -> {
+                var featureId = Identifier.parse(GsonHelper.getAsString(data, "tree_feature"));
+                var featureKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, featureId);
+                // TODO: "mega" tree, and flower of the TreeGrower?
+                var treeGrower = new TreeGrower(builder.getRegistryName().toString(), Optional.empty(), Optional.of(featureKey), Optional.empty());
+                return new FlexSaplingBlock(props, builder, treeGrower);
+            },
+            DefaultTypeProperties.builder().defaultLayer("cutout").defaultTicksRandomly(true));
 
-        JParse.begin(data)
-                .ifKey("dust_color", val -> val
-                        .ifInteger(num -> num.handle(color -> dustColor.setValue(new ColorRGBA(color))))
-                        .ifObj(num -> num.map((JsonObject obj) -> {
-                            var r = GsonHelper.getAsInt(obj, "r");
-                            var g = GsonHelper.getAsInt(obj, "g");
-                            var b = GsonHelper.getAsInt(obj, "b");
-                            var a = GsonHelper.getAsInt(obj, "a", 255);
-                            return new ColorRGBA(ARGB.color(a,r,g,b));
-                        }).handle(dustColor::setValue))
-                        .typeError()
-                );
+    public static final FlexBlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional",
+            _ -> FlexDirectionalBlock::new,
+            DefaultTypeProperties.builder().stockProperties(DirectionalBlock.FACING));
 
-        return (props, builder) -> {
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
+    public static final FlexBlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional",
+            _ -> FlexHorizontalDirectionalBlock::new,
+            DefaultTypeProperties.builder().stockProperties(HorizontalDirectionalBlock.FACING));
 
-            return new FlexFallingBlock(dustColor.get(), props, propertyDefaultValues)
-            {
-                @Override
-                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-                {
-                    super.createBlockStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
-        };
-    }, DefaultTypeProperties.builder().defaultLayer("cutout"));
+    public static final FlexBlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar",
+            _ -> FlexRotatedPillarBlock::new,
+            DefaultTypeProperties.builder().stockProperties(RotatedPillarBlock.AXIS));
 
-    public static final FlexBlockType<FlexSaplingBlock> SAPLING = register("sapling", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        var featureId = Identifier.parse(GsonHelper.getAsString(data, "tree_feature"));
-        var featureKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, featureId);
-        // TODO: "mega" tree, and flower of the TreeGrower?
-        var treeGrower = new TreeGrower(builder.getRegistryName().toString(), Optional.empty(), Optional.of(featureKey), Optional.empty());
-        return new FlexSaplingBlock(treeGrower, props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    },  DefaultTypeProperties.builder().defaultLayer("cutout").defaultTicksRandomly(true));
+    public static final FlexBlockType<FlexSlabBlock> SLAB = register("slab",
+            _ -> FlexSlabBlock::new,
+            DefaultTypeProperties.builder().stockProperties(SlabBlock.TYPE, SlabBlock.WATERLOGGED));
 
-    public static final FlexBlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexDirectionalBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    },  DefaultTypeProperties.builder().stockProperties(DirectionalBlock.FACING));
+    public static final FlexBlockType<FlexStairsBlock> STAIRS = register("stairs",
+            _ -> FlexStairsBlock::new,
+            DefaultTypeProperties.builder().stockProperties(StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED));
 
-    public static final FlexBlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexHorizontalDirectionalBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    }, DefaultTypeProperties.builder().stockProperties(HorizontalDirectionalBlock.FACING));
+    public static final FlexBlockType<FlexWallBlock> WALL = register("wall",
+            _ -> FlexWallBlock::new,
+            DefaultTypeProperties.builder().stockProperties(WallBlock.UP, WallBlock.EAST, WallBlock.NORTH, WallBlock.SOUTH, WallBlock.WEST, WallBlock.WATERLOGGED));
 
-    public static final FlexBlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexRotatedPillarBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    }, DefaultTypeProperties.builder().stockProperties(RotatedPillarBlock.AXIS));
-
-    public static final FlexBlockType<FlexSlabBlock> SLAB = register("slab", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexSlabBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    }, DefaultTypeProperties.builder().stockProperties(SlabBlock.TYPE, SlabBlock.WATERLOGGED));
-
-    public static final FlexBlockType<FlexStairsBlock> STAIRS = register("stairs", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexStairsBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    }, DefaultTypeProperties.builder().stockProperties(StairBlock.FACING, StairBlock.HALF, StairBlock.SHAPE, StairBlock.WATERLOGGED));
-
-    public static final FlexBlockType<FlexWallBlock> WALL = register("wall", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexWallBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    }, DefaultTypeProperties.builder().stockProperties(WallBlock.UP, WallBlock.EAST, WallBlock.NORTH, WallBlock.SOUTH, WallBlock.WEST, WallBlock.WATERLOGGED));
-
-    public static final FlexBlockType<FlexFenceBlock> FENCE = register("fence", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
-        Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-        return new FlexFenceBlock(props, propertyDefaultValues)
-        {
-            @Override
-            protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-            {
-                super.createBlockStateDefinition(builder1);
-                _properties.forEach(builder1::add);
-            }
-        };
-    }, DefaultTypeProperties.builder().stockProperties(FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED));
+    public static final FlexBlockType<FlexFenceBlock> FENCE = register("fence",
+            _ -> FlexFenceBlock::new,
+            DefaultTypeProperties.builder().stockProperties(FenceBlock.NORTH, FenceBlock.EAST, FenceBlock.SOUTH, FenceBlock.WEST, FenceBlock.WATERLOGGED));
 
     public static final FlexBlockType<FlexFenceGateBlock> FENCE_GATE = register("fence_gate", data -> {
         var blockSetType = new MutableObject<Identifier>();
         JParse.begin(data)
                 .key("wood_type", any -> any.string().map(Identifier::parse).handle(blockSetType::setValue));
+        var woodTypeName = blockSetType.get().toString();
         return (props, builder) -> {
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            var woodTypeName = blockSetType.get().toString();
             var woodType = WoodType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
-            return new FlexFenceGateBlock(props, woodType, propertyDefaultValues)
-            {
-                @Override
-                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-                {
-                    super.createBlockStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
+            return new FlexFenceGateBlock(props, builder, woodType);
         };
     }, DefaultTypeProperties.builder().stockProperties(FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL));
 
@@ -219,40 +104,18 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         var leafChance = new MutableFloat(0);
         JParse.begin(data)
                 .ifKey("leaf_chance", any -> any.floatValue().handle(leafChance::setValue));
-        return (props, builder) -> {
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            return new FlexLeavesBlock(leafChance.floatValue(), props, propertyDefaultValues)
-            {
-                @Override
-                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-                {
-                    super.createBlockStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
-        };
+        return (props, builder) -> new FlexLeavesBlock(props, builder, leafChance.floatValue());
     }, DefaultTypeProperties.builder().defaultLayer("cutout_mipped").defaultSeeThrough(true).stockProperties(LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT));
 
     public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {
         var blockSetType = new MutableObject<Identifier>();
         JParse.begin(data)
                 .key("block_set_type", any -> any.string().map(Identifier::parse).handle(blockSetType::setValue));
+        var woodTypeName = blockSetType.get().toString();
         return (props, builder) -> {
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            var woodTypeName = blockSetType.get().toString();
             var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst()
                     .orElseThrow(() -> new ThingParseException("Block set type not found: " + woodTypeName));
-            return new FlexDoorBlock(props, woodType, propertyDefaultValues)
-            {
-                @Override
-                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-                {
-                    super.createBlockStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
+            return new FlexDoorBlock(props, builder, woodType);
         };
     }, DefaultTypeProperties.builder().defaultLayer("cutout").defaultSeeThrough(true).stockProperties(DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF));
 
@@ -260,20 +123,10 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         var blockSetType = new MutableObject<Identifier>();
         JParse.begin(data)
             .key("block_set_type", any -> any.string().map(Identifier::parse).handle(blockSetType::setValue));
+        var woodTypeName = blockSetType.get().toString();
         return (props, builder) -> {
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            var woodTypeName = blockSetType.get().toString();
             var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
-            return new FlexTrapdoorBlock(props, woodType, propertyDefaultValues)
-            {
-                @Override
-                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-                {
-                    super.createBlockStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
+            return new FlexTrapdoorBlock(props, builder, woodType);
         };
     }, DefaultTypeProperties.builder().defaultLayer("cutout").defaultSeeThrough(true).stockProperties(TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED));
 
@@ -282,21 +135,11 @@ public class FlexBlockType<T extends Block & IFlexBlock>
         var fluid = new MutableObject<Identifier>();
         extras.key("fluid", any -> any.string().map(Identifier::parse).handle(fluid::setValue));
         return (props, builder) -> {
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
             var fluidName = fluid.get() != null ? fluid.get() : builder.getRegistryName();
             var fluidObj = Utils.getOrCrash(BuiltInRegistries.FLUID, fluidName);
             if (!(fluidObj instanceof FlowingFluid flowingFluid))
                 throw new RuntimeException("LiquidBlock requires a flowing fluid");
-            return new FlexLiquidBlock(props.liquid(), propertyDefaultValues, flowingFluid)
-            {
-                @Override
-                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
-                {
-                    super.createBlockStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
+            return new FlexLiquidBlock(props.liquid(), builder, flowingFluid);
         };
     }, DefaultTypeProperties.builder().defaultLayer("translucent").defaultSeeThrough(true).stockProperties(LiquidBlock.LEVEL));
 

@@ -5,12 +5,12 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.137'
 }
 
-neoForge.version = "21.11.23-beta"
-version = "0.17.0"
+neoForge.version = "26.1.0.0-alpha.3+snapshot-1"
+version = "0.18.0"
 group= "dev.gigaherz.jsonthings"
 base.archivesName = "JsonThings-${neoForge.minecraftVersion}"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
     maven {
@@ -107,7 +107,7 @@ project.afterEvaluate {
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                artifactId project.archivesBaseName
+                artifactId base.archivesName.get()
                 from components.java
 
             }

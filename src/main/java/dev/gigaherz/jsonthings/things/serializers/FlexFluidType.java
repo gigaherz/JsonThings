@@ -102,9 +102,9 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                     Supplier<FluidType> fluidType = builder.getAttributesType();
                     List<Property<?>> _properties = builder.getProperties();
                     Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-                    return new FlexFlowingFluid(fluidType, _properties, propertyDefaultValues, slopeDistance.getValue(), dropOff.getValue(),
-                            canConvertToSource.getValue(), tickDelay.getValue(), explosionResistance.getValue(), Lazy.of(() -> {
-                        var v = block.getValue();
+                    return new FlexFlowingFluid(fluidType, _properties, propertyDefaultValues, slopeDistance.get(), dropOff.get(),
+                            canConvertToSource.get(), tickDelay.get(), explosionResistance.get(), Lazy.of(() -> {
+                        var v = block.get();
                         return v != null ? v.get().self() : Blocks.AIR;
                     }))
                     {

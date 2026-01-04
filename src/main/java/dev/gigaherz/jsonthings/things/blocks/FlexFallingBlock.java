@@ -2,8 +2,8 @@ package dev.gigaherz.jsonthings.things.blocks;
 
 import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
+import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventType;
@@ -16,37 +16,33 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class FlexFallingBlock extends FallingBlock implements IFlexBlock
 {
-    public static final MapCodec<FlexFallingBlock> CODEC = RecordCodecBuilder.mapCodec(
-            instance -> instance.group(
-                    ColorRGBA.CODEC.fieldOf("falling_dust_color").forGetter(p_304722_ -> p_304722_.dustColor),
-                    propertiesCodec()
-            ).apply(instance, (color, properties) -> new FlexFallingBlock(color, properties, Collections.emptyMap()))
-    );
-
-    public FlexFallingBlock(ColorRGBA dustColor, Properties properties, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexFallingBlock(Properties properties, BlockBuilder builder, ColorRGBA dustColor)
     {
+        this.stateProperties = builder.getProperties();
         super(properties);
-        initializeFlex(propertyDefaultValues);
+        initializeFlex(builder.getPropertyDefaultValues());
         this.dustColor = dustColor;
     }
 
     @Override
-    protected MapCodec<? extends FlexFallingBlock> codec()
+    public MapCodec<? extends FallingBlock> codec()
     {
-        return CODEC;
+        throw new RuntimeException("Not implemented");
     }
 
     //region FallingDust implementation details
@@ -62,6 +58,7 @@ public class FlexFallingBlock extends FallingBlock implements IFlexBlock
     //region IFlexBlock
     @SuppressWarnings("rawtypes")
     private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
+    private final List<Property<?>> stateProperties;
     private DynamicShape generalShape;
     private DynamicShape collisionShape;
     private DynamicShape raytraceShape;
@@ -123,6 +120,13 @@ public class FlexFallingBlock extends FallingBlock implements IFlexBlock
     //endregion
 
     //region Block
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder1)
+    {
+        super.createBlockStateDefinition(builder1);
+        stateProperties.forEach(builder1::add);
+    }
+
     @Deprecated
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context)

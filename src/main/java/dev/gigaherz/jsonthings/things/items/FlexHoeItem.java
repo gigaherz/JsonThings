@@ -38,7 +38,7 @@ public class FlexHoeItem extends HoeItem implements IEventRunner
         this.attributeModifiers = builder.getAttributeModifiers();
         this.lore = builder.getLore();
         this.toolActions = builder.getToolActions();
-        this.burnTime = Utils.orElse(builder.getBurnDuration(), -1);
+        this.burnTime = Utils.orElse(builder.getBurnDuration(), 0);
         initializeFlex();
     }
 

@@ -39,11 +39,35 @@ E.g.
     {"text": "Hi", "italic": true, "color": "gray" }
   ],
   "tool_actions": ["shovel_dig"],
-  "burn_duration": 20,
   "delayed_use": {
     "duration": 20,
     "animation": "EAT",
     "on_complete": "USE_ITEM"
+  },
+  "components": {
+    "minecraft:max_damage" : 55,
+    "minecraft:repairable" : {
+      "items" : [ "testpack:item4" ]
+    },
+    "minecraft:equippable" : {
+      "slot" : "head"
+    },
+    "minecraft:enchantable" : {
+      "value" : 15
+    },
+    "minecraft:tool": {
+      "rules":[
+        {
+          "blocks":"#minecraft:incorrect_for_diamond_tool",
+          "correct_for_drops":false
+        },
+        {
+          "blocks":"#minecraft:mineable/pickaxe",
+          "speed":8.0,
+          "correct_for_drops":true
+        }
+      ]
+    }
   }
 }
 ```
@@ -173,15 +197,6 @@ Optional. Default: depends on item type.
 
 Must be a json array (`[]`) containing strings.
 
-## "burn_duration"
-
-Defines the amount of time this item can burn when used as fuel for a furnace.
-
-Optional. Default: use vanilla default handling (depends on item type).
-
-Must be an integer. A value of 0 prevents the item from being considered fuel.
-(a value of 0 makes game crash exactly)
-
 ## "fire_resistant"
 
 Defines if the item can survive fire and lava.
@@ -214,3 +229,11 @@ Optional.
 '"on_complete"' is optional. Allowed values: 
   USE_ITEM,       (like food)
   CONTINUE        (like a bow)
+
+## "components"
+
+Defines a map of components the item will have by default.
+
+Optional. Default: no components.
+
+Must be a json object (`{}`) containing the data component definitions.

@@ -9,6 +9,7 @@ import dev.gigaherz.jsonthings.things.UseFinishMode;
 import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
+import dev.gigaherz.jsonthings.things.items.FlexBucketItem;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.StringValue;
 import joptsimple.internal.Strings;
@@ -21,7 +22,10 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.UseAnim;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +43,7 @@ public class ItemParser extends ThingParser<ItemBuilder>
         super(GSON, "item");
 
         bus.addListener(this::register);
+        bus.addListener(this::registerCapabilities);
         bus.addListener(this::addToTabs);
     }
 
@@ -51,9 +56,20 @@ public class ItemParser extends ThingParser<ItemBuilder>
         });
     }
 
+    public void registerCapabilities(RegisterCapabilitiesEvent event)
+    {
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> {
+            var item = thing.get();
+            if (item instanceof FlexBucketItem)
+            {
+                event.registerItem(Capabilities.FluidHandler.ITEM, (stack, access) -> new FluidBucketWrapper(stack), item);
+            }
+        }, BaseBuilder::getRegistryName);
+    }
+
     public void addToTabs(BuildCreativeModeTabContentsEvent event)
     {
-        getBuilders().forEach(thing -> thing.provideVariants(event.getTabKey(), event, event.getParameters(), thing, false));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> thing.provideVariants(event.getTabKey(), event, event.getParameters(), thing, false), BaseBuilder::getRegistryName);
     }
 
     @Override

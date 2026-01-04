@@ -1,6 +1,5 @@
 package dev.gigaherz.jsonthings;
 
-import com.google.common.eventbus.Subscribe;
 import com.mojang.logging.LogUtils;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
@@ -13,7 +12,6 @@ import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;

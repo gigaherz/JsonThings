@@ -29,6 +29,19 @@
     },
     "minecraft:enchantable" : {
       "value" : 15
+    },
+    "minecraft:tool": {
+      "rules":[
+        {
+          "blocks":"#minecraft:incorrect_for_diamond_tool",
+          "correct_for_drops":false
+        },
+        {
+          "blocks":"#minecraft:mineable/pickaxe",
+          "speed":8.0,
+          "correct_for_drops":true
+        }
+      ]
     }
   }
 }

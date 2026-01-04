@@ -5,12 +5,9 @@ import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Rarity;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Consumer;
 
 public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
 {

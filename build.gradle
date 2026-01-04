@@ -2,10 +2,10 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.95'
+    id 'net.neoforged.moddev' version '2.0.137'
 }
 
-neoForge.version = "21.6.12-beta"
+neoForge.version = "21.10.64"
 version = "0.16.0"
 group= "dev.gigaherz.jsonthings"
 base.archivesName = "JsonThings-${neoForge.minecraftVersion}"
@@ -57,7 +57,7 @@ neoForge {
     }
 
     parchment {
-        minecraftVersion = "1.21.6-pre1"
+        minecraftVersion = "1.21.6"
         mappingsVersion = "BLEEDING-SNAPSHOT"
     }
 }

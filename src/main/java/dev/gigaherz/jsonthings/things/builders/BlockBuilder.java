@@ -425,7 +425,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         if (Utils.orElse(isSeeThrough(), blockType.getDefaults().isDefaultSeeThrough())) props.noOcclusion();
         if (Utils.orElse(requiresToolForDrops(), false)) props.requiresCorrectToolForDrops();
         if (Utils.orElse(getIsAir(), false)) props.air();
-        if (!Utils.orElse(getHasCollision(), true)) props.noCollission();
+        if (!Utils.orElse(getHasCollision(), true)) props.noCollision();
         if (Utils.orElse(getTicksRandom(), blockType.getDefaults().isDefaultTicksRandomly())) props.randomTicks();
         if (Utils.orElse(getLightEmission(), 0) > 0) props.lightLevel(state -> getLightEmission());
         if (Utils.orElse(getExplosionResistance(), 0.0f) > 0.0f) props.explosionResistance(getExplosionResistance());

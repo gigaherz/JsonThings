@@ -2,18 +2,12 @@ package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonObject;
 import dev.gigaherz.jsonthings.things.StackContext;
-import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.CreativeModeTabBuilder;
 import dev.gigaherz.jsonthings.things.misc.FlexCreativeModeTab;
 import dev.gigaherz.jsonthings.util.parse.JParse;
-import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

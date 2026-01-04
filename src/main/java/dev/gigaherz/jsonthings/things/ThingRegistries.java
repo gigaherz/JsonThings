@@ -138,7 +138,10 @@ public class ThingRegistries
     private static void registerProperties()
     {
         Registry.register(PROPERTY, "attached", BlockStateProperties.ATTACHED);
+        Registry.register(PROPERTY, "berries", BlockStateProperties.BERRIES);
+        Registry.register(PROPERTY, "bloom", BlockStateProperties.BLOOM);
         Registry.register(PROPERTY, "bottom", BlockStateProperties.BOTTOM);
+        Registry.register(PROPERTY, "can_summon", BlockStateProperties.CAN_SUMMON);
         Registry.register(PROPERTY, "conditional", BlockStateProperties.CONDITIONAL);
         Registry.register(PROPERTY, "disarmed", BlockStateProperties.DISARMED);
         Registry.register(PROPERTY, "drag", BlockStateProperties.DRAG);
@@ -156,20 +159,19 @@ public class ThingRegistries
         Registry.register(PROPERTY, "in_wall", BlockStateProperties.IN_WALL);
         Registry.register(PROPERTY, "lit", BlockStateProperties.LIT);
         Registry.register(PROPERTY, "locked", BlockStateProperties.LOCKED);
+        Registry.register(PROPERTY, "natural", BlockStateProperties.NATURAL);
         Registry.register(PROPERTY, "occupied", BlockStateProperties.OCCUPIED);
         Registry.register(PROPERTY, "open", BlockStateProperties.OPEN);
         Registry.register(PROPERTY, "persistent", BlockStateProperties.PERSISTENT);
         Registry.register(PROPERTY, "powered", BlockStateProperties.POWERED);
         Registry.register(PROPERTY, "short", BlockStateProperties.SHORT);
+        Registry.register(PROPERTY, "shrieking", BlockStateProperties.SHRIEKING);
         Registry.register(PROPERTY, "signal_fire", BlockStateProperties.SIGNAL_FIRE);
         Registry.register(PROPERTY, "snowy", BlockStateProperties.SNOWY);
+        Registry.register(PROPERTY, "tip", BlockStateProperties.TIP);
         Registry.register(PROPERTY, "triggered", BlockStateProperties.TRIGGERED);
         Registry.register(PROPERTY, "unstable", BlockStateProperties.UNSTABLE);
         Registry.register(PROPERTY, "waterlogged", BlockStateProperties.WATERLOGGED);
-        Registry.register(PROPERTY, "berries", BlockStateProperties.BERRIES);
-        Registry.register(PROPERTY, "bloom", BlockStateProperties.BLOOM);
-        Registry.register(PROPERTY, "shrieking", BlockStateProperties.SHRIEKING);
-        Registry.register(PROPERTY, "can_summon", BlockStateProperties.CAN_SUMMON);
         Registry.register(PROPERTY, "horizontal_axis", BlockStateProperties.HORIZONTAL_AXIS);
         Registry.register(PROPERTY, "axis", BlockStateProperties.AXIS);
         Registry.register(PROPERTY, "up", BlockStateProperties.UP);
@@ -182,6 +184,7 @@ public class ThingRegistries
         Registry.register(PROPERTY, "facing_except_up", BlockStateProperties.FACING_HOPPER);
         Registry.register(PROPERTY, "horizontal_facing", BlockStateProperties.HORIZONTAL_FACING);
         Registry.register(PROPERTY, "flower_amount", BlockStateProperties.FLOWER_AMOUNT);
+        Registry.register(PROPERTY, "segment_amount", BlockStateProperties.SEGMENT_AMOUNT);
         Registry.register(PROPERTY, "orientation", BlockStateProperties.ORIENTATION);
         Registry.register(PROPERTY, "face", BlockStateProperties.ATTACH_FACE);
         Registry.register(PROPERTY, "bell_attachment", BlockStateProperties.BELL_ATTACHMENT);
@@ -195,6 +198,7 @@ public class ThingRegistries
         Registry.register(PROPERTY, "redstone_west", BlockStateProperties.WEST_REDSTONE);
         Registry.register(PROPERTY, "double_block_half", BlockStateProperties.DOUBLE_BLOCK_HALF);
         Registry.register(PROPERTY, "half", BlockStateProperties.HALF);
+        Registry.register(PROPERTY, "side_chain", BlockStateProperties.SIDE_CHAIN_PART);
         Registry.register(PROPERTY, "rail_shape", BlockStateProperties.RAIL_SHAPE);
         Registry.register(PROPERTY, "rail_shape_straight", BlockStateProperties.RAIL_SHAPE_STRAIGHT);
         Registry.register(PROPERTY, "age_0_1", BlockStateProperties.AGE_1);
@@ -224,6 +228,7 @@ public class ThingRegistries
         Registry.register(PROPERTY, "stage_0_1", BlockStateProperties.STAGE);
         Registry.register(PROPERTY, "distance_0_7", BlockStateProperties.STABILITY_DISTANCE);
         Registry.register(PROPERTY, "charges", BlockStateProperties.RESPAWN_ANCHOR_CHARGES);
+        Registry.register(PROPERTY, "hydration", BlockStateProperties.DRIED_GHAST_HYDRATION_LEVELS);
         Registry.register(PROPERTY, "rotation_0_15", BlockStateProperties.ROTATION_16);
         Registry.register(PROPERTY, "bed_part", BlockStateProperties.BED_PART);
         Registry.register(PROPERTY, "chest_type", BlockStateProperties.CHEST_TYPE);
@@ -239,13 +244,22 @@ public class ThingRegistries
         Registry.register(PROPERTY, "vertical_direction", BlockStateProperties.VERTICAL_DIRECTION);
         Registry.register(PROPERTY, "dripstone_thickness", BlockStateProperties.DRIPSTONE_THICKNESS);
         Registry.register(PROPERTY, "sculk_sensor_phase", BlockStateProperties.SCULK_SENSOR_PHASE);
-        Registry.register(PROPERTY, "chiseled_bookshelf_slot_0_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_0_OCCUPIED);
-        Registry.register(PROPERTY, "chiseled_bookshelf_slot_1_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_1_OCCUPIED);
-        Registry.register(PROPERTY, "chiseled_bookshelf_slot_2_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_2_OCCUPIED);
-        Registry.register(PROPERTY, "chiseled_bookshelf_slot_3_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_3_OCCUPIED);
-        Registry.register(PROPERTY, "chiseled_bookshelf_slot_4_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_4_OCCUPIED);
-        Registry.register(PROPERTY, "chiseled_bookshelf_slot_5_occupied", BlockStateProperties.CHISELED_BOOKSHELF_SLOT_5_OCCUPIED);
+        Registry.register(PROPERTY, "slot_0_occupied", BlockStateProperties.SLOT_0_OCCUPIED);
+        Registry.register(PROPERTY, "slot_1_occupied", BlockStateProperties.SLOT_1_OCCUPIED);
+        Registry.register(PROPERTY, "slot_2_occupied", BlockStateProperties.SLOT_2_OCCUPIED);
+        Registry.register(PROPERTY, "slot_3_occupied", BlockStateProperties.SLOT_3_OCCUPIED);
+        Registry.register(PROPERTY, "slot_4_occupied", BlockStateProperties.SLOT_4_OCCUPIED);
+        Registry.register(PROPERTY, "slot_5_occupied", BlockStateProperties.SLOT_5_OCCUPIED);
         Registry.register(PROPERTY, "dusted", BlockStateProperties.DUSTED);
+        Registry.register(PROPERTY, "cracked", BlockStateProperties.CRACKED);
+        Registry.register(PROPERTY, "crafting", BlockStateProperties.CRAFTING);
+        Registry.register(PROPERTY, "trial_spawner_state", BlockStateProperties.TRIAL_SPAWNER_STATE);
+        Registry.register(PROPERTY, "vault_state", BlockStateProperties.VAULT_STATE);
+        Registry.register(PROPERTY, "creaking_heart_state", BlockStateProperties.CREAKING_HEART_STATE);
+        Registry.register(PROPERTY, "ominous", BlockStateProperties.OMINOUS);
+        Registry.register(PROPERTY, "mode", BlockStateProperties.TEST_BLOCK_MODE);
+        Registry.register(PROPERTY, "map", BlockStateProperties.MAP);
+        Registry.register(PROPERTY, "copper_golem_pose", BlockStateProperties.COPPER_GOLEM_POSE);
     }
 
     private static void registerFoods()

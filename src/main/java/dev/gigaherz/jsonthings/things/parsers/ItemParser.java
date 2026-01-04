@@ -7,33 +7,37 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.JsonThings;
+import dev.gigaherz.jsonthings.things.ThingRegistries;
 import dev.gigaherz.jsonthings.things.UseFinishMode;
+import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.FoodPropertiesBuilder;
 import dev.gigaherz.jsonthings.things.builders.ItemBuilder;
+import dev.gigaherz.jsonthings.things.items.FlexBucketItem;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.StringValue;
 import joptsimple.internal.Strings;
-import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.*;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
+import net.neoforged.neoforge.transfer.fluid.BucketResourceHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class ItemParser extends ThingParser<Item, ItemBuilder>
@@ -48,12 +52,25 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
 
         register(bus, Registries.ITEM);
 
+        bus.addListener(this::registerCapabilities);
         bus.addListener(this::addToTabs);
     }
 
+    public void registerCapabilities(RegisterCapabilitiesEvent event)
+    {
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> {
+            var item = thing.get();
+            if (item instanceof FlexBucketItem)
+            {
+                event.registerItem(Capabilities.Fluid.ITEM, (stack, access) -> access != null ? new BucketResourceHandler(access) : null, item);
+            }
+        }, BaseBuilder::getRegistryName);
+    }
+
+
     public void addToTabs(BuildCreativeModeTabContentsEvent event)
     {
-        getBuilders().forEach(thing -> thing.provideVariants(event.getTabKey(), event, event.getParameters(), thing, false));
+        processAndConsumeErrors(getThingType(), getBuilders(), thing -> thing.provideVariants(event.getTabKey(), event, event.getParameters(), thing, false), BaseBuilder::getRegistryName);
     }
 
     @Override
@@ -101,7 +118,6 @@ public class ItemParser extends ThingParser<Item, ItemBuilder>
                 .ifKey("lore", val -> val.array().unwrapRaw(this::parseLore).handle(builder::setLore))
                 .ifKey("tool_actions", val -> val.array().strings().flatten(StringValue::getAsString, String[]::new).handle(builder::setToolActions))
                 .ifKey("events", val -> val.obj().map(this::parseEvents).handle(builder::setEventMap))
-                .ifKey("burn_duration", val -> val.intValue().min(1).handle(builder::setBurnDuration))
                 .ifKey("components", val -> val.obj().raw(builder::setComponents));
 
         builderModification.accept(builder);

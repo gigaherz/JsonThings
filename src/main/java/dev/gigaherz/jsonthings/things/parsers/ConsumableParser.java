@@ -2,19 +2,13 @@ package dev.gigaherz.jsonthings.things.parsers;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.gigaherz.jsonthings.things.ThingRegistries;
-import dev.gigaherz.jsonthings.things.builders.BaseBuilder;
 import dev.gigaherz.jsonthings.things.builders.ConsumableBuilder;
-import dev.gigaherz.jsonthings.things.builders.SoundTypeBuilder;
 import dev.gigaherz.jsonthings.util.parse.JParse;
 import dev.gigaherz.jsonthings.util.parse.value.Any;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.Consumable;
-import net.minecraft.world.level.block.SoundType;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class ConsumableParser extends ThingParser<Consumable, ConsumableBuilder>

@@ -3,9 +3,10 @@ package dev.gigaherz.jsonthings.things.builders;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.Lifecycle;
 import dev.gigaherz.jsonthings.JsonThings;
 import dev.gigaherz.jsonthings.things.StackContext;
 import dev.gigaherz.jsonthings.things.ThingRegistries;
@@ -16,14 +17,15 @@ import dev.gigaherz.jsonthings.things.serializers.FlexItemType;
 import dev.gigaherz.jsonthings.things.serializers.IItemFactory;
 import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
 import dev.gigaherz.jsonthings.util.Utils;
-import net.minecraft.client.Minecraft;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMaps;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -35,11 +37,9 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.fml.util.thread.EffectiveSide;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,8 +79,6 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     private String[] toolActions;
 
     private List<Component> lore;
-
-    private Integer burnDuration;
 
     private JsonObject components;
 
@@ -200,11 +198,6 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         this.lore = lore;
     }
 
-    public void setBurnDuration(int burnTime)
-    {
-        this.burnDuration = burnTime;
-    }
-
     public void setComponents(JsonObject dataComponentPatch)
     {
         this.components = dataComponentPatch;
@@ -277,34 +270,43 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
 
     private RegistryOps.RegistryInfoLookup getLookup()
     {
-        //Holder.Reference.createStandAlone
-
         return new RegistryOps.RegistryInfoLookup()
         {
+            @SuppressWarnings({"rawtypes"})
+            private final Reference2ObjectMap<ResourceKey, Pair<Registry, HolderGetter>>
+                registriesMap = new Reference2ObjectArrayMap<>();
+
             @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             public <T> Optional<RegistryOps.RegistryInfo<T>> lookup(ResourceKey<? extends Registry<? extends T>> registryKey)
             {
-                var registry = (WritableRegistry<T>) BuiltInRegistries.REGISTRY.getValueOrThrow((ResourceKey) registryKey);
+                var pair = registriesMap.computeIfAbsent(registryKey, key -> {
+                    var registry = BuiltInRegistries.REGISTRY.getValueOrThrow((ResourceKey) registryKey);
+                    var holdergetter = BuiltInRegistries.acquireBootstrapRegistrationLookup(registry);
+                    return Pair.of(registry, holdergetter);
+                });
+
+                var registry = pair.getFirst();
+                var holdergetter = pair.getSecond();
+
                 return Optional.of(new RegistryOps.RegistryInfo(registry, new HolderGetter<T>()
                 {
                     @Override
                     public Optional<Holder.Reference<T>> get(ResourceKey<T> resourceKey)
                     {
-                        Optional<T> optional = registry.getOptional(resourceKey);
-                        Holder.Reference<T> holder = optional.map(obj -> (Holder.Reference<T>)registry.wrapAsHolder(obj))
-                                .orElseGet(() -> {
+                        return registry.getOptional(resourceKey)
+                                .map(obj -> (Holder.Reference<T>)registry.wrapAsHolder(obj))
+                                .or(() -> {
                                     var holder1 = DeferredHolder.create(resourceKey);
                                     validationPending.add(holder1);
-                                    return wrapAsReference(registry, holder1);
+                                    return Optional.of(wrapAsReference(registry, holder1));
                                 });
-                        return Optional.of(holder);
                     }
 
                     @Override
                     public Optional<HolderSet.Named<T>> get(TagKey tagKey)
                     {
-                        return Optional.empty();
+                        return holdergetter.get(tagKey);
                     }
                 }, registry.registryLifecycle()));
             }
@@ -433,12 +435,6 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
     public List<Component> getLore()
     {
         return getValueOrElseGet(lore, ItemBuilder::getLore, List::of);
-    }
-
-    @Nullable
-    public Integer getBurnDuration()
-    {
-        return getValue(burnDuration, ItemBuilder::getBurnDuration);
     }
 
     public ItemAttributeModifiers getAttributeModifiers()

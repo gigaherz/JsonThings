@@ -1,23 +1,18 @@
 package dev.gigaherz.jsonthings.things.builders;
 
 import com.google.gson.JsonElement;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import dev.gigaherz.jsonthings.things.parsers.ThingParser;
 import dev.gigaherz.jsonthings.util.parse.JParseException;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
-import net.minecraft.world.level.block.SoundType;
-import net.neoforged.neoforge.common.util.DeferredSoundType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class ConsumableBuilder extends BaseBuilder<Consumable, ConsumableBuilder>
 {

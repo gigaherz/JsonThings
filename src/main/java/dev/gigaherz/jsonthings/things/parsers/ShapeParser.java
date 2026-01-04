@@ -7,7 +7,6 @@ import dev.gigaherz.jsonthings.things.builders.ShapeBuilder;
 import dev.gigaherz.jsonthings.things.shapes.DynamicShape;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.function.Consumer;
 

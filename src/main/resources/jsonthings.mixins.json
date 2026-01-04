@@ -2,10 +2,16 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.gigaherz.jsonthings.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "jsonthings.refmap.json",
   "mixins": [
-    "ResourcePackTypeExtender", "WorldVersion$SimpleMixin"
+    "EmptyPackResourcesMixin",
+    "OverlayMetadataSectionMixin",
+    "PackFormatMixin",
+    "PackMetadataSectionMixin",
+    "ResourcePackLoaderMixin",
+    "ResourcePackTypeExtender",
+    "WorldVersion$SimpleMixin"
   ],
   "client": [ ],
   "server": [ ],

@@ -9,13 +9,13 @@ import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import dev.gigaherz.jsonthings.things.events.IEventRunner;
 import dev.gigaherz.jsonthings.util.Utils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -24,9 +24,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.FuelValues;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.ItemAbility;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -45,7 +43,6 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
         this.attributeModifiers = builder.getAttributeModifiers();
         this.lore = builder.getLore();
         this.toolActions = builder.getToolActions();
-        this.burnTime = Utils.orElse(builder.getBurnDuration(), -1);
         initializeFlex();
     }
 
@@ -59,7 +56,6 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
     private final UseFinishMode useFinishMode;
     private final List<Component> lore;
     private final Set<ItemAbility> toolActions;
-    private final int burnTime;
 
     private void initializeFlex()
     {
@@ -185,19 +181,29 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
         var args = FlexEventContext.of(level, entity, stack);
         if (slot != null) args = args.with(FlexEventContext.SLOT, slot);
 
-        int slotIndex = -1;
-        IItemHandlerModifiable invmod = null;
-        var inv = entity.getCapability(Capabilities.ItemHandler.ENTITY);
-        if (inv instanceof IItemHandlerModifiable im)
+        SlotAccess slotAccess = null;
+
+        if (slot != null && entity instanceof LivingEntity living)
         {
-            for (int i = 0; i < im.getSlots(); i++)
+            slotAccess = SlotAccess.forEquipmentSlot(living, slot);
+        }
+        else if(entity instanceof Player player)
+        {
+            var inv = player.getInventory();
+            int slotIdx = -1;
+
+            for (int i = 0; i < inv.getContainerSize(); i++)
             {
-                if (im.getStackInSlot(i) == stack)
+                if (inv.getItem(i) == stack)
                 {
-                    invmod = im;
-                    slotIndex = i;
+                    slotIdx = i;
                     break;
                 }
+            }
+
+            if (slotIdx >= 0)
+            {
+                slotAccess = SlotAccess.forContainer(inv, slotIdx);
             }
         }
 
@@ -206,9 +212,9 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
             return stack;
         });
 
-        if (result != stack && invmod != null)
+        if (result != stack && slotAccess != null)
         {
-            invmod.setStackInSlot(slotIndex, result);
+            slotAccess.set(result);
         }
     }
 
@@ -223,12 +229,6 @@ public class FlexShovelItem extends ShovelItem implements IEventRunner
     {
         if (toolActions != null) return toolActions.contains(toolAction);
         return super.canPerformAction(stack, toolAction);
-    }
-
-    @Override
-    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues)
-    {
-        return burnTime;
     }
 
     //endregion

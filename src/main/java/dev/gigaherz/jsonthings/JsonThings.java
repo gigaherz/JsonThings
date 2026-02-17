@@ -43,11 +43,6 @@ public class JsonThings
     public static final String MODID = "jsonthings";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    static
-    {
-        ThingRegistries.staticInit();
-    }
-
     public static BlockParser blockParser;
     public static ItemParser itemParser;
     public static FluidParser fluidParser;
@@ -94,6 +89,8 @@ public class JsonThings
     public static void construct(FMLConstructModEvent event)
     {
         event.enqueueWork(() -> {
+            ThingRegistries.initRegistries();
+
             ThingResourceManager instance = ThingResourceManager.instance();
 
             ResourcePackLoader.loadResourcePacks(instance.getRepository(), ModResourcesFinder::buildPackFinder);

@@ -25,11 +25,6 @@ import java.lang.reflect.AccessFlag;
 
 public class ThingRegistries
 {
-    public static void staticInit()
-    {
-        /* do nothing */
-    }
-
     public static final ResourceKey<Registry<Registry<?>>> THING_REGISTRIES_REGISTRY = createKey("jsonthings:registries");
     public static final ResourceKey<Registry<ToolMaterial>> TOOL_MATERIAL_REGISTRY = createKey("jsonthings:tool_material");
     public static final ResourceKey<Registry<ArmorMaterial>> ARMOR_MATERIAL_REGISTRY = createKey("jsonthings:armor_material");
@@ -54,7 +49,7 @@ public class ThingRegistries
     public static final Registry<SoundType> SOUND_TYPE = makeRegistry(SOUND_TYPE_REGISTRY);
     public static final Registry<FlexFluidType<?>> FLUID_TYPE = makeRegistry(FLUID_TYPE_REGISTRY);
 
-    static
+    public static void initRegistries()
     {
         registerToolMaterials();
 

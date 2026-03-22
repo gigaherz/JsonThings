@@ -1,6 +1,5 @@
 package dev.gigaherz.jsonthings.things.scripting.rhino.dsl;
 
-import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.rhinolib.Context;
 import dev.gigaherz.rhinolib.Scriptable;
 import dev.gigaherz.rhinolib.Undefined;

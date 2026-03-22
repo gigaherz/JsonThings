@@ -1,8 +1,6 @@
 package dev.gigaherz.jsonthings.mixin;
 
 import dev.gigaherz.jsonthings.util.CustomPackType;
-import net.minecraft.server.packs.AbstractPackResources;
-import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.neoforged.neoforge.resource.EmptyPackResources;

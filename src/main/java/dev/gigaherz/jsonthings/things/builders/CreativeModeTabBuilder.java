@@ -7,8 +7,8 @@ import dev.gigaherz.jsonthings.things.serializers.DelayedVariantProvider;
 import dev.gigaherz.jsonthings.things.serializers.ItemVariantProvider;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.Nullable;
 

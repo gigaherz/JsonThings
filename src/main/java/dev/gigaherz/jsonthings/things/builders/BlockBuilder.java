@@ -210,11 +210,6 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
         return getValue(renderShape, BlockBuilder::getRenderShape);
     }
 
-    public Identifier getDefaultRenderLayer()
-    {
-        return Identifier.parse(getBlockType().getDefaults().getDefaultLayer());
-    }
-
     public void setColorHandler(String colorHandler)
     {
         this.colorHandler = colorHandler;

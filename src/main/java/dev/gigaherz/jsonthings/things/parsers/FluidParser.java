@@ -99,7 +99,7 @@ public class FluidParser extends ThingParser<IFlexFluid, FluidBuilder>
         {
             var typeBuilder = JsonThings.fluidTypeParser.parseFromElement(builder.getRegistryName(), obj);
             if (typeBuilder != null)
-                builder.setAttributesType(typeBuilder::get);
+                builder.setAttributesType(DeferredHolder.create(NeoForgeRegistries.Keys.FLUID_TYPES, typeBuilder.getRegistryName()));
         }
         catch (Exception e)
         {

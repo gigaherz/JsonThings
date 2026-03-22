@@ -14,6 +14,7 @@ public class ChatDSL
             return;
 
         scope.put(cx, "sendSystemMessage", scope, new LambdaBaseFunction(ChatDSL::sendSystemMessage));
+        scope.put(cx, "sendOverlayMessage", scope, new LambdaBaseFunction(ChatDSL::sendOverlayMessage));
 
         scope.put(cx, ".use_chat", scope, true);
     }
@@ -21,9 +22,17 @@ public class ChatDSL
     private static Object sendSystemMessage(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
     {
         Player player = DSLHelpers.get(args[0]);
-        boolean useActionBar = Utils.orElse(args.length > 2 ? DSLHelpers.get(args[2]) : null, true);
 
-        player.displayClientMessage(DSLHelpers.getComponent(cx, args[1]), useActionBar);
+        player.sendSystemMessage(DSLHelpers.getComponent(cx, args[1]));
+
+        return Undefined.instance;
+    }
+
+    private static Object sendOverlayMessage(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+    {
+        Player player = DSLHelpers.get(args[0]);
+
+        player.sendOverlayMessage(DSLHelpers.getComponent(cx, args[1]));
 
         return Undefined.instance;
     }

@@ -9,6 +9,8 @@ import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
 {
     public static FluidTypeBuilder begin(ThingParser<FluidType, FluidTypeBuilder> ownerParser, Identifier registryName)
@@ -57,10 +59,15 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         this.stillTexture = stillTexture;
     }
 
-    @Nullable
     public Identifier getStillTexture()
     {
-        return getValue(stillTexture, FluidTypeBuilder::getStillTexture);
+        return Objects.requireNonNull(getStillTextureRaw());
+    }
+
+    @Nullable
+    public Identifier getStillTextureRaw()
+    {
+        return getValue(stillTexture, FluidTypeBuilder::getStillTextureRaw);
     }
 
     public void setFlowingTexture(Identifier flowingTexture)
@@ -68,10 +75,15 @@ public class FluidTypeBuilder extends BaseBuilder<FluidType, FluidTypeBuilder>
         this.flowingTexture = flowingTexture;
     }
 
-    @Nullable
     public Identifier getFlowingTexture()
     {
-        return getValue(flowingTexture, FluidTypeBuilder::getFlowingTexture);
+        return Objects.requireNonNull(getFlowingTextureRaw());
+    }
+
+    @Nullable
+    public Identifier getFlowingTextureRaw()
+    {
+        return getValue(flowingTexture, FluidTypeBuilder::getFlowingTextureRaw);
     }
 
     public void setSideTexture(Identifier overlay)

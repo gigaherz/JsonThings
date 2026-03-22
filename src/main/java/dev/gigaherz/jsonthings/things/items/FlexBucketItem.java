@@ -17,10 +17,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
@@ -45,7 +42,7 @@ public class FlexBucketItem extends BucketItem implements IEventRunner
         this.useAction = builder.getUseAnim();
         this.useTime = builder.getUseTime();
         this.useFinishMode = builder.getUseFinishMode();
-        this.attributeModifiers = builder.getAttributeModifiers();
+        this.additionalAttributeModifiers = builder.getAttributeModifiers();
         this.lore = builder.getLore();
         this.toolActions = builder.getToolActions();
         initializeFlex();
@@ -54,30 +51,16 @@ public class FlexBucketItem extends BucketItem implements IEventRunner
     //region IFlexItem
     @SuppressWarnings("rawtypes")
     private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
-
-    private ItemAttributeModifiers attributeModifiers;
+    private final ItemAttributeModifiers additionalAttributeModifiers;
     private final ItemUseAnimation useAction;
     private final Integer useTime;
     private final UseFinishMode useFinishMode;
     private final List<Component> lore;
     private final Set<ItemAbility> toolActions;
+    private ItemAttributeModifiers combinedAttributeModifiers;
 
     private void initializeFlex()
     {
-        var builder = ItemAttributeModifiers.builder();
-        var defaults = super.getDefaultAttributeModifiers(new ItemStack(this));
-        if (!defaults.modifiers().isEmpty())
-        {
-            for (var mod : defaults.modifiers())
-            {
-                builder.add(mod.attribute(), mod.modifier(), mod.slot());
-            }
-            for (var mod : attributeModifiers.modifiers())
-            {
-                builder.add(mod.attribute(), mod.modifier(), mod.slot());
-            }
-            attributeModifiers = builder.build();
-        }
     }
 
     @Override
@@ -126,7 +109,6 @@ public class FlexBucketItem extends BucketItem implements IEventRunner
 
         return result;
     }
-
 
 
     @Override
@@ -192,7 +174,7 @@ public class FlexBucketItem extends BucketItem implements IEventRunner
         {
             slotAccess = SlotAccess.forEquipmentSlot(living, slot);
         }
-        else if(entity instanceof Player player)
+        else if (entity instanceof Player player)
         {
             var inv = player.getInventory();
             int slotIdx = -1;
@@ -230,11 +212,32 @@ public class FlexBucketItem extends BucketItem implements IEventRunner
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack)
     {
-        return attributeModifiers;
+        if (combinedAttributeModifiers == null)
+        {
+            var builder = ItemAttributeModifiers.builder();
+            var defaults = super.getDefaultAttributeModifiers(new ItemStack(this));
+            if (!defaults.modifiers().isEmpty())
+            {
+                for (var mod : defaults.modifiers())
+                {
+                    builder.add(mod.attribute(), mod.modifier(), mod.slot());
+                }
+                for (var mod : additionalAttributeModifiers.modifiers())
+                {
+                    builder.add(mod.attribute(), mod.modifier(), mod.slot());
+                }
+                combinedAttributeModifiers = builder.build();
+            }
+            else
+            {
+                combinedAttributeModifiers = defaults;
+            }
+        }
+        return combinedAttributeModifiers;
     }
 
     @Override
-    public boolean canPerformAction(ItemStack stack, ItemAbility toolAction)
+    public boolean canPerformAction (ItemInstance stack, ItemAbility toolAction)
     {
         if (toolActions != null) return toolActions.contains(toolAction);
         return super.canPerformAction(stack, toolAction);

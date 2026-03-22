@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -37,7 +38,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
 
     private ItemBuilder itemBuilder;
 
-    private Supplier<FluidType> attributesType;
+    private DeferredHolder<FluidType, FluidType> attributesType;
 
     private IFluidFactory<? extends Fluid> factory;
 
@@ -75,7 +76,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         this.propertyDefaultValues.put(name, value);
     }
 
-    public void setAttributesType(Supplier<FluidType> attributesType)
+    public void setAttributesType(DeferredHolder<FluidType, FluidType> attributesType)
     {
         this.attributesType = attributesType;
     }
@@ -169,7 +170,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
         return itemBuilder;
     }
 
-    public Supplier<FluidType> getAttributesType()
+    public DeferredHolder<FluidType, FluidType> getAttributesType()
     {
         var val = getValue(attributesType, FluidBuilder::getAttributesType);
         if (val == null)

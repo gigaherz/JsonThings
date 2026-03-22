@@ -6,10 +6,12 @@ import dev.gigaherz.jsonthings.things.client.BlockColorHandler;
 import dev.gigaherz.jsonthings.things.parsers.*;
 import dev.gigaherz.jsonthings.things.scripting.ScriptParser;
 import dev.gigaherz.jsonthings.util.CustomPackType;
+import net.minecraft.Optionull;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
@@ -22,10 +24,11 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
-import net.neoforged.neoforge.client.NamedRenderTypeManager;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
@@ -147,79 +150,31 @@ public class JsonThings
         }
 
         @SubscribeEvent
-        public static void clientSetup(FMLClientSetupEvent event)
-        {
-            final Identifier solid = Identifier.withDefaultNamespace("solid");
-            JsonThings.blockParser.getBuilders().forEach(thing -> {
-                if (thing.isInErrorState()) return;
-                Identifier layer = thing.getDefaultRenderLayer();
-                if (!layer.equals(solid))
-                {
-                    //noinspection deprecation
-                    ItemBlockRenderTypes.setRenderLayer(thing.get().self(), NamedRenderTypeManager.get(layer).block());
-                }
-            });
-            JsonThings.fluidParser.getBuilders().forEach(thing -> {
-                if (thing.isInErrorState()) return;
-                Identifier layer = thing.getDefaultRenderLayer();
-                for (var fluid : thing.getAllSiblings())
-                {
-                    if (!layer.equals(solid))
-                    {
-                        ItemBlockRenderTypes.setRenderLayer(fluid, NamedRenderTypeManager.get(layer).block());
-                    }
-                }
-            });
-        }
-
-        @SubscribeEvent
-        public static void blockColorHandlers(RegisterColorHandlersEvent.Block event)
+        public static void blockColorHandlers(RegisterColorHandlersEvent.BlockTintSources event)
         {
             JsonThings.blockParser.getBuilders().forEach(thing -> {
                 String handlerName = thing.getColorHandler();
                 if (handlerName != null)
                 {
-                    BlockColor bc = BlockColorHandler.get(handlerName);
-                    event.register(bc, thing.get().self());
+                    var list = BlockColorHandler.get(handlerName);
+                    event.register(list, thing.get().self());
                 }
             });
         }
 
         @SubscribeEvent
-        public static void clientProperties(RegisterClientExtensionsEvent event)
+        public static void clientProperties(RegisterFluidModelsEvent event)
         {
-            JsonThings.fluidTypeParser.getBuilders().forEach(thing -> {
-                var color = Objects.requireNonNullElse(thing.getColor(), 0xFFFFFFFF);
-                var stillTexture = thing.getStillTexture();
-                var flowingTexture = thing.getFlowingTexture();
-                var sideTexture = thing.getSideTexture();
+            JsonThings.fluidParser.getBuilders().forEach(thing -> {
+                var type = thing.getAttributesType();
+                JsonThings.fluidTypeParser.getOptional(type.getId()).ifPresent(type1 -> {
+                    var color = Objects.requireNonNullElse(type1.getColor(), 0xFFFFFFFF);
+                    var stillTexture = new Material(type1.getStillTexture());
+                    var flowingTexture = new Material(type1.getFlowingTexture());
+                    var sideTexture = Optionull.map(type1.getSideTexture(), Material::new);
 
-                event.registerFluidType(new IClientFluidTypeExtensions()
-                {
-                    @Override
-                    public int getTintColor()
-                    {
-                        return color;
-                    }
-
-                    @Override
-                    public Identifier getStillTexture()
-                    {
-                        return stillTexture;
-                    }
-
-                    @Override
-                    public Identifier getFlowingTexture()
-                    {
-                        return flowingTexture;
-                    }
-
-                    @Override
-                    public @Nullable Identifier getOverlayTexture()
-                    {
-                        return sideTexture;
-                    }
-                }, thing.get());
+                    event.register(new FluidModel.Unbaked(stillTexture, flowingTexture, sideTexture, FluidTintSources.constant(color)), thing.get().self());
+                });
             });
         }
     }

@@ -257,6 +257,12 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
         return thingType;
     }
 
+    public Optional<TBuilder> getOptional(Identifier name)
+    {
+        TBuilder b = buildersByName.get(name);
+        return Optional.ofNullable(b);
+    }
+
     public TBuilder getOrCrash(Identifier name)
     {
         TBuilder b = buildersByName.get(name);

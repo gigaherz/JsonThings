@@ -43,8 +43,8 @@ public class FlexItemType<T extends Item>
         JParse.begin(data)
                 .ifKey("base_item", val -> val.string().map(Identifier::parse).handle(baseItemName::setValue));
         return (props, builder) -> {
-            Supplier<Item> baseItem = baseItemName.getValue() != null
-                    ? DeferredHolder.create(Registries.ITEM, baseItemName.getValue())
+            Supplier<Item> baseItem = baseItemName.get() != null
+                    ? DeferredHolder.create(Registries.ITEM, baseItemName.get())
                     : () -> Items.GLASS_BOTTLE;
             return new FlexDrinkableBottleItem(baseItem, props, builder);
         };

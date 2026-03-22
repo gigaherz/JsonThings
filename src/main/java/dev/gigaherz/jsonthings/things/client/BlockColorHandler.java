@@ -1,57 +1,39 @@
 package dev.gigaherz.jsonthings.things.client;
 
 import com.google.common.collect.Maps;
-import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.world.level.FoliageColor;
-import net.minecraft.world.level.GrassColor;
-import net.minecraft.world.level.block.DoublePlantBlock;
-import net.minecraft.world.level.block.RedStoneWireBlock;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
+import java.util.List;
 import java.util.Map;
 
 public class BlockColorHandler
 {
-    private static final Map<String, BlockColor> colorHandlersByName = Maps.newHashMap();
-
+    private static final Map<String, List<BlockTintSource>> colorHandlersByName = Maps.newHashMap();
     public static void init()
     {
-        register("tall_grass", (state, reader, pos, color) ->
-                reader != null && pos != null
-                        ? BiomeColors.getAverageGrassColor(reader, state.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos)
-                        : -1);
-        register("grass", (state, reader, pos, color) ->
-                reader != null && pos != null
-                        ? BiomeColors.getAverageGrassColor(reader, pos)
-                        : GrassColor.get(0.5D, 1.0D));
-        register("spruce", (state, reader, pos, color) -> FoliageColor.FOLIAGE_EVERGREEN);
-        register("birch", (state, reader, pos, color) -> FoliageColor.FOLIAGE_BIRCH);
-        register("mangrove", (state, reader, pos, color) -> FoliageColor.FOLIAGE_MANGROVE);
-        register("foliage", (state, reader, pos, color) ->
-                reader != null && pos != null
-                        ? BiomeColors.getAverageFoliageColor(reader, pos)
-                        : FoliageColor.FOLIAGE_DEFAULT);
-        register("water", (state, reader, pos, color) -> reader != null && pos != null
-                ? BiomeColors.getAverageWaterColor(reader, pos)
-                : -1);
-        register("redstone", (state, reader, pos, color) ->
-                RedStoneWireBlock.getColorForPower(state.getValue(RedStoneWireBlock.POWER)));
-        register("sugarcane", (state, reader, pos, color) ->
-                reader != null && pos != null
-                        ? BiomeColors.getAverageGrassColor(reader, pos)
-                        : -1);
-
-        // learn what this does and if it's needed
-        //blockcolors.addColoringState(RedstoneWireBlock.POWER, Blocks.REDSTONE_WIRE);
+        register("tall_grass", BlockTintSources.doubleTallGrass());
+        register("grass", BlockTintSources.grass());
+        register("grass_block", BlockTintSources.grassBlock());
+        register("spruce", BlockTintSources.constant(FoliageColor.FOLIAGE_EVERGREEN));
+        register("birch", BlockTintSources.constant(FoliageColor.FOLIAGE_BIRCH));
+        register("mangrove", BlockTintSources.constant(FoliageColor.FOLIAGE_MANGROVE));
+        register("foliage", BlockTintSources.foliage());
+        register("dry_foliage", BlockTintSources.dryFoliage());
+        register("water", BlockTintSources.water());
+        register("redstone", BlockTintSources.redstone());
+        register("sugarcane", BlockTintSources.sugarCane());
+        register("stem", BlockTintSources.stem());
+        register("attached_stem", BlockTintSources.constant(0xffe0c71c));
     }
 
-    public static void register(String name, BlockColor handler)
+    public static void register(String name, BlockTintSource... handler)
     {
-        colorHandlersByName.put(name, handler);
+        colorHandlersByName.put(name, List.of(handler));
     }
 
-    public static BlockColor get(String handlerName)
+    public static List<BlockTintSource> get(String handlerName)
     {
         if (!colorHandlersByName.containsKey(handlerName))
             throw new IllegalStateException("No block color handler known with name " + handlerName);

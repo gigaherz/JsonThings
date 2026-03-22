@@ -1,28 +1,16 @@
 plugins {
     id 'java-library'
-    id 'eclipse'
-    id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.179'
+    id 'idea'
+    id 'net.neoforged.moddev' version '2.0.140'
 }
 
-version = "0.13.4"
+neoForge.version = "21.1.219"
+version = "0.13.5"
 group= "dev.gigaherz.jsonthings"
-
-Provider<String> minecraftVersion(Transformer<String, String> mapper) {
-    return project.userDevRuntime.runtimes.map(r -> r.values().first().specification.minecraftVersion).map(mapper)
-}
-
-base {
-    archivesName = minecraftVersion { "JsonThings-${it}" }
-}
+base.archivesName = "JsonThings-${neoForge.minecraftVersion}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
 
 repositories {
     maven {
@@ -44,40 +32,37 @@ repositories {
     mavenLocal()
 }
 
+neoForge {
+
 runs {
     // applies to all the run configs below
     configureEach {
-        systemProperty 'forge.logging.markers', '' // 'REGISTRIES'
-        systemProperty 'forge.logging.console.level', 'debug'
-
-        //ideaModule "${project.name}.main"
-
-        workingDirectory project.file('run')
-
-        modSource project.sourceSets.main
+            gameDirectory = project.file('run')
+            logLevel = org.slf4j.event.Level.DEBUG
     }
 
     client {
+            client()
     }
 
     server {
+            server()
     }
 }
 
-subsystems {
+    mods {
+        thismod {
+            sourceSet(sourceSets.main)
+        }
+    }
+
     parchment {
-        minecraftVersion="1.21"
-        mappingsVersion="2024.06.23"
+        minecraftVersion = "1.21.11"
+        mappingsVersion = "BLEEDING-SNAPSHOT"
     }
 }
-
-minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
-
-jarJar.enable()
 
 dependencies {
-    implementation 'net.neoforged:neoforge:21.1.204'
-
     //library 'com.google.guava:guava:21.0'
     //runtimeOnly fg.deobf("useless:Botania:1.18.2.433")
     //runtimeOnly fg.deobf("useless:curios-forge-1.18.2:5.0.7.0")
@@ -102,11 +87,7 @@ java {
 }
 
 tasks.named("jar") {
-    archiveClassifier = "slim"
-
-    from('/') {
-        include 'LICENSE.txt'
-    }
+    from(files('LICENSE.txt'))
 
     manifest {
         attributes([
@@ -121,14 +102,6 @@ tasks.named("jar") {
     }
 }
 
-tasks.named("jarJar") {
-    archiveClassifier = ""
-}
-
-tasks.withType(GenerateModuleMetadata) {
-    enabled = false
-}
-
 project.afterEvaluate {
     publish.dependsOn('build')
     publishing {
@@ -137,16 +110,6 @@ project.afterEvaluate {
                 artifactId project.archivesBaseName
                 from components.java
 
-                //jarJar.component(it)
-                //artifact sourceJar
-
-                pom.withXml {
-                    asNode().dependencies.dependency.each { dep ->
-                        if (dep.version.last().value().last().contains("mapped")) {
-                            assert dep.parent().remove(dep)
-                        }
-                    }
-                }
             }
         }
 
@@ -169,6 +132,10 @@ project.afterEvaluate {
             }
         }
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.

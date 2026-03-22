@@ -1,0 +1,5 @@
+{
+  "text.jsonthings.wrappedpack.client_resources.prefix": "Thingpack: ",
+  "text.jsonthings.wrappedpack.server_data.prefix": "Thingpack: ",
+  "text.jsonthings.wrappedpack.description": "Cannot be disabled without disabling the thingpack."
+}

@@ -12,11 +12,11 @@ import dev.gigaherz.jsonthings.util.CustomPackType;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackLocationInfo;
-import net.minecraft.server.packs.repository.FolderRepositorySource;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.server.packs.repository.RepositorySource;
+import net.minecraft.server.packs.PackSelectionConfig;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.*;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
@@ -84,24 +84,34 @@ public class ThingResourceManager
         return parser;
     }
 
+    @Deprecated(forRemoval = true)
     public RepositorySource getWrappedPackFinder()
     {
-        // TODO: Reconsider how to do this right
+        return getWrappedPackFinder(PackType.SERVER_DATA);
+    }
+
+    public RepositorySource getWrappedPackFinder(PackType packType)
+    {
         return (infoConsumer) -> folderPackFinder.loadPacks(pack -> {
             if (!disabledPacks.contains(pack.getId()))
             {
-                var loc = pack.location;
-                pack.location = new PackLocationInfo(
-                        "thingpack:" + loc.id(),
-                        loc.title(),
-                        loc.source(),
-                        loc.knownPackInfo()
+                var location = new PackLocationInfo(
+                        "thingpack:" + pack.location.id(),
+                        Component.translatable("text.jsonthings.wrappedpack." + packType.getSerializedName() + ".prefix").append(pack.location.title()),
+                        pack.location.source(),
+                        pack.location.knownPackInfo()
                 );
-                //pack.required = true;
-                infoConsumer.accept(pack);
+                var metadata = new Pack.Metadata(
+                        Component.translatable("text.jsonthings.wrappedpack.description"),
+                        pack.metadata.compatibility(),
+                        pack.metadata.requestedFeatures(),
+                        pack.metadata.overlays(),
+                        pack.metadata.isHidden()
+                );
+                var selectionConfig = new PackSelectionConfig(true, Pack.Position.TOP, false);
+                infoConsumer.accept(new Pack(location, pack.resources, metadata, selectionConfig));
             }
-        }/*, (a, n, b, c, d, e, f, g) ->
-                infoFactory.create("thingpack:" + a, n, true, c, d, e, f, g)*/);
+        });
     }
 
     public Path getThingPacksLocation()

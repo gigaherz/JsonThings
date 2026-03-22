@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-@EventBusSubscriber(modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = JsonThings.MODID)
 @Mod(JsonThings.MODID)
 public class JsonThings
 {
@@ -109,27 +109,22 @@ public class JsonThings
     @SubscribeEvent
     public static void packFinder(AddPackFindersEvent event)
     {
-        if (event.getPackType() == PackType.SERVER_DATA)
+        switch (event.getPackType())
         {
-            event.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder());
+            case CLIENT_RESOURCES, SERVER_DATA -> event.addRepositorySource(ThingResourceManager.instance().getWrappedPackFinder(event.getPackType()));
+            default -> {}
         }
     }
 
-    @EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(value = Dist.CLIENT, modid = JsonThings.MODID)
     public static class ClientHandlers
     {
-        private static void addClientPackFinder()
-        {
-            Minecraft.getInstance().getResourcePackRepository().addPackFinder(ThingResourceManager.instance().getWrappedPackFinder());
-        }
-
         @SubscribeEvent
         public static void constructMod(FMLConstructModEvent event)
         {
             if (DatagenModLoader.isRunningDataGen()) return;
 
             event.enqueueWork(() -> {
-                ClientHandlers.addClientPackFinder();
                 BlockColorHandler.init();
                 ItemColorHandler.init();
             });

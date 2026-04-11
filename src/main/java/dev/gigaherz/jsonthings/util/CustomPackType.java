@@ -1,5 +1,6 @@
 package dev.gigaherz.jsonthings.util;
 
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -7,16 +8,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.packs.OverlayMetadataSection;
+import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.metadata.pack.PackFormat;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.util.InclusiveRange;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class CustomPackType
 {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     public static final PackFormat PACK_FORMAT_VERSION = new PackFormat(11,0); // TODO: Bump when porting!
     public static final PackType THINGS = Enum.valueOf(PackType.class, "JSONTHINGS_THINGS");
     public static final MetadataSectionType<PackMetadataSection> THINGS_METADATA = new MetadataSectionType<>("pack", codecForPackType());
@@ -37,13 +45,23 @@ public class CustomPackType
     // Copied from neoforge ResourcePackLoader
     private static final InclusiveRange<PackFormat> UNLIMITED_SUPPORT = new InclusiveRange<>(new PackFormat(0, 0), new PackFormat(Integer.MAX_VALUE, Integer.MAX_VALUE));
     private static Codec<PackMetadataSection> metadataCodecForPackType() {
-        int lastPreMinor = PACK_FORMAT_VERSION.major();
+        int lastPreMinor = 0;
         MapCodec<InclusiveRange<PackFormat>> formatCodec = PackFormat.IntermediaryFormat.PACK_CODEC.flatXmap(
                 intermediary -> {
                     if (intermediary.min().isEmpty() && intermediary.max().isEmpty() && intermediary.format().isEmpty() && intermediary.supported().isEmpty()) {
                         return DataResult.success(UNLIMITED_SUPPORT);
                     }
-                    return intermediary.validate(lastPreMinor, true, false, "Pack", "supported_formats");
+
+                    var val = intermediary.validate(lastPreMinor, true, false, "Pack", "supported_formats");
+
+                    if (val.isError() && parseContext != null)
+                    {
+                        var message = val.error().map(DataResult.Error::message).orElse("NO MESSAGE PROVIDED");
+                        LOGGER.warn("IGNORING ERROR while parsing mod file as thingpack [{}] {} (mods no longer need a pack.mcmeta, the file can be deleted): {}", parseContext.id(), parseContext.title().getString(), message);
+                        return DataResult.success(UNLIMITED_SUPPORT);
+                    }
+
+                    return val;
                 },
                 range -> {
                     if (range.equals(UNLIMITED_SUPPORT)) {
@@ -58,4 +76,11 @@ public class CustomPackType
                         .apply(in, PackMetadataSection::new));
     }
 
+    @Nullable
+    private static PackLocationInfo parseContext = null;
+
+    public static void internalParseContext(@Nullable PackLocationInfo location)
+    {
+        parseContext = location;
+    }
 }

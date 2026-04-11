@@ -1,9 +1,11 @@
 package dev.gigaherz.jsonthings.mixin;
 
 import dev.gigaherz.jsonthings.util.CustomPackType;
+import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.Pack;
 import net.neoforged.neoforge.resource.ResourcePackLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,5 +22,17 @@ public class ResourcePackLoaderMixin
         {
             returnable.setReturnValue(CustomPackType.OPTIONAL_THINGS_METADATA);
         }
+    }
+
+    @Inject(method="readMeta(Lnet/minecraft/server/packs/PackType;Lnet/minecraft/server/packs/PackLocationInfo;Lnet/minecraft/server/packs/repository/Pack$ResourcesSupplier;)Lnet/minecraft/server/packs/repository/Pack$Metadata;", at = @At("HEAD"), cancellable = false)
+    private static void readMetaHeadInject(PackType type, PackLocationInfo location, Pack.ResourcesSupplier resources, CallbackInfoReturnable<Pack.Metadata> ci)
+    {
+        CustomPackType.internalParseContext(location);
+    }
+
+    @Inject(method="readMeta(Lnet/minecraft/server/packs/PackType;Lnet/minecraft/server/packs/PackLocationInfo;Lnet/minecraft/server/packs/repository/Pack$ResourcesSupplier;)Lnet/minecraft/server/packs/repository/Pack$Metadata;", at = @At("RETURN"), cancellable = false)
+    private static void readMetaReturnInject(PackType type, PackLocationInfo location, Pack.ResourcesSupplier resources, CallbackInfoReturnable<Pack.Metadata> ci)
+    {
+        CustomPackType.internalParseContext(null);
     }
 }

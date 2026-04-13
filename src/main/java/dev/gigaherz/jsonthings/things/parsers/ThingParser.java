@@ -75,6 +75,24 @@ public abstract class ThingParser<TBuilder extends BaseBuilder<?, TBuilder>> ext
     {
         registerCondition(new ResourceLocation("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
         registerCondition(new ResourceLocation("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
+        registerCondition(new ResourceLocation("any"), (type, id, data) -> {
+            var conditions = data.get("conditions").getAsJsonArray();
+            for(var c : conditions)
+            {
+                if (parseAndTestCondition(type, id, c.getAsJsonObject()))
+                    return true;
+            }
+            return false;
+        });
+        registerCondition(new ResourceLocation("all"), (type, id, data) -> {
+            var conditions = data.get("conditions").getAsJsonArray();
+            for(var c : conditions)
+            {
+                if (!parseAndTestCondition(type, id, c.getAsJsonObject()))
+                    return false;
+            }
+            return true;
+        });
     }
 
     public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, ResourceLocation> keyGetter)

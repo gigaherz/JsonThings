@@ -78,6 +78,24 @@ public abstract class ThingParser<TThing, TBuilder extends BaseBuilder<TThing, T
     static {
         registerCondition(Identifier.parse("mod_loaded"), (type, id, data) -> ModList.get().isLoaded(data.get("modid").getAsString()));
         registerCondition(Identifier.parse("not"), (type, id, data) -> !parseAndTestCondition(type, id, data.get("condition").getAsJsonObject()));
+        registerCondition(Identifier.parse("any"), (type, id, data) -> {
+            var conditions = data.get("conditions").getAsJsonArray();
+            for(var c : conditions)
+            {
+                if (parseAndTestCondition(type, id, c.getAsJsonObject()))
+                    return true;
+            }
+            return false;
+        });
+        registerCondition(Identifier.parse("all"), (type, id, data) -> {
+            var conditions = data.get("conditions").getAsJsonArray();
+            for(var c : conditions)
+            {
+                if (!parseAndTestCondition(type, id, c.getAsJsonObject()))
+                    return false;
+            }
+            return true;
+        });
     }
 
     public static <T> void processAndConsumeErrors(String thingType, Iterable<T> list, Consumer<T> consumer, Function<T, Identifier> keyGetter)

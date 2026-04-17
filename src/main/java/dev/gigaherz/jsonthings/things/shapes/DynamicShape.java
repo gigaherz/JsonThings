@@ -103,9 +103,25 @@ public class DynamicShape
             case EAST:
                 return Shapes.box(1 - z2, y1, x1, 1 - z1, y2, x2);
             case UP:
-                return Shapes.box(1 - y1, x1, z1, 1 - y2, x2, z2);
+            {
+                double minX = Math.min(1 - y1, 1 - y2);
+                double maxX = Math.max(1 - y1, 1 - y2);
+                double minY = Math.min(x1, x2);
+                double maxY = Math.max(x1, x2);
+                double minZ = Math.min(z1, z2);
+                double maxZ = Math.max(z1, z2);
+            return Shapes.box(minX, minY, minZ, maxX, maxY, maxZ);
+            }
             case DOWN:
-                return Shapes.box(y1, 1 - x1, z1, y2, 1 - x2, z2);
+            {
+                double minX = Math.min(y1, y2);
+                double maxX = Math.max(y1, y2);
+                double minY = Math.min(1 - x1, 1 - x2);
+                double maxY = Math.max(1 - x1, 1 - x2);
+                double minZ = Math.min(z1, z2);
+                double maxZ = Math.max(z1, z2);
+            return Shapes.box(minX, minY, minZ, maxX, maxY, maxZ);
+            }
         }
         return Shapes.box(x1, y1, z1, x2, y2, z2);
     }

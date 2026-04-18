@@ -9,8 +9,8 @@
     "OverlayMetadataSectionMixin",
     "PackFormatMixin",
     "PackMetadataSectionMixin",
+    "PackTypeEnumExtension",
     "ResourcePackLoaderMixin",
-    "ResourcePackTypeExtender",
     "WorldVersion$SimpleMixin"
   ],
   "client": [ ],

@@ -20,7 +20,7 @@ config = "jsonthings.mixins.json"
 [[dependencies.jsonthings]]
    modId="neoforge"
    type="required"
-   versionRange="[26.1.0.13,)"
+   versionRange="[26.1.2.13-beta,)"
    ordering="NONE"
    side="BOTH"
 [[dependencies.jsonthings]]

@@ -30,13 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
+public class FlexDirectionalBlock extends IntermediateDirectionalBlock implements IFlexBlock
 {
     public FlexDirectionalBlock(Properties properties, BlockBuilder builder)
     {
-        var props = this.stateProperties = new ArrayList<>(builder.getProperties());
-        if (!props.contains(DirectionalBlock.FACING))
-            props.add(DirectionalBlock.FACING);
+        this.stateProperties = builder.getProperties();
         super(properties);
         initializeFlex(builder.getPropertyDefaultValues());
     }
@@ -174,9 +172,8 @@ public class FlexDirectionalBlock extends DirectionalBlock implements IFlexBlock
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return runEvent(FlexEventType.GET_STATE_FOR_PLACEMENT, FlexEventContext.of(context.getLevel(), context.getClickedPos(), this.defaultBlockState())
-                .with(FlexEventContext.USER, context.getPlayer()).with(FlexEventContext.USE_CONTEXT, context).with(FlexEventContext.STATE_DEFINITION, this.stateDefinition)
-                , () -> this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite()));
+                        .with(FlexEventContext.USER, context.getPlayer()).with(FlexEventContext.USE_CONTEXT, context).with(FlexEventContext.STATE_DEFINITION, this.stateDefinition)
+                , () -> super.getStateForPlacement(context));
     }
-
     //endregion
 }

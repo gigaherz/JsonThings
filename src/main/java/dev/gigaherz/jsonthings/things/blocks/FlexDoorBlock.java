@@ -166,7 +166,7 @@ public class FlexDoorBlock extends DoorBlock implements IFlexBlock
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return runEvent(FlexEventType.GET_STATE_FOR_PLACEMENT, FlexEventContext.of(context.getLevel(), context.getClickedPos(), this.defaultBlockState())
-                .with(FlexEventContext.USER, context.getPlayer()).with(FlexEventContext.USE_CONTEXT, context).with(FlexEventContext.STATE_DEFINITION, this.stateDefinition)
+                        .with(FlexEventContext.USER, context.getPlayer()).with(FlexEventContext.USE_CONTEXT, context).with(FlexEventContext.STATE_DEFINITION, this.stateDefinition)
                 , () -> super.getStateForPlacement(context));
     }
     //endregion

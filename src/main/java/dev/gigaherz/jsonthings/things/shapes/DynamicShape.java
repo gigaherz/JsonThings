@@ -92,21 +92,14 @@ public class DynamicShape
     @SuppressWarnings("SuspiciousNameCombination")
     public static VoxelShape cuboidWithRotation(Direction facing, double x1, double y1, double z1, double x2, double y2, double z2)
     {
-        switch (facing)
+        return switch (facing)
         {
-            case NORTH:
-                return Shapes.box(x1, y1, z1, x2, y2, z2);
-            case SOUTH:
-                return Shapes.box(1 - x2, y1, 1 - z2, 1 - x1, y2, 1 - z1);
-            case WEST:
-                return Shapes.box(z1, y1, 1 - x2, z2, y2, 1 - x1);
-            case EAST:
-                return Shapes.box(1 - z2, y1, x1, 1 - z1, y2, x2);
-            case UP:
-                return Shapes.box(1 - y1, x1, z1, 1 - y2, x2, z2);
-            case DOWN:
-                return Shapes.box(y1, 1 - x1, z1, y2, 1 - x2, z2);
-        }
-        return Shapes.box(x1, y1, z1, x2, y2, z2);
+            case NORTH -> Shapes.box(x1, y1, z1, x2, y2, z2);
+            case SOUTH -> Shapes.box(1 - x2, y1, 1 - z2, 1 - x1, y2, 1 - z1);
+            case WEST -> Shapes.box(z1, y1, 1 - x2, z2, y2, 1 - x1);
+            case EAST -> Shapes.box(1 - z2, y1, x1, 1 - z1, y2, x2);
+            case UP -> Shapes.box(1 - y2, x1, z1, 1 - y1, x2, z2);
+            case DOWN -> Shapes.box(y1, 1 - x2, z1, y2, 1 - x1, z2);
+        };
     }
 }

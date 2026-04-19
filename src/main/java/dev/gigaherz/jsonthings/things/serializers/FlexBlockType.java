@@ -26,10 +26,7 @@ import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.mutable.MutableObject;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class FlexBlockType<T extends Block & IFlexBlock>
 {
@@ -98,7 +95,10 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, "cutout", false, false, false);
 
     public static final FlexBlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
+        List<Property<?>> _properties = new ArrayList<>(builder.getProperties());
+        if (!_properties.contains(DirectionalBlock.FACING))
+            _properties.add(DirectionalBlock.FACING);
+
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexDirectionalBlock(props, propertyDefaultValues)
         {
@@ -112,7 +112,10 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, "solid", false, false, false, DirectionalBlock.FACING);
 
     public static final FlexBlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
+        List<Property<?>> _properties = new ArrayList<>(builder.getProperties());
+        if (!_properties.contains(HorizontalDirectionalBlock.FACING))
+            _properties.add(HorizontalDirectionalBlock.FACING);
+
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexHorizontalDirectionalBlock(props, propertyDefaultValues)
         {

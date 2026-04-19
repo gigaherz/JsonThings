@@ -26,6 +26,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,9 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
 {
     public FlexHorizontalDirectionalBlock(Properties properties, BlockBuilder builder)
     {
-        this.stateProperties = builder.getProperties();
+        var props = this.stateProperties = new ArrayList<>(builder.getProperties());
+        if (!props.contains(HorizontalDirectionalBlock.FACING))
+            props.add(HorizontalDirectionalBlock.FACING);
         super(properties);
         initializeFlex(builder.getPropertyDefaultValues());
     }

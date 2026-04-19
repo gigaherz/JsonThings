@@ -13,44 +13,23 @@ import dev.gigaherz.jsonthings.util.parse.value.Any;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.fluids.FluidType;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class FlexFluidType<T extends Fluid & IFlexFluid>
 {
-    public static final FlexFluidType<FlexFluid> PLAIN = register("plain", (builder, data) -> new IFluidFactory<FlexFluid>()
-    {
-        @Override
-        public FlexFluid construct(FluidBuilder builder)
-        {
-            Supplier<FluidType> fluidType = builder.getAttributesType();
-            List<Property<?>> _properties = builder.getProperties();
-            Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-            return new FlexFluid(fluidType, propertyDefaultValues)
-            {
-                @Override
-                protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder1)
-                {
-                    super.createFluidStateDefinition(builder1);
-                    _properties.forEach(builder1::add);
-                }
-            };
-        }
-    }, "translucent");
+    public static final FlexFluidType<FlexFluid> PLAIN = register("plain", (_, _) ->
+            builder1 ->
+                    new FlexFluid(builder1), "translucent");
 
     public static final FlexFluidType<FlexFlowingFluid> FLOWING = register("flowing", new IFluidSerializer<FlexFlowingFluid>()
     {
@@ -99,22 +78,11 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                 @Override
                 public FlexFlowingFluid construct(FluidBuilder builder)
                 {
-                    Supplier<FluidType> fluidType = builder.getAttributesType();
-                    List<Property<?>> _properties = builder.getProperties();
-                    Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
-                    return new FlexFlowingFluid(fluidType, _properties, propertyDefaultValues, slopeDistance.get(), dropOff.get(),
+                    return new FlexFlowingFluid(builder, slopeDistance.get(), dropOff.get(),
                             canConvertToSource.get(), tickDelay.get(), explosionResistance.get(), Lazy.of(() -> {
                         var v = block.get();
                         return v != null ? v.get().self() : Blocks.AIR;
-                    }))
-                    {
-                        @Override
-                        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder1)
-                        {
-                            super.createFluidStateDefinition(builder1);
-                            _properties.forEach(builder1::add);
-                        }
-                    };
+                    }));
                 }
 
                 public Iterable<Fluid> getAllSiblings(FluidBuilder builder)
@@ -133,7 +101,7 @@ public class FlexFluidType<T extends Fluid & IFlexFluid>
                 }
             };
         }
-    }, "translucent");
+    }, "translucent", FlowingFluid.FALLING);
 
     public static void init()
     {

@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.fluids;
 
 import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.IFlexFluid;
+import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventType;
@@ -45,11 +46,14 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     private final float explosionResistance;
     private final Supplier<Block> block;
 
-    public FlexFlowingFluid(Supplier<FluidType> fluidType, List<Property<?>> properties, Map<Property<?>, Comparable<?>> propertyDefaultValues,
-                            int slopeDistance, int dropOff, boolean canConvertToSource, int tickDelay, float explosionResistance,
-                            Supplier<Block> block)
+    public FlexFlowingFluid(FluidBuilder builder, int slopeDistance, int dropOff, boolean canConvertToSource,
+                            int tickDelay, float explosionResistance, Supplier<Block> block)
     {
-        this.fluidType = fluidType;
+        this.fluidType = builder.getAttributesType();
+        this.properties = builder.getProperties();
+
+        super();
+
         this.slopeDistance = slopeDistance;
         this.dropOff = dropOff;
         this.canConvertToSource = canConvertToSource;
@@ -57,30 +61,24 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         this.explosionResistance = explosionResistance;
         this.block = block;
 
+        var propertyDefaultValues = builder.getPropertyDefaultValues();
+
         initializeFlex(propertyDefaultValues);
 
-        flowing = new Flowing(this, propertyDefaultValues)
-        {
-            @Override
-            protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder1)
-            {
-                super.createFluidStateDefinition(builder1);
-                properties.forEach(builder1::add);
-            }
-        };
+        this.flowing = new Flowing(propertyDefaultValues, this.properties);
     }
 
     //region IFlexFluid
     @SuppressWarnings("rawtypes")
     private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
-
+    private final Supplier<FluidType> fluidType;
+    private final List<Property<?>> properties;
     private Supplier<Item> bucketItem = () -> Items.AIR;
-    private Supplier<FluidType> fluidType;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
-        if (propertyDefaultValues.size() > 0)
+        if (!propertyDefaultValues.isEmpty())
         {
             FluidState def = getStateDefinition().any();
             for (Map.Entry<Property<?>, Comparable<?>> entry : propertyDefaultValues.entrySet())
@@ -116,6 +114,13 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
     //endregion
 
     //region Fluid
+    @Override
+    protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder1)
+    {
+        super.createFluidStateDefinition(builder1);
+        properties.forEach(builder1::add);
+    }
+
     @Override
     public FluidType getFluidType()
     {
@@ -186,6 +191,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         return this;
     }
 
+    @Deprecated
     @Override
     protected boolean canConvertToSource(ServerLevel level)
     {
@@ -228,13 +234,16 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
 
     //endregion
 
-    public static class Flowing extends FlowingFluid
+    public class Flowing extends FlowingFluid
     {
-        private final FlexFlowingFluid parent;
+        private final List<Property<?>> properties;
 
-        public Flowing(FlexFlowingFluid parent, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+        public Flowing(Map<Property<?>, Comparable<?>> propertyDefaultValues, List<Property<?>> properties)
         {
-            this.parent = parent;
+            this.properties = properties;
+
+            super();
+
             initializeFlex(propertyDefaultValues);
         }
 
@@ -242,6 +251,7 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         {
             super.createFluidStateDefinition(builder);
             builder.add(LEVEL);
+            properties.forEach(builder::add);
         }
 
         @Override
@@ -279,13 +289,13 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         @Override
         public FluidType getFluidType()
         {
-            return parent.getFluidType();
+            return FlexFlowingFluid.this.getFluidType();
         }
 
         @Override
         public Item getBucket()
         {
-            return parent.getBucket();
+            return FlexFlowingFluid.this.getBucket();
         }
 
         @Override
@@ -297,55 +307,56 @@ public class FlexFlowingFluid extends FlowingFluid implements IFlexFluid
         @Override
         public int getTickDelay(LevelReader p_76120_)
         {
-            return parent.getTickDelay(p_76120_);
+            return FlexFlowingFluid.this.getTickDelay(p_76120_);
         }
 
         @Override
         protected float getExplosionResistance()
         {
-            return parent.getExplosionResistance();
+            return FlexFlowingFluid.this.getExplosionResistance();
         }
 
         @Override
         protected BlockState createLegacyBlock(FluidState pState)
         {
-            return parent.createLegacyBlock(pState);
+            return FlexFlowingFluid.this.createLegacyBlock(pState);
         }
 
         @Override
         public Fluid getFlowing()
         {
-            return parent.getFlowing();
+            return FlexFlowingFluid.this.getFlowing();
         }
 
         @Override
         public Fluid getSource()
         {
-            return parent.getSource();
+            return FlexFlowingFluid.this.getSource();
         }
 
+        @Deprecated
         @Override
         protected boolean canConvertToSource(ServerLevel level)
         {
-            return parent.canConvertToSource(level);
+            return FlexFlowingFluid.this.canConvertToSource(level);
         }
 
         @Override
         protected void beforeDestroyingBlock(LevelAccessor pLevel, BlockPos pPos, BlockState pState)
         {
-            parent.beforeDestroyingBlock(pLevel, pPos, pState);
+            FlexFlowingFluid.this.beforeDestroyingBlock(pLevel, pPos, pState);
         }
 
         @Override
         protected int getSlopeFindDistance(LevelReader pLevel)
         {
-            return parent.getSlopeFindDistance(pLevel);
+            return FlexFlowingFluid.this.getSlopeFindDistance(pLevel);
         }
 
         @Override
         protected int getDropOff(LevelReader pLevel)
         {
-            return parent.getDropOff(pLevel);
+            return FlexFlowingFluid.this.getDropOff(pLevel);
         }
     }
 }

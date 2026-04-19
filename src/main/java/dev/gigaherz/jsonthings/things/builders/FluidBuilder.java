@@ -99,7 +99,7 @@ public class FluidBuilder extends BaseBuilder<IFlexFluid, FluidBuilder>
             }
             return false;
         }).toList();
-        if (badProperties.size() > 0)
+        if (!badProperties.isEmpty())
         {
             throw new IllegalStateException("The fluid of type " + fluidType + " cannot define non-duplicate properties with clashing names: " + badProperties.stream().map(Property::getName).collect(Collectors.joining(" ")));
         }

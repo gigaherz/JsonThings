@@ -22,7 +22,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.resource.ResourcePackLoader;
 import org.slf4j.Logger;
 
 import java.io.*;

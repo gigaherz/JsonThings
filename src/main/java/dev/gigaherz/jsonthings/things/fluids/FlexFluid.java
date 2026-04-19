@@ -2,6 +2,7 @@ package dev.gigaherz.jsonthings.things.fluids;
 
 import com.google.common.collect.Maps;
 import dev.gigaherz.jsonthings.things.IFlexFluid;
+import dev.gigaherz.jsonthings.things.builders.FluidBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventHandler;
 import dev.gigaherz.jsonthings.things.events.FlexEventType;
 import net.minecraft.core.BlockPos;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -20,28 +22,33 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class FlexFluid extends Fluid implements IFlexFluid
 {
-    public FlexFluid(Supplier<FluidType> fluidType, Map<Property<?>, Comparable<?>> propertyDefaultValues)
+    public FlexFluid(FluidBuilder builder)
     {
-        this.fluidType = fluidType;
-        initializeFlex(propertyDefaultValues);
+        this.fluidType = builder.getAttributesType();
+        this.properties = builder.getProperties();
+
+        super();
+
+        initializeFlex(builder.getPropertyDefaultValues());
     }
 
     //region IFlexFluid
     @SuppressWarnings("rawtypes")
     private final Map<FlexEventType, FlexEventHandler> eventHandlers = Maps.newHashMap();
-
+    private final Supplier<FluidType> fluidType;
+    private final List<Property<?>> properties;
     private Supplier<Item> bucketItem = () -> Items.AIR;
-    private Supplier<FluidType> fluidType;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initializeFlex(Map<Property<?>, Comparable<?>> propertyDefaultValues)
     {
-        if (propertyDefaultValues.size() > 0)
+        if (!propertyDefaultValues.isEmpty())
         {
             FluidState def = getStateDefinition().any();
             for (Map.Entry<Property<?>, Comparable<?>> entry : propertyDefaultValues.entrySet())
@@ -76,6 +83,14 @@ public class FlexFluid extends Fluid implements IFlexFluid
     //endregion
 
     //region Fluid
+
+    @Override
+    protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder)
+    {
+        super.createFluidStateDefinition(builder);
+        properties.forEach(builder::add);
+    }
+
     @Override
     public FluidType getFluidType()
     {

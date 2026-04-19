@@ -59,7 +59,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                 var treeGrower = new TreeGrower(builder.getRegistryName().toString(), Optional.empty(), Optional.of(featureKey), Optional.empty());
                 return new FlexSaplingBlock(props, builder, treeGrower);
             },
-            DefaultTypeProperties.builder().defaultTicksRandomly(true));
+            DefaultTypeProperties.builder().defaultTicksRandomly(true).stockProperties(FlexSaplingBlock.STAGE));
 
     public static final FlexBlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional",
             _ -> FlexDirectionalBlock::new,
@@ -98,14 +98,14 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             var woodType = WoodType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
             return new FlexFenceGateBlock(props, builder, woodType);
         };
-    }, DefaultTypeProperties.builder().stockProperties(FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL));
+    }, DefaultTypeProperties.builder().stockProperties(FenceGateBlock.FACING, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL));
 
     public static final FlexBlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> {
         var leafChance = new MutableFloat(0);
         JParse.begin(data)
                 .ifKey("leaf_chance", any -> any.floatValue().handle(leafChance::setValue));
         return (props, builder) -> new FlexLeavesBlock(props, builder, leafChance.floatValue());
-    }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT));
+    }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT, LeavesBlock.WATERLOGGED));
 
     public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {
         var blockSetType = new MutableObject<Identifier>();
@@ -117,7 +117,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                     .orElseThrow(() -> new ThingParseException("Block set type not found: " + woodTypeName));
             return new FlexDoorBlock(props, builder, woodType);
         };
-    }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED, DoorBlock.HALF));
+    }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(DoorBlock.HALF, DoorBlock.FACING, DoorBlock.OPEN, DoorBlock.HINGE, DoorBlock.POWERED));
 
     public static final FlexBlockType<FlexTrapdoorBlock> TRAPDOOR = register("trapdoor", data -> {
         var blockSetType = new MutableObject<Identifier>();
@@ -128,7 +128,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
             var woodType = BlockSetType.values().filter(w -> Objects.equals(w.name(),woodTypeName)).findFirst().orElseThrow();
             return new FlexTrapdoorBlock(props, builder, woodType);
         };
-    }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED));
+    }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(TrapDoorBlock.FACING, TrapDoorBlock.OPEN, TrapDoorBlock.HALF, TrapDoorBlock.POWERED, TrapDoorBlock.WATERLOGGED));
 
     public static final FlexBlockType<FlexLiquidBlock> LIQUID = register("liquid", data -> {
         var extras = JParse.begin(data);

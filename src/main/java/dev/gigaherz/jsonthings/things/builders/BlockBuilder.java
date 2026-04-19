@@ -447,7 +447,7 @@ public class BlockBuilder extends BaseBuilder<IFlexBlock, BlockBuilder>
             }
             return false;
         }).toList();
-        if (badProperties.size() > 0)
+        if (!badProperties.isEmpty())
         {
             throw new IllegalStateException("The block of type " + blockType + " cannot define non-duplicate properties with clashing names: " + badProperties.stream().map(Property::getName).collect(Collectors.joining(" ")));
         }

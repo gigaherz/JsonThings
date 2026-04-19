@@ -6,7 +6,7 @@ plugins {
 }
 
 neoForge.version = "21.1.219"
-version = "0.13.6"
+version = "0.13.7"
 group= "dev.gigaherz.jsonthings"
 base.archivesName = "JsonThings-${neoForge.minecraftVersion}"
 

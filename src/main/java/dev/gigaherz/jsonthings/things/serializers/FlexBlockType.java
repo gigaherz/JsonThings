@@ -97,6 +97,9 @@ public class FlexBlockType<T extends Block & IFlexBlock>
 
     public static final FlexBlockType<FlexDirectionalBlock> DIRECTIONAL = register("directional", data -> (props, builder) -> {
         List<Property<?>> _properties = builder.getProperties();
+        if (!_properties.contains(DirectionalBlock.FACING))
+            _properties.add(DirectionalBlock.FACING);
+
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexDirectionalBlock(props, propertyDefaultValues)
         {
@@ -110,7 +113,10 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, DefaultTypeProperties.builder().stockProperties(DirectionalBlock.FACING));
 
     public static final FlexBlockType<FlexHorizontalDirectionalBlock> HORIZONTAL_DIRECTIONAL = register("horizontal_directional", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
+        List<Property<?>> _properties = new ArrayList<>(builder.getProperties());
+        if (!_properties.contains(HorizontalDirectionalBlock.FACING))
+            _properties.add(HorizontalDirectionalBlock.FACING);
+
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexHorizontalDirectionalBlock(props, propertyDefaultValues)
         {
@@ -124,7 +130,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, DefaultTypeProperties.builder().stockProperties(HorizontalDirectionalBlock.FACING));
 
     public static final FlexBlockType<FlexRotatedPillarBlock> ROTATED_PILLAR = register("rotated_pillar", data -> (props, builder) -> {
-        List<Property<?>> _properties = builder.getProperties();
+        List<Property<?>> _properties = new ArrayList<>(builder.getProperties());
         Map<Property<?>, Comparable<?>> propertyDefaultValues = builder.getPropertyDefaultValues();
         return new FlexRotatedPillarBlock(props, propertyDefaultValues)
         {

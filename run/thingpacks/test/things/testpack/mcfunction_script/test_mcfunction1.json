@@ -1,0 +1,5 @@
+{
+  "function": "testpack:mcfunc1",
+  "debug":true,
+  "client_logic":{"type":"value","value":1}
+}

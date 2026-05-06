@@ -6,6 +6,7 @@
     {"item": "testpack:item1"},
     {"item": "testpack:item2"},
     {"item": "testpack:item3"},
-    "testpack:item4"
+    "testpack:item4",
+    "testpack:mcfunc_item_use_test"
   ]
 }

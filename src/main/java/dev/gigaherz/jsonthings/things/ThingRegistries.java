@@ -237,7 +237,7 @@ public class ThingRegistries
         Registry.register(PROPERTY, "bamboo_leaves", BlockStateProperties.BAMBOO_LEAVES);
         Registry.register(PROPERTY, "tilt", BlockStateProperties.TILT);
         Registry.register(PROPERTY, "vertical_direction", BlockStateProperties.VERTICAL_DIRECTION);
-        Registry.register(PROPERTY, "dripstone_thickness", BlockStateProperties.DRIPSTONE_THICKNESS);
+        Registry.register(PROPERTY, "speleotherm_thickness", BlockStateProperties.SPELEOTHEM_THICKNESS);
         Registry.register(PROPERTY, "sculk_sensor_phase", BlockStateProperties.SCULK_SENSOR_PHASE);
         Registry.register(PROPERTY, "slot_0_occupied", BlockStateProperties.SLOT_0_OCCUPIED);
         Registry.register(PROPERTY, "slot_1_occupied", BlockStateProperties.SLOT_1_OCCUPIED);
@@ -255,6 +255,7 @@ public class ThingRegistries
         Registry.register(PROPERTY, "mode", BlockStateProperties.TEST_BLOCK_MODE);
         Registry.register(PROPERTY, "map", BlockStateProperties.MAP);
         Registry.register(PROPERTY, "copper_golem_pose", BlockStateProperties.COPPER_GOLEM_POSE);
+        Registry.register(PROPERTY, "potent_sulfur_state", BlockStateProperties.POTENT_SULFUR_STATE);
     }
 
     private static void registerFoods()
@@ -358,16 +359,23 @@ public class ThingRegistries
         Registry.register(SOUND_TYPE, "medium_amethyst_bud", SoundType.MEDIUM_AMETHYST_BUD);
         Registry.register(SOUND_TYPE, "large_amethyst_bud", SoundType.LARGE_AMETHYST_BUD);
         Registry.register(SOUND_TYPE, "tuff", SoundType.TUFF);
+        Registry.register(SOUND_TYPE, "tuff_bricks", SoundType.TUFF_BRICKS);
+        Registry.register(SOUND_TYPE, "polished_tuff", SoundType.POLISHED_TUFF);
         Registry.register(SOUND_TYPE, "calcite", SoundType.CALCITE);
         Registry.register(SOUND_TYPE, "dripstone_block", SoundType.DRIPSTONE_BLOCK);
         Registry.register(SOUND_TYPE, "pointed_dripstone", SoundType.POINTED_DRIPSTONE);
         Registry.register(SOUND_TYPE, "copper", SoundType.COPPER);
+        Registry.register(SOUND_TYPE, "copper_bulb", SoundType.COPPER_BULB);
+        Registry.register(SOUND_TYPE, "copper_grate", SoundType.COPPER_GRATE);
+        Registry.register(SOUND_TYPE, "copper_golem_statue", SoundType.COPPER_GOLEM_STATUE);
         Registry.register(SOUND_TYPE, "cave_vines", SoundType.CAVE_VINES);
         Registry.register(SOUND_TYPE, "spore_blossom", SoundType.SPORE_BLOSSOM);
+        Registry.register(SOUND_TYPE, "cactus_flower", SoundType.CACTUS_FLOWER);
         Registry.register(SOUND_TYPE, "azalea", SoundType.AZALEA);
         Registry.register(SOUND_TYPE, "flowering_azalea", SoundType.FLOWERING_AZALEA);
         Registry.register(SOUND_TYPE, "moss_carpet", SoundType.MOSS_CARPET);
         Registry.register(SOUND_TYPE, "pink_petals", SoundType.PINK_PETALS);
+        Registry.register(SOUND_TYPE, "leaf_litter", SoundType.LEAF_LITTER);
         Registry.register(SOUND_TYPE, "moss", SoundType.MOSS);
         Registry.register(SOUND_TYPE, "big_dripleaf", SoundType.BIG_DRIPLEAF);
         Registry.register(SOUND_TYPE, "small_dripleaf", SoundType.SMALL_DRIPLEAF);
@@ -401,7 +409,26 @@ public class ThingRegistries
         Registry.register(SOUND_TYPE, "cherry_leaves", SoundType.CHERRY_LEAVES);
         Registry.register(SOUND_TYPE, "cherry_wood_hanging_sign", SoundType.CHERRY_WOOD_HANGING_SIGN);
         Registry.register(SOUND_TYPE, "chiseled_bookshelf", SoundType.CHISELED_BOOKSHELF);
+        Registry.register(SOUND_TYPE, "shelf", SoundType.SHELF);
         Registry.register(SOUND_TYPE, "suspicious_sand", SoundType.SUSPICIOUS_SAND);
+        Registry.register(SOUND_TYPE, "suspicious_gravel", SoundType.SUSPICIOUS_GRAVEL);
         Registry.register(SOUND_TYPE, "decorated_pot", SoundType.DECORATED_POT);
+        Registry.register(SOUND_TYPE, "decorated_pot_cracked", SoundType.DECORATED_POT_CRACKED);
+        Registry.register(SOUND_TYPE, "trial_spawner", SoundType.TRIAL_SPAWNER);
+        Registry.register(SOUND_TYPE, "sponge", SoundType.SPONGE);
+        Registry.register(SOUND_TYPE, "wet_sponge", SoundType.WET_SPONGE);
+        Registry.register(SOUND_TYPE, "vault", SoundType.VAULT);
+        Registry.register(SOUND_TYPE, "creaking_heart", SoundType.CREAKING_HEART);
+        Registry.register(SOUND_TYPE, "heavy_core", SoundType.HEAVY_CORE);
+        Registry.register(SOUND_TYPE, "cobweb", SoundType.COBWEB);
+        Registry.register(SOUND_TYPE, "spawner", SoundType.SPAWNER);
+        Registry.register(SOUND_TYPE, "resin", SoundType.RESIN);
+        Registry.register(SOUND_TYPE, "resin_bricks", SoundType.RESIN_BRICKS);
+        Registry.register(SOUND_TYPE, "iron", SoundType.IRON);
+        Registry.register(SOUND_TYPE, "dried_ghast", SoundType.DRIED_GHAST);
+        Registry.register(SOUND_TYPE, "sulfur", SoundType.SULFUR);
+        Registry.register(SOUND_TYPE, "potent_sulfur", SoundType.POTENT_SULFUR);
+        Registry.register(SOUND_TYPE, "sulfur_spike", SoundType.SULFUR_SPIKE);
+        Registry.register(SOUND_TYPE, "cinnabar", SoundType.CINNABAR);
     }
 }

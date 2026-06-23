@@ -5,8 +5,8 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-neoForge.version = "26.1.2.13-beta"
-version = "0.18.5"
+neoForge.version = "26.2.0.7-beta"
+version = "0.19.0"
 group= "dev.gigaherz.jsonthings"
 base.archivesName = "JsonThings-${neoForge.minecraftVersion}"
 
@@ -54,11 +54,6 @@ neoForge {
         thismod {
             sourceSet(sourceSets.main)
         }
-    }
-
-    parchment {
-        minecraftVersion = "1.21.6"
-        mappingsVersion = "BLEEDING-SNAPSHOT"
     }
 }
 

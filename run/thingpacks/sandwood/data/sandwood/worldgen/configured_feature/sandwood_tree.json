@@ -3,7 +3,7 @@
     "decorators": [],
     "ignore_vines": true,
     "force_dirt": true,
-    "dirt_provider": {
+    "below_trunk_provider": {
       "state": {
         "Name": "minecraft:red_sandstone"
       },

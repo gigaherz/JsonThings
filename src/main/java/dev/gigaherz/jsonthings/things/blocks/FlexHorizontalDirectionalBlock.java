@@ -34,7 +34,7 @@ public class FlexHorizontalDirectionalBlock extends HorizontalDirectionalBlock i
     //region special handling for FlexDirectionalBlock
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
     //endregion
 

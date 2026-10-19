@@ -39,11 +39,11 @@ public class FlexDirectionalBlock extends IntermediateDirectionalBlock implement
         initializeFlex(builder.getPropertyDefaultValues());
     }
 
-    @Override
-    public MapCodec<? extends DirectionalBlock> codec()
-    {
-        throw new RuntimeException("Not implemented");
-    }
+    // @Override
+    // public MapCodec<? extends DirectionalBlock> codec()
+    // {
+    //     throw new RuntimeException("Not implemented");
+    // }
 
     //region IFlexBlock
     @SuppressWarnings("rawtypes")

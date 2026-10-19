@@ -88,10 +88,10 @@ public class FlexItemType<T extends Item>
     });*/
 
     //public static final FlexItemType<FlexSwordItem> SWORD = register("sword", makeToolSerializer(FlexSwordItem::new));
-    public static final FlexItemType<FlexShovelItem> SHOVEL = register("shovel", makeToolSerializer(FlexShovelItem::new));
-    public static final FlexItemType<FlexAxeItem> AXE = register("axe", makeToolSerializer(FlexAxeItem::new));
+    public static final FlexItemType<FlexItem> SHOVEL = register("shovel", makeToolSerializer(Item.Properties::shovel));
+    public static final FlexItemType<FlexItem> AXE = register("axe", makeToolSerializer(Item.Properties::axe));
     //public static final FlexItemType<FlexPickaxeItem> PICKAXE = register("pickaxe", makeToolSerializer(FlexPickaxeItem::new));
-    public static final FlexItemType<FlexHoeItem> HOE = register("hoe", makeToolSerializer(FlexHoeItem::new));
+    public static final FlexItemType<FlexItem> HOE = register("hoe", makeToolSerializer(Item.Properties::hoe));
 
     /*public static final FlexItemType<FlexDiggerItem> DIGGER = register("digger", data -> {
 
@@ -110,8 +110,7 @@ public class FlexItemType<T extends Item>
         };
     });*/
 
-    private static <T extends Item> IItemSerializer<T> makeToolSerializer(DiggerFactory<T> factory)
-    {
+    private static IItemSerializer<FlexItem> makeToolSerializer(DiggerFactory factory) {
         return data -> {
 
             String tier = parseTier(data);
@@ -121,15 +120,15 @@ public class FlexItemType<T extends Item>
 
             return (props, builder) -> {
                 var tier_ = getTier(tier);
-                return factory.create(getTier(tier), damage, speed, props, builder);
+                return new FlexItem(factory.create(props, getTier(tier), damage, speed), builder);
             };
         };
     }
 
     @FunctionalInterface
-    public interface DiggerFactory<T extends Item>
+    public interface DiggerFactory
     {
-        T create(ToolMaterial material, float attackDamage, float attackSpeed, Item.Properties properties, ItemBuilder builder);
+        Item.Properties create(Item.Properties props, ToolMaterial material, float attackDamage, float attackSpeed);
     }
 
     private static ToolMaterial getTier(String tierName)

@@ -3,6 +3,7 @@ package dev.gigaherz.jsonthings.util;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,7 +48,7 @@ public class DrinkableBottleItem extends Item
                 Player player = (Player) p_41350_;
                 if (!player.getInventory().add(itemstack))
                 {
-                    player.drop(itemstack, false);
+                    player.drop(itemstack, false, Prediction.SERVER_ONLY);
                 }
             }
 

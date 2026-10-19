@@ -19,6 +19,7 @@ import dev.gigaherz.jsonthings.util.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import net.minecraft.core.*;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -241,14 +242,18 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
         {
             var parsedComponents = parseDataComponents(components);
             var props = properties;
-            for(var entry : parsedComponents.entrySet())
+            for(@SuppressWarnings("rawtypes") DataComponentType key : parsedComponents.keySet())
             {
-                @SuppressWarnings("rawtypes")
-                DataComponentType key = entry.getKey();
-                entry.getValue().ifPresent(value -> {
+                @SuppressWarnings("unchecked")
+                var value = parsedComponents.get(new DataComponentGetter(){
+                    @Override
+                    public <T> @org.jspecify.annotations.Nullable T get(DataComponentType<? extends T> arg0) {
+                        return null;
+                    }}, key);
+                if(value!=null){
                     //noinspection unchecked
                     props.component(key, value);
-                });
+                }
             }
         }
 
@@ -275,7 +280,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
 
             @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
-            public <T> Optional<RegistryOps.RegistryInfo<T>> lookup(ResourceKey<? extends Registry<? extends T>> registryKey)
+            public <T> Optional<HolderGetter<T>> lookup(ResourceKey<? extends Registry<? extends T>> registryKey)
             {
                 var pair = registriesMap.computeIfAbsent(registryKey, key -> {
                     var registry = BuiltInRegistries.REGISTRY.getValueOrThrow((ResourceKey) registryKey);
@@ -286,7 +291,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
                 var registry = pair.getFirst();
                 var holdergetter = pair.getSecond();
 
-                return Optional.of(new RegistryOps.RegistryInfo(registry, new HolderGetter<T>()
+                return Optional.of(new HolderGetter<T>()
                 {
                     @Override
                     public Optional<Holder.Reference<T>> get(ResourceKey<T> resourceKey)
@@ -305,7 +310,7 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
                     {
                         return holdergetter.get(tagKey);
                     }
-                }, registry.registryLifecycle()));
+                });
             }
         };
     }

@@ -40,11 +40,11 @@ public class FlexFallingBlock extends FallingBlock implements IFlexBlock
         this.dustColor = dustColor;
     }
 
-    @Override
-    public MapCodec<? extends FallingBlock> codec()
-    {
-        throw new RuntimeException("Not implemented");
-    }
+    // @Override
+    // public MapCodec<? extends FallingBlock> codec()
+    // {
+    //     throw new RuntimeException("Not implemented");
+    // }
 
     //region FallingDust implementation details
     private final ColorRGBA dustColor;

@@ -39,11 +39,11 @@ public class FlexHorizontalDirectionalBlock extends IntermediateHorizontalDirect
         initializeFlex(builder.getPropertyDefaultValues());
     }
 
-    @Override
-    public MapCodec<? extends HorizontalDirectionalBlock> codec()
-    {
-        throw new RuntimeException("Not implemented");
-    }
+    // @Override
+    // public MapCodec<? extends HorizontalDirectionalBlock> codec()
+    // {
+    //     throw new RuntimeException("Not implemented");
+    // }
 
     //region IFlexBlock
     @SuppressWarnings("rawtypes")

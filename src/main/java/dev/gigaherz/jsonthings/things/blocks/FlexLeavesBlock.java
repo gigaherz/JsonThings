@@ -19,6 +19,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -32,26 +33,26 @@ import java.util.Map;
 
 public class FlexLeavesBlock extends LeavesBlock implements IFlexBlock
 {
-    public FlexLeavesBlock(Properties properties, BlockBuilder builder, float leafChance)
+    public FlexLeavesBlock(Properties properties, BlockBuilder builder, AmbientLeavesBlockSoundPlayer sound)
     {
         this.stateProperties = builder.getProperties();
-        super(leafChance, properties);
+        super(sound, properties);
         initializeFlex(builder.getPropertyDefaultValues());
     }
 
-    @Override
-    public MapCodec<? extends LeavesBlock> codec()
-    {
-        throw new RuntimeException("Not implemented");
-    }
+    // @Override
+    // public MapCodec<? extends LeavesBlock> codec()
+    // {
+    //     throw new RuntimeException("Not implemented");
+    // }
 
-    //region LeavesBlock
-    @Override
-    protected void spawnFallingLeavesParticle(Level p_399924_, BlockPos p_399922_, RandomSource p_400164_)
-    {
-        // TODO
-    }
-    //endregion
+    // //region LeavesBlock
+    // @Override
+    // protected void spawnFallingLeavesParticle(Level p_399924_, BlockPos p_399922_, RandomSource p_400164_)
+    // {
+    //     // TODO
+    // }
+    // //endregion
 
     //region IFlexBlock
     @SuppressWarnings("rawtypes")

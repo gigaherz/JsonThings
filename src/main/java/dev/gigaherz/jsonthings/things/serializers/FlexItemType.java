@@ -119,7 +119,6 @@ public class FlexItemType<T extends Item>
             float speed = GsonHelper.getAsFloat(data, "speed");
 
             return (props, builder) -> {
-                var tier_ = getTier(tier);
                 return new FlexItem(factory.create(props, getTier(tier), damage, speed), builder);
             };
         };

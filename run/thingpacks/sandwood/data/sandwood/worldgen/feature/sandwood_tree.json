@@ -1,0 +1,59 @@
+{
+  "decorators": [ ],
+  "ignore_vines": true,
+  "force_dirt": true,
+  "below_trunk_provider": {
+    "state": {
+      "id": "minecraft:red_sandstone"
+    },
+    "type": "minecraft:simple"
+  },
+  "minimum_size": {
+    "limit": 1,
+    "lower_size": 0,
+    "upper_size": 1,
+    "type": "minecraft:two_layers_feature_size"
+  },
+  "foliage_provider": {
+    "state": {
+      "properties": {
+        "persistent": "false",
+        "distance": "7"
+      },
+      "id": "sandwood:sandwood_leaves"
+    },
+    "type": "minecraft:simple"
+  },
+  "sapling_provider": {
+    "state": {
+      "properties": {
+        "stage": "0"
+      },
+      "id": "sandwood:sandwood_sapling"
+    },
+    "type": "minecraft:simple"
+  },
+  "foliage_placer": {
+    "radius": 1,
+    "offset": 1,
+    "height": 4,
+    "type": "minecraft:pine_foliage_placer"
+  },
+  "trunk_provider": {
+    "state": {
+      "properties": {
+        "axis": "y"
+      },
+      "id": "sandwood:sandwood_log"
+    },
+    "type": "minecraft:simple"
+  },
+  "trunk_placer": {
+    "base_height": 5,
+    "height_rand_a": 4,
+    "height_rand_b": 0,
+    "type": "minecraft:straight_trunk_placer"
+  }
+  ,
+  "type": "minecraft:tree"
+}

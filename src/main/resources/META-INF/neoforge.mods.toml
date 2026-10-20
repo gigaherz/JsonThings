@@ -7,7 +7,8 @@ issueTrackerURL="https://github.com/gigaherz/JsonThings/issues"
 modId="jsonthings"
 version="${file.jarVersion}"
 displayName="Json Things"
-logoFile="jsonthings-logo.png"
+bannerFile="jsonthings-logo.png"
+iconFile="jsonthings-logo.png"
 description='''
 Things, in JSON sauce.
 '''

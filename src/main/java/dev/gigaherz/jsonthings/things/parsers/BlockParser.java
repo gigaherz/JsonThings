@@ -101,11 +101,11 @@ public class BlockParser extends ThingParser<IFlexBlock, BlockBuilder>
     {
         return switch (s)
                 {
-                    case "block" -> PushReaction.BLOCK;
-                    case "destroy" -> PushReaction.DESTROY;
-                    case "ignore" -> PushReaction.IGNORE;
-                    case "push_only" -> PushReaction.PUSH_ONLY;
-                    case "normal" -> PushReaction.NORMAL;
+                    case "block",    "immoveable"    -> PushReaction.IMMOVEABLE;
+                    case "destroy",  "popped"        -> PushReaction.POPPED;
+                    case "ignore",   "ignore_entity" -> PushReaction.IGNORE_ENTITY;
+                    case "push_only","push"          -> PushReaction.PUSH;
+                    case "normal",   "push_pull"     -> PushReaction.PUSH_PULL;
                     default -> throw new ThingParseException("'push_reaction' must be one of: \"block\", \"destroy\", \"ignore\", \"push_only\", \"normal\".");
                 };
     }

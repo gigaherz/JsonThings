@@ -7,24 +7,34 @@ import dev.gigaherz.jsonthings.things.blocks.*;
 import dev.gigaherz.jsonthings.things.parsers.ThingParseException;
 import dev.gigaherz.jsonthings.util.Utils;
 import dev.gigaherz.jsonthings.util.parse.JParse;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
+import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.material.FlowingFluid;
+import net.neoforged.neoforge.common.data.SoundDefinition.Sound;
+
 import org.apache.commons.lang3.mutable.MutableFloat;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class FlexBlockType<T extends Block & IFlexBlock>
 {
@@ -53,10 +63,18 @@ public class FlexBlockType<T extends Block & IFlexBlock>
 
     public static final FlexBlockType<FlexSaplingBlock> SAPLING = register("sapling",
             data -> (props, builder) -> {
-                var featureId = Identifier.parse(GsonHelper.getAsString(data, "tree_feature"));
-                var featureKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, featureId);
+                var treeBuilder = WeightedList.<ResourceKey<Feature>>builder();
+                JParse.begin(data).key("tree_feature", tree -> tree
+                        .ifString(str -> str.map(Identifier::parse).map(featureId -> ResourceKey.create(Registries.FEATURE, featureId)).handle(treeBuilder::add))
+                        .ifArray(array -> array.forEach((index, any) -> any
+                                .ifString(str -> str.map(Identifier::parse).map(featureId -> ResourceKey.create(Registries.FEATURE, featureId)).handle(treeBuilder::add))
+                                .ifObj(obj -> {
+                                    var featureId = ResourceKey.create(Registries.FEATURE,Identifier.parse(GsonHelper.getAsString(obj.getAsJsonObject(),"id")));
+                                    treeBuilder.add(featureId, GsonHelper.getAsInt(obj.getAsJsonObject(),"weight"));
+                                })))
+                        .ifObj(obj -> obj.forEach((string,any)->any.intValue().handle(i->treeBuilder.add(ResourceKey.create(Registries.FEATURE,Identifier.parse(string)),i)))));
                 // TODO: "mega" tree, and flower of the TreeGrower?
-                var treeGrower = new TreeGrower(builder.getRegistryName().toString(), Optional.empty(), Optional.of(featureKey), Optional.empty());
+                var treeGrower = new TreeGrower(builder.getRegistryName().toString(), treeBuilder.build(),WeightedList.of(),WeightedList.of(),null);
                 return new FlexSaplingBlock(props, builder, treeGrower);
             },
             DefaultTypeProperties.builder().defaultTicksRandomly(true).stockProperties(FlexSaplingBlock.STAGE));
@@ -102,9 +120,24 @@ public class FlexBlockType<T extends Block & IFlexBlock>
 
     public static final FlexBlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> {
         var leafChance = new MutableFloat(0);
+        var soundPlayer = new MutableObject<Supplier<AmbientLeavesBlockSoundPlayer>>(AmbientLeavesBlockSoundPlayer::noAmbientSound);
         JParse.begin(data)
-                .ifKey("leaf_chance", any -> any.floatValue().handle(leafChance::setValue));
-        return (props, builder) -> new FlexLeavesBlock(props, builder, leafChance.floatValue());
+                .ifKey("leaf_chance", any -> any.floatValue().handle(leafChance::setValue))
+                .ifKey("ambient_sound", obj -> {
+                    var ambientSound = new MutableObject<Identifier>();
+                    var chance = new MutableInt(300);
+                    var satisfyingBlocks = new MutableObject<Identifier>();
+                    var nearbySatisfyingBlocksRequired = new MutableInt(1);
+                    var nearbySameLeavesRequired = new MutableInt(3);
+                    obj.obj()
+                            .key("sound", any -> any.string().map(Identifier::parse).handle(ambientSound::setValue))
+                            .ifKey("chance", any -> any.intValue().min(1).handle(chance::setValue))
+                            .ifKey("satisfying_blocks", any -> any.string().map(Identifier::parse).handle(satisfyingBlocks::setValue))
+                            .ifKey("nearby_satisfying_blocks_required", any -> any.intValue().min(0).handle(nearbySatisfyingBlocksRequired::setValue))
+                            .ifKey("nearby_same_leaves_required", any -> any.intValue().min(0).handle(nearbySameLeavesRequired::setValue));
+                    soundPlayer.setValue(() -> new AmbientLeavesBlockSoundPlayer(Optional.ofNullable(ambientSound.get()).flatMap(id -> BuiltInRegistries.SOUND_EVENT.get(id)), chance.intValue(), Optional.ofNullable(satisfyingBlocks.get()).map(id -> TagKey.create(Registries.BLOCK, id)), nearbySatisfyingBlocksRequired.intValue(), nearbySameLeavesRequired.intValue()));
+                });
+        return (props, builder) -> new FlexLeavesBlock(props, builder, leafChance.floatValue(), soundPlayer.get().get());
     }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT, LeavesBlock.WATERLOGGED));
 
     public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {

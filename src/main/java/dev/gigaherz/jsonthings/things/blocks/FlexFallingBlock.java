@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.things.blocks;
 
 import com.google.common.collect.Maps;
-import com.mojang.serialization.MapCodec;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
@@ -40,11 +39,6 @@ public class FlexFallingBlock extends FallingBlock implements IFlexBlock
         this.dustColor = dustColor;
     }
 
-    @Override
-    public MapCodec<? extends FallingBlock> codec()
-    {
-        throw new RuntimeException("Not implemented");
-    }
 
     //region FallingDust implementation details
     private final ColorRGBA dustColor;

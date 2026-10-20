@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.things.blocks;
 
 import com.google.common.collect.Maps;
-import com.mojang.serialization.MapCodec;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
@@ -17,7 +16,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -26,7 +24,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,12 +35,6 @@ public class FlexDirectionalBlock extends IntermediateDirectionalBlock implement
         super(properties);
         initializeFlex(builder.getPropertyDefaultValues());
     }
-
-    // @Override
-    // public MapCodec<? extends DirectionalBlock> codec()
-    // {
-    //     throw new RuntimeException("Not implemented");
-    // }
 
     //region IFlexBlock
     @SuppressWarnings("rawtypes")

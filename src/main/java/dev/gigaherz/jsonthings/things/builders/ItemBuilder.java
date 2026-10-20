@@ -245,12 +245,8 @@ public class ItemBuilder extends BaseBuilder<Item, ItemBuilder> implements ItemV
             for(@SuppressWarnings("rawtypes") DataComponentType key : parsedComponents.keySet())
             {
                 @SuppressWarnings("unchecked")
-                var value = parsedComponents.get(new DataComponentGetter(){
-                    @Override
-                    public <T> @org.jspecify.annotations.Nullable T get(DataComponentType<? extends T> arg0) {
-                        return null;
-                    }}, key);
-                if(value!=null){
+                var value = parsedComponents.getPatch(key);
+                if(value != null){
                     //noinspection unchecked
                     props.component(key, value);
                 }

@@ -1,7 +1,6 @@
 package dev.gigaherz.jsonthings.things.blocks;
 
 import com.google.common.collect.Maps;
-import com.mojang.serialization.MapCodec;
 import dev.gigaherz.jsonthings.things.IFlexBlock;
 import dev.gigaherz.jsonthings.things.builders.BlockBuilder;
 import dev.gigaherz.jsonthings.things.events.FlexEventContext;
@@ -18,7 +17,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.FallingParticlesLeavesBlock;
 import net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -31,28 +30,22 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class FlexLeavesBlock extends LeavesBlock implements IFlexBlock
+public class FlexLeavesBlock extends FallingParticlesLeavesBlock implements IFlexBlock
 {
-    public FlexLeavesBlock(Properties properties, BlockBuilder builder, AmbientLeavesBlockSoundPlayer sound)
+    public FlexLeavesBlock(Properties properties, BlockBuilder builder, float leafParticleChance, AmbientLeavesBlockSoundPlayer sound)
     {
         this.stateProperties = builder.getProperties();
-        super(sound, properties);
+        super(leafParticleChance, sound, properties);
         initializeFlex(builder.getPropertyDefaultValues());
     }
 
-    // @Override
-    // public MapCodec<? extends LeavesBlock> codec()
-    // {
-    //     throw new RuntimeException("Not implemented");
-    // }
-
-    // //region LeavesBlock
-    // @Override
-    // protected void spawnFallingLeavesParticle(Level p_399924_, BlockPos p_399922_, RandomSource p_400164_)
-    // {
-    //     // TODO
-    // }
-    // //endregion
+    //region LeavesBlock
+    @Override
+    protected void spawnFallingLeavesParticle(Level p_399924_, BlockPos p_399922_, RandomSource p_400164_)
+    {
+        // TODO
+    }
+    //endregion
 
     //region IFlexBlock
     @SuppressWarnings("rawtypes")

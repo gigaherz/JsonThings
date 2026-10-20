@@ -119,8 +119,10 @@ public class FlexBlockType<T extends Block & IFlexBlock>
     }, DefaultTypeProperties.builder().stockProperties(FenceGateBlock.FACING, FenceGateBlock.OPEN, FenceGateBlock.POWERED, FenceGateBlock.IN_WALL));
 
     public static final FlexBlockType<FlexLeavesBlock> LEAVES = register("leaves", data -> {
+        var leafChance = new MutableFloat(0);
         var soundPlayer = new MutableObject<Supplier<AmbientLeavesBlockSoundPlayer>>(AmbientLeavesBlockSoundPlayer::noAmbientSound);
         JParse.begin(data)
+                .ifKey("leaf_chance", any -> any.floatValue().handle(leafChance::setValue))
                 .ifKey("ambient_sound", obj -> {
                     var ambientSound = new MutableObject<Identifier>();
                     var chance = new MutableInt(300);
@@ -135,7 +137,7 @@ public class FlexBlockType<T extends Block & IFlexBlock>
                             .ifKey("nearby_same_leaves_required", any -> any.intValue().min(0).handle(nearbySameLeavesRequired::setValue));
                     soundPlayer.setValue(() -> new AmbientLeavesBlockSoundPlayer(Optional.ofNullable(ambientSound.get()).flatMap(id -> BuiltInRegistries.SOUND_EVENT.get(id)), chance.intValue(), Optional.ofNullable(satisfyingBlocks.get()).map(id -> TagKey.create(Registries.BLOCK, id)), nearbySatisfyingBlocksRequired.intValue(), nearbySameLeavesRequired.intValue()));
                 });
-        return (props, builder) -> new FlexLeavesBlock(props, builder, soundPlayer.get().get());
+        return (props, builder) -> new FlexLeavesBlock(props, builder, leafChance.floatValue(), soundPlayer.get().get());
     }, DefaultTypeProperties.builder().defaultSeeThrough(true).stockProperties(LeavesBlock.DISTANCE, LeavesBlock.PERSISTENT, LeavesBlock.WATERLOGGED));
 
     public static final FlexBlockType<FlexDoorBlock> DOOR = register("door", data -> {
